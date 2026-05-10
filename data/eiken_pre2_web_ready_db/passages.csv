@@ -1,0 +1,411 @@
+﻿passage_id,set_id,passage_no,genre,passage_type,title,title_ja,passage_text,passage_text_ja,key_points_ja,source_style
+SET01-P01,SET01,1,email,email,Practice time change,練習時間の変更,"From: Coach Miller
+To: Soccer Club
+Subject: Practice time change
+
+Hi,
+
+Because the school field is being repaired, Friday’s soccer practice will be held at Green Park. Practice will start at 4:15 p.m., which is thirty minutes later than usual. Please bring your water bottle and wear running shoes because the ground at the park may be hard.
+
+Best,
+Coach Miller","差出人：Coach Miller
+宛先：Soccer Club
+件名：練習時間の変更
+
+こんにちは。
+
+【和訳】Because the school field is being repaired, Friday’s soccer practice will be held at Green Park. Practice will start at 4:15 p.m., which is thirty minutes later than usual. Please bring your water bottle and wear running shoes because the ground at the park may be hard.
+
+それでは。
+【和訳】Coach Miller",メール形式の読解です。日時・場所・理由・持ち物など、本文中の具体的な情報に注目します。,Original passage modeled on EIKEN Grade Pre-2 format; not copied from past exams.
+SET01-P02,SET01,2,email,email,Art museum trip,美術館へのお出かけ,"From: Sofia
+To: Mia
+Subject: Art museum trip
+
+Hi,
+
+I went to the city art museum yesterday with my aunt. There was a special exhibition about animals in paintings. My favorite painting showed a white horse running near the sea. The museum shop sold postcards of famous paintings, so I bought three for my friends.
+
+Best,
+Sofia","差出人：Sofia
+宛先：Mia
+件名：美術館へのお出かけ
+
+こんにちは。
+
+【和訳】I went to the city art museum yesterday with my aunt. There was a special exhibition about animals in paintings. My favorite painting showed a white horse running near the sea. The museum shop sold postcards of famous paintings, so I bought three for my friends.
+
+それでは。
+【和訳】Sofia",メール形式の読解です。日時・場所・理由・持ち物など、本文中の具体的な情報に注目します。,Original passage modeled on EIKEN Grade Pre-2 format; not copied from past exams.
+SET01-P03,SET01,3,short_passage,short_passage,A City Garden,A City Garden,"There was an empty space beside the city hall for many years. Some neighbors wanted to make it useful, so they asked the city to let them make a garden. They planted vegetables and flowers there. During summer, children helped water the plants. The garden became a place where people could meet and talk.","【和訳】There was an empty space beside the city hall for many years. Some neighbors wanted to make it useful, so they asked the city to let them make a garden. They planted vegetables and flowers there. During summer, children helped water the plants. The garden became a place where people could meet and talk.",短文形式の読解です。日時・場所・理由・持ち物など、本文中の具体的な情報に注目します。,Original passage modeled on EIKEN Grade Pre-2 format; not copied from past exams.
+SET01-P04,SET01,4,short_passage,short_passage,Learning from Mistakes,Learning from Mistakes,"Maya joined a speech contest for the first time last year. She forgot some words during her speech and felt disappointed. After the contest, her teacher told her that mistakes could help her learn. Maya practiced speaking more slowly and using note cards. This year, she joined the contest again and spoke with confidence.","【和訳】Maya joined a speech contest for the first time last year. She forgot some words during her speech and felt disappointed. After the contest, her teacher told her that mistakes could help her learn. Maya practiced speaking more slowly and using note cards. This year, she joined the contest again and spoke with confidence.",短文形式の読解です。日時・場所・理由・持ち物など、本文中の具体的な情報に注目します。,Original passage modeled on EIKEN Grade Pre-2 format; not copied from past exams.
+SET01-P05,SET01,5,short_passage,short_passage,The Night Market,The Night Market,"In River City, a night market is held every Friday in summer. People can buy food, handmade bags, and small toys. Local musicians play music near the fountain, so many families enjoy eating dinner outside. The market also helps small shops because they can meet new customers.","【和訳】In River City, a night market is held every Friday in summer. People can buy food, handmade bags, and small toys. Local musicians play music near the fountain, so many families enjoy eating dinner outside. The market also helps small shops because they can meet new customers.",短文形式の読解です。日時・場所・理由・持ち物など、本文中の具体的な情報に注目します。,Original passage modeled on EIKEN Grade Pre-2 format; not copied from past exams.
+SET02-P01,SET02,1,email,email,Beach clean-up,Beach clean-up,"From: Noah
+To: Haru
+Subject: Beach clean-up
+
+Hi,
+
+Our volunteer group is going to clean Sunrise Beach this Sunday. Last month, we found many plastic bags near the water, so this time we will focus on that area. The work will begin at 9 a.m. and finish before noon. Please wear a hat and bring gloves.
+
+Best,
+Noah","差出人：Noah
+宛先：Haru
+件名：Beach clean-up
+
+こんにちは。
+
+【和訳】Our volunteer group is going to clean Sunrise Beach this Sunday. Last month, we found many plastic bags near the water, so this time we will focus on that area. The work will begin at 9 a.m. and finish before noon. Please wear a hat and bring gloves.
+
+それでは。
+【和訳】Noah",メール形式の読解です。日時・場所・理由・持ち物など、本文中の具体的な情報に注目します。,Original passage modeled on EIKEN Grade Pre-2 format; not copied from past exams.
+SET02-P02,SET02,2,email,email,New drama club members,New drama club members,"From: Lily
+To: Grace
+Subject: New drama club members
+
+Hi,
+
+The drama club is looking for new members. Students do not need to have acting experience. We also need people who can make posters, choose music, and help with lights. The first meeting will be on Tuesday after school in the music room.
+
+Best,
+Lily","差出人：Lily
+宛先：Grace
+件名：New drama club members
+
+こんにちは。
+
+【和訳】The drama club is looking for new members. Students do not need to have acting experience. We also need people who can make posters, choose music, and help with lights. The first meeting will be on Tuesday after school in the music room.
+
+それでは。
+【和訳】Lily",メール形式の読解です。日時・場所・理由・持ち物など、本文中の具体的な情報に注目します。,Original passage modeled on EIKEN Grade Pre-2 format; not copied from past exams.
+SET02-P03,SET02,3,short_passage,short_passage,Saving Water at School,Saving Water at School,"A junior high school started a project to save water. First, students checked how much water was used in the bathrooms and science rooms. Then, they made posters asking everyone to turn off taps carefully. After two months, the school used less water than before. The students were happy because their small actions made a difference.","【和訳】A junior high school started a project to save water. First, students checked how much water was used in the bathrooms and science rooms. Then, they made posters asking everyone to turn off taps carefully. After two months, the school used less water than before. The students were happy because their small actions made a difference.",短文形式の読解です。日時・場所・理由・持ち物など、本文中の具体的な情報に注目します。,Original passage modeled on EIKEN Grade Pre-2 format; not copied from past exams.
+SET02-P04,SET02,4,short_passage,short_passage,A New Bus Route,A New Bus Route,"Many people in West Village used to walk twenty minutes to the nearest bus stop. This was difficult for elderly people, especially on rainy days. The town started a new bus route last month. The bus now stops in front of the community center six times a day. More people can visit the library, hospital, and shops easily.","【和訳】Many people in West Village used to walk twenty minutes to the nearest bus stop. This was difficult for elderly people, especially on rainy days. The town started a new bus route last month. The bus now stops in front of the community center six times a day. More people can visit the library, hospital, and shops easily.",短文形式の読解です。日時・場所・理由・持ち物など、本文中の具体的な情報に注目します。,Original passage modeled on EIKEN Grade Pre-2 format; not copied from past exams.
+SET02-P05,SET02,5,short_passage,short_passage,The Photo Contest,The Photo Contest,"The town held a photo contest to show the beauty of local nature. People sent in pictures of flowers, birds, rivers, and mountains. The winning photo was taken by a 13-year-old student. It showed the morning sun over a small lake. The photo will be used on next year’s town calendar.","【和訳】The town held a photo contest to show the beauty of local nature. People sent in pictures of flowers, birds, rivers, and mountains. The winning photo was taken by a 13-year-old student. It showed the morning sun over a small lake. The photo will be used on next year’s town calendar.",短文形式の読解です。日時・場所・理由・持ち物など、本文中の具体的な情報に注目します。,Original passage modeled on EIKEN Grade Pre-2 format; not copied from past exams.
+SET03-P01,SET03,1,email,email,Lost phone,Lost phone,"From: Kevin
+To: Station Staff
+Subject: Lost phone
+
+Hi,
+
+I think I left my phone on the 5:20 train from Easton to Maple City yesterday. It is black and has a blue case. There is a small sticker of a cat on the back. If someone finds it, please contact me by e-mail. I can come to the station after school.
+
+Best,
+Kevin","差出人：Kevin
+宛先：Station Staff
+件名：Lost phone
+
+こんにちは。
+
+【和訳】I think I left my phone on the 5:20 train from Easton to Maple City yesterday. It is black and has a blue case. There is a small sticker of a cat on the back. If someone finds it, please contact me by e-mail. I can come to the station after school.
+
+それでは。
+【和訳】Kevin",メール形式の読解です。日時・場所・理由・持ち物など、本文中の具体的な情報に注目します。,Original passage modeled on EIKEN Grade Pre-2 format; not copied from past exams.
+SET03-P02,SET03,2,email,email,Helping at my uncle’s shop,Helping at my uncle’s shop,"From: Anna
+To: Tom
+Subject: Helping at my uncle’s shop
+
+Hi,
+
+My uncle owns a small flower shop near the hospital. He is busy before Mother’s Day, so I will help him this weekend. I will put flowers into bags and write short cards for customers. I am a little nervous, but my uncle says he will teach me everything.
+
+Best,
+Anna","差出人：Anna
+宛先：Tom
+件名：Helping at my uncle’s shop
+
+こんにちは。
+
+【和訳】My uncle owns a small flower shop near the hospital. He is busy before Mother’s Day, so I will help him this weekend. I will put flowers into bags and write short cards for customers. I am a little nervous, but my uncle says he will teach me everything.
+
+それでは。
+【和訳】Anna",メール形式の読解です。日時・場所・理由・持ち物など、本文中の具体的な情報に注目します。,Original passage modeled on EIKEN Grade Pre-2 format; not copied from past exams.
+SET03-P03,SET03,3,short_passage,short_passage,A Helpful Robot,A Helpful Robot,"A hospital introduced a small robot to guide visitors. The hospital is large, and visitors often had trouble finding rooms. The robot can understand simple questions and show people the way to the reception desk, elevators, and waiting rooms. Nurses say the robot saves time because they can focus more on patients.","【和訳】A hospital introduced a small robot to guide visitors. The hospital is large, and visitors often had trouble finding rooms. The robot can understand simple questions and show people the way to the reception desk, elevators, and waiting rooms. Nurses say the robot saves time because they can focus more on patients.",短文形式の読解です。日時・場所・理由・持ち物など、本文中の具体的な情報に注目します。,Original passage modeled on EIKEN Grade Pre-2 format; not copied from past exams.
+SET03-P04,SET03,4,short_passage,short_passage,Rainwater for Plants,Rainwater for Plants,"At Green Elementary School, students collect rainwater in large tanks. They use the water for flowers and vegetables in the school garden. Before the project started, the school used tap water for the garden every day. Now, students understand that natural resources should be used carefully. They also learn how weather affects plants.","【和訳】At Green Elementary School, students collect rainwater in large tanks. They use the water for flowers and vegetables in the school garden. Before the project started, the school used tap water for the garden every day. Now, students understand that natural resources should be used carefully. They also learn how weather affects plants.",短文形式の読解です。日時・場所・理由・持ち物など、本文中の具体的な情報に注目します。,Original passage modeled on EIKEN Grade Pre-2 format; not copied from past exams.
+SET03-P05,SET03,5,short_passage,short_passage,A Reading Challenge,A Reading Challenge,The town library began a reading challenge for children during summer vacation. Children received a card and got a stamp each time they finished a book. Those who read ten books received a small notebook. The librarians hoped the challenge would help children enjoy reading during the long break.,【和訳】The town library began a reading challenge for children during summer vacation. Children received a card and got a stamp each time they finished a book. Those who read ten books received a small notebook. The librarians hoped the challenge would help children enjoy reading during the long break.,短文形式の読解です。日時・場所・理由・持ち物など、本文中の具体的な情報に注目します。,Original passage modeled on EIKEN Grade Pre-2 format; not copied from past exams.
+SET04-P01,SET04,1,email,email,A surprise party,A surprise party,"From: Daniel
+To: Yuki
+Subject: A surprise party
+
+Hi,
+
+We are planning a surprise birthday party for Ms. Carter next Friday. She has helped our class a lot this year, so we want to thank her. Please bring one photo from a class event. We will put the photos on a large card and give it to her after lunch.
+
+Best,
+Daniel","差出人：Daniel
+宛先：Yuki
+件名：A surprise party
+
+こんにちは。
+
+【和訳】We are planning a surprise birthday party for Ms. Carter next Friday. She has helped our class a lot this year, so we want to thank her. Please bring one photo from a class event. We will put the photos on a large card and give it to her after lunch.
+
+それでは。
+【和訳】Daniel",メール形式の読解です。日時・場所・理由・持ち物など、本文中の具体的な情報に注目します。,Original passage modeled on EIKEN Grade Pre-2 format; not copied from past exams.
+SET04-P02,SET04,2,email,email,Tomorrow’s field trip,Tomorrow’s field trip,"From: School Office
+To: Students
+Subject: Tomorrow’s field trip
+
+Hi,
+
+Tomorrow’s field trip to Blue River Park will still take place, but the weather may be windy. Students should wear warm clothes and bring lunch in a small bag. We will leave school at 8:40 a.m. If it rains heavily in the morning, teachers will make an announcement.
+
+Best,
+School Office","差出人：School Office
+宛先：Students
+件名：Tomorrow’s field trip
+
+こんにちは。
+
+【和訳】Tomorrow’s field trip to Blue River Park will still take place, but the weather may be windy. Students should wear warm clothes and bring lunch in a small bag. We will leave school at 8:40 a.m. If it rains heavily in the morning, teachers will make an announcement.
+
+それでは。
+【和訳】School Office",メール形式の読解です。日時・場所・理由・持ち物など、本文中の具体的な情報に注目します。,Original passage modeled on EIKEN Grade Pre-2 format; not copied from past exams.
+SET04-P03,SET04,3,short_passage,short_passage,Music in the Park,Music in the Park,"Every spring, university students give free concerts in Central Park. They play classical music and popular songs. People bring blankets and sit on the grass while listening. Last year, it rained on the first concert day, so the students moved the concert to the community hall. This year, they will prepare the hall again in case of bad weather.","【和訳】Every spring, university students give free concerts in Central Park. They play classical music and popular songs. People bring blankets and sit on the grass while listening. Last year, it rained on the first concert day, so the students moved the concert to the community hall. This year, they will prepare the hall again in case of bad weather.",短文形式の読解です。日時・場所・理由・持ち物など、本文中の具体的な情報に注目します。,Original passage modeled on EIKEN Grade Pre-2 format; not copied from past exams.
+SET04-P04,SET04,4,short_passage,short_passage,The Bicycle Lesson,The Bicycle Lesson,"Some children in North Town did not know how to ride bicycles safely. A police officer and two volunteers held a lesson at the school playground. They taught children how to check brakes, use hand signals, and wear helmets correctly. After the lesson, each child received a small safety card.","【和訳】Some children in North Town did not know how to ride bicycles safely. A police officer and two volunteers held a lesson at the school playground. They taught children how to check brakes, use hand signals, and wear helmets correctly. After the lesson, each child received a small safety card.",短文形式の読解です。日時・場所・理由・持ち物など、本文中の具体的な情報に注目します。,Original passage modeled on EIKEN Grade Pre-2 format; not copied from past exams.
+SET04-P05,SET04,5,short_passage,short_passage,A Local Guide,A Local Guide,"Hiro’s town has many old buildings, but few visitors knew their history. Hiro and his classmates made a simple guidebook in English. They added short explanations and maps. The guidebook was put at the tourist information center. Some visitors said it helped them enjoy walking around the town.","【和訳】Hiro’s town has many old buildings, but few visitors knew their history. Hiro and his classmates made a simple guidebook in English. They added short explanations and maps. The guidebook was put at the tourist information center. Some visitors said it helped them enjoy walking around the town.",短文形式の読解です。日時・場所・理由・持ち物など、本文中の具体的な情報に注目します。,Original passage modeled on EIKEN Grade Pre-2 format; not copied from past exams.
+SET05-P01,SET05,1,email,email,Helping at the school festival,Helping at the school festival,"From: Emily
+To: Ryan
+Subject: Helping at the school festival
+
+Hi,
+
+Our class will sell handmade cookies at the school festival this Saturday. We need students to help decorate the table in the morning and sell cookies in the afternoon. The money will be used to buy new books for the school library. Please come to Room 3B at 8:30 a.m. if you can help. Bring an apron if you have one.
+
+Best,
+Emily","差出人：Emily
+宛先：Ryan
+件名：Helping at the school festival
+
+こんにちは。
+
+【和訳】Our class will sell handmade cookies at the school festival this Saturday. We need students to help decorate the table in the morning and sell cookies in the afternoon. The money will be used to buy new books for the school library. Please come to Room 3B at 8:30 a.m. if you can help. Bring an apron if you have one.
+
+それでは。
+【和訳】Emily",メール形式の読解です。日時・場所・理由・持ち物など、本文中の具体的な情報に注目します。,Original passage modeled on EIKEN Grade Pre-2 format; not copied from past exams.
+SET05-P02,SET05,2,email,email,Library book return day,Library book return day,"From: Mr. Wilson
+To: Class 2A
+Subject: Library book return day
+
+Hi,
+
+Next Wednesday will be library book return day. Students should bring back all books they borrowed before spring vacation. The library will be closed in the morning because the staff will check the books. It will open again after lunch, and students can borrow new books then.
+
+Best,
+Mr. Wilson","差出人：Mr. Wilson
+宛先：Class 2A
+件名：Library book return day
+
+こんにちは。
+
+【和訳】Next Wednesday will be library book return day. Students should bring back all books they borrowed before spring vacation. The library will be closed in the morning because the staff will check the books. It will open again after lunch, and students can borrow new books then.
+
+それでは。
+【和訳】Mr. Wilson",メール形式の読解です。日時・場所・理由・持ち物など、本文中の具体的な情報に注目します。,Original passage modeled on EIKEN Grade Pre-2 format; not copied from past exams.
+SET05-P03,SET05,3,short_passage,short_passage,A Small Bakery,A Small Bakery,"A small bakery in Hill Town almost closed last year because fewer people were buying bread there. The owner, Mr. Clark, decided to try something new. He asked customers what kinds of bread they wanted and started selling bread made with local fruit. Soon, many people came to the bakery again. Mr. Clark now teaches baking classes on weekends, and students from the town often join them.","【和訳】A small bakery in Hill Town almost closed last year because fewer people were buying bread there. The owner, Mr. Clark, decided to try something new. He asked customers what kinds of bread they wanted and started selling bread made with local fruit. Soon, many people came to the bakery again. Mr. Clark now teaches baking classes on weekends, and students from the town often join them.",短文形式の読解です。日時・場所・理由・持ち物など、本文中の具体的な情報に注目します。,Original passage modeled on EIKEN Grade Pre-2 format; not copied from past exams.
+SET05-P04,SET05,4,short_passage,short_passage,The Walking Bus,The Walking Bus,"At one elementary school, many parents were worried because the road near the school was busy. A teacher suggested a walking bus. In a walking bus, adults walk with groups of children to school. The children meet at several points on the way, just like bus stops. Now, more students walk safely to school, and they get exercise every morning.","【和訳】At one elementary school, many parents were worried because the road near the school was busy. A teacher suggested a walking bus. In a walking bus, adults walk with groups of children to school. The children meet at several points on the way, just like bus stops. Now, more students walk safely to school, and they get exercise every morning.",短文形式の読解です。日時・場所・理由・持ち物など、本文中の具体的な情報に注目します。,Original passage modeled on EIKEN Grade Pre-2 format; not copied from past exams.
+SET05-P05,SET05,5,short_passage,short_passage,Old Computers,Old Computers,"Many people throw away computers when they buy new ones. However, some old computers can still be useful. A group of university students collects them, repairs them, and gives them to children who do not have computers at home. The students also teach the children how to use the Internet safely. Their project helps children study and reduces waste.","【和訳】Many people throw away computers when they buy new ones. However, some old computers can still be useful. A group of university students collects them, repairs them, and gives them to children who do not have computers at home. The students also teach the children how to use the Internet safely. Their project helps children study and reduces waste.",短文形式の読解です。日時・場所・理由・持ち物など、本文中の具体的な情報に注目します。,Original passage modeled on EIKEN Grade Pre-2 format; not copied from past exams.
+SET06-P01,SET06,1,email,email,Practice time change,練習時間の変更,"From: Coach Miller
+To: Soccer Club
+Subject: Practice time change
+
+Hi,
+
+Because the school field is being repaired, Friday’s soccer practice will be held at Green Park. Practice will start at 4:15 p.m., which is thirty minutes later than usual. Please bring your water bottle and wear running shoes because the ground at the park may be hard.
+
+Best,
+Coach Miller","差出人：Coach Miller
+宛先：Soccer Club
+件名：練習時間の変更
+
+こんにちは。
+
+【和訳】Because the school field is being repaired, Friday’s soccer practice will be held at Green Park. Practice will start at 4:15 p.m., which is thirty minutes later than usual. Please bring your water bottle and wear running shoes because the ground at the park may be hard.
+
+それでは。
+【和訳】Coach Miller",メール形式の読解です。日時・場所・理由・持ち物など、本文中の具体的な情報に注目します。,Original passage modeled on EIKEN Grade Pre-2 format; not copied from past exams.
+SET06-P02,SET06,2,email,email,Art museum trip,美術館へのお出かけ,"From: Sofia
+To: Mia
+Subject: Art museum trip
+
+Hi,
+
+I went to the city art museum yesterday with my aunt. There was a special exhibition about animals in paintings. My favorite painting showed a white horse running near the sea. The museum shop sold postcards of famous paintings, so I bought three for my friends.
+
+Best,
+Sofia","差出人：Sofia
+宛先：Mia
+件名：美術館へのお出かけ
+
+こんにちは。
+
+【和訳】I went to the city art museum yesterday with my aunt. There was a special exhibition about animals in paintings. My favorite painting showed a white horse running near the sea. The museum shop sold postcards of famous paintings, so I bought three for my friends.
+
+それでは。
+【和訳】Sofia",メール形式の読解です。日時・場所・理由・持ち物など、本文中の具体的な情報に注目します。,Original passage modeled on EIKEN Grade Pre-2 format; not copied from past exams.
+SET06-P03,SET06,3,short_passage,short_passage,A City Garden,A City Garden,"There was an empty space beside the city hall for many years. Some neighbors wanted to make it useful, so they asked the city to let them make a garden. They planted vegetables and flowers there. During summer, children helped water the plants. The garden became a place where people could meet and talk.","【和訳】There was an empty space beside the city hall for many years. Some neighbors wanted to make it useful, so they asked the city to let them make a garden. They planted vegetables and flowers there. During summer, children helped water the plants. The garden became a place where people could meet and talk.",短文形式の読解です。日時・場所・理由・持ち物など、本文中の具体的な情報に注目します。,Original passage modeled on EIKEN Grade Pre-2 format; not copied from past exams.
+SET06-P04,SET06,4,short_passage,short_passage,Learning from Mistakes,Learning from Mistakes,"Maya joined a speech contest for the first time last year. She forgot some words during her speech and felt disappointed. After the contest, her teacher told her that mistakes could help her learn. Maya practiced speaking more slowly and using note cards. This year, she joined the contest again and spoke with confidence.","【和訳】Maya joined a speech contest for the first time last year. She forgot some words during her speech and felt disappointed. After the contest, her teacher told her that mistakes could help her learn. Maya practiced speaking more slowly and using note cards. This year, she joined the contest again and spoke with confidence.",短文形式の読解です。日時・場所・理由・持ち物など、本文中の具体的な情報に注目します。,Original passage modeled on EIKEN Grade Pre-2 format; not copied from past exams.
+SET06-P05,SET06,5,short_passage,short_passage,The Night Market,The Night Market,"In River City, a night market is held every Friday in summer. People can buy food, handmade bags, and small toys. Local musicians play music near the fountain, so many families enjoy eating dinner outside. The market also helps small shops because they can meet new customers.","【和訳】In River City, a night market is held every Friday in summer. People can buy food, handmade bags, and small toys. Local musicians play music near the fountain, so many families enjoy eating dinner outside. The market also helps small shops because they can meet new customers.",短文形式の読解です。日時・場所・理由・持ち物など、本文中の具体的な情報に注目します。,Original passage modeled on EIKEN Grade Pre-2 format; not copied from past exams.
+SET07-P01,SET07,1,email,email,Beach clean-up,Beach clean-up,"From: Noah
+To: Haru
+Subject: Beach clean-up
+
+Hi,
+
+Our volunteer group is going to clean Sunrise Beach this Sunday. Last month, we found many plastic bags near the water, so this time we will focus on that area. The work will begin at 9 a.m. and finish before noon. Please wear a hat and bring gloves.
+
+Best,
+Noah","差出人：Noah
+宛先：Haru
+件名：Beach clean-up
+
+こんにちは。
+
+【和訳】Our volunteer group is going to clean Sunrise Beach this Sunday. Last month, we found many plastic bags near the water, so this time we will focus on that area. The work will begin at 9 a.m. and finish before noon. Please wear a hat and bring gloves.
+
+それでは。
+【和訳】Noah",メール形式の読解です。日時・場所・理由・持ち物など、本文中の具体的な情報に注目します。,Original passage modeled on EIKEN Grade Pre-2 format; not copied from past exams.
+SET07-P02,SET07,2,email,email,New drama club members,New drama club members,"From: Lily
+To: Grace
+Subject: New drama club members
+
+Hi,
+
+The drama club is looking for new members. Students do not need to have acting experience. We also need people who can make posters, choose music, and help with lights. The first meeting will be on Tuesday after school in the music room.
+
+Best,
+Lily","差出人：Lily
+宛先：Grace
+件名：New drama club members
+
+こんにちは。
+
+【和訳】The drama club is looking for new members. Students do not need to have acting experience. We also need people who can make posters, choose music, and help with lights. The first meeting will be on Tuesday after school in the music room.
+
+それでは。
+【和訳】Lily",メール形式の読解です。日時・場所・理由・持ち物など、本文中の具体的な情報に注目します。,Original passage modeled on EIKEN Grade Pre-2 format; not copied from past exams.
+SET07-P03,SET07,3,short_passage,short_passage,Saving Water at School,Saving Water at School,"A junior high school started a project to save water. First, students checked how much water was used in the bathrooms and science rooms. Then, they made posters asking everyone to turn off taps carefully. After two months, the school used less water than before. The students were happy because their small actions made a difference.","【和訳】A junior high school started a project to save water. First, students checked how much water was used in the bathrooms and science rooms. Then, they made posters asking everyone to turn off taps carefully. After two months, the school used less water than before. The students were happy because their small actions made a difference.",短文形式の読解です。日時・場所・理由・持ち物など、本文中の具体的な情報に注目します。,Original passage modeled on EIKEN Grade Pre-2 format; not copied from past exams.
+SET07-P04,SET07,4,short_passage,short_passage,A New Bus Route,A New Bus Route,"Many people in West Village used to walk twenty minutes to the nearest bus stop. This was difficult for elderly people, especially on rainy days. The town started a new bus route last month. The bus now stops in front of the community center six times a day. More people can visit the library, hospital, and shops easily.","【和訳】Many people in West Village used to walk twenty minutes to the nearest bus stop. This was difficult for elderly people, especially on rainy days. The town started a new bus route last month. The bus now stops in front of the community center six times a day. More people can visit the library, hospital, and shops easily.",短文形式の読解です。日時・場所・理由・持ち物など、本文中の具体的な情報に注目します。,Original passage modeled on EIKEN Grade Pre-2 format; not copied from past exams.
+SET07-P05,SET07,5,short_passage,short_passage,The Photo Contest,The Photo Contest,"The town held a photo contest to show the beauty of local nature. People sent in pictures of flowers, birds, rivers, and mountains. The winning photo was taken by a 13-year-old student. It showed the morning sun over a small lake. The photo will be used on next year’s town calendar.","【和訳】The town held a photo contest to show the beauty of local nature. People sent in pictures of flowers, birds, rivers, and mountains. The winning photo was taken by a 13-year-old student. It showed the morning sun over a small lake. The photo will be used on next year’s town calendar.",短文形式の読解です。日時・場所・理由・持ち物など、本文中の具体的な情報に注目します。,Original passage modeled on EIKEN Grade Pre-2 format; not copied from past exams.
+SET08-P01,SET08,1,email,email,Lost phone,Lost phone,"From: Kevin
+To: Station Staff
+Subject: Lost phone
+
+Hi,
+
+I think I left my phone on the 5:20 train from Easton to Maple City yesterday. It is black and has a blue case. There is a small sticker of a cat on the back. If someone finds it, please contact me by e-mail. I can come to the station after school.
+
+Best,
+Kevin","差出人：Kevin
+宛先：Station Staff
+件名：Lost phone
+
+こんにちは。
+
+【和訳】I think I left my phone on the 5:20 train from Easton to Maple City yesterday. It is black and has a blue case. There is a small sticker of a cat on the back. If someone finds it, please contact me by e-mail. I can come to the station after school.
+
+それでは。
+【和訳】Kevin",メール形式の読解です。日時・場所・理由・持ち物など、本文中の具体的な情報に注目します。,Original passage modeled on EIKEN Grade Pre-2 format; not copied from past exams.
+SET08-P02,SET08,2,email,email,Helping at my uncle’s shop,Helping at my uncle’s shop,"From: Anna
+To: Tom
+Subject: Helping at my uncle’s shop
+
+Hi,
+
+My uncle owns a small flower shop near the hospital. He is busy before Mother’s Day, so I will help him this weekend. I will put flowers into bags and write short cards for customers. I am a little nervous, but my uncle says he will teach me everything.
+
+Best,
+Anna","差出人：Anna
+宛先：Tom
+件名：Helping at my uncle’s shop
+
+こんにちは。
+
+【和訳】My uncle owns a small flower shop near the hospital. He is busy before Mother’s Day, so I will help him this weekend. I will put flowers into bags and write short cards for customers. I am a little nervous, but my uncle says he will teach me everything.
+
+それでは。
+【和訳】Anna",メール形式の読解です。日時・場所・理由・持ち物など、本文中の具体的な情報に注目します。,Original passage modeled on EIKEN Grade Pre-2 format; not copied from past exams.
+SET08-P03,SET08,3,short_passage,short_passage,A Helpful Robot,A Helpful Robot,"A hospital introduced a small robot to guide visitors. The hospital is large, and visitors often had trouble finding rooms. The robot can understand simple questions and show people the way to the reception desk, elevators, and waiting rooms. Nurses say the robot saves time because they can focus more on patients.","【和訳】A hospital introduced a small robot to guide visitors. The hospital is large, and visitors often had trouble finding rooms. The robot can understand simple questions and show people the way to the reception desk, elevators, and waiting rooms. Nurses say the robot saves time because they can focus more on patients.",短文形式の読解です。日時・場所・理由・持ち物など、本文中の具体的な情報に注目します。,Original passage modeled on EIKEN Grade Pre-2 format; not copied from past exams.
+SET08-P04,SET08,4,short_passage,short_passage,Rainwater for Plants,Rainwater for Plants,"At Green Elementary School, students collect rainwater in large tanks. They use the water for flowers and vegetables in the school garden. Before the project started, the school used tap water for the garden every day. Now, students understand that natural resources should be used carefully. They also learn how weather affects plants.","【和訳】At Green Elementary School, students collect rainwater in large tanks. They use the water for flowers and vegetables in the school garden. Before the project started, the school used tap water for the garden every day. Now, students understand that natural resources should be used carefully. They also learn how weather affects plants.",短文形式の読解です。日時・場所・理由・持ち物など、本文中の具体的な情報に注目します。,Original passage modeled on EIKEN Grade Pre-2 format; not copied from past exams.
+SET08-P05,SET08,5,short_passage,short_passage,A Reading Challenge,A Reading Challenge,The town library began a reading challenge for children during summer vacation. Children received a card and got a stamp each time they finished a book. Those who read ten books received a small notebook. The librarians hoped the challenge would help children enjoy reading during the long break.,【和訳】The town library began a reading challenge for children during summer vacation. Children received a card and got a stamp each time they finished a book. Those who read ten books received a small notebook. The librarians hoped the challenge would help children enjoy reading during the long break.,短文形式の読解です。日時・場所・理由・持ち物など、本文中の具体的な情報に注目します。,Original passage modeled on EIKEN Grade Pre-2 format; not copied from past exams.
+SET09-P01,SET09,1,email,email,A surprise party,A surprise party,"From: Daniel
+To: Yuki
+Subject: A surprise party
+
+Hi,
+
+We are planning a surprise birthday party for Ms. Carter next Friday. She has helped our class a lot this year, so we want to thank her. Please bring one photo from a class event. We will put the photos on a large card and give it to her after lunch.
+
+Best,
+Daniel","差出人：Daniel
+宛先：Yuki
+件名：A surprise party
+
+こんにちは。
+
+【和訳】We are planning a surprise birthday party for Ms. Carter next Friday. She has helped our class a lot this year, so we want to thank her. Please bring one photo from a class event. We will put the photos on a large card and give it to her after lunch.
+
+それでは。
+【和訳】Daniel",メール形式の読解です。日時・場所・理由・持ち物など、本文中の具体的な情報に注目します。,Original passage modeled on EIKEN Grade Pre-2 format; not copied from past exams.
+SET09-P02,SET09,2,email,email,Tomorrow’s field trip,Tomorrow’s field trip,"From: School Office
+To: Students
+Subject: Tomorrow’s field trip
+
+Hi,
+
+Tomorrow’s field trip to Blue River Park will still take place, but the weather may be windy. Students should wear warm clothes and bring lunch in a small bag. We will leave school at 8:40 a.m. If it rains heavily in the morning, teachers will make an announcement.
+
+Best,
+School Office","差出人：School Office
+宛先：Students
+件名：Tomorrow’s field trip
+
+こんにちは。
+
+【和訳】Tomorrow’s field trip to Blue River Park will still take place, but the weather may be windy. Students should wear warm clothes and bring lunch in a small bag. We will leave school at 8:40 a.m. If it rains heavily in the morning, teachers will make an announcement.
+
+それでは。
+【和訳】School Office",メール形式の読解です。日時・場所・理由・持ち物など、本文中の具体的な情報に注目します。,Original passage modeled on EIKEN Grade Pre-2 format; not copied from past exams.
+SET09-P03,SET09,3,short_passage,short_passage,Music in the Park,Music in the Park,"Every spring, university students give free concerts in Central Park. They play classical music and popular songs. People bring blankets and sit on the grass while listening. Last year, it rained on the first concert day, so the students moved the concert to the community hall. This year, they will prepare the hall again in case of bad weather.","【和訳】Every spring, university students give free concerts in Central Park. They play classical music and popular songs. People bring blankets and sit on the grass while listening. Last year, it rained on the first concert day, so the students moved the concert to the community hall. This year, they will prepare the hall again in case of bad weather.",短文形式の読解です。日時・場所・理由・持ち物など、本文中の具体的な情報に注目します。,Original passage modeled on EIKEN Grade Pre-2 format; not copied from past exams.
+SET09-P04,SET09,4,short_passage,short_passage,The Bicycle Lesson,The Bicycle Lesson,"Some children in North Town did not know how to ride bicycles safely. A police officer and two volunteers held a lesson at the school playground. They taught children how to check brakes, use hand signals, and wear helmets correctly. After the lesson, each child received a small safety card.","【和訳】Some children in North Town did not know how to ride bicycles safely. A police officer and two volunteers held a lesson at the school playground. They taught children how to check brakes, use hand signals, and wear helmets correctly. After the lesson, each child received a small safety card.",短文形式の読解です。日時・場所・理由・持ち物など、本文中の具体的な情報に注目します。,Original passage modeled on EIKEN Grade Pre-2 format; not copied from past exams.
+SET09-P05,SET09,5,short_passage,short_passage,A Local Guide,A Local Guide,"Hiro’s town has many old buildings, but few visitors knew their history. Hiro and his classmates made a simple guidebook in English. They added short explanations and maps. The guidebook was put at the tourist information center. Some visitors said it helped them enjoy walking around the town.","【和訳】Hiro’s town has many old buildings, but few visitors knew their history. Hiro and his classmates made a simple guidebook in English. They added short explanations and maps. The guidebook was put at the tourist information center. Some visitors said it helped them enjoy walking around the town.",短文形式の読解です。日時・場所・理由・持ち物など、本文中の具体的な情報に注目します。,Original passage modeled on EIKEN Grade Pre-2 format; not copied from past exams.
+SET10-P01,SET10,1,email,email,Helping at the school festival,Helping at the school festival,"From: Emily
+To: Ryan
+Subject: Helping at the school festival
+
+Hi,
+
+Our class will sell handmade cookies at the school festival this Saturday. We need students to help decorate the table in the morning and sell cookies in the afternoon. The money will be used to buy new books for the school library. Please come to Room 3B at 8:30 a.m. if you can help. Bring an apron if you have one.
+
+Best,
+Emily","差出人：Emily
+宛先：Ryan
+件名：Helping at the school festival
+
+こんにちは。
+
+【和訳】Our class will sell handmade cookies at the school festival this Saturday. We need students to help decorate the table in the morning and sell cookies in the afternoon. The money will be used to buy new books for the school library. Please come to Room 3B at 8:30 a.m. if you can help. Bring an apron if you have one.
+
+それでは。
+【和訳】Emily",メール形式の読解です。日時・場所・理由・持ち物など、本文中の具体的な情報に注目します。,Original passage modeled on EIKEN Grade Pre-2 format; not copied from past exams.
+SET10-P02,SET10,2,email,email,Library book return day,Library book return day,"From: Mr. Wilson
+To: Class 2A
+Subject: Library book return day
+
+Hi,
+
+Next Wednesday will be library book return day. Students should bring back all books they borrowed before spring vacation. The library will be closed in the morning because the staff will check the books. It will open again after lunch, and students can borrow new books then.
+
+Best,
+Mr. Wilson","差出人：Mr. Wilson
+宛先：Class 2A
+件名：Library book return day
+
+こんにちは。
+
+【和訳】Next Wednesday will be library book return day. Students should bring back all books they borrowed before spring vacation. The library will be closed in the morning because the staff will check the books. It will open again after lunch, and students can borrow new books then.
+
+それでは。
+【和訳】Mr. Wilson",メール形式の読解です。日時・場所・理由・持ち物など、本文中の具体的な情報に注目します。,Original passage modeled on EIKEN Grade Pre-2 format; not copied from past exams.
+SET10-P03,SET10,3,short_passage,short_passage,A Small Bakery,A Small Bakery,"A small bakery in Hill Town almost closed last year because fewer people were buying bread there. The owner, Mr. Clark, decided to try something new. He asked customers what kinds of bread they wanted and started selling bread made with local fruit. Soon, many people came to the bakery again. Mr. Clark now teaches baking classes on weekends, and students from the town often join them.","【和訳】A small bakery in Hill Town almost closed last year because fewer people were buying bread there. The owner, Mr. Clark, decided to try something new. He asked customers what kinds of bread they wanted and started selling bread made with local fruit. Soon, many people came to the bakery again. Mr. Clark now teaches baking classes on weekends, and students from the town often join them.",短文形式の読解です。日時・場所・理由・持ち物など、本文中の具体的な情報に注目します。,Original passage modeled on EIKEN Grade Pre-2 format; not copied from past exams.
+SET10-P04,SET10,4,short_passage,short_passage,The Walking Bus,The Walking Bus,"At one elementary school, many parents were worried because the road near the school was busy. A teacher suggested a walking bus. In a walking bus, adults walk with groups of children to school. The children meet at several points on the way, just like bus stops. Now, more students walk safely to school, and they get exercise every morning.","【和訳】At one elementary school, many parents were worried because the road near the school was busy. A teacher suggested a walking bus. In a walking bus, adults walk with groups of children to school. The children meet at several points on the way, just like bus stops. Now, more students walk safely to school, and they get exercise every morning.",短文形式の読解です。日時・場所・理由・持ち物など、本文中の具体的な情報に注目します。,Original passage modeled on EIKEN Grade Pre-2 format; not copied from past exams.
+SET10-P05,SET10,5,short_passage,short_passage,Old Computers,Old Computers,"Many people throw away computers when they buy new ones. However, some old computers can still be useful. A group of university students collects them, repairs them, and gives them to children who do not have computers at home. The students also teach the children how to use the Internet safely. Their project helps children study and reduces waste.","【和訳】Many people throw away computers when they buy new ones. However, some old computers can still be useful. A group of university students collects them, repairs them, and gives them to children who do not have computers at home. The students also teach the children how to use the Internet safely. Their project helps children study and reduces waste.",短文形式の読解です。日時・場所・理由・持ち物など、本文中の具体的な情報に注目します。,Original passage modeled on EIKEN Grade Pre-2 format; not copied from past exams.

@@ -1,0 +1,750 @@
+ID,English,category,Japanese,Chinese,Example_English short,Example_English,Example_Japanese,Example_Chinese,Importance,mistake time,Frequncy in test
+1,let,??,?に…させる,?；允?,let me do,My mother let me play video games after homework.,母は宿題を終えた後でゲームをさせてくれた。,???我在做完作?后玩游?。,A,0,A
+2,decide,??,決心する,决定,decide to do,I decided to study English every day.,私は毎日英語を勉強することに決めた。,我决定?天学?英?。,A,0,A
+3,leave,??,置いたままにする；去離れる,留下；??,leave open,Please leave the window open.,,?把窗??着。,A,0,A
+4,long,??,切望する,?望,long for,She longed for peace and quiet.,,??望和平与安静。,A,0,A
+5,practice,??,練習する,??,practice doing,He practices playing the guitar every night.,,他?天?上???吉他。,A,0,A
+6,move,??,引っ越す；動かす,搬家；移?,move to,We moved to Yokohama last year.,,我?去年搬到了横?。,A,0,A
+7,pay,??,支払う,支付,pay for,I paid 500 yen for the lunch.,,我?午餐支付了500日元。,A,0,A
+8,change,??,変える；変わる,改?,change into,Water changes into ice in winter.,,水在冬天会?成冰。,A,0,A
+9,spell,??,つづる,?写,spell a word,Can you spell your name in English?,,?能用英??写?的名字?？,A,0,A
+10,grow,??,成長する；増える,成?；增加,grow quickly,Vegetables grow quickly in summer.,,蔬菜在夏天?得很快。,A,0,A
+11,spend,??,費やす,花?,spend time doing,She spends a lot of time reading books.,,?花很多????。,A,0,A
+12,order,??,注文する；命じる,点餐；命令,order food,We ordered pizza for dinner.,,我??餐点了披?。,A,0,A
+13,share,??,共有する,分享；共用,share with,I shared my umbrella with my friend.,,我和朋友共用了一把?。,A,0,A
+14,check,??,確かめる；調べる,??,check carefully,Please check your homework carefully.,,?仔????的作?。,A,0,A
+15,forget,??,忘れる,忘?,forget to do,I forgot to bring my notebook today.,,我今天忘了???本。,A,0,A
+16,guide,??,案内する,引?；??,guide around,He guided us around Tokyo Station.,,他?我?参?了?京站。,A,0,A
+17,hold,??,開催する；持つ,??；拿着,hold a meeting / hold a party,Our school will hold a sports festival next month.,,我?学校下个月将????会。,A,0,A
+18,report,??,報道する；報告する,?道；?告,report to,She reported the accident to the police.,,?向警察?告了事故。,A,0,A
+19,return,??,帰る；戻る,返回；??,return to,He returned to Japan last week.,,他上周回到了日本。,A,0,A
+20,seem,??,?のようだ,看起来；似乎,seem to be,She seems very happy today.,,?今天看起来很?心。,A,0,A
+21,train,??,訓練する,??,train dogs,They train dogs to help people.,,他???狗?助人?。,A,0,A
+22,wait,??,待つ,等待,wait for,We waited for the bus in the rain.,,我?在雨中等公交?。,A,0,A
+23,invite,??,招待する,邀?,invite A to B,I invited my friend to my birthday party.,,我邀?朋友来我的生日派?。,A,0,A
+24,sound,??,?のように聞こえる,听起来,sound interesting,Your idea sounds interesting.,,?的想法听起来很有趣。,A,0,A
+25,taste,??,味がする,?起来,taste sweet,This cake tastes sweet.,,?个蛋??起来很甜。,A,0,A
+26,worry,??,心配する,担心,worry about,Don't worry about the test.,,不要担心考?。,A,0,A
+27,join,??,参加する,加入；参加,join a club,Why don't you join our club?,,??什?不加入我?的社?？,A,0,A
+28,lose,??,失う；負ける,失去；?,lose a game,Our team lost the game yesterday.,,我??昨天?了比?。,A,0,A
+29,remember,??,覚えている,?得,remember doing,I remember meeting her before.,,我?得以前???。,A,0,A
+30,climb,??,登る,攀登,climb a mountain,They climbed the mountain together.,,他?一起爬山。,A,0,A
+31,exchange,??,交換する,交?,exchange A for B,We exchanged gifts at Christmas.,,我?在???交?了礼物。,A,0,A
+32,offer,??,申し出る,提供；主?提出,offer help,He offered me some help.,,他主?提出?助我。,A,0,A
+33,perform,??,上演する；演じる,表演,perform a play,The students performed a play on stage.,,学生?在舞台上表演了一出?。,A,0,A
+34,pick,??,摘む；選ぶ,摘；??,pick flowers,She picked some flowers in the park.,,?在公?摘了一些花。,A,0,A
+35,repair,??,修理する,修理,repair a chair,My father repaired the broken chair.,,我??修好了坏掉的椅子。,A,0,A
+36,interview,??,インタビューする,采?；面?,interview a person,The reporter interviewed the actor.,,?者采?了那位演?。,A,0,A
+37,travel,??,旅行する,旅行,travel around,I want to travel around Europe someday.,,我想有一天去欧洲旅行。,A,0,A
+38,expect,??,予想する；期待する,期待；?料,expect to do,We expect it to rain tomorrow.,,我???明天会下雨。,A,0,A
+39,miss,??,逃す；恋しく思う,??；想念,miss the train,I missed the last train last night.,,我昨???了末班?。,A,0,A
+40,prepare,??,準備する,准?,prepare for,She prepared dinner for her family.,,??家人准?了??。,A,0,A
+41,win,??,勝ち取る,?得,win a match,Our school won the soccer match.,,我?学校?得了足球比?。,A,0,A
+42,carry,??,運ぶ,搬?；携?,carry a box,He carried the heavy box upstairs.,,他把重箱子搬上楼。,A,0,A
+43,build,??,建てる,建造,build a bridge,They built a new bridge near the station.,,他?在?站附近建了一座新?。,A,0,A
+44,care,??,気にかける,在意；?心,care about,She cares about her friends very much.,,?非常?心朋友。,A,0,A
+45,cost,??,費用がかかる,花?,cost money,"This bike costs 30,000 yen.",,??自行?要3万日元。,A,0,A
+46,create,??,創造する,?造,create art,The artist created a beautiful painting.,,那位??家?作了一幅美?的画。,A,0,A
+47,design,??,デザインする,??,design a website,She designed a new website for the company.,,??公司??了新网站。,A,0,A
+48,increase,??,増加する,增加,increase dramatically,The number of tourists increased this year.,,今年游客数量增加了。,A,0,A
+49,introduce,??,紹介する,介?,introduce A to B,Let me introduce my teacher to you.,,?我把老?介???。,A,0,A
+50,prefer,??,?の方を好む,更喜?,prefer A to B,I prefer tea to coffee.,,比起??，我更喜?茶。,A,0,A
+51,relax,??,くつろぐ,放松,relax after work,I like to relax after dinner.,,我喜???后放松。,A,0,A
+52,run,??,走る；経営する,?；??,run a business,Her family runs a small restaurant.,,?家??一家小餐?。,A,0,A
+53,save,??,節約する；救う,?省；拯救,save energy,We should save water and electricity.,,我?????水?。,A,0,A
+54,add,??,加える,添加；增加,add A to B,Please add your name to the list.,,?把?的名字加到名?里。,A,0,A
+55,agree,??,賛成する；同意する,同意；?成,agree with,I agree with your idea.,,我同意?的想法。,A,0,A
+56,appear,??,現れる；?のように見える,出?；?得,appear on,The sun appeared from behind the clouds.,,太?从云后出?了。,A,0,A
+57,borrow,??,借りる,借入；借用,borrow A from B,Can I borrow your dictionary?,,我可以借?的?典?？,A,0,A
+58,die,??,死ぬ,死亡,die of/from,Many plants died because of the heat.,,?多植物因?炎?而枯死了。,A,0,A
+59,improve,??,改良する；良くなる,改善；提高,improve quality,She improved her English by reading books.,,?通???提高了英?水平。,A,0,A
+60,mean,??,意味する,意思是；意味着,What does it mean?,What does this word mean?,,?个??是什?意思？,A,0,A
+61,mind,??,気にする；嫌がる,介意；在意,mind doing,I don't mind waiting here.,,我不介意在?里等。,A,0,A
+62,plant,??,植える；種をまく,?植；播?,plant flowers,We planted flowers in the garden.,,我?在花?里?了花。,A,0,A
+63,receive,??,受け取る,收到,receive A from B,I received a letter from my friend.,,我收到了朋友的一封信。,A,0,A
+64,rent,??,借りる；貸す,租借；出租,rent a house,They rented a house near the station.,,他?在?站附近租了一?房子。,A,0,A
+65,reply,??,返事をする；答える,回?；回答,reply to,Please reply to my email today.,,?今天回?我的?件。,A,0,A
+66,allow,??,許す,允?,allow A to do,My parents allow me to use the computer.,,父母允?我使用??。,A,0,A
+67,bear,??,我慢する,忍受,bear pain,I can't bear this noise anymore.,,我再也忍受不了?个噪音了。,A,0,A
+68,cause,??,引き起こす,引起；?致,cause trouble,Heavy rain caused a traffic jam.,,大雨?致了交通堵塞。,A,0,A
+69,continue,??,続ける,??,continue to do / doing,He continued to study after dinner.,,他??后??学?。,A,0,A
+70,dress,??,服を着る；服を着せる,穿衣；?……穿衣,dress well,She dressed quickly and left home.,,?迅速穿好衣服??了家。,A,0,A
+71,follow,??,ついていく；従う,跟随；遵循,follow me,Please follow the teacher's instructions.,,?遵循老?的指示。,A,0,A
+72,graduate,??,卒業する,??,graduate from,My brother graduated from college last year.,,我哥哥去年大学??了。,A,0,A
+73,guess,??,推測する,猜?；推?,guess his age,Can you guess the answer?,,?能猜出答案?？,A,0,A
+74,marry,??,結婚する,?婚,marry someone,She married a doctor last spring.,,?去年春天和一名医生?婚。,A,0,A
+75,protect,??,保護する,保?,protect A from B,We must protect children from danger.,,我?必?保?孩子免受危?。,A,0,A
+76,search,??,捜す,?找；搜索,search for,They searched for the lost dog.,,他??找那只走失的狗。,A,0,A
+77,set,??,調整する；置く,?置；放置,set an alarm,Please set the alarm for seven.,,?把???到7点。,A,0,A
+78,smell,??,においがする,?起来,smell good,This soup smells good.,,???起来很好。,A,0,A
+79,turn,??,曲がる；変わる,?弯；?成,turn right/left,Turn right at the next corner.,,在下一个拐角右?。,A,0,A
+80,wish,??,願う,希望；祝愿,wish for,I wish you good luck.,,祝?好?。,A,0,A
+81,arrive,??,到着する,到?,arrive at/in,We arrived at the airport on time.,,我?准?到?了机?。,A,0,A
+82,cancel,??,中止する；取り消す,取消,cancel a plan,They canceled the picnic because of rain.,,因?下雨他?取消了野餐。,A,0,A
+83,copy,??,写しを取る；まねる,?制；模?,copy data,Please copy this sentence into your notebook.,,?把?个句子抄到??本里。,A,0,A
+84,cover,??,覆う,覆盖,be covered with,The mountain was covered with snow.,,那座山被雪覆盖着。,A,0,A
+85,enter,??,入る；参加する,?入；参加,enter a room,He entered the classroom quietly.,,他安静地走?教室。,A,0,A
+86,happen,??,起こる,?生,What happened?,What happened after school?,,放学后?生了什?？,A,0,A
+87,recommend,??,推薦する；勧める,推荐,recommend A to B,I recommend this book to beginners.,,我把?本?推荐?初学者。,A,0,A
+88,steal,??,盗む,?,steal A from B,Someone stole my bike yesterday.,,昨天有人?了我的自行?。,A,0,A
+89,throw,??,投げる,投?；?,throw a ball,He threw the ball to his friend.,,他把球??了朋友。,A,0,A
+90,wonder,??,?かなと思う,想知道；感到疑惑,wonder where/why,I wonder where he went.,,我想知道他去了?里。,A,0,A
+91,avoid,??,避ける,避免,avoid doing,You should avoid eating too much sugar.,,???避免吃太多糖。,A,0,A
+92,bake,??,焼く,??,bake cookies,My sister baked cookies for us.,,姐姐?我??了?干。,A,0,A
+93,contain,??,含む；収容できる,包含；含有,contain vitamin C,This juice contains a lot of vitamin C.,,??果汁含有很多?生素C。,A,0,A
+94,damage,??,損傷を与える,?坏,damage a car,The storm damaged many houses.,,暴?雨?坏了?多房子。,A,0,A
+95,fail,??,失敗する；不合格になる,失?；不及格,fail an exam,He failed the driving test.,,他?照考?没通?。,A,0,A
+96,feed,??,食べ物を与える,?食,feed a pet,Please feed the cat before dinner.,,?在??前?猫。,A,0,A
+97,fit,??,合う；適している,合?；?合,fit well,This jacket fits me well.,,?件?克很?合我。,A,0,A
+98,fix,??,修理する；固定する,修理；固定,fix a camera,Can you fix my bicycle?,,?能修我的自行??？,A,0,A
+99,hurt,??,傷つける；痛む,受?；疼痛,hurt one's arm,My leg hurts after running.,,??后我的腿疼。,A,0,A
+100,lead,??,導く；案内する,??；引?,lead A to B,The guide led us to the museum.,,?游?我?去了博物?。,A,0,A
+101,raise,??,育てる；上げる,?育；提高；?集,raise money,They raised money for the school trip.,,他??学校旅行?款。,A,0,A
+102,solve,??,解決する,解决,solve a problem,We solved the problem together.,,我?一起解决了??。,A,0,A
+103,wake,??,目を覚ます；起こす,醒来；叫醒,wake up,I wake up at six every morning.,,我?天早上6点醒来。,A,0,A
+104,waste,??,浪費する,浪?,waste time,Don't waste your time.,,不要浪??的??。,A,0,A
+105,advise,??,忠告する,建?；?告,advise A to do,My teacher advised me to read more books.,,老?建?我多??。,A,0,A
+106,arrange,??,取り決める；準備する,安排；准?,arrange a meeting,We arranged a meeting for Friday.,,我?把会?安排在周五。,A,0,A
+107,belong,??,所属する；属する,属于；所属,belong to,This bag belongs to my sister.,,?个包是我妹妹的。,A,0,A
+108,celebrate,??,祝う,?祝,celebrate a birthday,We celebrated my father's birthday.,,我??祝了??的生日。,A,0,A
+109,cheer,??,声援する；励ます,?呼；鼓励,cheer for,Everyone cheered for the team.,,大家?球?加油。,A,0,A
+110,count,??,数える,数数；?算,count the change,The child counted the stars in the sky.,,孩子数着天上的星星。,A,0,A
+111,delay,??,遅らせる；延期する,延?；推?,be delayed,The rain delayed the baseball game.,,下雨使棒球比?延?了。,A,0,A
+112,include,??,含む,包含,include breakfast,The price includes breakfast.,,价格包含早餐。,A,0,A
+113,lend,??,貸す,借出；借?,lend A B,Can you lend me your pen?,,?能把?借?我?？,A,0,A
+114,pack,??,詰め込む；荷造りする,打包；装?,pack A into B,I packed my clothes into a small bag.,,我把衣服装?小包里。,A,0,A
+115,produce,??,生産する；引き起こす,生?；?生,produce goods,This factory produces cars.,,?家工厂生?汽?。,A,0,A
+116,reach,??,到着する,到?,reach a destination,We reached the station before noon.,,我?中午前到?了?站。,A,0,A
+117,recover,??,回復する；取り戻す,恢?；取回,recover from,He recovered from a cold quickly.,,他很快从感冒中恢?了。,A,0,A
+118,remain,??,残る；?のままである,留下；保持,remain silent,She remained calm during the test.,,考?中?保持冷静。,A,0,A
+119,reserve,??,予約する；取っておく,??；保留,reserve a room,I reserved a table for two.,,我??了?个人的座位。,A,0,A
+120,serve,??,出す；仕える,提供；服?,serve food,They serve lunch at noon.,,他?中午供?午餐。,A,0,A
+121,spread,??,広がる；広げる,?播；?散；展?,spread quickly,The news spread quickly through the town.,,消息很快?遍了小?。,A,0,A
+122,stand,??,我慢する；立っている,忍受；站立,stand noise,I can't stand loud music.,,我受不了很?的音?。,A,0,A
+123,trade,??,交換する；貿易する,交?；?易,trade A with B,He traded cards with his friend.,,他和朋友交?了?片。,A,0,A
+124,transport,??,輸送する,??,transport goods,Ships transport goods around the world.,,船只把?物?往世界各地。,A,0,A
+125,upset,??,動揺する；動揺させる,使不安；使心?,be upset about,The bad news upset her.,,?个坏消息??很??。,A,0,A
+126,idea,名?,考え、思いつき、アイデア,想法；主意,come up with a good idea,I have a good idea for our project.,私は私たちのプロジェクトに良いアイデアがあります。,我?我?的?目有一个好主意。,A,0,A
+127,area,名?,地域、区域、領域,地区；区域；?域,a business area,This area is famous for its old temples.,この地域は古い寺で有名です。,?个地区以古老寺??名。,A,0,A
+128,apartment,名?,アパート,公寓,move into a new apartment,They moved into a new apartment last month.,彼らは先月新しいアパートに引っ越しました。,他?上个月搬?了新公寓。,A,0,A
+129,lighthouse,名?,灯台,灯塔,a lighthouse keeper,We saw a lighthouse by the sea.,私たちは海のそばに灯台を見ました。,我?在海?看到了灯塔。,A,0,A
+130,photograph,名?,写真,照片,a black-and-white photograph,This photograph reminds me of my childhood.,この写真は私に子どものころを思い出させます。,??照片?我想起童年。,A,0,A
+131,reason,名?,理由、理性,理由；理性,a good reason,Tell me the reason for your decision.,あなたの決定の理由を教えてください。,?告?我?做?个决定的理由。,A,0,A
+132,actor,名?,俳優,演?,a movie actor,The actor played a detective in the movie.,その俳優は映画で探偵を演じました。,那位演?在?影里扮演?探。,A,0,A
+133,owner,名?,所有者,所有者；主人,the owner of this restaurant,The owner of this restaurant is very kind.,このレストランのオーナーはとても親切です。,?家餐?的老板很?切。,A,0,A
+134,fossil,名?,化石,化石,the fossil of a dinosaur,The child found a small fossil in the rock.,その子どもは岩の中に小さな化石を見つけました。,那个孩子在岩石里??了小化石。,A,0,A
+135,husband,名?,夫,丈夫,husband and wife,Her husband works at a hospital.,彼女の夫は病院で働いています。,?的丈夫在医院工作。,A,0,A
+136,meal,名?,食事,餐；?,have a meal,We prepared a warm meal for the guests.,私たちは客のために温かい食事を用意しました。,我??客人准?了一???。,A,0,A
+137,excuse,名?,言い訳、弁解,借口；?解,make an excuse,He made an excuse for being late.,彼は遅刻した言い訳をしました。,他??到找了借口。,A,0,A
+138,advantage,名?,有利な点、利益,?点；??；利益,one advantage of,One advantage of online study is flexibility.,オンライン学習の利点の一つは柔軟性です。,在?学?的一个?点是?活。,A,0,A
+139,government,名?,政府,政府,a central government,The government announced a new plan.,政府は新しい計画を発表しました。,政府公布了一?新??。,A,0,A
+140,information,名?,情報,信息,a piece of information,Please give me more information about the event.,そのイベントについてもっと情報をください。,??我更多?于活?的信息。,A,0,A
+141,operation,名?,手術、操作,手?；操作,have an operation,My grandfather had an operation last year.,私の祖父は去年手術を受けました。,我??去年做了手?。,A,0,A
+142,result,名?,結果、成果,?果；成果,as a result,"As a result, we finished the work early.",その結果、私たちは早く仕事を終えました。,?果我?提前完成了工作。,A,0,A
+143,chance,名?,機会,机会,the last chance to try,This is your last chance to try.,これはあなたが挑戦する最後の機会です。,?是???的最后机会。,A,0,A
+144,clothes,名?,衣服,衣服,put on clothes,Put on warm clothes before you go out.,出かける前に暖かい服を着なさい。,出?前穿上暖和的衣服。,A,0,A
+145,couple,名?,2つ、カップル、一対,一?；几个；夫?,a couple of days,A couple of students were absent today.,今日は二、三人の生徒が欠席しました。,今天有?三个学生缺席了。,A,0,A
+146,experience,名?,経験,??；??,have experience in,She has experience in teaching children.,彼女には子どもを教えた経験があります。,?有教孩子的??。,A,0,A
+147,fact,名?,事実,事?,in fact,"In fact, I have already finished it.",実は、私はもうそれを終えました。,事?上，我已?完成了。,A,0,A
+148,future,名?,将来、未来,将来；未来,in the future,I want to be a doctor in the future.,私は将来医者になりたいです。,我将来想成?医生。,A,0,A
+149,Internet,名?,インターネット,互?网,on the Internet,I found the answer on the Internet.,私はインターネットで答えを見つけました。,我在网上找到了答案。,A,0,A
+150,ma'am,名?,奥様、お嬢様、先生,女士；夫人,"May I help you, ma'am?","May I help you, ma'am?",奥様、何かお手伝いしましょうか。,女士，需要我?忙?？,A,0,A
+151,puppet,名?,操り人形,木偶；玩偶,a puppet show,The children enjoyed the puppet show.,子どもたちは操り人形の劇を楽しみました。,孩子?很喜?木偶?。,A,0,A
+152,accident,名?,事故、偶然,事故；意外,cause a car accident,A car accident happened near the school.,学校の近くで自動車事故が起こりました。,学校附近?生了一起??。,A,0,A
+153,century,名?,1世紀、100年,世?；一百年,in the 20th century,This castle was built in the 16th century.,この城は16世紀に建てられました。,?座城堡建于16世?。,A,0,A
+154,front,名?,前部、正面、前線,前面；正面,in the front of,Please sit in the front of the bus.,バスの前の方に座ってください。,?坐在公交?前面。,A,0,A
+155,guest,名?,客、宿泊客、招待客,客人；来?,a hotel guest,We welcomed a guest from Canada.,私たちはカナダからの客を迎えました。,我?接待了一位来自加拿大的客人。,A,0,A
+156,professor,名?,教授,教授,Professor John White,Professor White teaches history.,ホワイト教授は歴史を教えています。,?特教授教?史。,A,0,A
+157,sale,名?,販売、特売、セール,?售；特?,for sale,This house is for sale.,この家は売り出し中です。,??房子正在出售。,A,0,A
+158,traffic,名?,交通量,交通；?流,heavy traffic,There is heavy traffic this morning.,今朝は交通量が多いです。,今天早上交通很?堵。,A,0,A
+159,vehicle,名?,車、乗り物,??；交通工具,motor vehicles,Electric vehicles are becoming popular.,電気自動車が人気になっています。,???越来越受?迎。,A,0,A
+160,character,名?,登場人物、特徴、性格,角色；特征；性格,the main character,The main character is brave and kind.,主人公は勇敢で親切です。,主人公勇敢又善良。,A,0,A
+161,gift,名?,才能、贈り物,才能；礼物,a special gift for music,She has a special gift for music.,彼女には音楽の特別な才能があります。,?有特殊的音?才能。,A,0,A
+162,mistake,名?,間違い、誤り,??,make a mistake,Everyone can make a mistake.,誰でも間違えることがあります。,?个人都会犯?。,A,0,A
+163,passenger,名?,乗客,乘客,a passenger list,The passengers waited quietly on the train.,乗客たちは電車の中で静かに待ちました。,乘客?在?上安静地等待。,A,0,A
+164,shelter,名?,避難所、住まい,避?所；住所,emergency shelter,The school became an emergency shelter.,その学校は緊急避難所になりました。,那所学校成了?急避?所。,A,0,A
+165,sunlight,名?,日光,?光,bright sunlight,The room was full of bright sunlight.,部屋は明るい日光でいっぱいでした。,房?里充?了明亮的?光。,A,0,A
+166,trouble,名?,トラブル、悩み、もめごと,麻?；??；??,cause trouble,His careless words caused a lot of trouble.,彼の不注意な言葉が多くのトラブルを引き起こしました。,他不小心的?引起了很多麻?。,A,0,A
+167,address,名?,住所、演説,地址；演?,present address,Please write your present address here.,ここに現在の住所を書いてください。,?在?里写下?住址。,A,0,A
+168,audience,名?,観衆、聴衆,??；听?,a large audience,There was a large audience at the concert.,コンサートには大勢の観客がいました。,音?会上有很多??。,A,0,A
+169,co-worker,名?,同僚、協力者,同事；合作者,a co-worker at my office,I had lunch with a co-worker.,私は同僚と昼食を食べました。,我和同事一起吃了午?。,A,0,A
+170,dinosaur,名?,恐竜,恐?,be interested in dinosaurs,My son is interested in dinosaurs.,私の息子は恐竜に興味があります。,我儿子?恐?感?趣。,A,0,A
+171,expert,名?,専門家,?家,according to experts,"According to experts, sleep is important.",専門家によると、睡眠は大切です。,据?家?，睡眠很重要。,A,0,A
+172,honey,名?,あなた、おまえ、はちみつ,??的；蜂蜜,give me a hand,"Give me a hand, honey.",あなた、ちょっと手伝ってください。,??的，?我一下。,A,0,A
+173,method,名?,方法,方法,a teaching method,This teaching method is easy to understand.,この教授法は理解しやすいです。,??教学方法很容易理解。,A,0,A
+174,million,名?,百万、数百万,百万；?多,a few million,A few million people visited the city.,数百万人がその町を訪れました。,数百万人??了?座城市。,A,0,A
+175,pigeon,名?,ハト,?子,a homing pigeon,A pigeon was sitting on the roof.,ハトが屋根の上に止まっていました。,一只?子停在屋?上。,A,0,A
+176,rock,名?,岩,岩石,huge rock,We climbed over a huge rock.,私たちは巨大な岩を越えました。,我?爬?了一?巨大的岩石。,A,0,A
+177,service,名?,サービス、奉仕,服?；奉献,offer services,This hotel offers excellent service.,このホテルはすばらしいサービスを提供しています。,?家酒店提供??服?。,A,0,A
+178,uniform,名?,制服、ユニフォーム,制服,school uniform,Students must wear a school uniform.,生徒は学校の制服を着なければなりません。,学生必?穿校服。,A,0,A
+179,war,名?,戦争,?争,be killed in a war,Many people suffered during the war.,多くの人々が戦争中に苦しみました。,?多人在?争期?受苦。,A,0,A
+180,advice,名?,忠告、助言,建?；忠告,take one's advice,I followed my teacher's advice.,私は先生の助言に従いました。,我听从了老?的建?。,A,0,A
+181,article,名?,記事,文章；?道,a newspaper article,I read a newspaper article about space.,私は宇宙についての新聞記事を読みました。,我?了一篇?于太空的新??道。,A,0,A
+182,discovery,名?,発見,??,the discovery of,The discovery of a new planet surprised everyone.,新しい惑星の発見は皆を驚かせました。,新行星的???大家吃?。,A,0,A
+183,event,名?,出来事、行事,事件；活?,world events,The school event will be held tomorrow.,学校行事は明日行われます。,学校活?明天?行。,A,0,A
+184,flight,名?,定期航空便、フライト、飛行,航班；?行,a delayed flight,My flight was delayed by bad weather.,私の便は悪天候で遅れました。,我的航班因天气不好延?了。,A,0,A
+185,nature,名?,自然、性質,自然；性?,in harmony with nature,We should live in harmony with nature.,私たちは自然と調和して暮らすべきです。,我???与自然和?相?。,A,0,A
+186,navy,名?,海軍,海?,the U.S. Navy,My uncle served in the navy.,私の叔父は海軍にいました。,我叔叔曾在海?服役。,A,0,A
+187,price,名?,価格、物価,价格；物价,at a high price,The price of rice is rising.,米の価格が上がっています。,大米价格正在上?。,A,0,A
+188,prize,名?,賞、賞品,?；?品,give a prize,She won first prize in the contest.,彼女はコンテストで一等賞を取りました。,?在比?中?得了一等?。,A,0,A
+189,purpose,名?,目的,目的,for the purpose of,The purpose of this trip is sightseeing.,この旅行の目的は観光です。,?次旅行的目的是?光。,A,0,A
+190,staff,名?,スタッフ、職員,?工；??,medical staff,The hospital staff were very kind.,病院のスタッフはとても親切でした。,医院工作人?很?切。,A,0,A
+191,visitor,名?,訪問者,?客；游客,visitors to a museum,There were many visitors to the museum.,博物館には多くの来館者がいました。,博物?有很多参?者。,A,0,A
+192,army,名?,陸軍、軍隊,??；??,the U.S. Army,He joined the army when he was young.,彼は若いころ陸軍に入りました。,他年??参了?。,A,0,A
+193,bill,名?,請求書、紙幣,??；??,pay the bill,"Could I have the bill, please?",お勘定をお願いします。,??我??。,A,0,A
+194,center,名?,中心、センター,中心；中央,at the center of,The library is at the center of the city.,図書館は町の中心にあります。,???在城市中心。,A,0,A
+195,choice,名?,選択権、選択,??；???,have no choice but to do,We have no choice but to wait.,私たちは待つしかありません。,我??无??，只能等待。,A,0,A
+196,coach,名?,コーチ,教?,my tennis coach,My tennis coach is very strict.,私のテニスコーチはとても厳しいです。,我的网球教?很?格。,A,0,A
+197,community,名?,コミュニティー、地域社会,社区；共同体,community center,The community center is near the station.,コミュニティーセンターは駅の近くにあります。,社区中心在?站附近。,A,0,A
+198,condition,名?,状態、状況、条件,状?；情况；条件,be in good condition,The old car is in good condition.,その古い車は良い状態です。,那?旧?状?很好。,A,0,A
+199,department,名?,部、学部、売場,部?；学部；??,sales department,She works in the sales department.,彼女は営業部で働いています。,?在?售部工作。,A,0,A
+200,desert,名?,砂漠、荒れ野,沙漠；荒野,grow in the desert,Very few plants grow in the desert.,砂漠ではごく少数の植物しか育ちません。,沙漠里很少有植物生?。,A,0,A
+201,dessert,名?,デザート,甜点,have dessert,We had ice cream for dessert.,私たちはデザートにアイスクリームを食べました。,我?甜点吃了冰淇淋。,A,0,A
+202,detail,名?,詳細、細部,??；??内容,details of the meeting,Please check the details of the meeting.,会議の詳細を確認してください。,???会???。,A,0,A
+203,director,名?,監督、管理者,?演；主管,an assistant director,The director explained the plan clearly.,監督は計画をわかりやすく説明しました。,?演清楚地?明了??。,A,0,A
+204,distance,名?,距離,距?,the distance from A to B,What is the distance from here to Tokyo?,ここから東京までの距離はどのくらいですか。,从?里到?京的距?是多少？,A,0,A
+205,employee,名?,従業員,?工,fire an employee,The company hired a new employee.,会社は新しい従業員を雇いました。,公司雇了一名新?工。,A,0,A
+206,grade,名?,成績、学年、等級,成?；年?；等?,get a good grade,She got a good grade on the test.,彼女は試験で良い成績を取りました。,?考?得了好成?。,A,0,A
+207,health,名?,健康、健康状態,健康；健康状况,be in good health,Exercise is good for your health.,運動は健康に良いです。,??有益健康。,A,0,A
+208,match,名?,試合,比?,a tennis match,We watched a tennis match on TV.,私たちはテレビでテニスの試合を見ました。,我?在??上看了一?网球比?。,A,0,A
+209,neighbor,名?,隣人、近所の人,?居,a nice neighbor,My neighbor is very nice.,私の隣人はとても親切です。,我的?居非常好。,A,0,A
+210,novel,名?,小説,小?,a historical novel,I read a historical novel last week.,私は先週歴史小説を読みました。,我上周?了一本?史小?。,A,0,A
+211,performance,名?,演技、実行,表演；表?,a perfect performance,The singer gave a perfect performance.,その歌手は完璧な演技をしました。,那位歌手做了完美表演。,A,0,A
+212,research,名?,調査、研究,??；研究,do research,The students did careful research.,生徒たちは注意深く調査しました。,学生?做了仔?研究。,A,0,A
+213,reservation,名?,予約,??；??,make a reservation,I made a reservation for four people.,私は4人分の予約をしました。,我??了四个人的位置。,A,0,A
+214,restroom,名?,トイレ、化粧室,洗手?；?所,public restroom,Where is the restroom?,トイレはどこですか。,洗手?在?里？,A,0,A
+215,route,名?,道筋、ルート,路?,a bus route,This bus route goes to the airport.,このバス路線は空港へ行きます。,?条公交?路去机?。,A,0,A
+216,secret,名?,秘密,秘密,keep a secret,Let's keep it a secret.,それを秘密にしておきましょう。,我?把它保密?。,A,0,A
+217,statement,名?,陳述、声明,?述；声明,the following statement,The following statement is true.,次の陳述は正しいです。,以下?述是正?的。,A,0,A
+218,symbol,名?,象徴、シンボル,象征；符号,a symbol of peace,A dove is a symbol of peace.,ハトは平和の象徴です。,?子是和平的象征。,A,0,A
+219,vegetable,名?,野菜,蔬菜,grow vegetables,My father grows vegetables in the garden.,父は庭で野菜を育てています。,我父?在花?里?蔬菜。,A,0,A
+220,victory,名?,勝利,?利,celebrate a victory,The team celebrated a victory.,チームは勝利を祝いました。,球??祝了?利。,A,0,A
+221,view,名?,眺め、見方、意見,景色；看法；意?,a beautiful view,The hotel room has a beautiful view.,ホテルの部屋から美しい眺めが見えます。,酒店房?有美?的景色。,A,0,A
+222,activity,名?,活動,活?,club activities,Club activities start after school.,クラブ活動は放課後に始まります。,社?活?在放学后?始。,A,0,A
+223,adult,名?,大人,成年人,adults and children,Both adults and children enjoyed the festival.,大人も子どもも祭りを楽しみました。,大人和孩子都享受了?日。,A,0,A
+224,advertisement,名?,広告、宣伝,广告；宣?,put an advertisement in a magazine,I saw an advertisement for a new phone.,私は新しい電話の広告を見ました。,我看到了一?新手机广告。,A,0,A
+225,amount,名?,量、合計,数量；金?,a large amount of money,A large amount of money was donated.,多額のお金が寄付されました。,大量?金被捐?了。,A,0,A
+226,anniversary,名?,記念日,?念日,wedding anniversary,Today is our fifth wedding anniversary.,今日は私たちの5回目の結婚記念日です。,今天是我?的五周年?婚?念日。,A,0,A
+227,attention,名?,注意、注目,注意；?注,pay attention to,Please pay attention to the teacher.,先生に注意を払ってください。,?注意听老??。,A,0,A
+228,avenue,名?,大通り,大道；大街,on the avenue,There is a store on the main avenue.,大通りに店があります。,大街上有一家店。,A,0,A
+229,average,名?,平均,平均；普通水平,on average,His score is above average.,彼の点数は平均以上です。,他的分数高于平均。,A,0,A
+230,boss,名?,上司、ボス,上司；老板,former boss,My former boss taught me a lot.,以前の上司は私に多くのことを教えてくれました。,以前的上司教了我很多。,A,0,A
+231,cloth,名?,布,布；布料,cotton cloth,She cleaned the table with a wet cloth.,彼女はぬれた布でテーブルを拭きました。,?用湿布擦?子。,A,0,A
+232,corner,名?,角、隅,角落；拐角,at the corner,There is a shop at the corner.,角に店があります。,拐角?有一家店。,A,0,A
+233,costume,名?,衣装,服装；?服,prepare costumes,They prepared costumes for the play.,彼らは劇の衣装を用意しました。,他????准?了服装。,A,0,A
+234,countryside,名?,田舎、田園地帯,?村；?村,live in the countryside,My grandparents live in the countryside.,私の祖父母は田舎に住んでいます。,我的祖父母住在?下。,A,0,A
+235,custom,名?,習慣、慣習,??；?俗,a traditional custom,This is a traditional custom in Japan.,これは日本の伝統的な習慣です。,?是日本的????。,A,0,A
+236,customer,名?,顧客,?客,attract customers,The clerk smiled at the customer.,店員は客にほほえみました。,店???客微笑。,A,0,A
+237,degree,名?,度、程度,度数；程度,degrees below zero,The temperature was five degrees below zero.,気温は零下5度でした。,气温是零下5度。,A,0,A
+238,dentist,名?,歯科医,牙医,go to the dentist,I went to the dentist yesterday.,私は昨日歯医者に行きました。,我昨天去了牙医那里。,A,0,A
+239,disaster,名?,災害、不幸,?害；不幸,a natural disaster,The flood was a natural disaster.,洪水は自然災害でした。,洪水是一?自然?害。,A,0,A
+240,drugstore,名?,ドラッグストア,??店；?店,a drugstore clerk,I bought medicine at the drugstore.,私はドラッグストアで薬を買いました。,我在?店?了?。,A,0,A
+241,earthquake,名?,地震,地震,a severe earthquake,A strong earthquake shook the town.,強い地震が町を揺らしました。,?烈地震?晃了小?。,A,0,A
+242,effort,名?,努力,努力,make an effort,You should make an effort every day.,毎日努力すべきです。,????天努力。,A,0,A
+243,entertainment,名?,娯楽、催し物、もてなし,??；表演；招待,entertainment for children,The park offers entertainment for children.,その公園は子ども向けの娯楽を提供しています。,?个公?提供儿童??。,A,0,A
+244,environment,名?,環境,?境,protect the environment,We must protect the environment.,私たちは環境を守らなければなりません。,我?必?保??境。,A,0,A
+245,favor,名?,親切な行為、好意,?忙；好意,do me a favor,Will you do me a favor?,お願いを聞いてもらえますか。,?能?我个忙?？,A,0,A
+246,fee,名?,授業料、料金、謝礼,?用；学?,school fees,The school fee is due next week.,授業料は来週が期限です。,学?下周到期。,A,0,A
+247,graduation,名?,卒業、卒業式,??；??典礼,after graduation,She got a job soon after graduation.,彼女は卒業後すぐに仕事に就きました。,???后很快找到了工作。,A,0,A
+248,grandparent,名?,祖父、祖母,祖父母,visit grandparents,I visited my grandparents last weekend.,私は先週末祖父母を訪ねました。,我上周末拜?了祖父母。,A,0,A
+249,homestay,名?,ホームステイ,寄宿家庭；家庭寄宿,go on a homestay,He went to Hawaii on a homestay.,彼はハワイへホームステイに行きました。,他去夏威夷寄宿家庭。,A,0,A
+250,industry,名?,産業、工業,??；工?,automobile industry,The automobile industry is important in Japan.,自動車産業は日本で重要です。,汽???在日本很重要。,A,0,A
+251,luck,名?,幸運、運,?气；幸?,Good luck,Good luck with your exam.,試験の幸運を祈ります。,祝?考?好?。,A,0,A
+252,material,名?,材料、生地、資料,材料；布料；?料,material cost,This material is soft and light.,この材料は柔らかくて軽いです。,??材料柔?又?。,A,0,A
+253,mayor,名?,市長,市?,elect a mayor,The citizens elected her mayor.,市民は彼女を市長に選びました。,市民???市?。,A,0,A
+254,middle,名?,真ん中,中?,in the middle of,The phone rang in the middle of the night.,真夜中に電話が鳴りました。,??在半夜?了。,A,0,A
+255,miniature,名?,ミニチュア、小型模型,微型模型；小型物,a miniature of,I bought a miniature of Tokyo Tower.,私は東京タワーのミニチュアを買いました。,我?了?京塔的微型模型。,A,0,A
+256,moment,名?,瞬間、時点,瞬?；?刻,in a moment,Please wait a moment.,少し待ってください。,?等一下。,A,0,A
+257,network,名?,網状組織、ネットワーク,网?,an information network,The company built an information network.,会社は情報ネットワークを構築しました。,公司建立了信息网?。,A,0,A
+258,organization,名?,組織、団体,??；?体,set up an organization,She works for an international organization.,彼女は国際機関で働いています。,?在一个国???工作。,A,0,A
+259,plenty,名?,たくさん、豊富さ,?多；充足,plenty of time,We have plenty of time today.,今日は十分な時間があります。,今天我?有充足的??。,A,0,A
+260,pollution,名?,汚染,?染,air pollution,Air pollution is a serious problem.,大気汚染は深刻な問題です。,空气?染是?重??。,A,0,A
+261,president,名?,大統領、社長,??；社?；会?,company president,The president gave a short speech.,社長は短いスピーチをしました。,社?做了?短??。,A,0,A
+262,project,名?,計画、事業、プロジェクト,??；?目,a research project,We started a research project.,私たちは研究プロジェクトを始めました。,我??始了一个研究?目。,A,0,A
+263,quality,名?,質,?量；品?,quality of life,The quality of life is important.,生活の質は大切です。,生活?量很重要。,A,0,A
+264,rest,名?,休み、休憩,休息,take a rest,Let's take a rest and have coffee.,休憩してコーヒーを飲みましょう。,我?休息一下喝???。,A,0,A
+265,rule,名?,規則、支配,??；?治,keep the rules,You must follow the rules at school.,学校では規則を守らなければなりません。,在学校必?遵守??。,A,0,A
+266,space,名?,宇宙、余地,宇宙；空?,space travel,There is not enough space in this room.,この部屋には十分なスペースがありません。,?个房?空?不?。,A,0,A
+267,tourist,名?,観光客、旅行者,游客；旅行者,tourist information office,Many tourists visited Kyoto in spring.,春には多くの観光客が京都を訪れました。,春天很多游客??了京都。,A,0,A
+268,transportation,名?,交通機関、輸送,交通；??,public transportation,Public transportation is convenient in Tokyo.,東京では公共交通機関が便利です。,?京的公共交通很方便。,A,0,A
+269,other,形容?,他の；別の,其他的；?的,in other words,Do you have any other questions?,他に質問はありますか。,??有其他???？,A,0,A
+270,another,形容?,別の；もう1つの,?一个；再一个,another one,Can I have another cup of tea?,もう一杯お茶をいただけますか。,我可以再来一杯茶?？,A,0,A
+271,different,形容?,違った；いろいろな,不同的；各?各?的,different from,This answer is different from mine.,この答えは私のものと違います。,?个答案和我的不同。,A,0,A
+272,expensive,形容?,高価な,昂?的,an expensive watch,That watch is too expensive for me.,その時計は私には高すぎます。,那?手表?我来?太?了。,A,0,A
+273,enough,形容?/副?,十分な；十分に,足?的；足?地,enough time,We have enough time to finish the work.,私たちにはその仕事を終える十分な時間があります。,我?有足?的??完成工作。,A,0,A
+274,difficult,形容?,困難な；難しい,困?的；?的,a difficult problem,This math problem is difficult for me.,この数学の問題は私には難しいです。,?道数学??我来?很?。,A,0,A
+275,close,形容?,接近した；親密な,近的；?密的,close to,My house is close to the station.,私の家は駅に近いです。,我家??站很近。,A,0,A
+276,local,形容?,地元の；局所の,当地的；地方的,local news,I read local news every morning.,私は毎朝地元のニュースを読みます。,我?天早上看本地新?。,A,0,A
+277,own,形容?,自分自身の,自己的,one's own,Please write your own answer.,自分自身の答えを書いてください。,?写出?自己的答案。,A,0,A
+278,blind,形容?,目の見えない,失明的；看不?的,be blind in one eye,The old dog is blind in one eye.,その老犬は片目が見えません。,那只老狗有一只眼睛看不?。,A,0,A
+279,national,形容?,全国的な；国民の；国立の,全国的；国家的；国立的,national contest,The team won a national contest.,そのチームは全国大会で優勝しました。,那个??得了全国比?。,A,0,A
+280,following,形容?,次の；以下の,下面的；以下的,the following,Please read the following sentence.,次の文を読んでください。,??下面的句子。,A,0,A
+281,international,形容?,国際的な,国?的,international organization,She works for an international company.,彼女は国際的な会社で働いています。,?在一家国?公司工作。,A,0,A
+282,special,形容?,特別な,特?的,special reason,We prepared a special dinner for him.,私たちは彼のために特別な夕食を用意しました。,我??他准?了一?特?的?餐。,A,0,A
+283,concrete,形容?,具体的な；コンクリート製の,具体的；混凝土的,a concrete plan,We need a concrete plan before we start.,始める前に具体的な計画が必要です。,?始之前我?需要一个具体??。,A,0,A
+284,dangerous,形容?,危険な,危?的,a dangerous place,It is dangerous to swim in this river.,この川で泳ぐのは危険です。,在?条河里游泳很危?。,A,0,A
+285,true,形容?,本当の；真実の,真?的；真正的,true story,Is this story true?,この話は本当ですか。,?个故事是真的?？,A,0,A
+286,natural,形容?,自然の；当然の；生まれつきの,自然的；天然的,natural energy,This park is full of natural beauty.,この公園は自然の美しさにあふれています。,?个公?充?自然之美。,A,0,A
+287,noisy,形容?,騒々しい,??的,noisy neighbors,The classroom was noisy after lunch.,昼食後、教室は騒がしかったです。,午?后教室很?。,A,0,A
+288,safe,形容?,安全な；無事で,安全的,a safe place,Keep your money in a safe place.,お金を安全な場所に保管しなさい。,把?放在安全的地方。,A,0,A
+289,several,形容?,数人の；いくつかの,几个的；若干的,several times,I visited Kyoto several times.,私は京都を数回訪れました。,我去?京都好几次。,A,0,A
+290,unusual,形容?,異常な；普通でない,?常的；不?常的,unusual weather,We had unusual weather this spring.,今年の春は変わった天気でした。,今年春天天气很?常。,A,0,A
+291,common,形容?,共通の；普通の,共同的；常?的,common language,English is a common language in many countries.,英語は多くの国で共通語です。,英?是?多国家的通用?言。,A,0,A
+292,friendly,形容?,友好的な；人なつっこい,友好的；?切的,a friendly relationship,Our new teacher is very friendly.,新しい先生はとても親しみやすいです。,我?的新老?很友好。,A,0,A
+293,possible,形容?,可能な；あり得る,可能的,as soon as possible,Please come as soon as possible.,できるだけ早く来てください。,?尽快来。,A,0,A
+294,bright,形容?,明るい；利口な,明亮的；?明的,a bright future,The room is bright in the morning.,その部屋は朝明るいです。,那个房?早上很明亮。,A,0,A
+295,comfortable,形容?,快適な,舒?的,a comfortable seat,This chair is very comfortable.,この椅子はとても座り心地がよいです。,?把椅子很舒服。,A,0,A
+296,delicious,形容?,おいしい,美味的,a delicious meal,The curry was delicious.,そのカレーはおいしかったです。,??很好吃。,A,0,A
+297,likely,形容?,?しそうである；ありそうな,可能的；有可能的,be likely to do,It is likely to snow tonight.,今夜は雪が降りそうです。,今?可能会下雪。,A,0,A
+298,past,形容?/名?,過去の；過去,?去的；?去,for the past year,I learned a lot from my past mistakes.,私は過去の失敗から多くを学びました。,我从?去的??中学到了很多。,A,0,A
+299,wild,形容?,野生の；荒れ果てた；乱暴な,野生的；狂野的,wild animals,We saw wild birds near the lake.,私たちは湖の近くで野鳥を見ました。,我?在湖?看到了野?。,A,0,A
+300,careful,形容?,注意深い,小心的；仔?的,be careful not to do,Be careful when you cross the street.,道を渡るときは気をつけなさい。,??路?要小心。,A,0,A
+301,cheap,形容?,安い,便宜的,a cheap camera,I bought a cheap camera online.,私はネットで安いカメラを買いました。,我在网上?了一台便宜的相机。,A,0,A
+302,empty,形容?,空の,空的,an empty bottle,The bottle is empty.,その瓶は空です。,瓶子是空的。,A,0,A
+303,extra,形容?,追加の；余分の,?外的；多余的,an extra charge,We need an extra chair for the guest.,お客さんのために余分な椅子が必要です。,我?需要一把?外的椅子?客人。,A,0,A
+304,familiar,形容?,精通して；よく知られた,熟悉的；精通的,be familiar with,This song is familiar to many people.,この歌は多くの人によく知られています。,?首歌?很多人所熟悉。,A,0,A
+305,lonely,形容?,寂しい,孤独的；寂寞的,a lonely life,She felt lonely after moving to a new city.,新しい町に引っ越した後、彼女は寂しく感じました。,搬到新城市后?感到孤独。,A,0,A
+306,loud,形容?,大声の；派手な,?亮的；大声的,in a loud voice,Please don't speak in a loud voice here.,ここでは大声で話さないでください。,?不要在?里大声??。,A,0,A
+307,main,形容?,主な,主要的,main reason,The main reason is simple.,主な理由は簡単です。,主要原因很??。,A,0,A
+308,nearby,形容?/副?,近くの；近くに,附近的；在附近,a nearby shop,There is a nearby supermarket.,近くにスーパーがあります。,附近有一家超市。,A,0,A
+309,necessary,形容?,必要な,必要的,absolutely necessary,Sleep is necessary for good health.,睡眠は健康に必要です。,睡眠?健康是必要的。,A,0,A
+310,official,形容?,公式の；正式の；職務上の,官方的；正式的,official record,The school made an official announcement.,学校は公式発表をしました。,学校?布了正式通知。,A,0,A
+311,ordinary,形容?,普通の；並の,普通的；平常的,ordinary life,It was an ordinary day.,それは普通の日でした。,那是普通的一天。,A,0,A
+312,private,形容?,個人的な；私立の；私的な,私人的；私立的,private lesson,This is my private room.,これは私の個室です。,?是我的私人房?。,A,0,A
+313,quiet,形容?,静かな,安静的,be quiet,The library is quiet.,図書館は静かです。,???很安静。,A,0,A
+314,similar,形容?,類似した,相似的,similar to,Your bag is similar to mine.,あなたのかばんは私のものに似ています。,?的包和我的相似。,A,0,A
+315,afraid,形容?,心配して；怖がって,害怕的；担心的,be afraid of,I'm afraid of big dogs.,私は大きな犬が怖いです。,我害怕大狗。,A,0,A
+316,ancient,形容?,古代の；古来の,古代的,ancient civilization,We studied ancient history at school.,私たちは学校で古代史を学びました。,我?在学校学?了古代?史。,A,0,A
+317,certain,形容?,確信して；ある,?定的；某些的,certain groups,I am certain that he will come.,彼が来ると私は確信しています。,我?信他会来。,A,0,A
+318,final,形容?,最後の,最后的,final chance,This is the final question.,これは最後の質問です。,?是最后一个??。,A,0,A
+319,honest,形容?,正直な,??的,to be honest,He is an honest person.,彼は正直な人です。,他是一个??的人。,A,0,A
+320,nervous,形容?,緊張している；神経質な,??的；神??的,get nervous,I was nervous before the speech.,スピーチの前に私は緊張していました。,演?前我很??。,A,0,A
+321,normal,形容?,普通の；標準の,正常的；普通的,normal way,His temperature is normal.,彼の体温は正常です。,他的体温正常。,A,0,A
+322,portable,形容?,携帯できる,便携的,portable charger,I bought a portable charger for my phone.,私は携帯電話用の携帯充電器を買いました。,我?了一个手机便携充?器。,A,0,A
+323,public,形容?,公共の；公立の,公共的；公立的,public phone,Please use a public phone in an emergency.,緊急時には公衆電話を使ってください。,?急??使用公用??。,A,0,A
+324,recent,形容?,最近の,最近的,in recent years,"In recent years, this town has changed a lot.",近年、この町は大きく変わりました。,近年来?个城??化很大。,A,0,A
+325,successful,形容?,成功した,成功的,successful businessman,She became a successful businesswoman.,彼女は成功した実業家になりました。,?成了一位成功的女企?家。,A,0,A
+326,arctic,形容?,北極の,北?的,arctic explorer,The arctic wind was very cold.,北極の風はとても冷たかったです。,北?的?非常寒冷。,A,0,A
+327,asleep,形容?,眠って,睡着的,fall asleep,The baby fell asleep quickly.,赤ちゃんはすぐに眠りました。,?儿很快睡着了。,A,0,A
+328,boring,形容?,退屈な,无聊的,a boring program,The movie was boring.,その映画は退屈でした。,那部?影很无聊。,A,0,A
+329,calm,形容?,落ち着いた,冷静的；平静的,stay calm,Stay calm and listen carefully.,落ち着いてよく聞きなさい。,保持冷静并仔?听。,A,0,A
+330,clear,形容?,はっきりした；晴れた；澄んだ,清楚的；晴朗的,clear answer,She gave me a clear answer.,彼女は私にはっきりした答えをくれました。,??了我明?的回答。,A,0,A
+331,convenient,形容?,便利な,方便的,a convenient tool,This app is convenient for studying English.,このアプリは英語学習に便利です。,?个?用学英?很方便。,A,0,A
+332,correct,形容?,正しい；適切な,正?的；合?的,correct answer,Please choose the correct answer.,正しい答えを選んでください。,???正?答案。,A,0,A
+333,cute,形容?,かわいい,可?的,a cute baby,That puppy is very cute.,その子犬はとてもかわいいです。,那只小狗非常可?。,A,0,A
+334,however,副?,しかしながら；どんなに?でも,然而；不?,however hard,"I studied hard. However, I failed the test.",私は一生懸命勉強しました。しかし、試験に落ちました。,我努力学?了。然而，我考?没通?。,A,0,A
+335,even,副?,?でさえ；さらに,甚至；?……也,even today,Even my brother knows the answer.,私の弟でさえその答えを知っています。,?我弟弟都知道答案。,A,0,A
+336,later,副?,後で；もっと遅く,之后；稍后,three years later,I will call you later.,後であなたに電話します。,我稍后??打??。,A,0,A
+337,instead,副?,その代わりに,代替；反而,instead of,I used a pencil instead of a pen.,私はペンの代わりに鉛筆を使いました。,我用??代替了??。,A,0,A
+338,quickly,副?,すぐに；急いで,迅速地；很快地,answer quickly,She answered the question quickly.,彼女はその質問にすばやく答えました。,?很快回答了??。,A,0,A
+339,yet,副?,もう；まだ,已?；?；尚未,not yet,Have you finished your homework yet?,もう宿題は終わりましたか。,?作?已?做完了?？,A,0,A
+340,actually,副?,実際に；本当のところ,??上；其?,actually happen,"Actually, I have never been there.",実は、私はそこに行ったことがありません。,其?我从没去?那里。,A,0,A
+341,recently,副?,最近；近ごろ,最近,recently started,I recently started learning Japanese.,私は最近日本語を学び始めました。,我最近?始学?日?。,A,0,A
+342,though,副?/??,でも；やっぱり；だけれども,不?；?然,even though,"It was cold, but I enjoyed the trip though.",寒かったですが、それでも旅行を楽しみました。,天气很冷，不?我?是享受了旅行。,A,0,A
+343,far,副?,遠くに；はるかに,?；??地,far from,My school is far from here.,私の学校はここから遠いです。,我的学校??里很?。,A,0,A
+344,outside,副?/名?,外に；外側,外面；在外面,outside the house,The children played outside after lunch.,子どもたちは昼食後に外で遊びました。,孩子?午?后在外面玩。,A,0,A
+345,almost,副?,ほとんど；もう少しで,几乎；差点,almost all,I almost missed the train.,私はもう少しで電車に乗り遅れるところでした。,我差点??火?。,A,0,A
+346,else,副?,その他に；代わりに,其他；?外,anything else,Do you need anything else?,他に何か必要ですか。,??需要其他?西?？,A,0,A
+347,probably,副?,たぶん,大概；可能,probably come,He will probably come tomorrow.,彼はたぶん明日来るでしょう。,他大概明天会来。,A,0,A
+348,finally,副?,ついに；最後に,?于；最后,finally reach,"Finally, we reached the top of the mountain.",ついに私たちは山頂に着きました。,?于，我?到?了山?。,A,0,A
+349,luckily,副?,運良く,幸?地,luckily win,"Luckily, nobody was hurt.",幸いにも、誰もけがをしませんでした。,幸?的是，没有人受?。,A,0,A
+350,nearly,副?,ほとんど；もう少しで,几乎；差不多,nearly all,The box is nearly empty.,その箱はほとんど空です。,那个盒子几乎空了。,A,0,A
+351,sometime,副?,いつか；ある時,某个?候；改天,sometime in the future,Let's meet sometime next week.,来週のいつか会いましょう。,我?下周找个???面?。,A,0,A
+352,inside,副?/名?,中に；内側に,在里面；里面,stay inside,Please stay inside during the storm.,嵐の間は中にいてください。,暴?雨期??待在室内。,A,0,A
+353,once,副?,一度；かつて,一次；曾?,once a week,I have visited Nara once.,私は奈良を一度訪れたことがあります。,我去?奈良一次。,A,0,A
+354,pretty,副?/形容?,なかなか；かわいらしい,相当；漂亮的,pretty good,This soup tastes pretty good.,このスープはなかなかおいしいです。,?个?相当好喝。,A,0,A
+355,afterward,副?,後で,后来；之后,afterward,We had lunch and went shopping afterward.,私たちは昼食を食べ、その後買い物に行きました。,我?吃了午?，之后去?物了。,A,0,A
+356,anymore,副?,これ以上；もう?ない,再也；不再,not anymore,I don't live there anymore.,私はもうそこには住んでいません。,我已?不住在那里了。,A,0,A
+357,easily,副?,気楽に；たやすく；簡単に,?松地；容易地,easily solve,He solved the puzzle easily.,彼はそのパズルを簡単に解きました。,他?松解?了??。,A,0,A
+358,moreover,副?,その上,而且；此外,moreover,"It was cold; moreover, it started to rain.",寒かったうえに、雨が降り始めました。,天气很冷，而且?始下雨了。,A,0,A
+359,quite,副?,とても；かなり；全く,很；相当；完全,quite difficult,This question is quite difficult.,この問題はかなり難しいです。,?个??相当?。,A,0,A
+360,regularly,副?,定期的に；規則正しく,定期地；有?律地,regularly exercise,I exercise regularly to stay healthy.,私は健康を保つために定期的に運動します。,我?了保持健康定期??。,A,0,A
+361,twice,副?,2回；2度,?次,twice a day,I brush my teeth twice a day.,私は一日に二回歯を磨きます。,我一天刷?次牙。,A,0,A
+362,ahead,副?,前方に；前もって,在前面；提前,go ahead,Please go ahead without me.,私を待たずに先に行ってください。,?不用等我，先走?。,A,0,A
+363,completely,副?,完全に,完全地,completely destroyed,The building was completely destroyed.,その建物は完全に破壊されました。,那?建筑被完全破坏了。,A,0,A
+364,gradually,副?,徐々に,逐?地,gradually become,The weather gradually became warmer.,天気は徐々に暖かくなりました。,天气逐??暖了。,A,0,A
+365,while,??/名?,?している間に；?ではあるが；短い期間,在……期?；?然；一会儿,while I am away,Please wait here while I buy tickets.,私が切符を買う間、ここで待ってください。,我?票的?候?在?里等。,A,0,A
+366,although,??,?だけれども,?然；尽管,although I'm busy,"Although it was raining, we went out.",雨が降っていましたが、私たちは外出しました。,?然下雨了，但我??是出?了。,A,0,A
+367,through,介?,?を通って；?を通じて；?中ずっと,穿?；通?；整个期?,through the tunnel,We walked through the tunnel.,私たちはトンネルを通って歩きました。,我?穿?了隧道。,A,0,A
+368,against,介?,?に反対して；?を対戦相手として,反?；?抗,against the plan,Are you for or against this plan?,あなたはこの計画に賛成ですか、反対ですか。,??成?是反??个??？,A,0,A
+369,below,介?/副?,?より下に；下に,在……下面；低于,below zero,The temperature fell below zero.,気温は零度より下がりました。,气温降到了零度以下。,A,0,A
+370,behind,介?/副?,?の後ろに；後ろに,在……后面,behind the line,The cat is behind the door.,猫はドアの後ろにいます。,猫在?后面。,A,0,A
+371,throughout,介?/副?,?の間ずっと；?の至るところに,整个期?；遍及,throughout the summer,It rained throughout the night.,夜通し雨が降りました。,整夜都在下雨。,A,0,A
+372,unlike,介?,?と異なって；?らしくない,不像；与……不同,unlike the usual case,"Unlike his brother, he is very quiet.",兄とは違って、彼はとても静かです。,与哥哥不同，他很安静。,A,0,A
+373,within,介?,?以内で；?に,在……以内,within half an hour,Please finish this work within an hour.,この仕事を一時間以内に終えてください。,?在一小?内完成??工作。,A,0,A
+0374,accept,??,受け入れる,接受,accept an offer,Please accept my apology.,私の謝罪を受け入れてください。,?接受我的道歉。,B,0,B
+0375,aim,??,狙う；目指す,?准；以……?目?,aim at / aim to do,She aims to become a doctor.,彼女は医者になることを目指している。,?的目?是成?医生。,B,0,B
+0376,collect,??,集める,收集,collect stamps,He collects old coins.,彼は古い硬貨を集めている。,他收集旧硬?。,B,0,B
+0377,control,??,管理する；制御する,控制；管理,control quality,It is hard to control the machine.,その機械を制御するのは難しい。,控制那台机器很?。,B,0,B
+0378,deliver,??,配達する,投?；送?,deliver newspapers,They deliver packages every morning.,彼らは毎朝荷物を配達する。,他??天早上送包裹。,B,0,B
+0379,develop,??,開発する；発達させる,??；?展,develop a product,The company developed a new app.,その会社は新しいアプリを開発した。,那家公司??了一个新?用。,B,0,B
+0380,disappear,??,姿を消す；消える,消失,disappear suddenly,The moon disappeared behind the clouds.,月は雲の後ろに消えた。,月亮消失在云后。,B,0,B
+0381,disappoint,??,失望させる,使失望,be disappointed with,The result disappointed many fans.,その結果は多くのファンを失望させた。,?个?果??多粉?失望。,B,0,B
+0382,dislike,??,嫌う,不喜?；??,dislike doing,I dislike waiting in long lines.,私は長い列で待つのが嫌いだ。,我不喜?排??。,B,0,B
+0383,explain,??,説明する,?明；解?,explain A to B,Can you explain the rule to me?,そのルールを私に説明してくれますか。,?能?我解?一下???？,B,0,B
+0384,fight,??,戦う,?斗；争?,fight against,They fought against the enemy.,彼らは敵と戦った。,他?与?人?斗。,B,0,B
+0385,film,??,撮影する,拍?,film a movie,We filmed a short movie at school.,私たちは学校で短い映画を撮影した。,我?在学校拍了一部短片。,B,0,B
+0386,gather,??,集まる；集める,聚集；收集,gather information,People gathered in the park.,人々は公園に集まった。,人?聚集在公?里。,B,0,B
+0387,hang,??,つるす；掛ける,?挂；挂,hang a picture,Please hang your coat here.,ここにコートを掛けてください。,?把外套挂在?里。,B,0,B
+0388,hide,??,隠す；隠れる,?藏,hide behind,The cat hid under the table.,猫はテーブルの下に隠れた。,猫藏在?子下面。,B,0,B
+0389,hit,??,打つ；ぶつかる,打；?中,hit a ball,The ball hit the window.,ボールが窓に当たった。,球?中了窗?。,B,0,B
+0390,imagine,??,想像する,想象,imagine doing,Imagine a world without cars.,車のない世界を想像してみて。,想象一个没有汽?的世界。,B,0,B
+0391,invent,??,発明する,?明,invent a machine,Who invented this machine?,誰がこの機械を発明したのですか。,是??明了?台机器？,B,0,B
+0392,limit,??,制限する,限制,limit the number,We should limit the use of plastic bags.,私たちはビニール袋の使用を制限すべきだ。,我???限制塑料袋的使用。,B,0,B
+0393,melt,??,溶ける；溶かす,融化,melt quickly,The snow began to melt.,雪が溶け始めた。,雪?始融化。,B,0,B
+0394,notice,??,気づく,注意到,notice an error,I noticed a serious mistake.,私は重大な間違いに気づいた。,我注意到了一个?重??。,B,0,B
+0395,organize,??,準備する；組織する,??；安排,organize a meeting,We organized a meeting after school.,私たちは放課後に会議を準備した。,我?放学后??了一次会?。,B,0,B
+0396,paint,??,ペンキを塗る；絵を描く,?漆；画画,paint a fence,She painted the wall blue.,彼女は壁を青く塗った。,?把??成了?色。,B,0,B
+0397,promise,??,約束する,承?；?定,promise to do,He promised to help me.,彼は私を手伝うと約束した。,他答??助我。,B,0,B
+0398,publish,??,出版する,出版；?表,publish a book,They published a new magazine.,彼らは新しい雑誌を出版した。,他?出版了一本新?志。,B,0,B
+0399,quit,??,やめる,停止；辞去,quit doing,She decided to quit the club.,彼女はそのクラブをやめることに決めた。,?决定退出那个社?。,B,0,B
+0400,recognize,??,認識する；分かる,?出；??,recognize a person,I recognized her voice at once.,私はすぐに彼女の声だと分かった。,我立刻?出了?的声音。,B,0,B
+0401,rely,??,頼る；依存する,依靠；信?,rely on,You can rely on your friends.,友達を頼っていいですよ。,?可以依靠朋友。,B,0,B
+0402,rescue,??,救助する,救援；拯救,rescue children,The firefighters rescued the child.,消防士たちはその子どもを救助した。,消防?救出了那个孩子。,B,0,B
+0403,sail,??,航海する,航行；乘船,sail from,We sailed across the lake.,私たちは湖を横切って航行した。,我?乘船穿?湖。,B,0,B
+0404,shape,??,形作る,形成；塑造,shape like,Experience shapes our character.,経験は私たちの性格を形作る。,??塑造我?的性格。,B,0,B
+0405,stress,??,強調する；ストレスを感じる,??；使??,stress about,The teacher stressed the importance of practice.,先生は練習の大切さを強調した。,老???了??的重要性。,B,0,B
+0406,support,??,支持する；支える,支持；支援,support a team,His family supported his dream.,彼の家族は彼の夢を支えた。,他的家人支持他的梦想。,B,0,B
+0407,surf,??,サーフィンをする,冲浪；上网,surf the Internet,He likes to surf on the Internet.,彼はインターネットを見るのが好きだ。,他喜?上网。,B,0,B
+0408,surprise,??,驚かせる,使??,be surprised at,The news surprised everyone.,そのニュースはみんなを驚かせた。,那个消息?所有人吃?。,B,0,B
+0409,surround,??,囲む,包?；??,be surrounded by,The town is surrounded by mountains.,その町は山に囲まれている。,那座城?被群山??。,B,0,B
+0410,warn,??,警告する,警告；提醒,warn A of B,The sign warns people of danger.,その標識は人々に危険を警告している。,那个?志提醒人?有危?。,B,0,B
+0411,weigh,??,重さがある；量る,称重；重量?,weigh 30 kg,This bag weighs ten kilograms.,このかばんは10キロある。,?个包重10公斤。,B,0,B
+0412,whisper,??,ささやく,低声?；耳?,whisper to,She whispered the answer to me.,彼女は私に答えをささやいた。,?悄悄把答案告?了我。,B,0,B
+0413,access,??,アクセスする；近づく,??；接近,access the Internet,Students can access the website at home.,生徒は家でそのウェブサイトにアクセスできる。,学生可以在家??那个网站。,B,0,B
+0414,achieve,??,達成する,?成；??,achieve a goal,He achieved his goal after years of practice.,彼は何年もの練習の後で目標を達成した。,他??多年??后??了目?。,B,0,B
+0415,attack,??,攻撃する,攻?,attack an enemy,The enemy attacked the castle.,敵は城を攻撃した。,?人攻?了城堡。,B,0,B
+0416,attend,??,出席する；世話をする,参加；照料,attend a meeting,I will attend the meeting tomorrow.,私は明日その会議に出席します。,我明天会参加会?。,B,0,B
+0417,balance,??,バランスを取る,保持平衡；?衡,balance A with B,She balanced work with play.,彼女は仕事と遊びのバランスを取った。,?平衡了工作和??。,B,0,B
+0418,block,??,妨げる；ふさぐ,阻?；堵住,block the way,A fallen tree blocked the road.,倒れた木が道をふさいだ。,倒下的??住了道路。,B,0,B
+0419,blow,??,吹く,吹；刮,blow up,The wind blew strongly last night.,昨夜、風が強く吹いた。,昨??刮得很大。,B,0,B
+0420,compare,??,比べる,比?,compare A with B,Compare your answer with mine.,あなたの答えを私の答えと比べてください。,?把?的答案和我的比?一下。,B,0,B
+0421,date,??,デートする,?会；注明日期,date a person,They dated for two years.,彼らは2年間デートした。,他?交往了?年。,B,0,B
+0422,decorate,??,飾る,装?,decorate A with B,We decorated the room with flowers.,私たちは部屋を花で飾った。,我?用花装?了房?。,B,0,B
+0423,decrease,??,減る；減少させる,?少；降低,decrease gradually,The number of visitors decreased.,訪問者の数が減った。,?客数量?少了。,B,0,B
+0424,destroy,??,破壊する,破坏；摧?,destroy completely,The fire destroyed the old building.,火事がその古い建物を破壊した。,大火摧?了那?旧建筑。,B,0,B
+0425,dig,??,掘る,?,dig a hole,The dog dug a hole in the garden.,犬は庭に穴を掘った。,狗在花?里?了个洞。,B,0,B
+0426,discover,??,発見する,??,discover a fact,Scientists discovered a new planet.,科学者たちは新しい惑星を発見した。,科学家??了一?新行星。,B,0,B
+0427,discuss,??,議論する,??,discuss a matter,We discussed the problem in class.,私たちは授業でその問題について話し合った。,我?在?堂上??了?个??。,B,0,B
+0428,draw,??,描く；引く,画；拉,draw a picture,She drew a picture of her dog.,彼女は自分の犬の絵を描いた。,?画了一幅?的狗的画。,B,0,B
+0429,earn,??,稼ぐ,??；?得,earn money,He earns money by helping neighbors.,彼は近所の人を手伝ってお金を稼ぐ。,他通??助?居??。,B,0,B
+0430,exhibit,??,展示する,展示,exhibit artwork,The museum exhibited old paintings.,その博物館は古い絵を展示した。,博物?展出了古画。,B,0,B
+0431,fill,??,満たす,装?；填?,fill A with B,Please fill the bottle with water.,その瓶を水で満たしてください。,?把瓶子装?水。,B,0,B
+0432,flow,??,流れる,流?,flow through,The river flows through the town.,その川は町を流れている。,那条河流?城?。,B,0,B
+0433,forgive,??,許す,原?,forgive A for B,Please forgive me for being late.,遅れてしまって許してください。,?原?我?到了。,B,0,B
+0434,freeze,??,凍る；凍らせる,?冰；??,freeze solid,The lake froze in winter.,その湖は冬に凍った。,那个湖冬天?冰了。,B,0,B
+0435,hire,??,雇う,雇用,hire a worker,The company hired a new engineer.,その会社は新しい技術者を雇った。,那家公司雇了一名新工程?。,B,0,B
+0436,hunt,??,狩る；探す,打?；?找,hunt for,They hunted for a lost key.,彼らはなくした鍵を探した。,他??找?失的?匙。,B,0,B
+0437,impress,??,感動させる,?……留下深刻印象,be impressed with,Her speech impressed the audience.,彼女のスピーチは聴衆に感銘を与えた。,?的演?打?了??。,B,0,B
+0438,injure,??,傷つける,使受?,be injured in,He injured his knee during practice.,彼は練習中に膝をけがした。,他在??中弄?了膝盖。,B,0,B
+0439,judge,??,判断する；裁く,判断；?判,judge by,Don't judge people by their clothes.,服装で人を判断してはいけない。,不要以衣着判断?人。,B,0,B
+0440,lift,??,持ち上げる,?起；抬起,lift a box,Can you lift this heavy box?,この重い箱を持ち上げられますか。,?能抬起?个重箱子?？,B,0,B
+0441,locate,??,位置を突き止める；置く,定位；放置,be located in,The map helped us locate the hotel.,地図はホテルの場所を見つけるのに役立った。,地??助我?找到了酒店位置。,B,0,B
+0442,measure,??,測る,?量,measure exactly,We measured the length of the room.,私たちは部屋の長さを測った。,我??量了房?的?度。,B,0,B
+0443,memorize,??,暗記する,?住；背?,memorize a poem,I memorized the poem for class.,私は授業のためにその詩を暗記した。,我??堂背下了那首?。,B,0,B
+0444,park,??,駐車する,停?,park a car,You can park your car here.,ここに車を駐車できます。,?可以把?停在?里。,B,0,B
+0445,pour,??,注ぐ,倒；注入,pour A into B,She poured tea into the cup.,彼女はカップにお茶を注いだ。,?把茶倒?杯子里。,B,0,B
+0446,press,??,押す；アイロンをかける,按；?,press a button,Press the button to start.,始めるにはボタンを押してください。,按下按??始。,B,0,B
+0447,prevent,??,防ぐ,防止,prevent an accident,This medicine helps prevent colds.,この薬は風邪を防ぐのに役立つ。,???有助于?防感冒。,B,0,B
+0448,provide,??,供給する,提供,provide A with B,The school provides lunch for students.,学校は生徒に昼食を提供する。,学校?学生提供午餐。,B,0,B
+0449,pull,??,引く,拉,pull a rope,Pull the door to open it.,ドアを開けるには引いてください。,拉?打?。,B,0,B
+0450,push,??,押す,推；按,push a button,Don't push the door too hard.,ドアを強く押しすぎないでください。,不要太用力推?。,B,0,B
+0451,recycle,??,再利用する,回收利用,recycle bottles,We recycle plastic bottles at school.,私たちは学校でペットボトルをリサイクルしている。,我?在学校回收塑料瓶。,B,0,B
+0452,reduce,??,減らす,?少；降低,reduce a price,We should reduce food waste.,私たちは食品ロスを減らすべきだ。,我????少食物浪?。,B,0,B
+0453,remove,??,取り除く；移動させる,移除；移?,remove a cover,Please remove your shoes here.,ここで靴を脱いでください。,?在?里脱鞋。,B,0,B
+0454,repeat,??,繰り返す,重?,repeat a sentence,Could you repeat the question?,質問を繰り返していただけますか。,?能重?一下???？,B,0,B
+0455,replace,??,取り換える,替?；更?,replace A with B,We replaced the old chair with a new one.,私たちは古い椅子を新しいものと取り替えた。,我?把旧椅子?成了新的。,B,0,B
+0456,require,??,必要とする,需要,require effort,This job requires time and money.,この仕事には時間とお金が必要だ。,??工作需要??和金?。,B,0,B
+0457,retire,??,退職する,退休；退役,retire from,My grandfather retired last year.,祖父は去年退職した。,我祖父去年退休了。,B,0,B
+0458,ring,??,鳴る；鳴らす,?；??,ring a bell,The bell rang at noon.,正午にベルが鳴った。,?在中午?了。,B,0,B
+0459,scream,??,叫ぶ,尖叫,scream for help,The child screamed for help.,その子どもは助けを求めて叫んだ。,那个孩子大声呼救。,B,0,B
+0460,shout,??,叫ぶ；大声で言う,喊叫,shout loudly,Don't shout in the library.,図書館で叫ばないでください。,不要在???大喊。,B,0,B
+0461,stare,??,じっと見る,凝?；?着看,stare at,He stared at the strange animal.,彼はその不思議な動物をじっと見た。,他?着那只奇怪的?物看。,B,0,B
+0462,suggest,??,提案する；示唆する,建?；暗示,suggest doing,She suggested studying together.,彼女は一緒に勉強することを提案した。,?建?一起学?。,B,0,B
+0463,survive,??,生き残る,幸存；生存,survive without,The plants survived the cold winter.,その植物は寒い冬を生き延びた。,那些植物熬?了寒冬。,B,0,B
+0464,touch,??,触れる；感動させる,触摸；感?,touch a picture,Please don't touch the picture.,その絵に触らないでください。,?不要?那幅画。,B,0,B
+0465,trap,??,閉じ込める；わなで捕らえる,困住；捕?,be trapped in,The cat was trapped in the building.,猫は建物の中に閉じ込められた。,猫被困在建筑物里。,B,0,B
+0466,treat,??,扱う；治療する,?待；治?,treat A like B,Treat him like a child.,彼を子どものように扱いなさい。,像?待孩子一??待他。,B,0,B
+0467,trust,??,信用する,信任,trust someone,You can trust me.,私を信頼していいですよ。,?可以相信我。,B,0,B
+0468,volunteer,??,志願する,志愿做；自愿,volunteer at,She volunteered at the hospital.,彼女は病院でボランティアをした。,?在医院做志愿者。,B,0,B
+0469,act,??,行動する；演じる,行?；表演,act in a play,He acted in a school play.,彼は学校の劇で演じた。,他在学校??中表演。,B,0,B
+0470,admit,??,認める；入学を許可する,承?；准??入,admit doing,He admitted his mistake.,彼は自分の間違いを認めた。,他承?了自己的??。,B,0,B
+0471,advertise,??,宣伝する,宣?；做广告,advertise a product,They advertised a new product online.,彼らは新製品をオンラインで宣伝した。,他?在网上宣?新?品。,B,0,B
+0472,afford,??,余裕がある,?担得起,afford to do,I can't afford a new phone now.,今は新しい電話を買う余裕がない。,我?在?不起新手机。,B,0,B
+0473,announce,??,発表する,宣布；?表,announce a plan,The teacher announced the test date.,先生はテストの日程を発表した。,老?公布了考?日期。,B,0,B
+0474,apologize,??,謝る,道歉,apologize for,He apologized for being late.,彼は遅れたことを謝った。,他??到道歉。,B,0,B
+0475,apply,??,申し込む；当てはまる,申?；?用,apply for,She applied for the job yesterday.,彼女は昨日その仕事に応募した。,?昨天申?了那?工作。,B,0,B
+0476,approach,??,接近する,接近；靠近,approach a place,The train approached the station.,電車が駅に近づいた。,火?接近了?站。,B,0,B
+0477,argue,??,主張する；言い争う,争?；主?,argue about,They argued about the plan.,彼らはその計画について言い争った。,他??那个??争?。,B,0,B
+0478,attract,??,引きつける,吸引,attract attention,The festival attracted many visitors.,その祭りは多くの訪問者を引きつけた。,?个?日吸引了很多游客。,B,0,B
+0479,award,??,授与する,授予；?励,award A to B,The school awarded a prize to him.,学校は彼に賞を授与した。,学校?他?了?。,B,0,B
+0480,bark,??,吠える,吠叫,bark at,The dog barked at a stranger.,犬は見知らぬ人に吠えた。,狗?陌生人叫。,B,0,B
+0481,behave,??,振る舞う,表?；?止,behave well,Please behave well in class.,授業中はきちんと振る舞ってください。,?在?堂上好好表?。,B,0,B
+0482,breathe,??,呼吸する,呼吸,breathe deeply,Breathe deeply and relax.,深く呼吸してリラックスしてください。,深呼吸并放松。,B,0,B
+0483,brush,??,ブラシをかける,刷；梳理,brush teeth,Brush your teeth before bed.,寝る前に歯を磨きなさい。,睡前刷牙。,B,0,B
+0484,burn,??,燃える；燃やす,燃?；??,burn well,Paper burns easily.,紙はよく燃える。,?很容易燃?。,B,0,B
+0485,appointment,名?,予約；約束,??；?定,make an appointment,I have a dentist appointment tomorrow.,明日、歯医者の予約があります。,我明天有牙医??。,B,0,B
+0486,ballet,名?,バレエ,芭蕾,a ballet dancer,She studies ballet every Saturday.,彼女は毎週土曜日にバレエを習っている。,??周六学?芭蕾。,B,0,B
+0487,capital,名?,首都；資本；大文字,首都；?本；大写字母,the capital of,Tokyo is the capital of Japan.,東京は日本の首都です。,?京是日本的首都。,B,0,B
+0488,ceremony,名?,儀式；式典,?式；典礼,a graduation ceremony,We attended the graduation ceremony.,私たちは卒業式に出席した。,我?参加了??典礼。,B,0,B
+0489,chef,名?,シェフ；料理長,厨?；主厨,a French chef,The chef cooked a special dinner.,シェフは特別な夕食を作った。,厨?做了一?特?的?餐。,B,0,B
+0490,climate,名?,気候,气候,a mild climate,The climate here is mild.,ここの気候は温暖だ。,?里的气候很温和。,B,0,B
+0491,coast,名?,海岸；沿岸,海岸；沿海,from coast to coast,We walked along the coast.,私たちは海岸に沿って歩いた。,我?沿着海岸散?。,B,0,B
+0492,commercial,名?,コマーシャル,商?广告,TV commercial,I saw a funny TV commercial.,面白いテレビコマーシャルを見た。,我看到了一?有趣的??广告。,B,0,B
+0493,credit,名?,クレジット；信用,信用；??,pay by credit card,I paid for the book by credit card.,私はその本をクレジットカードで支払った。,我用信用?支付了那本?。,B,0,B
+0494,decoration,名?,飾り；装飾,装?；装?品,Christmas decorations,We put decorations on the Christmas tree.,私たちはクリスマスツリーに飾りをつけた。,我?在???上挂了装?品。,B,0,B
+0495,dormitory,名?,寮；寄宿舎,宿舍,a dormitory room,The students live in a dormitory near the school.,学生たちは学校の近くの寮に住んでいる。,学生?住在学校附近的宿舍里。,B,0,B
+0496,exhibition,名?,展覧会；展示会,展?会,an art exhibition,We visited an art exhibition last Sunday.,私たちは先週の日曜日に美術展を訪れた。,我?上周日参?了一个美?展。,B,0,B
+0497,experiment,名?,実験,??,do an experiment,The students did a science experiment.,生徒たちは理科の実験をした。,学生?做了一个科学??。,B,0,B
+0498,factory,名?,工場,工厂,work in a factory,My uncle works in a car factory.,私のおじは自動車工場で働いている。,我叔叔在汽?工厂工作。,B,0,B
+0499,freedom,名?,自由,自由,freedom of speech,Freedom of speech is important.,言論の自由は大切だ。,言?自由很重要。,B,0,B
+0500,height,名?,高さ,高度；身高,at a height of,The wall is three meters in height.,その壁の高さは3メートルだ。,那堵?有三米高。,B,0,B
+0501,hero,名?,英雄；主人公,英雄；男主人公,admire a hero,The firefighter became a hero in the town.,その消防士は町の英雄になった。,那位消防?成了?上的英雄。,B,0,B
+0502,image,名?,イメージ；映像,形象；影像,change one’s image,The company wants to change its image.,その会社はイメージを変えたいと思っている。,那家公司想改?自己的形象。,B,0,B
+0503,insect,名?,虫；昆虫,昆虫,an insect bite,An insect bit my arm.,虫が私の腕を刺した。,一只虫子咬了我的?膊。,B,0,B
+0504,journey,名?,旅；旅行,旅程,take a journey,They took a long journey across Europe.,彼らはヨーロッパを横断する長い旅をした。,他??行了一次横跨欧洲的?途旅行。,B,0,B
+0505,knowledge,名?,知識,知?,knowledge about,She has a lot of knowledge about history.,彼女は歴史について多くの知識を持っている。,?有很多?史知?。,B,0,B
+0506,level,名?,水準；レベル,水平；等?,a high level,His English level is getting higher.,彼の英語のレベルは上がっている。,他的英?水平正在提高。,B,0,B
+0507,medicine,名?,薬；医学,?；医学,take medicine,Take this medicine after meals.,食後にこの薬を飲んでください。,??后吃?个?。,B,0,B
+0508,memory,名?,記憶；思い出,??；回?,memories of childhood,I have many happy memories of my childhood.,私は子どものころの楽しい思い出がたくさんある。,我有?多童年的快?回?。,B,0,B
+0509,noise,名?,騒音,噪音,make a noise,Please do not make a loud noise.,大きな音を立てないでください。,?不要?出很大的声音。,B,0,B
+0510,plastic,名?,プラスチック,塑料,made of plastic,This box is made of plastic.,この箱はプラスチックでできている。,?个盒子是塑料做的。,B,0,B
+0511,police,名?,警察,警察,call the police,Call the police if you are in danger.,危険な時は警察を呼びなさい。,有危????警。,B,0,B
+0512,principal,名?,校長,校?,the principal’s office,The principal spoke to the students.,校長先生は生徒たちに話した。,校??学生???。,B,0,B
+0513,sight,名?,視力；見ること；光景,?力；景象,beautiful sight,The view from the mountain was a beautiful sight.,山からの眺めは美しい光景だった。,从山上看到的景色非常美。,B,0,B
+0514,success,名?,成功,成功,have success,Her new business was a great success.,彼女の新しい事業は大成功だった。,?的新事?取得了巨大成功。,B,0,B
+0515,temperature,名?,気温；温度；体温,温度；体温,average temperature,The temperature dropped at night.,夜に気温が下がった。,夜里气温下降了。,B,0,B
+0516,tournament,名?,トーナメント；勝ち抜き試合,???；淘汰?,hold a tournament,Our team joined a tennis tournament.,私たちのチームはテニスのトーナメントに参加した。,我??参加了网球???。,B,0,B
+0517,variety,名?,多様性；いろいろ,多?性；各?各?,a variety of,The store sells a variety of cakes.,その店はいろいろなケーキを売っている。,那家店?各?蛋?。,B,0,B
+0518,ability,名?,能力,能力,ability to do,She has the ability to speak three languages.,彼女には3か国語を話す能力がある。,?有?三??言的能力。,B,0,B
+0519,agreement,名?,合意；協定,??；同意,reach an agreement,The two countries reached an agreement.,その二つの国は合意に達した。,?个国家?成了??。,B,0,B
+0520,athlete,名?,運動選手,???,an Olympic athlete,He wants to become an Olympic athlete.,彼はオリンピック選手になりたいと思っている。,他想成?奥?会???。,B,0,B
+0521,author,名?,作者；著者,作者；作家,favorite author,My favorite author writes children’s books.,私の好きな作家は児童書を書いている。,我最喜?的作家写儿童?。,B,0,B
+0522,backyard,名?,裏庭,后院,in the backyard,We planted a tree in the backyard.,私たちは裏庭に木を植えた。,我?在后院?了一??。,B,0,B
+0523,bacteria,名?,バクテリア；細菌,?菌,bacteria in the body,Some bacteria are useful to humans.,人間に役立つバクテリアもある。,有些?菌?人?有益。,B,0,B
+0524,beauty,名?,美；美人,美；美?,natural beauty,Many people admire the beauty of nature.,多くの人が自然の美しさに感動する。,?多人??大自然的美。,B,0,B
+0525,behavior,名?,振る舞い；行動,行?；?止,rude behavior,His rude behavior surprised everyone.,彼の失礼な行動はみんなを驚かせた。,他的粗?行??大家吃?。,B,0,B
+0526,blossom,名?,花；果樹の花,花；花?,cherry blossoms,Cherry blossoms bloom in spring.,桜の花は春に咲く。,?花在春天?放。,B,0,B
+0527,carpenter,名?,大工,木匠,a skillful carpenter,A carpenter fixed the wooden door.,大工が木のドアを直した。,木匠修好了木?。,B,0,B
+0528,cash,名?,現金,?金,pay in cash,I paid for the ticket in cash.,私はチケット代を現金で払った。,我用?金支付了票?。,B,0,B
+0529,charity,名?,慈善；慈善事業,慈善；慈善事?,charity concert,They held a charity concert for children.,彼らは子どもたちのためにチャリティーコンサートを開いた。,他??孩子???了慈善音?会。,B,0,B
+0530,communication,名?,コミュニケーション；伝達,交流；通信,a means of communication,Good communication is important at work.,仕事ではよいコミュニケーションが大切だ。,工作中良好的?通很重要。,B,0,B
+0531,conference,名?,会議；協議会,会?,international conference,She attended an international conference.,彼女は国際会議に出席した。,?参加了一个国?会?。,B,0,B
+0532,convenience,名?,便利；都合,便利,a convenience store,Online shopping offers great convenience.,オンラインショッピングは大きな便利さをもたらす。,网??来了很大的便利。,B,0,B
+0533,crop,名?,作物；収穫高,?作物；收成,grow crops,The farmers grow crops in the field.,農家は畑で作物を育てている。,?民?在田里?植?作物。,B,0,B
+0534,difficulty,名?,困難,困?,have difficulty doing,We had difficulty finding the station.,私たちは駅を見つけるのに苦労した。,我??了?才找到?站。,B,0,B
+0535,direction,名?,方向；指示,方向；指示,in the direction of,Please walk in this direction.,この方向に歩いてください。,?往?个方向走。,B,0,B
+0536,discount,名?,割引,折扣,get a discount,I got a discount on the shoes.,私はその靴を割引で買った。,我?那双鞋?得到了折扣。,B,0,B
+0537,disease,名?,病気；疾患,疾病,cure a disease,Doctors are trying to cure the disease.,医者たちはその病気を治そうとしている。,医生?正在努力治???疾病。,B,0,B
+0538,education,名?,教育,教育,college education,Every child has the right to education.,すべての子どもには教育を受ける権利がある。,?个孩子都有受教育的?利。,B,0,B
+0539,effect,名?,影響；効果,影?；效果,the effect of,The medicine had a good effect.,その薬はよい効果があった。,???有很好的效果。,B,0,B
+0540,enemy,名?,敵,?人,face an enemy,The soldiers faced a strong enemy.,兵士たちは強い敵に立ち向かった。,士兵?面??大的?人。,B,0,B
+0541,energy,名?,エネルギー；精力,能量；精力,energy problem,We need to save energy at home.,私たちは家でエネルギーを節約する必要がある。,我?需要在家??能源。,B,0,B
+0542,engine,名?,エンジン,??机,car engine,The car engine stopped suddenly.,車のエンジンが突然止まった。,汽???机突然停了。,B,0,B
+0543,engineer,名?,エンジニア；技術者,工程?；技?人?,systems engineer,My father is a computer engineer.,私の父はコンピューターエンジニアだ。,我??是一名?算机工程?。,B,0,B
+0544,entrance,名?,入口；入学,入口；入学,main entrance,We met at the main entrance.,私たちは正面玄関で会った。,我?在正??面。,B,0,B
+0545,equipment,名?,用具；設備；装置,??；器材,fishing equipment,The school bought new sports equipment.,学校は新しいスポーツ用具を買った。,学校??了新的??器材。,B,0,B
+0546,exercise,名?,運動；練習；練習問題,??；??,get exercise,You should get some exercise every day.,毎日少し運動したほうがいい。,????天做些??。,B,0,B
+0547,explorer,名?,探検家,探?家,famous explorer,The explorer traveled across the desert.,その探検家は砂漠を横断した。,那位探?家穿越了沙漠。,B,0,B
+0548,fashion,名?,流行；ファッション,?尚；流行,be in fashion,This style is in fashion now.,このスタイルは今流行している。,???格?在很流行。,B,0,B
+0549,figure,名?,人物；形；数字,人物；?形；数字,public figure,She is a famous public figure.,彼女は有名な公人だ。,?是一位著名公?人物。,B,0,B
+0550,forecast,名?,予報,??,weather forecast,The weather forecast says it will rain.,天気予報では雨が降ると言っている。,天气???会下雨。,B,0,B
+0551,furniture,名?,家具,家具,a piece of furniture,We bought new furniture for the room.,私たちは部屋に新しい家具を買った。,我??房??了新家具。,B,0,B
+0552,gallery,名?,美術館；画廊,美??；画廊,art gallery,The gallery displays modern art.,その美術館は現代美術を展示している。,那家美??展出?代??。,B,0,B
+0553,habit,名?,習慣；癖,??,good habit,Brushing your teeth is a good habit.,歯を磨くことはよい習慣だ。,刷牙是个好??。,B,0,B
+0554,harvest,名?,収穫,收?,good harvest,The farmers celebrated a good harvest.,農家の人々は豊作を祝った。,?民??祝?收。,B,0,B
+0555,horror,名?,恐怖,恐怖,horror movie,I do not like horror movies.,私はホラー映画が好きではない。,我不喜?恐怖?影。,B,0,B
+0556,housework,名?,家事,家?,do housework,I help my mother with the housework.,私は母の家事を手伝う。,我???做家?。,B,0,B
+0557,instruction,名?,指示；訓練,指示；?明,give instructions,Please read the instructions carefully.,説明をよく読んでください。,?仔????明。,B,0,B
+0558,instrument,名?,器具；楽器,工具；?器,musical instrument,He can play a musical instrument.,彼は楽器を演奏できる。,他会演奏一??器。,B,0,B
+0559,issue,名?,発行；問題；号,??；刊号,latest issue,The latest issue of the magazine is interesting.,その雑誌の最新号は面白い。,那本?志的最新一期很有趣。,B,0,B
+0560,item,名?,品目；項目,?目；物品,order an item,Please choose one item from the list.,リストから一つの項目を選んでください。,?从列表中??一?。,B,0,B
+0561,microwave,名?,電子レンジ,微波炉,put in a microwave,Please heat the soup in the microwave.,スープを電子レンジで温めてください。,?用微波炉加??。,B,0,B
+0562,movement,名?,運動；動き,??；?作,political movement,The political movement became stronger.,その政治運動は強くなった。,那?政治???得更?了。,B,0,B
+0563,nation,名?,国家；国民,国家；民族,United Nations,The United Nations works for peace.,国際連合は平和のために活動している。,?合国?和平而努力。,B,0,B
+0564,note,名?,覚え書き；注釈,??；注?,take notes,I take notes in class every day.,私は毎日授業でノートを取る。,我?天上????。,B,0,B
+0565,officer,名?,警官；役人,警官；官?,police officer,A police officer helped the child.,警官がその子どもを助けた。,一名警官?助了那个孩子。,B,0,B
+0566,package,名?,包み；荷物,包裹；包装,pick up a package,A package arrived this morning.,今朝、荷物が届いた。,今天早上来了一个包裹。,B,0,B
+0567,photographer,名?,写真家；カメラマン,?影?,professional photographer,The photographer took pictures of the event.,その写真家はイベントの写真を撮った。,?影?拍?了活?照片。,B,0,B
+0568,planet,名?,惑星,行星,planet around the sun,Earth is a planet that goes around the sun.,地球は太陽の周りを回る惑星だ。,地球是??太??行的行星。,B,0,B
+0569,population,名?,人口,人口,large population,The population of the city is growing.,その都市の人口は増えている。,?座城市的人口正在增加。,B,0,B
+0570,position,名?,位置；地位,位置；地位,change the position,Please change the position of the chair.,椅子の位置を変えてください。,?改?椅子的位置。,B,0,B
+0571,product,名?,製品；産物；結果,?品；?物,industrial products,This company sells many useful products.,この会社は多くの便利な製品を売っている。,?家公司?售?多有用的?品。,B,0,B
+0572,puppy,名?,子犬,小狗,cute puppy,The puppy is sleeping under the table.,子犬はテーブルの下で寝ている。,小狗正在?子下面睡?。,B,0,B
+0573,receipt,名?,レシート；領収書,收据；小票,have a receipt,"May I have a receipt, please?",レシートをいただけますか。,可以?我收据?？,B,0,B
+0574,recipe,名?,調理法；レシピ,食?；做法,favorite recipe,This is my favorite recipe for curry.,これは私のお気に入りのカレーのレシピだ。,?是我最喜?的??食?。,B,0,B
+0575,resort,名?,リゾート；保養地,度假地,ski resort,We stayed at a ski resort in winter.,私たちは冬にスキーリゾートに泊まった。,我?冬天住在一个滑雪度假村。,B,0,B
+0576,role,名?,役；役割,角色；作用,play a role,He played the role of a king.,彼は王様の役を演じた。,他扮演了国王的角色。,B,0,B
+0577,row,名?,列,排；列,first row,We sat in the first row.,私たちは一列目に座った。,我?坐在第一排。,B,0,B
+0578,rug,名?,敷物；ラグ,地毯；小毯子,lay a rug,There is a blue rug on the floor.,床に青いラグがある。,地板上有一??色地毯。,B,0,B
+0579,sailor,名?,船乗り,水手；船?,brave sailor,The sailor worked on a large ship.,その船乗りは大きな船で働いていた。,那名水手在一艘大船上工作。,B,0,B
+0580,sense,名?,感覚；意味,感?；意?,sense of smell,Dogs have a good sense of smell.,犬は優れた嗅覚を持っている。,狗有很好的嗅?。,B,0,B
+0581,shortage,名?,不足；欠乏,短缺；不足,shortage of water,There is a shortage of water in the village.,その村では水が不足している。,那个村子缺水。,B,0,B
+0582,signal,名?,信号；合図,信号；暗号,traffic signal,The traffic signal turned red.,交通信号が赤になった。,交通信号??了。,B,0,B
+0583,silence,名?,静寂；沈黙,安静；?默,keep silence,The teacher asked for silence.,先生は静かにするよう求めた。,老?要求大家安静。,B,0,B
+0584,site,名?,用地；場所；ウェブサイト,地点；?地；网站,camping site,This is a good site for camping.,ここはキャンプに良い場所だ。,?里是?合露?的地点。,B,0,B
+0585,skin,名?,皮；肌,皮?；外皮,protect skin,Use cream to protect your skin.,肌を守るためにクリームを使いなさい。,使用乳霜保??的皮?。,B,0,B
+0586,soil,名?,土壌,土壤,rich soil,Rich soil helps plants grow.,肥えた土は植物の成長を助ける。,肥沃的土壤有助于植物生?。,B,0,B
+0587,soldier,名?,兵士；軍人,士兵；?人,train soldiers,The soldier trained hard every day.,その兵士は毎日一生懸命訓練した。,那名士兵?天努力??。,B,0,B
+0588,spirit,名?,気分；精神；霊,精神；心情,in good spirits,She was in good spirits after the game.,試合の後、彼女は上機嫌だった。,比?后?心情很好。,B,0,B
+0589,spray,名?,スプレー,??,insect spray,I used insect spray in the room.,私は部屋で防虫スプレーを使った。,我在房?里用了?虫??。,B,0,B
+0590,state,名?,州；状態；国家,州；状?；国家,state of Texas,Texas is a large state in the U.S.,テキサスはアメリカの大きな州だ。,德克?斯是美国的一个大州。,B,0,B
+0591,suggestion,名?,提案；暗示,建?；提?,accept a suggestion,Thank you for your helpful suggestion.,役に立つ提案をありがとう。,???有用的建?。,B,0,B
+0592,sunrise,名?,日の出,日出,before sunrise,We left home before sunrise.,私たちは日の出前に家を出た。,我?在日出前??了家。,B,0,B
+0593,technique,名?,技術；技巧,技?；技巧,new technique,He learned a new technique in class.,彼は授業で新しい技術を学んだ。,他在?上学到了一?新技?。,B,0,B
+0594,track,名?,線路；走路；跡,?道；?道；足迹,railroad track,The train runs on this track.,電車はこの線路を走る。,列?在?条?道上行?。,B,0,B
+0595,voyage,名?,船旅；航海,航海；海上旅行,long voyage,They went on a long voyage.,彼らは長い船旅に出た。,他??始了一次漫?的航海。,B,0,B
+0596,wallet,名?,財布,?包,thick wallet,He lost his wallet on the train.,彼は電車で財布をなくした。,他在??上?了?包。,B,0,B
+0597,weight,名?,重さ；体重,重量；体重,lose weight,What is your weight?,あなたの体重はどのくらいですか。,?的体重是多少？,B,0,B
+0598,adventure,名?,冒険,冒?,exciting adventure,The children had an exciting adventure.,子どもたちはわくわくする冒険をした。,孩子???了一次刺激的冒?。,B,0,B
+0599,amateur,名?,アマチュア；素人,?余?好者；外行,amateur photographer,He is an amateur photographer.,彼はアマチュアの写真家だ。,他是一名?余?影?。,B,0,B
+0600,ancestor,名?,祖先,祖先,roots of ancestors,I want to learn about my ancestors.,私は自分の祖先について学びたい。,我想了解自己的祖先。,B,0,B
+0601,aquarium,名?,水族館；水槽,水族?；水槽,visit an aquarium,We visited an aquarium in Osaka.,私たちは大阪の水族館を訪れた。,我?参?了大阪的一家水族?。,B,0,B
+0602,argument,名?,口論；議論；主張,争?；?点,have an argument,I had an argument with my brother.,私は兄と口論した。,我和哥哥?了一架。,B,0,B
+0603,assistant,名?,助手；補佐,助手；助理,assistant driver,She works as an assistant in the office.,彼女はオフィスで助手として働いている。,?在?公室做助理。,B,0,B
+0604,atmosphere,名?,雰囲気；大気,气氛；大气,friendly atmosphere,The cafe has a friendly atmosphere.,そのカフェには友好的な雰囲気がある。,那家???气氛很友好。,B,0,B
+0605,attendant,名?,係員；付き添い人,服??；随?,flight attendant,A flight attendant helped the passenger.,客室乗務員が乗客を助けた。,一名空乘?助了乘客。,B,0,B
+0606,butterfly,名?,チョウ,蝴蝶,rare butterfly,A butterfly flew over the flowers.,チョウが花の上を飛んでいた。,一只蝴蝶??花?。,B,0,B
+0607,calcium,名?,カルシウム,?,lack of calcium,Milk contains a lot of calcium.,牛乳にはたくさんのカルシウムが含まれている。,牛?含有很多?。,B,0,B
+0608,cattle,名?,牛；畜牛,牛；家牛,feed cattle,The farmer feeds the cattle every morning.,農家は毎朝牛にえさを与える。,?夫?天早上?牛。,B,0,B
+0609,celebration,名?,祝賀；祝い,?祝；?典,wedding celebration,The celebration lasted all night.,その祝賀会は一晩中続いた。,?祝活?持?了一整?。,B,0,B
+0610,charge,名?,料金；請求,?用；收?,service charge,There is a small service charge.,少額のサービス料がかかる。,需要支付少量服??。,B,0,B
+0611,chemistry,名?,化学,化学,major in chemistry,She decided to major in chemistry.,彼女は化学を専攻することに決めた。,?决定主修化学。,B,0,B
+0612,childhood,名?,子どものころ；幼少期,童年；幼年?期,in my childhood,I spent my childhood in Kyoto.,私は子どものころを京都で過ごした。,我的童年是在京都度?的。,B,0,B
+0613,citizen,名?,市民；国民,市民；公民,citizens of Tokyo,The citizens cleaned the park.,市民たちは公園を掃除した。,市民?打?了公?。,B,0,B
+0614,clinic,名?,クリニック；診療所,?所；??,dental clinic,I went to a dental clinic yesterday.,私は昨日歯科クリニックに行った。,我昨天去了牙科?所。,B,0,B
+0615,conversation,名?,会話；話すこと,会?；??,telephone conversation,We had a long telephone conversation.,私たちは長い電話での会話をした。,我??行了一次很?的??交?。,B,0,B
+0616,corporation,名?,大企業；株式会社,公司；企?,international corporation,He works for an international corporation.,彼は国際企業で働いている。,他在一家国?企?工作。,B,0,B
+0617,courage,名?,勇気,勇气,have the courage to,She had the courage to tell the truth.,彼女には真実を話す勇気があった。,?有?出真相的勇气。,B,0,B
+0618,crime,名?,犯罪,犯罪,commit a crime,The police are trying to stop crime.,警察は犯罪を防ごうとしている。,警察正在努力阻止犯罪。,B,0,B
+0619,crocodile,名?,ワニ；クロコダイル,??,crocodile leather,We saw a crocodile at the zoo.,私たちは動物園でワニを見た。,我?在?物?看到了??。,B,0,B
+0620,crowd,名?,群衆；人だかり,人群,crowd of people,A large crowd gathered in the square.,大勢の群衆が広場に集まった。,一大群人聚集在广?上。,B,0,B
+0621,danger,名?,危険,危?,be in danger,The hikers were in danger.,ハイカーたちは危険な状態にあった。,徒?者??于危?之中。,B,0,B
+0622,data,名?,データ；資料,数据；?料,latest data,The latest data shows a change.,最新のデータは変化を示している。,最新数据?示出?化。,B,0,B
+0623,death,名?,死,死亡,face death,The story is about life and death.,その物語は生と死についてのものだ。,?个故事?述生与死。,B,0,B
+0624,decision,名?,決定,决定,make a decision,We made a decision after the meeting.,私たちは会議の後で決定をした。,我?在会?后做出了决定。,B,0,B
+0625,diet,名?,ダイエット；日常の食事,?食；?肥,be on a diet,A healthy diet is important.,健康的な食事は大切だ。,健康的?食很重要。,B,0,B
+0626,edge,名?,縁；へり；刃,??；刀刃,edge of a table,Put the cup near the edge of the table.,カップをテーブルの端の近くに置きなさい。,把杯子放在??附近。,B,0,B
+0627,electricity,名?,電気,?,shortage of electricity,The storm caused a shortage of electricity.,嵐で電気不足が起きた。,暴?雨?致了?力不足。,B,0,B
+0628,emergency,名?,緊急事態,?急情况,in an emergency,Call this number in an emergency.,緊急時にはこの番号に電話してください。,?急情况下??打?个号?。,B,0,B
+0629,emotion,名?,感情,感情,control emotions,He tried to control his emotions.,彼は感情を抑えようとした。,他??控制自己的情?。,B,0,B
+0630,euro,名?,ユーロ,欧元,exchange euros,I exchanged yen for euros.,私は円をユーロに両替した。,我把日元?成了欧元。,B,0,B
+0631,examination,名?,試験；検査,考?；??,study for an examination,She studied hard for the examination.,彼女は試験のために一生懸命勉強した。,??了考?努力学?。,B,0,B
+0632,explanation,名?,説明,?明；解?,ask for an explanation,Please give me a clear explanation.,わかりやすい説明をしてください。,??我清楚的解?。,B,0,B
+0633,excellent,形容?,優れた,?秀的；?好的,excellent service,The hotel gave us excellent service.,そのホテルは素晴らしいサービスを提供してくれた。,那家酒店?我?提供了?好的服?。,B,0,B
+0634,formal,形容?,正式の；格式ばった,正式的,formal clothes,He wore formal clothes to the party.,彼はパーティーに正式な服を着て行った。,他穿正装去参加派?。,B,0,B
+0635,healthy,形容?,健康な,健康的,healthy food,Vegetables are healthy food.,野菜は体に良い食べ物だ。,蔬菜是健康食物。,B,0,B
+0636,human,形容?,人間の；人間的な,人的；人?的,human body,The human body needs water.,人間の体には水が必要だ。,人体需要水。,B,0,B
+0637,modern,形容?,現代の；近代の,?代的,modern times,Tokyo has many modern buildings.,東京には多くの現代的な建物がある。,?京有?多?代建筑。,B,0,B
+0638,simple,形容?,簡単な；単純な,??的；??的,simple question,This is a simple question.,これは簡単な質問だ。,?是一个??的??。,B,0,B
+0639,thin,形容?,薄い；細い；やせた,薄的；?的；?的,thin book,She bought a thin notebook.,彼女は薄いノートを買った。,??了一本薄??本。,B,0,B
+0640,traditional,形容?,伝統的な,??的,traditional way,They live in a traditional house.,彼らは伝統的な家に住んでいる。,他?住在??房屋里。,B,0,B
+0641,usual,形容?,いつもの；普通の,通常的；平常的,as usual,He came home at the usual time.,彼はいつもの時間に帰宅した。,他在平常的??回家。,B,0,B
+0642,central,形容?,中心の,中央的；中心的,central area,The hotel is in a central area.,そのホテルは中心部にある。,那家酒店位于市中心区域。,B,0,B
+0643,confident,形容?,確信して；自信のある,?信的；有自信的,be confident of,I am confident of my success.,私は自分の成功を確信している。,我?信自己会成功。,B,0,B
+0644,direct,形容?,直接の；真っすぐな,直接的；?直的,direct sunlight,Direct sunlight can be strong.,直射日光は強いことがある。,直射?光可能很?。,B,0,B
+0645,double,形容?,2人用の；2倍の,双人的；?倍的,double room,We booked a double room.,私たちはダブルルームを予約した。,我???了一个双人房。,B,0,B
+0646,enjoyable,形容?,楽しい,愉快的；有趣的,enjoyable event,The school trip was very enjoyable.,修学旅行はとても楽しかった。,学校旅行非常愉快。,B,0,B
+0647,fantastic,形容?,素晴らしい；空想的な,?好的；奇妙的,fantastic idea,That is a fantastic idea.,それは素晴らしい考えだ。,那是一个很棒的想法。,B,0,B
+0648,foreign,形容?,外国の,外国的,foreign language,I want to learn a foreign language.,私は外国語を学びたい。,我想学?一?外?。,B,0,B
+0649,frightened,形容?,おびえた；ぎょっとした,害怕的；受?的,be frightened of/by,The child was frightened by the loud noise.,その子どもは大きな音におびえた。,那个孩子被巨大的声音?到了。,B,0,B
+0650,gentle,形容?,優しい；穏やかな,温柔的；平和的,be gentle with,Please be gentle with small children.,小さな子どもには優しくしてください。,??小孩子温柔一些。,B,0,B
+0651,global,形容?,地球全体の；球形の,全球的；地球?模的,global warming,Global warming is a serious problem.,地球温暖化は深刻な問題です。,全球?暖是一个?重的??。,B,0,B
+0652,harmful,形容?,有害な,有害的,be harmful to,Smoking is harmful to your health.,喫煙は健康に有害です。,吸烟有害健康。,B,0,B
+0653,huge,形容?,巨大な,巨大的,a huge dinosaur,We saw a huge dinosaur model at the museum.,私たちは博物館で巨大な恐竜の模型を見ました。,我?在博物?看到了巨大的恐?模型。,B,0,B
+0654,ideal,形容?,理想的な,理想的,an ideal place,This town is an ideal place to live.,この町は住むのに理想的な場所です。,?个城市是理想的居住地。,B,0,B
+0655,male,形容?,雄の；男性の,雄性的；男性的,a male lion,A male lion has a large mane.,雄ライオンには大きなたてがみがあります。,雄?有很大的?毛。,B,0,B
+0656,original,形容?,独創的な；元の,原?的；原来的,an original idea,She had an original idea for the project.,彼女はそのプロジェクトに独創的な考えを持っていました。,???个?目有一个原?想法。,B,0,B
+0657,outdoor,形容?,野外の；屋外の,?外的,outdoor activities,We enjoy outdoor activities in spring.,私たちは春に野外活動を楽しみます。,我?春天喜??外活?。,B,0,B
+0658,particular,形容?,特定の；特別の,特定的；特?的,a particular problem,I have no particular plan for Sunday.,日曜日には特に決まった予定はありません。,我星期天没有特?的??。,B,0,B
+0659,perfect,形容?,完全な；完璧な,完美的；完全的,in perfect condition,The car is in perfect condition.,その車は完全な状態です。,那??状?完美。,B,0,B
+0660,plain,形容?,明らかな；簡素な,明?的；朴素的,plain English,Please explain it in plain English.,それを分かりやすい英語で説明してください。,?用??明了的英?解?。,B,0,B
+0661,regular,形容?,通常の；規則正しい,通常的；有?律的,regular business hours,The shop has regular business hours.,その店には通常の営業時間があります。,那家店有固定????。,B,0,B
+0662,secondhand,形容?,中古の,二手的,secondhand bicycle,He bought a secondhand bicycle.,彼は中古の自転車を買いました。,他?了一?二手自行?。,B,0,B
+0663,serious,形容?,重大な；重要な；真剣な,?重的；?真的,a serious illness,This is a serious illness.,これは重い病気です。,?是一?重病。,B,0,B
+0664,silly,形容?,愚かな；ばかげた,愚蠢的；无聊的,a silly joke,It was only a silly joke.,それはただのくだらない冗談でした。,那只是一个无聊的玩笑。,B,0,B
+0665,single,形容?,単一の；独身の,?一的；独身的,the single life,He lives a single life in Tokyo.,彼は東京で独身生活をしています。,他在?京?着?身生活。,B,0,B
+0666,smart,形容?,利口な；頭の良い,?明的；机?的,a smart solution,That was a smart solution.,それは賢い解決法でした。,那是一个?明的解决?法。,B,0,B
+0667,spare,形容?,予備の；余分の,?用的；多余的,a spare tire,Do you have a spare tire?,予備のタイヤはありますか。,?有?用?胎?？,B,0,B
+0668,square,形容?,平方の；正方形の,平方的；正方形的,square meters,The room is about twenty square meters.,その部屋は約20平方メートルです。,?个房?大?20平方米。,B,0,B
+0669,suitable,形容?,ふさわしい；適した,合?的,be suitable for,This book is suitable for beginners.,この本は初心者に適しています。,?本??合初学者。,B,0,B
+0670,tiny,形容?,ちっぽけな,很小的；微小的,a tiny bird,A tiny bird sat on the branch.,小さな鳥が枝にとまりました。,一只小?停在?枝上。,B,0,B
+0671,tough,形容?,困難な；頑丈な,困?的；?固的,a tough match,It was a tough match.,それは厳しい試合でした。,那是一???的比?。,B,0,B
+0672,whole,形容?,全体の,整个的；全部的,the whole class,The whole class laughed.,クラス全体が笑いました。,全班都笑了。,B,0,B
+0673,absent,形容?,欠席の；不在の,缺席的；不在的,be absent from,He was absent from school yesterday.,彼は昨日学校を休みました。,他昨天没去学校。,B,0,B
+0674,alike,形容?,似ている；同様で,相似的；一?的,very alike,The two pictures are very alike.,その2枚の絵はとても似ています。,????很相似。,B,0,B
+0675,allergic,形容?,アレルギー体質の,?敏的；有?敏症的,be allergic to,She is allergic to cats.,彼女は猫にアレルギーがあります。,??猫?敏。,B,0,B
+0676,available,形容?,入手できる；利用可能な,可?得的；可利用的,be available online,This ticket is available online.,このチケットはオンラインで入手できます。,??票可以在网上?到。,B,0,B
+0677,awful,形容?,ひどい,糟?的；可怕的,an awful mistake,I made an awful mistake.,私はひどい間違いをしました。,我犯了一个?重??。,B,0,B
+0678,basic,形容?,基本的な,基本的,basic human rights,Basic human rights are important.,基本的人権は重要です。,基本人?很重要。,B,0,B
+0679,charming,形容?,魅力的な,有魅力的,a charming smile,She has a charming smile.,彼女には魅力的な笑顔があります。,?有迷人的笑容。,B,0,B
+0680,cheerful,形容?,陽気な；元気の良い,?朗的；愉快的,a cheerful person,He is always cheerful in the morning.,彼は朝いつも陽気です。,他早上?是很?朗。,B,0,B
+0681,colored,形容?,色つきの,彩色的；有?色的,a colored dress,She wore a brightly colored dress.,彼女は色鮮やかなドレスを着ていました。,?穿着一件色彩??的?衣裙。,B,0,B
+0682,constant,形容?,一定の；不変の,固定的；持?的,constant noise,The machine makes a constant noise.,その機械は一定の音を出します。,?台机器?出持?的噪音。,B,0,B
+0683,dead,形容?,死んだ,死的,a dead plant,The plant is dead because it had no water.,その植物は水がなくて枯れています。,那株植物因?没有水而枯死了。,B,0,B
+0684,delicate,形容?,取り扱いの難しい；繊細な,微妙的；精致的,a delicate matter,This is a delicate matter.,これは取り扱いの難しい問題です。,?是一个棘手的??。,B,0,B
+0685,delighted,形容?,喜んで,高?的,be delighted with,We were delighted with the result.,私たちはその結果に喜びました。,我???果感到高?。,B,0,B
+0686,dependent,形容?,依存している；頼っている,依?的,be dependent on,Children are often dependent on their parents.,子どもはしばしば親に依存しています。,孩子常常依?父母。,B,0,B
+0687,dramatic,形容?,劇的な,??性的；巨大的,a dramatic change,There was a dramatic change in the weather.,天気に劇的な変化がありました。,天气?生了巨大?化。,B,0,B
+0688,electronic,形容?,電子の,?子的,electronic device,I bought a new electronic device.,私は新しい電子機器を買いました。,我?了一个新的?子??。,B,0,B
+0689,fat,形容?,太った；厚い,胖的；厚的,a fat cat,A fat cat slept on the sofa.,太った猫がソファで寝ていました。,一只胖猫睡在沙?上。,B,0,B
+0690,female,形容?,雌の；女性の,雌性的；女性的,a female doctor,A female doctor examined the patient.,女性医師が患者を診察しました。,一位女医生?病人做了??。,B,0,B
+0691,flat,形容?,平らな；空気の抜けた,平坦的；没气的,flat ground,We played soccer on flat ground.,私たちは平らな地面でサッカーをしました。,我?在平地上?足球。,B,0,B
+0692,fresh,形容?,新鮮な；真新しい,新?的,fresh vegetables,This shop sells fresh vegetables.,この店は新鮮な野菜を売っています。,?家店?新?蔬菜。,B,0,B
+0693,frightening,形容?,恐ろしい；ぎょっとするような,可怕的,a frightening experience,It was a frightening experience.,それは恐ろしい経験でした。,那是一次可怕的??。,B,0,B
+0694,full-time,形容?,常勤の；専任の,全?的,a full-time employee,She works as a full-time employee.,彼女は常勤の従業員として働いています。,?作?全??工工作。,B,0,B
+0695,handsome,形容?,ハンサムな；端正な,英俊的,a handsome man,He is a handsome young man.,彼はハンサムな若者です。,他是一个英俊的年?人。,B,0,B
+0696,helpful,形容?,助けになる；有用な,有?助的；有用的,be helpful to,Your advice was very helpful.,あなたの助言はとても役に立ちました。,?的建?很有?助。,B,0,B
+0697,historical,形容?,歴史上の；歴史の,?史的,historical buildings,Kyoto has many historical buildings.,京都には多くの歴史的建造物があります。,京都有?多?史建筑。,B,0,B
+0698,anyway,副?,とにかく,?之；无?如何,thanks anyway,Thanks anyway.,とにかくありがとう。,?之???。,B,0,B
+0699,environmentally,副?,環境の点で,从?境角度,think environmentally,We should think environmentally.,私たちは環境の点で考えるべきです。,我???从?保角度思考。,B,0,B
+0700,especially,副?,特に；とりわけ,尤其；特?,especially in summer,This park is crowded especially in summer.,この公園は特に夏に混雑します。,?个公?尤其在夏天很??。,B,0,B
+0701,fairly,副?,まあまあ；公正に,相当；公平地,fairly well,I know him fairly well.,私は彼をまあまあよく知っています。,我相当了解他。,B,0,B
+0702,perhaps,副?,もしかすると,也?；可能,perhaps,Perhaps he is right.,もしかすると彼は正しいかもしれません。,也?他是?的。,B,0,B
+0703,widely,副?,広く；広範囲に,广泛地,be widely known,This story is widely known.,この話は広く知られています。,?个故事广?人知。,B,0,B
+0704,eventually,副?,結局は,最?,eventually,He eventually found his keys.,彼は結局鍵を見つけました。,他最?找到了?匙。,B,0,B
+0705,exactly,副?,正確に；まさに,准?地；正是,exactly three,The train arrived at exactly three.,電車はちょうど3時に到着しました。,??正好三点到?。,B,0,B
+0706,further,副?,もっと遠くに；さらに,更?；?一?,discuss further,We need to discuss this further.,私たちはこれをさらに話し合う必要があります。,我?需要?一????件事。,B,0,B
+0707,generally,副?,一般的に,一般来?,generally speaking,"Generally speaking, children learn quickly.",一般的に言って、子どもは早く学びます。,一般来?，孩子学得很快。,B,0,B
+0708,greatly,副?,非常に；大いに,大大地；非常,be greatly surprised,I was greatly surprised by the news.,私はその知らせに非常に驚きました。,我??个消息非常??。,B,0,B
+0709,naturally,副?,自然に；当然,自然地；当然,behave naturally,She smiled naturally.,彼女は自然にほほ笑みました。,?自然地微笑了。,B,0,B
+0710,nowadays,副?,今日では；近ごろは,如今；近来,nowadays,"Nowadays, many people use smartphones.",今日では多くの人がスマートフォンを使っています。,如今?多人使用智能手机。,B,0,B
+0711,originally,副?,最初は；もともと,原本；最初,originally planned,The building was originally a school.,その建物はもともと学校でした。,那?建筑原本是一所学校。,B,0,B
+0712,otherwise,副?,その他の点では；そうでなければ,否?；在其他方面,otherwise,"Hurry up; otherwise, you will miss the bus.",急ぎなさい。そうでなければバスに乗り遅れます。,快点，否??会??公交?。,B,0,B
+0713,rapidly,副?,急速に；速く,迅速地,grow rapidly,The city is growing rapidly.,その都市は急速に成長しています。,?座城市正在迅速?展。,B,0,B
+0714,seldom,副?,めったに?ない,很少；?得,seldom,We seldom eat out.,私たちはめったに外食しません。,我?很少外出吃?。,B,0,B
+0715,somewhere,副?,どこかに；どこかで,在某?,somewhere,I left my umbrella somewhere.,私はどこかに傘を置いてきました。,我把?落在某个地方了。,B,0,B
+0716,unfortunately,副?,残念ながら；不運にも,不幸地；?憾地,unfortunately,"Unfortunately, the event was canceled.",残念ながら、その行事は中止されました。,?憾的是，活?被取消了。,B,0,B
+0717,abroad,副?,海外へ；海外に,到国外；在国外,study abroad,She wants to study abroad next year.,彼女は来年海外で勉強したいと思っています。,?想明年去国外学?。,B,0,B
+0718,apart,副?,離れて；別々に,分?地；相隔,far apart,The twins live far apart now.,その双子は今、離れて暮らしています。,那?双胞胎?在住得很?。,B,0,B
+0719,apparently,副?,聞いたところでは；明らかに,看来；?然,apparently,"Apparently, he missed the train.",どうやら彼は電車に乗り遅れたようです。,看来他??了??。,B,0,B
+0720,besides,副?,その上；さらに,而且；此外,besides,"Besides, it is too expensive.",その上、それは高すぎます。,而且它太?了。,B,0,B
+0721,downstairs,副?,階下へ；階下で,到楼下；在楼下,go downstairs,Please go downstairs quietly.,静かに階下へ行ってください。,?安静地下楼。,B,0,B
+0722,equally,副?,同程度に；等しく,同?地；平等地,equally important,Both plans are equally important.,どちらの計画も同じくらい重要です。,?个??同?重要。,B,0,B
+0723,forever,副?,永久に,永?,live forever,I will remember this day forever.,私はこの日を永遠に覚えているでしょう。,我会永??住?一天。,B,0,B
+0724,fortunately,副?,幸運にも,幸?地,fortunately,"Fortunately, nobody was hurt.",幸運にも、誰もけがをしませんでした。,幸?的是，没有人受?。,B,0,B
+0725,frankly,副?,率直に；正直に,坦率地,frankly speaking,"Frankly speaking, I disagree.",率直に言って、私は反対です。,坦率地?，我不同意。,B,0,B
+0726,whenever,??,?するときはいつでも,?当；无?何?,whenever,Call me whenever you need help.,助けが必要なときはいつでも電話してください。,?需要?助?随??我打??。,B,0,B
+0727,unless,??,?でない限り,除非；如果不,unless,You cannot go out unless you finish your homework.,宿題を終えない限り、外出できません。,除非?完成作?，否?不能出去。,B,0,B
+0728,whether,??,?かどうか,是否,whether,I don't know whether he will come.,彼が来るかどうか分かりません。,我不知道他是否会来。,B,0,B
+0729,wherever,??,どこへでも；どこででも,无??里,wherever,You may sit wherever you like.,好きな所に座ってよいです。,?可以坐在任何?喜?的地方。,B,0,B
+0730,except,介?,?を除いては,除了,except for,Everyone except Tom was invited.,トム以外はみんな招待されました。,除了Tom，大家都被邀?了。,B,0,B
+0731,till,介?,?まで,直到,till sunset,We worked till sunset.,私たちは日没まで働きました。,我?一直工作到日落。,B,0,B
+0732,beyond,介?,?を越えて；?の向こうに,超?；在……的那?,beyond expectations,The result was beyond our expectations.,その結果は私たちの予想を超えていました。,?果超出了我?的?期。,B,0,B
+0733,despite,介?,?にもかかわらず,尽管；?然,despite the rain,"Despite the rain, we played soccer.",雨にもかかわらず、私たちはサッカーをしました。,尽管下雨，我??是?了足球。,B,0,B
+0734,toward,介?,?の方へ,朝向；向,toward the door,The dog ran toward the door.,犬はドアの方へ走りました。,狗朝??去。,B,0,B
+0735,none,代?,誰も?ない；何も?ない,没有一个；没有任何,none of,None of the students were late.,生徒は誰も遅刻しませんでした。,没有一个学生?到。,B,0,B
+1086,as well as B,熟?,BはもちろんのことAも,不但……而且……；以及,as well as,I like classical music as well as jazz.,,我不但喜?爵士?，也喜?古典音?。,A,0,
+1087,a couple of,熟?,"2,3の?",?三个；几个,a couple of weeks,I'm going to stay in Oxford for a couple of weeks.,,我打算在牛津待?三周。,A,0,
+1088,a number of,熟?,いくつかの?,一些；?多,a number of planets,"Some stars are, like our sun, circled by a number of planets.",,有些恒星像太?一?，被数个行星??。,A,0,
+1089,a variety of,熟?,さまざまな?,各?各?的,a variety of problems,The packaging used by supermarkets creates a variety of environmental problems.,,超市使用的包装造成了各??境??。,A,0,
+1090,according to,熟?,?によれば,根据；按照,according to this magazine,"According to this magazine, the actress is going to marry a jazz musician.",,根据?本?志，那位女演?将与一位爵士音?家?婚。,A,0,
+1091,after a while,熟?,しばらくして,?了一会儿,after a while,"After a while, people lost interest in the scandal.",,?了一?子，人??那?丑?失去了?趣。,A,0,
+1092,all the way,熟?,はるばる,一路；?道而来,all the way from,Bill came all the way from Florida.,,比??道从佛?里?赶来。,A,0,
+1093,along with,熟?,?と一緒に,和……一起,along with food and water,They sent us a lot of medicine along with food and water.,,他?把大量?品和食物、水一起送来了。,A,0,
+1094,apply for,熟?,?に応募する,申?,apply for a job,He applied for a job to pick apples on a farm in Aomori.,,他申?了青森??采苹果的工作。,A,0,
+1095,as a result of,熟?,?の結果として,由于；作?……?果,as a result of,"As a result of new developments in telephone communication technology, the cost of calls will be reduced.",,由于通信技?的?展，通??用将降低。,A,0,
+1096,as ~ as possible,熟?,できるだけ?,尽可能……,as soon as possible,Please write me back as soon as possible.,,?尽快?我回信。,A,0,
+1097,as if [though],熟?,まるで…のように,?佛；好像,as if it were,"Brent is an American, but he speaks Japanese as if it were his mother tongue.",,Brent 是美国人，但他?日?就像母?一?。,A,0,
+1098,as usual,熟?,いつものように,像往常一?,as usual,Tom found it impossible to ask Kate for a favor as usual.,,Tom ??无法像平?一??求 Kate ?忙。,A,0,
+1099,ask for,熟?,?を求める,?求；要求,ask for a second opinion,You should ask for a second opinion.,,???征求第二意?。,A,0,

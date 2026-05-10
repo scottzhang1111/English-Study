@@ -1,0 +1,991 @@
+﻿question_id,set_id,question_no,section,question_type,passage_id,prompt,question_text_ja,option_A,option_B,option_C,option_D,option_A_ja,option_B_ja,option_C_ja,option_D_ja,correct_option,correct_answer_text,correct_answer_text_ja,explanation_ja,vocabulary_notes_ja,difficulty,skill_tag,weak_point_tag,target_vocab,source_style
+SET01-Q01,SET01,1,短句填空,sentence_fill,,"My brother is too young to cook by himself, so an adult must (____) him in the kitchen.",弟は一人で料理するには幼すぎるので、大人が台所で彼を（　）必要があります。,print,watch,miss,fold,印刷する,見守る,逃す／恋しく思う,折る,B,watch,見守る,文脈から「watch」が最も自然です。意味は「見守る」です。空所の前後の言葉を手がかりにすると選びやすくなります。,"watch = 見守る
+文脈：空所の前後から意味を判断する。",EIKEN_Pre2,verb,vocabulary,watch,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET01-Q02,SET01,2,短句填空,sentence_fill,,The museum guide spoke slowly so that everyone could (____) her explanation.,博物館の案内係は、みんなが説明を（　）できるようにゆっくり話しました。,understand,borrow,damage,return,理解する,借りる,損害を与える,返す,A,understand,理解する,文脈から「understand」が最も自然です。意味は「理解する」です。空所の前後の言葉を手がかりにすると選びやすくなります。,"understand = 理解する
+文脈：空所の前後から意味を判断する。",EIKEN_Pre2,verb,vocabulary,understand,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET01-Q03,SET01,3,短句填空,sentence_fill,,"The box was too (____) for one person to carry, so two students lifted it together.",その箱は一人で運ぶには（　）すぎたので、二人の生徒が一緒に持ち上げました。,kind,heavy,straight,bright,親切な,重い,まっすぐな,明るい,B,heavy,重い,文脈から「heavy」が最も自然です。意味は「重い」です。空所の前後の言葉を手がかりにすると選びやすくなります。,"heavy = 重い
+文脈：空所の前後から意味を判断する。",EIKEN_Pre2,adjective,vocabulary,heavy,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET01-Q04,SET01,4,短句填空,sentence_fill,,"After running three kilometers, Taro felt very (____) and drank a bottle of water.",3キロ走ったあと、太郎はとても（　）感じ、水を一本飲みました。,famous,daily,plastic,thirsty,有名な,毎日の,プラスチックの,のどが渇いた,D,thirsty,のどが渇いた,文脈から「thirsty」が最も自然です。意味は「のどが渇いた」です。空所の前後の言葉を手がかりにすると選びやすくなります。,"thirsty = のどが渇いた
+文脈：空所の前後から意味を判断する。",EIKEN_Pre2,adjective,vocabulary,thirsty,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET01-Q05,SET01,5,短句填空,sentence_fill,,"The school will (____) a science event next Friday, and many parents will come.",学校は来週金曜日に理科イベントを（　）予定で、多くの保護者が来ます。,catch,hold,drop,forget,捕まえる,開催する／持つ,落とす,忘れる,B,hold,開催する／持つ,文脈から「hold」が最も自然です。意味は「開催する／持つ」です。空所の前後の言葉を手がかりにすると選びやすくなります。,"hold = 開催する／持つ
+文脈：空所の前後から意味を判断する。",EIKEN_Pre2,verb,vocabulary,hold,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET01-Q06,SET01,6,短句填空,sentence_fill,,"A: I’m sorry I broke your ruler.
+B: That’s OK. It was an old one, and I can (____) another one.","A：あなたの定規を壊してごめんなさい。
+B：大丈夫。古いものだったし、別のものを（　）ことができます。",solve,wake,buy,climb,解決する,起こす,買う,登る,C,buy,買う,文脈から「buy」が最も自然です。意味は「買う」です。空所の前後の言葉を手がかりにすると選びやすくなります。,"buy = 買う
+文脈：空所の前後から意味を判断する。",EIKEN_Pre2,verb,vocabulary,buy,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET01-Q07,SET01,7,短句填空,sentence_fill,,The restaurant is popular because its meals are delicious and the prices are (____).,そのレストランは料理がおいしく、値段が（　）なので人気があります。,cloudy,reasonable,wooden,lonely,曇った,手ごろな,木製の,さびしい,B,reasonable,手ごろな,文脈から「reasonable」が最も自然です。意味は「手ごろな」です。空所の前後の言葉を手がかりにすると選びやすくなります。,"reasonable = 手ごろな
+文脈：空所の前後から意味を判断する。",EIKEN_Pre2,adjective,vocabulary,reasonable,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET01-Q08,SET01,8,短句填空,sentence_fill,,The soccer coach told the players to (____) carefully before the game to avoid injuries.,サッカーのコーチは、けがを避けるために試合前に注意して（　）よう選手たちに言いました。,decorate,stretch,count,trade,飾る,ストレッチする,数える,交換する,B,stretch,ストレッチする,文脈から「stretch」が最も自然です。意味は「ストレッチする」です。空所の前後の言葉を手がかりにすると選びやすくなります。,"stretch = ストレッチする
+文脈：空所の前後から意味を判断する。",EIKEN_Pre2,verb,vocabulary,stretch,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET01-Q09,SET01,9,短句填空,sentence_fill,,Sarah could not hear the announcement because the room was too (____).,部屋があまりにも（　）だったので、サラは放送を聞くことができませんでした。,noisy,useful,correct,private,騒がしい,役に立つ,訂正する／正しい,個人的な,A,noisy,騒がしい,文脈から「noisy」が最も自然です。意味は「騒がしい」です。空所の前後の言葉を手がかりにすると選びやすくなります。,"noisy = 騒がしい
+文脈：空所の前後から意味を判断する。",EIKEN_Pre2,adjective,vocabulary,noisy,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET01-Q10,SET01,10,短句填空,sentence_fill,,The city plans to (____) more trees along the main street next spring.,市は来年の春、メインストリート沿いにもっと多くの木を（　）予定です。,plant,mix,charge,tie,植える,混ぜる,料金を請求する,結ぶ,A,plant,植える,文脈から「plant」が最も自然です。意味は「植える」です。空所の前後の言葉を手がかりにすると選びやすくなります。,"plant = 植える
+文脈：空所の前後から意味を判断する。",EIKEN_Pre2,verb,vocabulary,plant,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET01-Q11,SET01,11,对话完成,dialogue_completion,,"A: You look tired, Ben.
+B: I stayed up late finishing my science project.
+A: Is it due today?
+B: (____)","次の会話を完成させなさい。
+A： You look tired, Ben.
+B： I stayed up late finishing my science project.
+A： Is it due today?
+B： （　）","Yes, I have to hand it in this morning.",It was sunny yesterday.,I like sandwiches.,"No, I never study science.",はい、今朝提出しなければなりません。,昨日は晴れていました。,私はサンドイッチが好きです。,いいえ、私は理科を勉強しません。,A,"Yes, I have to hand it in this morning.",はい、今朝提出しなければなりません。,"会話の流れに合う返事は「Yes, I have to hand it in this morning.」です。前の発言をよく読むと、自然につながる内容を選べます。","会話表現：相手の質問や依頼に合う自然な返事を選ぶ。
+correct answer = Yes, I have to hand it in this morning.（はい、今朝提出しなければなりません。）",EIKEN_Pre2,school,conversation,,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET01-Q12,SET01,12,对话完成,dialogue_completion,,"A: This jacket is nice, but it’s too small.
+B: Would you like to try a larger size?
+A: Yes, please.
+B: (____)","次の会話を完成させなさい。
+A： This jacket is nice, but it’s too small.
+B： Would you like to try a larger size?
+A： Yes, please.
+B： （　）",The library is closed today.,You should ride the bus.,I finished reading it.,I’ll bring one from the back.,図書館は今日は閉まっています。,バスに乗るべきです。,それを読み終えました。,奥から一つ持ってきます。,D,I’ll bring one from the back.,奥から一つ持ってきます。,会話の流れに合う返事は「I’ll bring one from the back.」です。前の発言をよく読むと、自然につながる内容を選べます。,"会話表現：相手の質問や依頼に合う自然な返事を選ぶ。
+correct answer = I’ll bring one from the back.（奥から一つ持ってきます。）",EIKEN_Pre2,shopping,conversation,,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET01-Q13,SET01,13,对话完成,dialogue_completion,,"A: Dad, may I use the computer?
+B: Did you finish your homework first?
+A: Yes, I finished it a few minutes ago.
+B: (____)","次の会話を完成させなさい。
+A： Dad, may I use the computer?
+B： Did you finish your homework first?
+A： Yes, I finished it a few minutes ago.
+B： （　）","No, we need more milk.",I like your new shoes.,The train was late.,All right. You can use it for thirty minutes.,いいえ、もっと牛乳が必要です。,あなたの新しい靴が好きです。,電車が遅れました。,いいですよ。30分使ってよいです。,D,All right. You can use it for thirty minutes.,いいですよ。30分使ってよいです。,会話の流れに合う返事は「All right. You can use it for thirty minutes.」です。前の発言をよく読むと、自然につながる内容を選べます。,"会話表現：相手の質問や依頼に合う自然な返事を選ぶ。
+correct answer = All right. You can use it for thirty minutes.（いいですよ。30分使ってよいです。）",EIKEN_Pre2,home,conversation,,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET01-Q14,SET01,14,对话完成,dialogue_completion,,"A: I’m looking for a book about space.
+B: Children’s books or adult books?
+A: Children’s books, please.
+B: (____)","次の会話を完成させなさい。
+A： I’m looking for a book about space.
+B： Children’s books or adult books?
+A： Children’s books, please.
+B： （　）",They are on the second shelf near the window.,My brother plays tennis.,I will take the blue one.,The bus leaves at noon.,窓の近くの2番目の棚にあります。,私の兄はテニスをします。,青いものにします。,バスは正午に出発します。,A,They are on the second shelf near the window.,窓の近くの2番目の棚にあります。,会話の流れに合う返事は「They are on the second shelf near the window.」です。前の発言をよく読むと、自然につながる内容を選べます。,"会話表現：相手の質問や依頼に合う自然な返事を選ぶ。
+correct answer = They are on the second shelf near the window.（窓の近くの2番目の棚にあります。）",EIKEN_Pre2,library,conversation,,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET01-Q15,SET01,15,对话完成,dialogue_completion,,"A: The soup is too hot to eat.
+B: Then wait a few minutes.
+A: Good idea.
+B: (____)","次の会話を完成させなさい。
+A： The soup is too hot to eat.
+B： Then wait a few minutes.
+A： Good idea.
+B： （　）",I forgot my umbrella.,The museum is closed.,You should buy new shoes.,It will cool down soon.,傘を忘れました。,博物館は閉まっています。,新しい靴を買うべきです。,すぐに冷めます。,D,It will cool down soon.,すぐに冷めます。,会話の流れに合う返事は「It will cool down soon.」です。前の発言をよく読むと、自然につながる内容を選べます。,"会話表現：相手の質問や依頼に合う自然な返事を選ぶ。
+correct answer = It will cool down soon.（すぐに冷めます。）",EIKEN_Pre2,restaurant,conversation,,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET01-Q16,SET01,16,阅读理解,reading_comprehension,SET01-P01,Where will Friday’s practice be held?,本文の内容に合う答えを選びなさい：金曜日の練習はどこで行われますか。,In the gym.,At the city pool.,At Green Park.,In Room 4C.,体育館で。,市民プールで。,グリーンパークで。,4C教室で。,C,At Green Park.,グリーンパークで。,本文の内容に合う答えは「At Green Park.」です。質問文のキーワードと同じ情報を本文から探すと、正解にたどり着けます。,"読解ポイント：質問の Who / What / Where / When / Why に注目する。
+correct answer = At Green Park.（グリーンパークで。）",EIKEN_Pre2,reading_detail,reading,,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET01-Q17,SET01,17,阅读理解,reading_comprehension,SET01-P01,Why is the practice place changing?,本文の内容に合う答えを選びなさい：なぜ練習場所が変わりますか。,The coach is sick.,The team has a game.,The school field is being repaired.,It will rain heavily.,コーチが病気だから。,チームに試合があるから。,学校のグラウンドが修理中だから。,大雨が降るから。,C,The school field is being repaired.,学校のグラウンドが修理中だから。,本文の内容に合う答えは「The school field is being repaired.」です。質問文のキーワードと同じ情報を本文から探すと、正解にたどり着けます。,"読解ポイント：質問の Who / What / Where / When / Why に注目する。
+correct answer = The school field is being repaired.（学校のグラウンドが修理中だから。）",EIKEN_Pre2,reading_detail,reading,,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET01-Q18,SET01,18,阅读理解,reading_comprehension,SET01-P01,What should students bring?,本文の内容に合う答えを選びなさい：生徒は何を持ってくるべきですか。,A dictionary.,A lunch box.,A water bottle.,A camera.,辞書。,弁当箱。,水筒。,カメラ。,C,A water bottle.,水筒。,本文の内容に合う答えは「A water bottle.」です。質問文のキーワードと同じ情報を本文から探すと、正解にたどり着けます。,"読解ポイント：質問の Who / What / Where / When / Why に注目する。
+correct answer = A water bottle.（水筒。）",EIKEN_Pre2,reading_detail,reading,,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET01-Q19,SET01,19,阅读理解,reading_comprehension,SET01-P02,Where did Sofia go yesterday?,本文の内容に合う答えを選びなさい：ソフィアは昨日どこへ行きましたか。,To her school library.,To a zoo.,To a train station.,To the city art museum.,学校の図書館へ。,動物園へ。,駅へ。,市立美術館へ。,D,To the city art museum.,市立美術館へ。,本文の内容に合う答えは「To the city art museum.」です。質問文のキーワードと同じ情報を本文から探すと、正解にたどり着けます。,"読解ポイント：質問の Who / What / Where / When / Why に注目する。
+correct answer = To the city art museum.（市立美術館へ。）",EIKEN_Pre2,reading_detail,reading,,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET01-Q20,SET01,20,阅读理解,reading_comprehension,SET01-P02,What was the special exhibition about?,本文の内容に合う答えを選びなさい：特別展は何についてでしたか。,Animals in paintings.,Old cameras.,Famous singers.,Space travel.,絵の中の動物。,古いカメラ。,有名な歌手。,宇宙旅行。,A,Animals in paintings.,絵の中の動物。,本文の内容に合う答えは「Animals in paintings.」です。質問文のキーワードと同じ情報を本文から探すと、正解にたどり着けます。,"読解ポイント：質問の Who / What / Where / When / Why に注目する。
+correct answer = Animals in paintings.（絵の中の動物。）",EIKEN_Pre2,reading_detail,reading,,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET01-Q21,SET01,21,阅读理解,reading_comprehension,SET01-P02,What did Sofia buy?,本文の内容に合う答えを選びなさい：ソフィアは何を買いましたか。,Postcards.,A toy horse.,A notebook.,A painting.,ポストカード。,おもちゃの馬。,ノート。,絵。,A,Postcards.,ポストカード。,本文の内容に合う答えは「Postcards.」です。質問文のキーワードと同じ情報を本文から探すと、正解にたどり着けます。,"読解ポイント：質問の Who / What / Where / When / Why に注目する。
+correct answer = Postcards.（ポストカード。）",EIKEN_Pre2,reading_detail,reading,,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET01-Q22,SET01,22,阅读理解,reading_comprehension,SET01-P03,Where was the empty space?,本文の内容に合う答えを選びなさい：空き地はどこにありましたか。,Behind a hospital.,Inside a station.,Next to a river.,Beside the city hall.,病院の後ろ。,駅の中。,川の隣。,市役所の横。,D,Beside the city hall.,市役所の横。,本文の内容に合う答えは「Beside the city hall.」です。質問文のキーワードと同じ情報を本文から探すと、正解にたどり着けます。,"読解ポイント：質問の Who / What / Where / When / Why に注目する。
+correct answer = Beside the city hall.（市役所の横。）",EIKEN_Pre2,reading_detail,reading,,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET01-Q23,SET01,23,阅读理解,reading_comprehension,SET01-P03,What did neighbors plant?,本文の内容に合う答えを選びなさい：近所の人たちは何を植えましたか。,Vegetables and flowers.,Rice and tea.,Grass for sports.,Only tall trees.,野菜と花。,米とお茶。,スポーツ用の芝生。,高い木だけ。,A,Vegetables and flowers.,野菜と花。,本文の内容に合う答えは「Vegetables and flowers.」です。質問文のキーワードと同じ情報を本文から探すと、正解にたどり着けます。,"読解ポイント：質問の Who / What / Where / When / Why に注目する。
+correct answer = Vegetables and flowers.（野菜と花。）",EIKEN_Pre2,reading_detail,reading,,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET01-Q24,SET01,24,阅读理解,reading_comprehension,SET01-P03,What did children do during summer?,本文の内容に合う答えを選びなさい：子どもたちは夏の間に何をしましたか。,They helped water the plants.,They painted the city hall.,They built a bridge.,They sold tickets.,植物に水をやる手伝いをした。,市役所にペンキを塗った。,橋を作った。,チケットを売った。,A,They helped water the plants.,植物に水をやる手伝いをした。,本文の内容に合う答えは「They helped water the plants.」です。質問文のキーワードと同じ情報を本文から探すと、正解にたどり着けます。,"読解ポイント：質問の Who / What / Where / When / Why に注目する。
+correct answer = They helped water the plants.（植物に水をやる手伝いをした。）",EIKEN_Pre2,reading_detail,reading,,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET01-Q25,SET01,25,阅读理解,reading_comprehension,SET01-P04,What happened during Maya’s first speech contest?,本文の内容に合う答えを選びなさい：マヤの最初のスピーチコンテストで何が起こりましたか。,She forgot some words.,She lost her notebook.,She won first prize.,She arrived too late.,彼女はいくつかの言葉を忘れた。,彼女はノートをなくした。,彼女は一位になった。,彼女は遅れて着いた。,A,She forgot some words.,彼女はいくつかの言葉を忘れた。,本文の内容に合う答えは「She forgot some words.」です。質問文のキーワードと同じ情報を本文から探すと、正解にたどり着けます。,"読解ポイント：質問の Who / What / Where / When / Why に注目する。
+correct answer = She forgot some words.（彼女はいくつかの言葉を忘れた。）",EIKEN_Pre2,reading_detail,reading,,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET01-Q26,SET01,26,阅读理解,reading_comprehension,SET01-P04,What did her teacher tell her?,本文の内容に合う答えを選びなさい：先生は彼女に何と言いましたか。,She should stop speaking English.,Mistakes could help her learn.,The contest was canceled.,She needed a new school.,She should stop speaking English.,間違いは学びの助けになる。,The contest was canceled.,She needed a new school.,B,Mistakes could help her learn.,間違いは学びの助けになる。,本文の内容に合う答えは「Mistakes could help her learn.」です。質問文のキーワードと同じ情報を本文から探すと、正解にたどり着けます。,"読解ポイント：質問の Who / What / Where / When / Why に注目する。
+correct answer = Mistakes could help her learn.（間違いは学びの助けになる。）",EIKEN_Pre2,reading_detail,reading,,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET01-Q27,SET01,27,阅读理解,reading_comprehension,SET01-P04,How did Maya speak this year?,本文の内容に合う答えを選びなさい：今年マヤはどのように話しましたか。,With confidence.,In Japanese only.,Very quietly.,Without practicing.,自信を持って。,In Japanese only.,とても小さな声で。,練習せずに。,A,With confidence.,自信を持って。,本文の内容に合う答えは「With confidence.」です。質問文のキーワードと同じ情報を本文から探すと、正解にたどり着けます。,"読解ポイント：質問の Who / What / Where / When / Why に注目する。
+correct answer = With confidence.（自信を持って。）",EIKEN_Pre2,reading_detail,reading,,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET01-Q28,SET01,28,阅读理解,reading_comprehension,SET01-P05,When is the night market held?,本文の内容に合う答えを選びなさい：ナイトマーケットはいつ開かれますか。,On the first Monday of each month.,Only on New Year’s Day.,Every morning in winter.,Every Friday in summer.,On the first Monday of each month.,Only on New Year’s Day.,Every morning in winter.,Every Friday in summer.,D,Every Friday in summer.,Every Friday in summer.,本文の内容に合う答えは「Every Friday in summer.」です。質問文のキーワードと同じ情報を本文から探すと、正解にたどり着けます。,"読解ポイント：質問の Who / What / Where / When / Why に注目する。
+correct answer = Every Friday in summer.（Every Friday in summer.）",EIKEN_Pre2,reading_detail,reading,,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET01-Q29,SET01,29,阅读理解,reading_comprehension,SET01-P05,Where do musicians play music?,本文の内容に合う答えを選びなさい：音楽家たちはどこで演奏しますか。,Inside the library.,Behind the hospital.,At the bus stop.,Near the fountain.,Inside the library.,Behind the hospital.,At the bus stop.,Near the fountain.,D,Near the fountain.,Near the fountain.,本文の内容に合う答えは「Near the fountain.」です。質問文のキーワードと同じ情報を本文から探すと、正解にたどり着けます。,"読解ポイント：質問の Who / What / Where / When / Why に注目する。
+correct answer = Near the fountain.（Near the fountain.）",EIKEN_Pre2,reading_detail,reading,,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET01-Q30,SET01,30,阅读理解,reading_comprehension,SET01-P05,Who does the market help?,本文の内容に合う答えを選びなさい：その市場は誰を助けますか。,Foreign airlines.,Farm animals.,Small shops.,Only large hotels.,Foreign airlines.,Farm animals.,小さなお店。,Only large hotels.,C,Small shops.,小さなお店。,本文の内容に合う答えは「Small shops.」です。質問文のキーワードと同じ情報を本文から探すと、正解にたどり着けます。,"読解ポイント：質問の Who / What / Where / When / Why に注目する。
+correct answer = Small shops.（小さなお店。）",EIKEN_Pre2,reading_detail,reading,,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET02-Q01,SET02,1,短句填空,sentence_fill,,The soccer coach told the players to (____) carefully before the game to avoid injuries.,サッカーのコーチは、けがを避けるために試合前に注意して（　）よう選手たちに言いました。,count,decorate,trade,stretch,数える,飾る,交換する,ストレッチする,D,stretch,ストレッチする,文脈から「stretch」が最も自然です。意味は「ストレッチする」です。空所の前後の言葉を手がかりにすると選びやすくなります。,"stretch = ストレッチする
+文脈：空所の前後から意味を判断する。",EIKEN_Pre2,verb,vocabulary,stretch,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET02-Q02,SET02,2,短句填空,sentence_fill,,Sarah could not hear the announcement because the room was too (____).,部屋があまりにも（　）だったので、サラは放送を聞くことができませんでした。,noisy,private,useful,correct,騒がしい,個人的な,役に立つ,訂正する／正しい,A,noisy,騒がしい,文脈から「noisy」が最も自然です。意味は「騒がしい」です。空所の前後の言葉を手がかりにすると選びやすくなります。,"noisy = 騒がしい
+文脈：空所の前後から意味を判断する。",EIKEN_Pre2,adjective,vocabulary,noisy,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET02-Q03,SET02,3,短句填空,sentence_fill,,The city plans to (____) more trees along the main street next spring.,市は来年の春、メインストリート沿いにもっと多くの木を（　）予定です。,mix,plant,tie,charge,混ぜる,植える,結ぶ,料金を請求する,B,plant,植える,文脈から「plant」が最も自然です。意味は「植える」です。空所の前後の言葉を手がかりにすると選びやすくなります。,"plant = 植える
+文脈：空所の前後から意味を判断する。",EIKEN_Pre2,verb,vocabulary,plant,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET02-Q04,SET02,4,短句填空,sentence_fill,,"A: Why did you bring a map?
+B: I don’t want to get (____) in this big city.","A：どうして地図を持ってきたの？
+B：この大きな町で（　）なりたくないからです。",lost,full,ready,safe,道に迷った／失った,いっぱいの,準備ができた,安全な,A,lost,道に迷った／失った,文脈から「lost」が最も自然です。意味は「道に迷った／失った」です。空所の前後の言葉を手がかりにすると選びやすくなります。,"lost = 道に迷った／失った
+文脈：空所の前後から意味を判断する。",EIKEN_Pre2,adjective,vocabulary,lost,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET02-Q05,SET02,5,短句填空,sentence_fill,,The movie was so (____) that many people laughed from beginning to end.,その映画はとても（　）だったので、多くの人が最初から最後まで笑いました。,weak,square,deep,funny,弱い,四角い,深い,おもしろい,D,funny,おもしろい,文脈から「funny」が最も自然です。意味は「おもしろい」です。空所の前後の言葉を手がかりにすると選びやすくなります。,"funny = おもしろい
+文脈：空所の前後から意味を判断する。",EIKEN_Pre2,adjective,vocabulary,funny,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET02-Q06,SET02,6,短句填空,sentence_fill,,The teacher asked the students to (____) their names at the top of the paper.,The teacher asked the students to （　） their names at the top of the paper.,write,carry,taste,invite,write,carry,taste,invite,A,write,write,文脈から「write」が最も自然です。意味は「write」です。空所の前後の言葉を手がかりにすると選びやすくなります。,"write = write
+文脈：空所の前後から意味を判断する。",EIKEN_Pre2,verb,vocabulary,write,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET02-Q07,SET02,7,短句填空,sentence_fill,,It is important to (____) your teeth after meals.,It is important to （　） your teeth after meals.,land,brush,measure,break,land,brush,measure,break,B,brush,brush,文脈から「brush」が最も自然です。意味は「brush」です。空所の前後の言葉を手がかりにすると選びやすくなります。,"brush = brush
+文脈：空所の前後から意味を判断する。",EIKEN_Pre2,verb,vocabulary,brush,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET02-Q08,SET02,8,短句填空,sentence_fill,,Emma saved money for three months because she wanted to (____) a new bicycle.,Emma saved money for three months because she wanted to （　） a new bicycle.,afford,boil,search,knock,afford,boil,search,knock,A,afford,afford,文脈から「afford」が最も自然です。意味は「afford」です。空所の前後の言葉を手がかりにすると選びやすくなります。,"afford = afford
+文脈：空所の前後から意味を判断する。",EIKEN_Pre2,verb,vocabulary,afford,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET02-Q09,SET02,9,短句填空,sentence_fill,,"The old clock still works, but it is not very (____). It is often five minutes slow.","The old clock still works, but it is not very （　）. It is often five minutes slow.",accurate,empty,social,central,accurate,空の,social,中心の,A,accurate,accurate,文脈から「accurate」が最も自然です。意味は「accurate」です。空所の前後の言葉を手がかりにすると選びやすくなります。,"accurate = accurate
+文脈：空所の前後から意味を判断する。",EIKEN_Pre2,adjective,vocabulary,accurate,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET02-Q10,SET02,10,短句填空,sentence_fill,,"A: Can I use your dictionary?
+B: Sure, but please (____) it before English class ends.","A: Can I use your dictionary?
+B: Sure, but please （　） it before English class ends.",return,warn,invent,cover,返す,警告する,invent,覆い／表紙,A,return,返す,文脈から「return」が最も自然です。意味は「返す」です。空所の前後の言葉を手がかりにすると選びやすくなります。,"return = 返す
+文脈：空所の前後から意味を判断する。",EIKEN_Pre2,verb,vocabulary,return,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET02-Q11,SET02,11,对话完成,dialogue_completion,,"A: I’m looking for a book about space.
+B: Children’s books or adult books?
+A: Children’s books, please.
+B: (____)","次の会話を完成させなさい。
+A： I’m looking for a book about space.
+B： Children’s books or adult books?
+A： Children’s books, please.
+B： （　）",I will take the blue one.,The bus leaves at noon.,My brother plays tennis.,They are on the second shelf near the window.,青いものにします。,バスは正午に出発します。,私の兄はテニスをします。,窓の近くの2番目の棚にあります。,D,They are on the second shelf near the window.,窓の近くの2番目の棚にあります。,会話の流れに合う返事は「They are on the second shelf near the window.」です。前の発言をよく読むと、自然につながる内容を選べます。,"会話表現：相手の質問や依頼に合う自然な返事を選ぶ。
+correct answer = They are on the second shelf near the window.（窓の近くの2番目の棚にあります。）",EIKEN_Pre2,library,conversation,,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET02-Q12,SET02,12,对话完成,dialogue_completion,,"A: The soup is too hot to eat.
+B: Then wait a few minutes.
+A: Good idea.
+B: (____)","次の会話を完成させなさい。
+A： The soup is too hot to eat.
+B： Then wait a few minutes.
+A： Good idea.
+B： （　）",It will cool down soon.,I forgot my umbrella.,The museum is closed.,You should buy new shoes.,すぐに冷めます。,傘を忘れました。,博物館は閉まっています。,新しい靴を買うべきです。,A,It will cool down soon.,すぐに冷めます。,会話の流れに合う返事は「It will cool down soon.」です。前の発言をよく読むと、自然につながる内容を選べます。,"会話表現：相手の質問や依頼に合う自然な返事を選ぶ。
+correct answer = It will cool down soon.（すぐに冷めます。）",EIKEN_Pre2,restaurant,conversation,,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET02-Q13,SET02,13,对话完成,dialogue_completion,,"A: Why are you carrying so many boxes?
+B: I’m moving to a new apartment tomorrow.
+A: Do you need any help?
+B: (____)","次の会話を完成させなさい。
+A： Why are you carrying so many boxes?
+B： I’m moving to a new apartment tomorrow.
+A： Do you need any help?
+B： （　）",Thanks. Could you carry this small one?,The concert was canceled.,"No, my cat is sleeping.","Yes, I watched it yesterday.",Thanks. Could you carry this small one?,The concert was canceled.,"No, my cat is sleeping.","Yes, I watched it yesterday.",A,Thanks. Could you carry this small one?,Thanks. Could you carry this small one?,会話の流れに合う返事は「Thanks. Could you carry this small one?」です。前の発言をよく読むと、自然につながる内容を選べます。,"会話表現：相手の質問や依頼に合う自然な返事を選ぶ。
+correct answer = Thanks. Could you carry this small one?（Thanks. Could you carry this small one?）",EIKEN_Pre2,daily life,conversation,,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET02-Q14,SET02,14,对话完成,dialogue_completion,,"A: Your speech was very clear.
+B: Thank you. I practiced a lot.
+A: Are you going to join the next contest?
+B: (____)","次の会話を完成させなさい。
+A： Your speech was very clear.
+B： Thank you. I practiced a lot.
+A： Are you going to join the next contest?
+B： （　）",I cooked curry last night.,"No, this bag is too heavy.",The room is on the third floor.,I think so. I want to try again.,I cooked curry last night.,"No, this bag is too heavy.",The room is on the third floor.,I think so. I want to try again.,D,I think so. I want to try again.,I think so. I want to try again.,会話の流れに合う返事は「I think so. I want to try again.」です。前の発言をよく読むと、自然につながる内容を選べます。,"会話表現：相手の質問や依頼に合う自然な返事を選ぶ。
+correct answer = I think so. I want to try again.（I think so. I want to try again.）",EIKEN_Pre2,school,conversation,,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET02-Q15,SET02,15,对话完成,dialogue_completion,,"A: Excuse me. I lost my train ticket.
+B: Do you remember where you bought it?
+A: Yes, at the machine near Gate 2.
+B: (____)","次の会話を完成させなさい。
+A： Excuse me. I lost my train ticket.
+B： Do you remember where you bought it?
+A： Yes, at the machine near Gate 2.
+B： （　）",I ate lunch already.,I want to buy a new bicycle.,The movie starts at seven.,Please go to the station office over there.,I ate lunch already.,I want to buy a new bicycle.,The movie starts at seven.,Please go to the station office over there.,D,Please go to the station office over there.,Please go to the station office over there.,会話の流れに合う返事は「Please go to the station office over there.」です。前の発言をよく読むと、自然につながる内容を選べます。,"会話表現：相手の質問や依頼に合う自然な返事を選ぶ。
+correct answer = Please go to the station office over there.（Please go to the station office over there.）",EIKEN_Pre2,lost item,conversation,,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET02-Q16,SET02,16,阅读理解,reading_comprehension,SET02-P01,What will the group clean?,本文の内容に合う答えを選びなさい：何 will the group clean?,Sunrise Beach.,A mountain trail.,A school garden.,A shopping street.,Sunrise Beach.,A mountain trail.,A school garden.,A shopping street.,A,Sunrise Beach.,Sunrise Beach.,本文の内容に合う答えは「Sunrise Beach.」です。質問文のキーワードと同じ情報を本文から探すと、正解にたどり着けます。,"読解ポイント：質問の Who / What / Where / When / Why に注目する。
+correct answer = Sunrise Beach.（Sunrise Beach.）",EIKEN_Pre2,reading_detail,reading,,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET02-Q17,SET02,17,阅读理解,reading_comprehension,SET02-P01,What did they find last month?,本文の内容に合う答えを選びなさい：何 did they find last month?,A lost dog.,Old coins.,Broken bicycles.,Many plastic bags.,A lost dog.,Old coins.,Broken bicycles.,Many plastic bags.,D,Many plastic bags.,Many plastic bags.,本文の内容に合う答えは「Many plastic bags.」です。質問文のキーワードと同じ情報を本文から探すと、正解にたどり着けます。,"読解ポイント：質問の Who / What / Where / When / Why に注目する。
+correct answer = Many plastic bags.（Many plastic bags.）",EIKEN_Pre2,reading_detail,reading,,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET02-Q18,SET02,18,阅读理解,reading_comprehension,SET02-P01,When will the work finish?,本文の内容に合う答えを選びなさい：いつ will the work finish?,After dinner.,At 6 p.m.,Next Monday.,Before noon.,After dinner.,At 6 p.m.,Next Monday.,Before noon.,D,Before noon.,Before noon.,本文の内容に合う答えは「Before noon.」です。質問文のキーワードと同じ情報を本文から探すと、正解にたどり着けます。,"読解ポイント：質問の Who / What / Where / When / Why に注目する。
+correct answer = Before noon.（Before noon.）",EIKEN_Pre2,reading_detail,reading,,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET02-Q19,SET02,19,阅读理解,reading_comprehension,SET02-P02,What kind of club is looking for new members?,本文の内容に合う答えを選びなさい：何 kind of club is looking for new members?,The tennis club.,The cooking club.,The computer club.,The drama club.,The tennis club.,The cooking club.,The computer club.,The drama club.,D,The drama club.,The drama club.,本文の内容に合う答えは「The drama club.」です。質問文のキーワードと同じ情報を本文から探すと、正解にたどり着けます。,"読解ポイント：質問の Who / What / Where / When / Why に注目する。
+correct answer = The drama club.（The drama club.）",EIKEN_Pre2,reading_detail,reading,,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET02-Q20,SET02,20,阅读理解,reading_comprehension,SET02-P02,What does Lily say students do not need?,本文の内容に合う答えを選びなさい：何 does Lily say students do not need?,A music room.,Their parents’ help.,Acting experience.,A camera.,A music room.,Their parents’ help.,Acting experience.,カメラ。,C,Acting experience.,Acting experience.,本文の内容に合う答えは「Acting experience.」です。質問文のキーワードと同じ情報を本文から探すと、正解にたどり着けます。,"読解ポイント：質問の Who / What / Where / When / Why に注目する。
+correct answer = Acting experience.（Acting experience.）",EIKEN_Pre2,reading_detail,reading,,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET02-Q21,SET02,21,阅读理解,reading_comprehension,SET02-P02,When will the first meeting be?,本文の内容に合う答えを選びなさい：いつ will the first meeting be?,On Saturday night.,During lunch today.,On Monday morning.,On Tuesday after school.,On Saturday night.,During lunch today.,On Monday morning.,On Tuesday after school.,D,On Tuesday after school.,On Tuesday after school.,本文の内容に合う答えは「On Tuesday after school.」です。質問文のキーワードと同じ情報を本文から探すと、正解にたどり着けます。,"読解ポイント：質問の Who / What / Where / When / Why に注目する。
+correct answer = On Tuesday after school.（On Tuesday after school.）",EIKEN_Pre2,reading_detail,reading,,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET02-Q22,SET02,22,阅读理解,reading_comprehension,SET02-P03,What did students check first?,本文の内容に合う答えを選びなさい：何 did students check first?,How fast students ran.,How much water was used.,How old the building was.,How many books were lost.,How fast students ran.,How much water was used.,How old the building was.,How many books were lost.,B,How much water was used.,How much water was used.,本文の内容に合う答えは「How much water was used.」です。質問文のキーワードと同じ情報を本文から探すと、正解にたどり着けます。,"読解ポイント：質問の Who / What / Where / When / Why に注目する。
+correct answer = How much water was used.（How much water was used.）",EIKEN_Pre2,reading_detail,reading,,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET02-Q23,SET02,23,阅读理解,reading_comprehension,SET02-P03,What did the posters ask people to do?,本文の内容に合う答えを選びなさい：何 did the posters ask people to do?,Open windows.,Buy new bags.,Eat lunch outside.,Turn off taps carefully.,Open windows.,Buy new bags.,Eat lunch outside.,Turn off taps carefully.,D,Turn off taps carefully.,Turn off taps carefully.,本文の内容に合う答えは「Turn off taps carefully.」です。質問文のキーワードと同じ情報を本文から探すと、正解にたどり着けます。,"読解ポイント：質問の Who / What / Where / When / Why に注目する。
+correct answer = Turn off taps carefully.（Turn off taps carefully.）",EIKEN_Pre2,reading_detail,reading,,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET02-Q24,SET02,24,阅读理解,reading_comprehension,SET02-P03,What happened after two months?,本文の内容に合う答えを選びなさい：何 happened after two months?,The school used less water.,Students stopped making posters.,The school closed.,The science rooms became larger.,The school used less water.,Students stopped making posters.,The school closed.,The science rooms became larger.,A,The school used less water.,The school used less water.,本文の内容に合う答えは「The school used less water.」です。質問文のキーワードと同じ情報を本文から探すと、正解にたどり着けます。,"読解ポイント：質問の Who / What / Where / When / Why に注目する。
+correct answer = The school used less water.（The school used less water.）",EIKEN_Pre2,reading_detail,reading,,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET02-Q25,SET02,25,阅读理解,reading_comprehension,SET02-P04,What was difficult for elderly people?,本文の内容に合う答えを選びなさい：何 was difficult for elderly people?,Visiting other countries.,Walking twenty minutes to the bus stop.,Buying raincoats.,Reading bus maps in English.,Visiting other countries.,Walking twenty minutes to the bus stop.,Buying raincoats.,Reading bus maps in English.,B,Walking twenty minutes to the bus stop.,Walking twenty minutes to the bus stop.,本文の内容に合う答えは「Walking twenty minutes to the bus stop.」です。質問文のキーワードと同じ情報を本文から探すと、正解にたどり着けます。,"読解ポイント：質問の Who / What / Where / When / Why に注目する。
+correct answer = Walking twenty minutes to the bus stop.（Walking twenty minutes to the bus stop.）",EIKEN_Pre2,reading_detail,reading,,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET02-Q26,SET02,26,阅读理解,reading_comprehension,SET02-P04,Where does the new bus stop?,本文の内容に合う答えを選びなさい：どこ does the new bus stop?,In front of the community center.,Behind the airport.,Inside the library.,Next to a farm.,In front of the community center.,Behind the airport.,Inside the library.,Next to a farm.,A,In front of the community center.,In front of the community center.,本文の内容に合う答えは「In front of the community center.」です。質問文のキーワードと同じ情報を本文から探すと、正解にたどり着けます。,"読解ポイント：質問の Who / What / Where / When / Why に注目する。
+correct answer = In front of the community center.（In front of the community center.）",EIKEN_Pre2,reading_detail,reading,,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET02-Q27,SET02,27,阅读理解,reading_comprehension,SET02-P04,What can people visit more easily?,本文の内容に合う答えを選びなさい：何 can people visit more easily?,"The library, hospital, and shops.",Foreign schools.,A mountain village.,Only the ocean.,"The library, hospital, and shops.",Foreign schools.,A mountain village.,Only the ocean.,A,"The library, hospital, and shops.","The library, hospital, and shops.","本文の内容に合う答えは「The library, hospital, and shops.」です。質問文のキーワードと同じ情報を本文から探すと、正解にたどり着けます。","読解ポイント：質問の Who / What / Where / When / Why に注目する。
+correct answer = The library, hospital, and shops.（The library, hospital, and shops.）",EIKEN_Pre2,reading_detail,reading,,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET02-Q28,SET02,28,阅读理解,reading_comprehension,SET02-P05,What was the contest about?,本文の内容に合う答えを選びなさい：何 was the contest about?,Famous actors.,Old computers.,Fast cars.,Local nature.,Famous actors.,古いコンピューター。,Fast cars.,Local nature.,D,Local nature.,Local nature.,本文の内容に合う答えは「Local nature.」です。質問文のキーワードと同じ情報を本文から探すと、正解にたどり着けます。,"読解ポイント：質問の Who / What / Where / When / Why に注目する。
+correct answer = Local nature.（Local nature.）",EIKEN_Pre2,reading_detail,reading,,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET02-Q29,SET02,29,阅读理解,reading_comprehension,SET02-P05,Who took the winning photo?,本文の内容に合う答えを選びなさい：誰 took the winning photo?,A 13-year-old student.,A professional singer.,The mayor.,A foreign tourist.,A 13-year-old student.,A professional singer.,The mayor.,A foreign tourist.,A,A 13-year-old student.,A 13-year-old student.,本文の内容に合う答えは「A 13-year-old student.」です。質問文のキーワードと同じ情報を本文から探すと、正解にたどり着けます。,"読解ポイント：質問の Who / What / Where / When / Why に注目する。
+correct answer = A 13-year-old student.（A 13-year-old student.）",EIKEN_Pre2,reading_detail,reading,,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET02-Q30,SET02,30,阅读理解,reading_comprehension,SET02-P05,Where will the photo be used?,本文の内容に合う答えを選びなさい：どこ will the photo be used?,On a train ticket.,At a restaurant menu.,On next year’s town calendar.,In a science textbook.,On a train ticket.,At a restaurant menu.,On next year’s town calendar.,In a science textbook.,C,On next year’s town calendar.,On next year’s town calendar.,本文の内容に合う答えは「On next year’s town calendar.」です。質問文のキーワードと同じ情報を本文から探すと、正解にたどり着けます。,"読解ポイント：質問の Who / What / Where / When / Why に注目する。
+correct answer = On next year’s town calendar.（On next year’s town calendar.）",EIKEN_Pre2,reading_detail,reading,,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET03-Q01,SET03,1,短句填空,sentence_fill,,Emma saved money for three months because she wanted to (____) a new bicycle.,Emma saved money for three months because she wanted to （　） a new bicycle.,boil,afford,search,knock,boil,afford,search,knock,B,afford,afford,文脈から「afford」が最も自然です。意味は「afford」です。空所の前後の言葉を手がかりにすると選びやすくなります。,"afford = afford
+文脈：空所の前後から意味を判断する。",EIKEN_Pre2,verb,vocabulary,afford,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET03-Q02,SET03,2,短句填空,sentence_fill,,"The old clock still works, but it is not very (____). It is often five minutes slow.","The old clock still works, but it is not very （　）. It is often five minutes slow.",central,accurate,social,empty,中心の,accurate,social,空の,B,accurate,accurate,文脈から「accurate」が最も自然です。意味は「accurate」です。空所の前後の言葉を手がかりにすると選びやすくなります。,"accurate = accurate
+文脈：空所の前後から意味を判断する。",EIKEN_Pre2,adjective,vocabulary,accurate,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET03-Q03,SET03,3,短句填空,sentence_fill,,"A: Can I use your dictionary?
+B: Sure, but please (____) it before English class ends.","A: Can I use your dictionary?
+B: Sure, but please （　） it before English class ends.",warn,cover,return,invent,警告する,覆い／表紙,返す,invent,C,return,返す,文脈から「return」が最も自然です。意味は「返す」です。空所の前後の言葉を手がかりにすると選びやすくなります。,"return = 返す
+文脈：空所の前後から意味を判断する。",EIKEN_Pre2,verb,vocabulary,return,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET03-Q04,SET03,4,短句填空,sentence_fill,,The students were excited because their class trip was (____) for next Monday.,The students were excited because their class trip was （　） for next Monday.,burned,hidden,repaired,scheduled,burned,hidden,修理した,scheduled,D,scheduled,scheduled,文脈から「scheduled」が最も自然です。意味は「scheduled」です。空所の前後の言葉を手がかりにすると選びやすくなります。,"scheduled = scheduled
+文脈：空所の前後から意味を判断する。",EIKEN_Pre2,verb,vocabulary,schedule,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET03-Q05,SET03,5,短句填空,sentence_fill,,"A: Did you finish the book report?
+B: Almost. I still need to (____) one more paragraph about the ending.","A: Did you finish the book report?
+B: Almost. I still need to （　） one more paragraph about the ending.",write,lend,freeze,throw,write,lend,freeze,throw,A,write,write,文脈から「write」が最も自然です。意味は「write」です。空所の前後の言葉を手がかりにすると選びやすくなります。,"write = write
+文脈：空所の前後から意味を判断する。",EIKEN_Pre2,vocabulary,vocabulary,write,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET03-Q06,SET03,6,短句填空,sentence_fill,,"The library was very (____), so Yuta could study there without any trouble.","The library was very （　）, so Yuta could study there without any trouble.",dangerous,golden,quiet,empty,dangerous,golden,quiet,空の,C,quiet,quiet,文脈から「quiet」が最も自然です。意味は「quiet」です。空所の前後の言葉を手がかりにすると選びやすくなります。,"quiet = quiet
+文脈：空所の前後から意味を判断する。",EIKEN_Pre2,adjective,vocabulary,quiet,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET03-Q07,SET03,7,短句填空,sentence_fill,,"Miki forgot her lunch, so her friend decided to (____) a sandwich with her.","Miki forgot her lunch, so her friend decided to （　） a sandwich with her.",collect,repair,refuse,share,collect,repair,refuse,共有する,D,share,共有する,文脈から「share」が最も自然です。意味は「共有する」です。空所の前後の言葉を手がかりにすると選びやすくなります。,"share = 共有する
+文脈：空所の前後から意味を判断する。",EIKEN_Pre2,verb,vocabulary,share,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET03-Q08,SET03,8,短句填空,sentence_fill,,The train was delayed because of heavy snow. Many passengers had to (____) at the station for an hour.,The train was delayed because of heavy snow. Many passengers had to （　） at the station for an hour.,wait,hide,paint,push,wait,hide,paint,push,A,wait,wait,文脈から「wait」が最も自然です。意味は「wait」です。空所の前後の言葉を手がかりにすると選びやすくなります。,"wait = wait
+文脈：空所の前後から意味を判断する。",EIKEN_Pre2,verb,vocabulary,wait,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET03-Q09,SET03,9,短句填空,sentence_fill,,"A: This math problem is too hard.
+B: Don’t worry. I’ll (____) it to you step by step.","A: This math problem is too hard.
+B: Don’t worry. I’ll （　） it to you step by step.",deliver,invite,explain,guess,配達する,invite,explain,guess,C,explain,explain,文脈から「explain」が最も自然です。意味は「explain」です。空所の前後の言葉を手がかりにすると選びやすくなります。,"explain = explain
+文脈：空所の前後から意味を判断する。",EIKEN_Pre2,verb,vocabulary,explain,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET03-Q10,SET03,10,短句填空,sentence_fill,,"The new supermarket is very (____). It sells food, clothes, and even school supplies.","The new supermarket is very （　）. It sells food, clothes, and even school supplies.",narrow,silent,ancient,convenient,狭い,silent,ancient,convenient,D,convenient,convenient,文脈から「convenient」が最も自然です。意味は「convenient」です。空所の前後の言葉を手がかりにすると選びやすくなります。,"convenient = convenient
+文脈：空所の前後から意味を判断する。",EIKEN_Pre2,adjective,vocabulary,convenient,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET03-Q11,SET03,11,对话完成,dialogue_completion,,"A: Your speech was very clear.
+B: Thank you. I practiced a lot.
+A: Are you going to join the next contest?
+B: (____)","次の会話を完成させなさい。
+A： Your speech was very clear.
+B： Thank you. I practiced a lot.
+A： Are you going to join the next contest?
+B： （　）",I think so. I want to try again.,The room is on the third floor.,I cooked curry last night.,"No, this bag is too heavy.",I think so. I want to try again.,The room is on the third floor.,I cooked curry last night.,"No, this bag is too heavy.",A,I think so. I want to try again.,I think so. I want to try again.,会話の流れに合う返事は「I think so. I want to try again.」です。前の発言をよく読むと、自然につながる内容を選べます。,"会話表現：相手の質問や依頼に合う自然な返事を選ぶ。
+correct answer = I think so. I want to try again.（I think so. I want to try again.）",EIKEN_Pre2,school,conversation,,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET03-Q12,SET03,12,对话完成,dialogue_completion,,"A: Excuse me. I lost my train ticket.
+B: Do you remember where you bought it?
+A: Yes, at the machine near Gate 2.
+B: (____)","次の会話を完成させなさい。
+A： Excuse me. I lost my train ticket.
+B： Do you remember where you bought it?
+A： Yes, at the machine near Gate 2.
+B： （　）",I want to buy a new bicycle.,Please go to the station office over there.,The movie starts at seven.,I ate lunch already.,I want to buy a new bicycle.,Please go to the station office over there.,The movie starts at seven.,I ate lunch already.,B,Please go to the station office over there.,Please go to the station office over there.,会話の流れに合う返事は「Please go to the station office over there.」です。前の発言をよく読むと、自然につながる内容を選べます。,"会話表現：相手の質問や依頼に合う自然な返事を選ぶ。
+correct answer = Please go to the station office over there.（Please go to the station office over there.）",EIKEN_Pre2,lost item,conversation,,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET03-Q13,SET03,13,对话完成,dialogue_completion,,"A: Mom, can I invite Ken to dinner tonight?
+B: Sure. What time will he come?
+A: Around six thirty.
+B: (____)","次の会話を完成させなさい。
+A： Mom, can I invite Ken to dinner tonight?
+B： Sure. What time will he come?
+A： Around six thirty.
+B： （　）","No, I went there last week.",The test was very difficult.,It is raining outside.,OK. I’ll cook a little extra food.,"No, I went there last week.",The test was very difficult.,It is raining outside.,OK. I’ll cook a little extra food.,D,OK. I’ll cook a little extra food.,OK. I’ll cook a little extra food.,会話の流れに合う返事は「OK. I’ll cook a little extra food.」です。前の発言をよく読むと、自然につながる内容を選べます。,"会話表現：相手の質問や依頼に合う自然な返事を選ぶ。
+correct answer = OK. I’ll cook a little extra food.（OK. I’ll cook a little extra food.）",EIKEN_Pre2,home,conversation,,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET03-Q14,SET03,14,对话完成,dialogue_completion,,"A: Welcome to Lake View Hotel. How may I help you?
+B: I’d like to check in. My name is Tanaka.
+A: Let me see. Yes, we have your reservation.
+B: (____)","次の会話を完成させなさい。
+A： Welcome to Lake View Hotel. How may I help you?
+B： I’d like to check in. My name is Tanaka.
+A： Let me see. Yes, we have your reservation.
+B： （　）",I don’t have any homework.,Great. Could you tell me where the elevator is?,My dog likes the park.,I bought it yesterday.,I don’t have any homework.,Great. Could you tell me where the elevator is?,My dog likes the park.,I bought it yesterday.,B,Great. Could you tell me where the elevator is?,Great. Could you tell me where the elevator is?,会話の流れに合う返事は「Great. Could you tell me where the elevator is?」です。前の発言をよく読むと、自然につながる内容を選べます。,"会話表現：相手の質問や依頼に合う自然な返事を選ぶ。
+correct answer = Great. Could you tell me where the elevator is?（Great. Could you tell me where the elevator is?）",EIKEN_Pre2,hotel,conversation,,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET03-Q15,SET03,15,对话完成,dialogue_completion,,"A: You look tired, Ben.
+B: I stayed up late finishing my science project.
+A: Is it due today?
+B: (____)","次の会話を完成させなさい。
+A： You look tired, Ben.
+B： I stayed up late finishing my science project.
+A： Is it due today?
+B： （　）","Yes, I have to hand it in this morning.","No, I never study science.",I like sandwiches.,It was sunny yesterday.,はい、今朝提出しなければなりません。,いいえ、私は理科を勉強しません。,私はサンドイッチが好きです。,昨日は晴れていました。,A,"Yes, I have to hand it in this morning.",はい、今朝提出しなければなりません。,"会話の流れに合う返事は「Yes, I have to hand it in this morning.」です。前の発言をよく読むと、自然につながる内容を選べます。","会話表現：相手の質問や依頼に合う自然な返事を選ぶ。
+correct answer = Yes, I have to hand it in this morning.（はい、今朝提出しなければなりません。）",EIKEN_Pre2,school,conversation,,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET03-Q16,SET03,16,阅读理解,reading_comprehension,SET03-P01,Where does Kevin think he left his phone?,本文の内容に合う答えを選びなさい：どこ does Kevin think he left his phone?,On a train.,In a park.,At a restaurant.,In a classroom.,On a train.,In a park.,At a restaurant.,In a classroom.,A,On a train.,On a train.,本文の内容に合う答えは「On a train.」です。質問文のキーワードと同じ情報を本文から探すと、正解にたどり着けます。,"読解ポイント：質問の Who / What / Where / When / Why に注目する。
+correct answer = On a train.（On a train.）",EIKEN_Pre2,reading_detail,reading,,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET03-Q17,SET03,17,阅读理解,reading_comprehension,SET03-P01,What color is the phone case?,本文の内容に合う答えを選びなさい：何 color is the phone case?,Red.,Blue.,Black.,Green.,Red.,Blue.,Black.,Green.,B,Blue.,Blue.,本文の内容に合う答えは「Blue.」です。質問文のキーワードと同じ情報を本文から探すと、正解にたどり着けます。,"読解ポイント：質問の Who / What / Where / When / Why に注目する。
+correct answer = Blue.（Blue.）",EIKEN_Pre2,reading_detail,reading,,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET03-Q18,SET03,18,阅读理解,reading_comprehension,SET03-P01,When can Kevin come to the station?,本文の内容に合う答えを選びなさい：いつ can Kevin come to the station?,Next winter.,Before breakfast.,After school.,At midnight.,Next winter.,Before breakfast.,After school.,At midnight.,C,After school.,After school.,本文の内容に合う答えは「After school.」です。質問文のキーワードと同じ情報を本文から探すと、正解にたどり着けます。,"読解ポイント：質問の Who / What / Where / When / Why に注目する。
+correct answer = After school.（After school.）",EIKEN_Pre2,reading_detail,reading,,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET03-Q19,SET03,19,阅读理解,reading_comprehension,SET03-P02,What kind of shop does Anna’s uncle own?,本文の内容に合う答えを選びなさい：何 kind of shop does Anna’s uncle own?,A shoe shop.,A flower shop.,A coffee shop.,A bookshop.,A shoe shop.,A flower shop.,A coffee shop.,A bookshop.,B,A flower shop.,A flower shop.,本文の内容に合う答えは「A flower shop.」です。質問文のキーワードと同じ情報を本文から探すと、正解にたどり着けます。,"読解ポイント：質問の Who / What / Where / When / Why に注目する。
+correct answer = A flower shop.（A flower shop.）",EIKEN_Pre2,reading_detail,reading,,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET03-Q20,SET03,20,阅读理解,reading_comprehension,SET03-P02,Why is her uncle busy?,本文の内容に合う答えを選びなさい：なぜ is her uncle busy?,He lost his cards.,The hospital is closed.,He is moving to another city.,Mother’s Day is coming.,He lost his cards.,The hospital is closed.,He is moving to another city.,Mother’s Day is coming.,D,Mother’s Day is coming.,Mother’s Day is coming.,本文の内容に合う答えは「Mother’s Day is coming.」です。質問文のキーワードと同じ情報を本文から探すと、正解にたどり着けます。,"読解ポイント：質問の Who / What / Where / When / Why に注目する。
+correct answer = Mother’s Day is coming.（Mother’s Day is coming.）",EIKEN_Pre2,reading_detail,reading,,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET03-Q21,SET03,21,阅读理解,reading_comprehension,SET03-P02,What will Anna write?,本文の内容に合う答えを選びなさい：何 will Anna write?,A letter to a doctor.,A newspaper article.,A school report.,Short cards for customers.,A letter to a doctor.,A newspaper article.,A school report.,Short cards for customers.,D,Short cards for customers.,Short cards for customers.,本文の内容に合う答えは「Short cards for customers.」です。質問文のキーワードと同じ情報を本文から探すと、正解にたどり着けます。,"読解ポイント：質問の Who / What / Where / When / Why に注目する。
+correct answer = Short cards for customers.（Short cards for customers.）",EIKEN_Pre2,reading_detail,reading,,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET03-Q22,SET03,22,阅读理解,reading_comprehension,SET03-P03,Why did the hospital introduce the robot?,本文の内容に合う答えを選びなさい：なぜ did the hospital introduce the robot?,Patients disliked elevators.,The building was too small.,Doctors wanted a toy.,Visitors had trouble finding rooms.,Patients disliked elevators.,The building was too small.,Doctors wanted a toy.,Visitors had trouble finding rooms.,D,Visitors had trouble finding rooms.,Visitors had trouble finding rooms.,本文の内容に合う答えは「Visitors had trouble finding rooms.」です。質問文のキーワードと同じ情報を本文から探すと、正解にたどり着けます。,"読解ポイント：質問の Who / What / Where / When / Why に注目する。
+correct answer = Visitors had trouble finding rooms.（Visitors had trouble finding rooms.）",EIKEN_Pre2,reading_detail,reading,,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET03-Q23,SET03,23,阅读理解,reading_comprehension,SET03-P03,What can the robot understand?,本文の内容に合う答えを選びなさい：何 can the robot understand?,Animal sounds.,Foreign movies.,Long novels.,Simple questions.,Animal sounds.,Foreign movies.,Long novels.,Simple questions.,D,Simple questions.,Simple questions.,本文の内容に合う答えは「Simple questions.」です。質問文のキーワードと同じ情報を本文から探すと、正解にたどり着けます。,"読解ポイント：質問の Who / What / Where / When / Why に注目する。
+correct answer = Simple questions.（Simple questions.）",EIKEN_Pre2,reading_detail,reading,,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET03-Q24,SET03,24,阅读理解,reading_comprehension,SET03-P03,Why do nurses say the robot is helpful?,本文の内容に合う答えを選びなさい：なぜ do nurses say the robot is helpful?,It writes music.,It repairs hospital beds.,They can focus more on patients.,It cooks lunch for them.,It writes music.,It repairs hospital beds.,They can focus more on patients.,It cooks lunch for them.,C,They can focus more on patients.,They can focus more on patients.,本文の内容に合う答えは「They can focus more on patients.」です。質問文のキーワードと同じ情報を本文から探すと、正解にたどり着けます。,"読解ポイント：質問の Who / What / Where / When / Why に注目する。
+correct answer = They can focus more on patients.（They can focus more on patients.）",EIKEN_Pre2,reading_detail,reading,,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET03-Q25,SET03,25,阅读理解,reading_comprehension,SET03-P04,What do students collect?,本文の内容に合う答えを選びなさい：何 do students collect?,Old newspapers.,Snowballs.,Rainwater.,Sea shells.,Old newspapers.,Snowballs.,Rainwater.,Sea shells.,C,Rainwater.,Rainwater.,本文の内容に合う答えは「Rainwater.」です。質問文のキーワードと同じ情報を本文から探すと、正解にたどり着けます。,"読解ポイント：質問の Who / What / Where / When / Why に注目する。
+correct answer = Rainwater.（Rainwater.）",EIKEN_Pre2,reading_detail,reading,,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET03-Q26,SET03,26,阅读理解,reading_comprehension,SET03-P04,What do they use it for?,本文の内容に合う答えを選びなさい：何 do they use it for?,Cooking lunch.,Flowers and vegetables.,Washing computers.,Cleaning buses.,Cooking lunch.,Flowers and vegetables.,Washing computers.,Cleaning buses.,B,Flowers and vegetables.,Flowers and vegetables.,本文の内容に合う答えは「Flowers and vegetables.」です。質問文のキーワードと同じ情報を本文から探すと、正解にたどり着けます。,"読解ポイント：質問の Who / What / Where / When / Why に注目する。
+correct answer = Flowers and vegetables.（Flowers and vegetables.）",EIKEN_Pre2,reading_detail,reading,,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET03-Q27,SET03,27,阅读理解,reading_comprehension,SET03-P04,What do students learn?,本文の内容に合う答えを選びなさい：何 do students learn?,Gardens are always expensive.,Natural resources should be used carefully.,Weather never changes.,Plants can grow without water.,Gardens are always expensive.,Natural resources should be used carefully.,Weather never changes.,Plants can grow without water.,B,Natural resources should be used carefully.,Natural resources should be used carefully.,本文の内容に合う答えは「Natural resources should be used carefully.」です。質問文のキーワードと同じ情報を本文から探すと、正解にたどり着けます。,"読解ポイント：質問の Who / What / Where / When / Why に注目する。
+correct answer = Natural resources should be used carefully.（Natural resources should be used carefully.）",EIKEN_Pre2,reading_detail,reading,,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET03-Q28,SET03,28,阅读理解,reading_comprehension,SET03-P05,When did the library hold the challenge?,本文の内容に合う答えを選びなさい：いつ did the library hold the challenge?,Before breakfast.,Every Monday morning.,During the winter festival.,During summer vacation.,Before breakfast.,Every Monday morning.,During the winter festival.,During summer vacation.,D,During summer vacation.,During summer vacation.,本文の内容に合う答えは「During summer vacation.」です。質問文のキーワードと同じ情報を本文から探すと、正解にたどり着けます。,"読解ポイント：質問の Who / What / Where / When / Why に注目する。
+correct answer = During summer vacation.（During summer vacation.）",EIKEN_Pre2,reading_detail,reading,,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET03-Q29,SET03,29,阅读理解,reading_comprehension,SET03-P05,What did children get after finishing each book?,本文の内容に合う答えを選びなさい：何 did children get after finishing each book?,A free lunch.,A stamp.,A bus ticket.,A toy car.,A free lunch.,A stamp.,A bus ticket.,A toy car.,B,A stamp.,A stamp.,本文の内容に合う答えは「A stamp.」です。質問文のキーワードと同じ情報を本文から探すと、正解にたどり着けます。,"読解ポイント：質問の Who / What / Where / When / Why に注目する。
+correct answer = A stamp.（A stamp.）",EIKEN_Pre2,reading_detail,reading,,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET03-Q30,SET03,30,阅读理解,reading_comprehension,SET03-P05,What did children receive after reading ten books?,本文の内容に合う答えを選びなさい：何 did children receive after reading ten books?,A soccer ball.,A new bicycle.,A library computer.,A small notebook.,A soccer ball.,A new bicycle.,A library computer.,A small notebook.,D,A small notebook.,A small notebook.,本文の内容に合う答えは「A small notebook.」です。質問文のキーワードと同じ情報を本文から探すと、正解にたどり着けます。,"読解ポイント：質問の Who / What / Where / When / Why に注目する。
+correct answer = A small notebook.（A small notebook.）",EIKEN_Pre2,reading_detail,reading,,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET04-Q01,SET04,1,短句填空,sentence_fill,,The train was delayed because of heavy snow. Many passengers had to (____) at the station for an hour.,The train was delayed because of heavy snow. Many passengers had to （　） at the station for an hour.,paint,hide,push,wait,paint,hide,push,wait,D,wait,wait,文脈から「wait」が最も自然です。意味は「wait」です。空所の前後の言葉を手がかりにすると選びやすくなります。,"wait = wait
+文脈：空所の前後から意味を判断する。",EIKEN_Pre2,verb,vocabulary,wait,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET04-Q02,SET04,2,短句填空,sentence_fill,,"A: This math problem is too hard.
+B: Don’t worry. I’ll (____) it to you step by step.","A: This math problem is too hard.
+B: Don’t worry. I’ll （　） it to you step by step.",invite,deliver,explain,guess,invite,配達する,explain,guess,C,explain,explain,文脈から「explain」が最も自然です。意味は「explain」です。空所の前後の言葉を手がかりにすると選びやすくなります。,"explain = explain
+文脈：空所の前後から意味を判断する。",EIKEN_Pre2,verb,vocabulary,explain,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET04-Q03,SET04,3,短句填空,sentence_fill,,"The new supermarket is very (____). It sells food, clothes, and even school supplies.","The new supermarket is very （　）. It sells food, clothes, and even school supplies.",silent,narrow,ancient,convenient,silent,狭い,ancient,convenient,D,convenient,convenient,文脈から「convenient」が最も自然です。意味は「convenient」です。空所の前後の言葉を手がかりにすると選びやすくなります。,"convenient = convenient
+文脈：空所の前後から意味を判断する。",EIKEN_Pre2,adjective,vocabulary,convenient,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET04-Q04,SET04,4,短句填空,sentence_fill,,Aya practiced the piano every day and finally won first (____) in the contest.,Aya practiced the piano every day and finally won first （　） in the contest.,noise,prize,habit,reason,noise,賞,habit,reason,B,prize,賞,文脈から「prize」が最も自然です。意味は「賞」です。空所の前後の言葉を手がかりにすると選びやすくなります。,"prize = 賞
+文脈：空所の前後から意味を判断する。",EIKEN_Pre2,noun,vocabulary,prize,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET04-Q05,SET04,5,短句填空,sentence_fill,,"My brother is too young to cook by himself, so an adult must (____) him in the kitchen.",弟は一人で料理するには幼すぎるので、大人が台所で彼を（　）必要があります。,fold,miss,watch,print,折る,逃す／恋しく思う,見守る,印刷する,C,watch,見守る,文脈から「watch」が最も自然です。意味は「見守る」です。空所の前後の言葉を手がかりにすると選びやすくなります。,"watch = 見守る
+文脈：空所の前後から意味を判断する。",EIKEN_Pre2,verb,vocabulary,watch,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET04-Q06,SET04,6,短句填空,sentence_fill,,The museum guide spoke slowly so that everyone could (____) her explanation.,博物館の案内係は、みんなが説明を（　）できるようにゆっくり話しました。,borrow,understand,damage,return,借りる,理解する,損害を与える,返す,B,understand,理解する,文脈から「understand」が最も自然です。意味は「理解する」です。空所の前後の言葉を手がかりにすると選びやすくなります。,"understand = 理解する
+文脈：空所の前後から意味を判断する。",EIKEN_Pre2,verb,vocabulary,understand,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET04-Q07,SET04,7,短句填空,sentence_fill,,"The box was too (____) for one person to carry, so two students lifted it together.",その箱は一人で運ぶには（　）すぎたので、二人の生徒が一緒に持ち上げました。,straight,bright,heavy,kind,まっすぐな,明るい,重い,親切な,C,heavy,重い,文脈から「heavy」が最も自然です。意味は「重い」です。空所の前後の言葉を手がかりにすると選びやすくなります。,"heavy = 重い
+文脈：空所の前後から意味を判断する。",EIKEN_Pre2,adjective,vocabulary,heavy,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET04-Q08,SET04,8,短句填空,sentence_fill,,"After running three kilometers, Taro felt very (____) and drank a bottle of water.",3キロ走ったあと、太郎はとても（　）感じ、水を一本飲みました。,famous,plastic,thirsty,daily,有名な,プラスチックの,のどが渇いた,毎日の,C,thirsty,のどが渇いた,文脈から「thirsty」が最も自然です。意味は「のどが渇いた」です。空所の前後の言葉を手がかりにすると選びやすくなります。,"thirsty = のどが渇いた
+文脈：空所の前後から意味を判断する。",EIKEN_Pre2,adjective,vocabulary,thirsty,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET04-Q09,SET04,9,短句填空,sentence_fill,,"The school will (____) a science event next Friday, and many parents will come.",学校は来週金曜日に理科イベントを（　）予定で、多くの保護者が来ます。,hold,drop,catch,forget,開催する／持つ,落とす,捕まえる,忘れる,A,hold,開催する／持つ,文脈から「hold」が最も自然です。意味は「開催する／持つ」です。空所の前後の言葉を手がかりにすると選びやすくなります。,"hold = 開催する／持つ
+文脈：空所の前後から意味を判断する。",EIKEN_Pre2,verb,vocabulary,hold,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET04-Q10,SET04,10,短句填空,sentence_fill,,"A: I’m sorry I broke your ruler.
+B: That’s OK. It was an old one, and I can (____) another one.","A：あなたの定規を壊してごめんなさい。
+B：大丈夫。古いものだったし、別のものを（　）ことができます。",solve,climb,buy,wake,解決する,登る,買う,起こす,C,buy,買う,文脈から「buy」が最も自然です。意味は「買う」です。空所の前後の言葉を手がかりにすると選びやすくなります。,"buy = 買う
+文脈：空所の前後から意味を判断する。",EIKEN_Pre2,verb,vocabulary,buy,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET04-Q11,SET04,11,对话完成,dialogue_completion,,"A: Welcome to Lake View Hotel. How may I help you?
+B: I’d like to check in. My name is Tanaka.
+A: Let me see. Yes, we have your reservation.
+B: (____)","次の会話を完成させなさい。
+A： Welcome to Lake View Hotel. How may I help you?
+B： I’d like to check in. My name is Tanaka.
+A： Let me see. Yes, we have your reservation.
+B： （　）",I don’t have any homework.,Great. Could you tell me where the elevator is?,My dog likes the park.,I bought it yesterday.,I don’t have any homework.,Great. Could you tell me where the elevator is?,My dog likes the park.,I bought it yesterday.,B,Great. Could you tell me where the elevator is?,Great. Could you tell me where the elevator is?,会話の流れに合う返事は「Great. Could you tell me where the elevator is?」です。前の発言をよく読むと、自然につながる内容を選べます。,"会話表現：相手の質問や依頼に合う自然な返事を選ぶ。
+correct answer = Great. Could you tell me where the elevator is?（Great. Could you tell me where the elevator is?）",EIKEN_Pre2,hotel,conversation,,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET04-Q12,SET04,12,对话完成,dialogue_completion,,"A: You look tired, Ben.
+B: I stayed up late finishing my science project.
+A: Is it due today?
+B: (____)","次の会話を完成させなさい。
+A： You look tired, Ben.
+B： I stayed up late finishing my science project.
+A： Is it due today?
+B： （　）","No, I never study science.",It was sunny yesterday.,"Yes, I have to hand it in this morning.",I like sandwiches.,いいえ、私は理科を勉強しません。,昨日は晴れていました。,はい、今朝提出しなければなりません。,私はサンドイッチが好きです。,C,"Yes, I have to hand it in this morning.",はい、今朝提出しなければなりません。,"会話の流れに合う返事は「Yes, I have to hand it in this morning.」です。前の発言をよく読むと、自然につながる内容を選べます。","会話表現：相手の質問や依頼に合う自然な返事を選ぶ。
+correct answer = Yes, I have to hand it in this morning.（はい、今朝提出しなければなりません。）",EIKEN_Pre2,school,conversation,,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET04-Q13,SET04,13,对话完成,dialogue_completion,,"A: This jacket is nice, but it’s too small.
+B: Would you like to try a larger size?
+A: Yes, please.
+B: (____)","次の会話を完成させなさい。
+A： This jacket is nice, but it’s too small.
+B： Would you like to try a larger size?
+A： Yes, please.
+B： （　）",The library is closed today.,I finished reading it.,I’ll bring one from the back.,You should ride the bus.,図書館は今日は閉まっています。,それを読み終えました。,奥から一つ持ってきます。,バスに乗るべきです。,C,I’ll bring one from the back.,奥から一つ持ってきます。,会話の流れに合う返事は「I’ll bring one from the back.」です。前の発言をよく読むと、自然につながる内容を選べます。,"会話表現：相手の質問や依頼に合う自然な返事を選ぶ。
+correct answer = I’ll bring one from the back.（奥から一つ持ってきます。）",EIKEN_Pre2,shopping,conversation,,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET04-Q14,SET04,14,对话完成,dialogue_completion,,"A: Dad, may I use the computer?
+B: Did you finish your homework first?
+A: Yes, I finished it a few minutes ago.
+B: (____)","次の会話を完成させなさい。
+A： Dad, may I use the computer?
+B： Did you finish your homework first?
+A： Yes, I finished it a few minutes ago.
+B： （　）","No, we need more milk.",The train was late.,All right. You can use it for thirty minutes.,I like your new shoes.,いいえ、もっと牛乳が必要です。,電車が遅れました。,いいですよ。30分使ってよいです。,あなたの新しい靴が好きです。,C,All right. You can use it for thirty minutes.,いいですよ。30分使ってよいです。,会話の流れに合う返事は「All right. You can use it for thirty minutes.」です。前の発言をよく読むと、自然につながる内容を選べます。,"会話表現：相手の質問や依頼に合う自然な返事を選ぶ。
+correct answer = All right. You can use it for thirty minutes.（いいですよ。30分使ってよいです。）",EIKEN_Pre2,home,conversation,,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET04-Q15,SET04,15,对话完成,dialogue_completion,,"A: I’m looking for a book about space.
+B: Children’s books or adult books?
+A: Children’s books, please.
+B: (____)","次の会話を完成させなさい。
+A： I’m looking for a book about space.
+B： Children’s books or adult books?
+A： Children’s books, please.
+B： （　）",My brother plays tennis.,The bus leaves at noon.,They are on the second shelf near the window.,I will take the blue one.,私の兄はテニスをします。,バスは正午に出発します。,窓の近くの2番目の棚にあります。,青いものにします。,C,They are on the second shelf near the window.,窓の近くの2番目の棚にあります。,会話の流れに合う返事は「They are on the second shelf near the window.」です。前の発言をよく読むと、自然につながる内容を選べます。,"会話表現：相手の質問や依頼に合う自然な返事を選ぶ。
+correct answer = They are on the second shelf near the window.（窓の近くの2番目の棚にあります。）",EIKEN_Pre2,library,conversation,,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET04-Q16,SET04,16,阅读理解,reading_comprehension,SET04-P01,Who is the party for?,本文の内容に合う答えを選びなさい：誰 is the party for?,Yuki.,The principal.,Daniel’s brother.,Ms. Carter.,Yuki.,The principal.,Daniel’s brother.,Ms. Carter.,D,Ms. Carter.,Ms. Carter.,本文の内容に合う答えは「Ms. Carter.」です。質問文のキーワードと同じ情報を本文から探すと、正解にたどり着けます。,"読解ポイント：質問の Who / What / Where / When / Why に注目する。
+correct answer = Ms. Carter.（Ms. Carter.）",EIKEN_Pre2,reading_detail,reading,,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET04-Q17,SET04,17,阅读理解,reading_comprehension,SET04-P01,Why do the students want to thank her?,本文の内容に合う答えを選びなさい：なぜ do the students want to thank her?,She cleaned the park.,She bought them bicycles.,She won a cooking contest.,She has helped their class a lot.,She cleaned the park.,She bought them bicycles.,She won a cooking contest.,She has helped their class a lot.,D,She has helped their class a lot.,She has helped their class a lot.,本文の内容に合う答えは「She has helped their class a lot.」です。質問文のキーワードと同じ情報を本文から探すと、正解にたどり着けます。,"読解ポイント：質問の Who / What / Where / When / Why に注目する。
+correct answer = She has helped their class a lot.（She has helped their class a lot.）",EIKEN_Pre2,reading_detail,reading,,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET04-Q18,SET04,18,阅读理解,reading_comprehension,SET04-P01,What should Yuki bring?,本文の内容に合う答えを選びなさい：何 should Yuki bring?,A birthday cake.,One photo from a class event.,A music player.,A library book.,A birthday cake.,One photo from a class event.,A music player.,A library book.,B,One photo from a class event.,One photo from a class event.,本文の内容に合う答えは「One photo from a class event.」です。質問文のキーワードと同じ情報を本文から探すと、正解にたどり着けます。,"読解ポイント：質問の Who / What / Where / When / Why に注目する。
+correct answer = One photo from a class event.（One photo from a class event.）",EIKEN_Pre2,reading_detail,reading,,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET04-Q19,SET04,19,阅读理解,reading_comprehension,SET04-P02,Where will the field trip be?,本文の内容に合う答えを選びなさい：どこ will the field trip be?,Green Park Stadium.,The city museum.,Blue River Park.,The school gym.,Green Park Stadium.,The city museum.,Blue River Park.,The school gym.,C,Blue River Park.,Blue River Park.,本文の内容に合う答えは「Blue River Park.」です。質問文のキーワードと同じ情報を本文から探すと、正解にたどり着けます。,"読解ポイント：質問の Who / What / Where / When / Why に注目する。
+correct answer = Blue River Park.（Blue River Park.）",EIKEN_Pre2,reading_detail,reading,,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET04-Q20,SET04,20,阅读理解,reading_comprehension,SET04-P02,What may the weather be like?,本文の内容に合う答えを選びなさい：何 may the weather be like?,Very hot.,Foggy.,Snowy.,Windy.,Very hot.,Foggy.,Snowy.,Windy.,D,Windy.,Windy.,本文の内容に合う答えは「Windy.」です。質問文のキーワードと同じ情報を本文から探すと、正解にたどり着けます。,"読解ポイント：質問の Who / What / Where / When / Why に注目する。
+correct answer = Windy.（Windy.）",EIKEN_Pre2,reading_detail,reading,,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET04-Q21,SET04,21,阅读理解,reading_comprehension,SET04-P02,What will happen if it rains heavily?,本文の内容に合う答えを選びなさい：何 will happen if it rains heavily?,The park will open earlier.,Students will go home at once.,Lunch will be free.,Teachers will make an announcement.,The park will open earlier.,Students will go home at once.,Lunch will be free.,Teachers will make an announcement.,D,Teachers will make an announcement.,Teachers will make an announcement.,本文の内容に合う答えは「Teachers will make an announcement.」です。質問文のキーワードと同じ情報を本文から探すと、正解にたどり着けます。,"読解ポイント：質問の Who / What / Where / When / Why に注目する。
+correct answer = Teachers will make an announcement.（Teachers will make an announcement.）",EIKEN_Pre2,reading_detail,reading,,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET04-Q22,SET04,22,阅读理解,reading_comprehension,SET04-P03,Who gives free concerts?,本文の内容に合う答えを選びなさい：誰 gives free concerts?,Bus drivers.,Restaurant owners.,University students.,Elementary school teachers.,Bus drivers.,Restaurant owners.,University students.,Elementary school teachers.,C,University students.,University students.,本文の内容に合う答えは「University students.」です。質問文のキーワードと同じ情報を本文から探すと、正解にたどり着けます。,"読解ポイント：質問の Who / What / Where / When / Why に注目する。
+correct answer = University students.（University students.）",EIKEN_Pre2,reading_detail,reading,,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET04-Q23,SET04,23,阅读理解,reading_comprehension,SET04-P03,Where do people usually sit?,本文の内容に合う答えを選びなさい：どこ do people usually sit?,At school desks.,On the grass.,Inside a train.,In a swimming pool.,At school desks.,On the grass.,Inside a train.,In a swimming pool.,B,On the grass.,On the grass.,本文の内容に合う答えは「On the grass.」です。質問文のキーワードと同じ情報を本文から探すと、正解にたどり着けます。,"読解ポイント：質問の Who / What / Where / When / Why に注目する。
+correct answer = On the grass.（On the grass.）",EIKEN_Pre2,reading_detail,reading,,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET04-Q24,SET04,24,阅读理解,reading_comprehension,SET04-P03,Why will students prepare the hall?,本文の内容に合う答えを選びなさい：なぜ will students prepare the hall?,In case of bad weather.,To sell more blankets.,Because the park is closed forever.,To practice cooking.,In case of bad weather.,To sell more blankets.,Because the park is closed forever.,To practice cooking.,A,In case of bad weather.,In case of bad weather.,本文の内容に合う答えは「In case of bad weather.」です。質問文のキーワードと同じ情報を本文から探すと、正解にたどり着けます。,"読解ポイント：質問の Who / What / Where / When / Why に注目する。
+correct answer = In case of bad weather.（In case of bad weather.）",EIKEN_Pre2,reading_detail,reading,,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET04-Q25,SET04,25,阅读理解,reading_comprehension,SET04-P04,Where was the lesson held?,本文の内容に合う答えを選びなさい：どこ was the lesson held?,At the school playground.,At the train station.,Inside a museum.,On a mountain path.,At the school playground.,At the train station.,Inside a museum.,On a mountain path.,A,At the school playground.,At the school playground.,本文の内容に合う答えは「At the school playground.」です。質問文のキーワードと同じ情報を本文から探すと、正解にたどり着けます。,"読解ポイント：質問の Who / What / Where / When / Why に注目する。
+correct answer = At the school playground.（At the school playground.）",EIKEN_Pre2,reading_detail,reading,,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET04-Q26,SET04,26,阅读理解,reading_comprehension,SET04-P04,What did children learn to check?,本文の内容に合う答えを選びなさい：何 did children learn to check?,Library cards.,Brakes.,Weather reports.,English spelling.,Library cards.,Brakes.,Weather reports.,English spelling.,B,Brakes.,Brakes.,本文の内容に合う答えは「Brakes.」です。質問文のキーワードと同じ情報を本文から探すと、正解にたどり着けます。,"読解ポイント：質問の Who / What / Where / When / Why に注目する。
+correct answer = Brakes.（Brakes.）",EIKEN_Pre2,reading_detail,reading,,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET04-Q27,SET04,27,阅读理解,reading_comprehension,SET04-P04,What did each child receive?,本文の内容に合う答えを選びなさい：何 did each child receive?,A large map.,A lunch ticket.,A small safety card.,A new bicycle.,A large map.,A lunch ticket.,A small safety card.,A new bicycle.,C,A small safety card.,A small safety card.,本文の内容に合う答えは「A small safety card.」です。質問文のキーワードと同じ情報を本文から探すと、正解にたどり着けます。,"読解ポイント：質問の Who / What / Where / When / Why に注目する。
+correct answer = A small safety card.（A small safety card.）",EIKEN_Pre2,reading_detail,reading,,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET04-Q28,SET04,28,阅读理解,reading_comprehension,SET04-P05,What did Hiro and his classmates make?,本文の内容に合う答えを選びなさい：何 did Hiro and his classmates make?,A school uniform.,A cooking video.,A guidebook in English.,A train model.,A school uniform.,A cooking video.,A guidebook in English.,A train model.,C,A guidebook in English.,A guidebook in English.,本文の内容に合う答えは「A guidebook in English.」です。質問文のキーワードと同じ情報を本文から探すと、正解にたどり着けます。,"読解ポイント：質問の Who / What / Where / When / Why に注目する。
+correct answer = A guidebook in English.（A guidebook in English.）",EIKEN_Pre2,reading_detail,reading,,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET04-Q29,SET04,29,阅读理解,reading_comprehension,SET04-P05,What did they add to it?,本文の内容に合う答えを選びなさい：何 did they add to it?,Pictures of food only.,Math tests.,Short explanations and maps.,Songs and jokes.,Pictures of food only.,Math tests.,Short explanations and maps.,Songs and jokes.,C,Short explanations and maps.,Short explanations and maps.,本文の内容に合う答えは「Short explanations and maps.」です。質問文のキーワードと同じ情報を本文から探すと、正解にたどり着けます。,"読解ポイント：質問の Who / What / Where / When / Why に注目する。
+correct answer = Short explanations and maps.（Short explanations and maps.）",EIKEN_Pre2,reading_detail,reading,,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET04-Q30,SET04,30,阅读理解,reading_comprehension,SET04-P05,Where was the guidebook put?,本文の内容に合う答えを選びなさい：どこ was the guidebook put?,At Hiro’s house.,At the tourist information center.,Inside a hospital room.,On every bus seat.,At Hiro’s house.,At the tourist information center.,Inside a hospital room.,On every bus seat.,B,At the tourist information center.,At the tourist information center.,本文の内容に合う答えは「At the tourist information center.」です。質問文のキーワードと同じ情報を本文から探すと、正解にたどり着けます。,"読解ポイント：質問の Who / What / Where / When / Why に注目する。
+correct answer = At the tourist information center.（At the tourist information center.）",EIKEN_Pre2,reading_detail,reading,,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET05-Q01,SET05,1,短句填空,sentence_fill,,"After running three kilometers, Taro felt very (____) and drank a bottle of water.",3キロ走ったあと、太郎はとても（　）感じ、水を一本飲みました。,daily,famous,thirsty,plastic,毎日の,有名な,のどが渇いた,プラスチックの,C,thirsty,のどが渇いた,文脈から「thirsty」が最も自然です。意味は「のどが渇いた」です。空所の前後の言葉を手がかりにすると選びやすくなります。,"thirsty = のどが渇いた
+文脈：空所の前後から意味を判断する。",EIKEN_Pre2,adjective,vocabulary,thirsty,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET05-Q02,SET05,2,短句填空,sentence_fill,,"The school will (____) a science event next Friday, and many parents will come.",学校は来週金曜日に理科イベントを（　）予定で、多くの保護者が来ます。,hold,forget,drop,catch,開催する／持つ,忘れる,落とす,捕まえる,A,hold,開催する／持つ,文脈から「hold」が最も自然です。意味は「開催する／持つ」です。空所の前後の言葉を手がかりにすると選びやすくなります。,"hold = 開催する／持つ
+文脈：空所の前後から意味を判断する。",EIKEN_Pre2,verb,vocabulary,hold,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET05-Q03,SET05,3,短句填空,sentence_fill,,"A: I’m sorry I broke your ruler.
+B: That’s OK. It was an old one, and I can (____) another one.","A：あなたの定規を壊してごめんなさい。
+B：大丈夫。古いものだったし、別のものを（　）ことができます。",solve,climb,wake,buy,解決する,登る,起こす,買う,D,buy,買う,文脈から「buy」が最も自然です。意味は「買う」です。空所の前後の言葉を手がかりにすると選びやすくなります。,"buy = 買う
+文脈：空所の前後から意味を判断する。",EIKEN_Pre2,verb,vocabulary,buy,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET05-Q04,SET05,4,短句填空,sentence_fill,,The restaurant is popular because its meals are delicious and the prices are (____).,そのレストランは料理がおいしく、値段が（　）なので人気があります。,lonely,wooden,reasonable,cloudy,さびしい,木製の,手ごろな,曇った,C,reasonable,手ごろな,文脈から「reasonable」が最も自然です。意味は「手ごろな」です。空所の前後の言葉を手がかりにすると選びやすくなります。,"reasonable = 手ごろな
+文脈：空所の前後から意味を判断する。",EIKEN_Pre2,adjective,vocabulary,reasonable,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET05-Q05,SET05,5,短句填空,sentence_fill,,The soccer coach told the players to (____) carefully before the game to avoid injuries.,サッカーのコーチは、けがを避けるために試合前に注意して（　）よう選手たちに言いました。,decorate,count,trade,stretch,飾る,数える,交換する,ストレッチする,D,stretch,ストレッチする,文脈から「stretch」が最も自然です。意味は「ストレッチする」です。空所の前後の言葉を手がかりにすると選びやすくなります。,"stretch = ストレッチする
+文脈：空所の前後から意味を判断する。",EIKEN_Pre2,verb,vocabulary,stretch,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET05-Q06,SET05,6,短句填空,sentence_fill,,Sarah could not hear the announcement because the room was too (____).,部屋があまりにも（　）だったので、サラは放送を聞くことができませんでした。,correct,private,useful,noisy,訂正する／正しい,個人的な,役に立つ,騒がしい,D,noisy,騒がしい,文脈から「noisy」が最も自然です。意味は「騒がしい」です。空所の前後の言葉を手がかりにすると選びやすくなります。,"noisy = 騒がしい
+文脈：空所の前後から意味を判断する。",EIKEN_Pre2,adjective,vocabulary,noisy,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET05-Q07,SET05,7,短句填空,sentence_fill,,The city plans to (____) more trees along the main street next spring.,市は来年の春、メインストリート沿いにもっと多くの木を（　）予定です。,mix,charge,tie,plant,混ぜる,料金を請求する,結ぶ,植える,D,plant,植える,文脈から「plant」が最も自然です。意味は「植える」です。空所の前後の言葉を手がかりにすると選びやすくなります。,"plant = 植える
+文脈：空所の前後から意味を判断する。",EIKEN_Pre2,verb,vocabulary,plant,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET05-Q08,SET05,8,短句填空,sentence_fill,,"A: Why did you bring a map?
+B: I don’t want to get (____) in this big city.","A：どうして地図を持ってきたの？
+B：この大きな町で（　）なりたくないからです。",full,safe,ready,lost,いっぱいの,安全な,準備ができた,道に迷った／失った,D,lost,道に迷った／失った,文脈から「lost」が最も自然です。意味は「道に迷った／失った」です。空所の前後の言葉を手がかりにすると選びやすくなります。,"lost = 道に迷った／失った
+文脈：空所の前後から意味を判断する。",EIKEN_Pre2,adjective,vocabulary,lost,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET05-Q09,SET05,9,短句填空,sentence_fill,,The movie was so (____) that many people laughed from beginning to end.,その映画はとても（　）だったので、多くの人が最初から最後まで笑いました。,weak,funny,square,deep,弱い,おもしろい,四角い,深い,B,funny,おもしろい,文脈から「funny」が最も自然です。意味は「おもしろい」です。空所の前後の言葉を手がかりにすると選びやすくなります。,"funny = おもしろい
+文脈：空所の前後から意味を判断する。",EIKEN_Pre2,adjective,vocabulary,funny,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET05-Q10,SET05,10,短句填空,sentence_fill,,The teacher asked the students to (____) their names at the top of the paper.,The teacher asked the students to （　） their names at the top of the paper.,taste,write,carry,invite,taste,write,carry,invite,B,write,write,文脈から「write」が最も自然です。意味は「write」です。空所の前後の言葉を手がかりにすると選びやすくなります。,"write = write
+文脈：空所の前後から意味を判断する。",EIKEN_Pre2,verb,vocabulary,write,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET05-Q11,SET05,11,对话完成,dialogue_completion,,"A: Dad, may I use the computer?
+B: Did you finish your homework first?
+A: Yes, I finished it a few minutes ago.
+B: (____)","次の会話を完成させなさい。
+A： Dad, may I use the computer?
+B： Did you finish your homework first?
+A： Yes, I finished it a few minutes ago.
+B： （　）",I like your new shoes.,"No, we need more milk.",All right. You can use it for thirty minutes.,The train was late.,あなたの新しい靴が好きです。,いいえ、もっと牛乳が必要です。,いいですよ。30分使ってよいです。,電車が遅れました。,C,All right. You can use it for thirty minutes.,いいですよ。30分使ってよいです。,会話の流れに合う返事は「All right. You can use it for thirty minutes.」です。前の発言をよく読むと、自然につながる内容を選べます。,"会話表現：相手の質問や依頼に合う自然な返事を選ぶ。
+correct answer = All right. You can use it for thirty minutes.（いいですよ。30分使ってよいです。）",EIKEN_Pre2,home,conversation,,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET05-Q12,SET05,12,对话完成,dialogue_completion,,"A: I’m looking for a book about space.
+B: Children’s books or adult books?
+A: Children’s books, please.
+B: (____)","次の会話を完成させなさい。
+A： I’m looking for a book about space.
+B： Children’s books or adult books?
+A： Children’s books, please.
+B： （　）",My brother plays tennis.,The bus leaves at noon.,They are on the second shelf near the window.,I will take the blue one.,私の兄はテニスをします。,バスは正午に出発します。,窓の近くの2番目の棚にあります。,青いものにします。,C,They are on the second shelf near the window.,窓の近くの2番目の棚にあります。,会話の流れに合う返事は「They are on the second shelf near the window.」です。前の発言をよく読むと、自然につながる内容を選べます。,"会話表現：相手の質問や依頼に合う自然な返事を選ぶ。
+correct answer = They are on the second shelf near the window.（窓の近くの2番目の棚にあります。）",EIKEN_Pre2,library,conversation,,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET05-Q13,SET05,13,对话完成,dialogue_completion,,"A: The soup is too hot to eat.
+B: Then wait a few minutes.
+A: Good idea.
+B: (____)","次の会話を完成させなさい。
+A： The soup is too hot to eat.
+B： Then wait a few minutes.
+A： Good idea.
+B： （　）",The museum is closed.,It will cool down soon.,You should buy new shoes.,I forgot my umbrella.,博物館は閉まっています。,すぐに冷めます。,新しい靴を買うべきです。,傘を忘れました。,B,It will cool down soon.,すぐに冷めます。,会話の流れに合う返事は「It will cool down soon.」です。前の発言をよく読むと、自然につながる内容を選べます。,"会話表現：相手の質問や依頼に合う自然な返事を選ぶ。
+correct answer = It will cool down soon.（すぐに冷めます。）",EIKEN_Pre2,restaurant,conversation,,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET05-Q14,SET05,14,对话完成,dialogue_completion,,"A: Why are you carrying so many boxes?
+B: I’m moving to a new apartment tomorrow.
+A: Do you need any help?
+B: (____)","次の会話を完成させなさい。
+A： Why are you carrying so many boxes?
+B： I’m moving to a new apartment tomorrow.
+A： Do you need any help?
+B： （　）",The concert was canceled.,"No, my cat is sleeping.","Yes, I watched it yesterday.",Thanks. Could you carry this small one?,The concert was canceled.,"No, my cat is sleeping.","Yes, I watched it yesterday.",Thanks. Could you carry this small one?,D,Thanks. Could you carry this small one?,Thanks. Could you carry this small one?,会話の流れに合う返事は「Thanks. Could you carry this small one?」です。前の発言をよく読むと、自然につながる内容を選べます。,"会話表現：相手の質問や依頼に合う自然な返事を選ぶ。
+correct answer = Thanks. Could you carry this small one?（Thanks. Could you carry this small one?）",EIKEN_Pre2,daily life,conversation,,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET05-Q15,SET05,15,对话完成,dialogue_completion,,"A: Your speech was very clear.
+B: Thank you. I practiced a lot.
+A: Are you going to join the next contest?
+B: (____)","次の会話を完成させなさい。
+A： Your speech was very clear.
+B： Thank you. I practiced a lot.
+A： Are you going to join the next contest?
+B： （　）","No, this bag is too heavy.",I cooked curry last night.,The room is on the third floor.,I think so. I want to try again.,"No, this bag is too heavy.",I cooked curry last night.,The room is on the third floor.,I think so. I want to try again.,D,I think so. I want to try again.,I think so. I want to try again.,会話の流れに合う返事は「I think so. I want to try again.」です。前の発言をよく読むと、自然につながる内容を選べます。,"会話表現：相手の質問や依頼に合う自然な返事を選ぶ。
+correct answer = I think so. I want to try again.（I think so. I want to try again.）",EIKEN_Pre2,school,conversation,,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET05-Q16,SET05,16,阅读理解,reading_comprehension,SET05-P01,What will Emily’s class sell?,本文の内容に合う答えを選びなさい：何 will Emily’s class sell?,Sports uniforms.,Old books.,Handmade cookies.,Concert tickets.,Sports uniforms.,Old books.,Handmade cookies.,Concert tickets.,C,Handmade cookies.,Handmade cookies.,本文の内容に合う答えは「Handmade cookies.」です。質問文のキーワードと同じ情報を本文から探すと、正解にたどり着けます。,"読解ポイント：質問の Who / What / Where / When / Why に注目する。
+correct answer = Handmade cookies.（Handmade cookies.）",EIKEN_Pre2,reading_detail,reading,,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET05-Q17,SET05,17,阅读理解,reading_comprehension,SET05-P01,What will the money be used for?,本文の内容に合う答えを選びなさい：何 will the money be used for?,To pay for a class trip.,To buy new books for the library.,To buy lunch for teachers.,To repair the gym.,To pay for a class trip.,To buy new books for the library.,To buy lunch for teachers.,To repair the gym.,B,To buy new books for the library.,To buy new books for the library.,本文の内容に合う答えは「To buy new books for the library.」です。質問文のキーワードと同じ情報を本文から探すと、正解にたどり着けます。,"読解ポイント：質問の Who / What / Where / When / Why に注目する。
+correct answer = To buy new books for the library.（To buy new books for the library.）",EIKEN_Pre2,reading_detail,reading,,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET05-Q18,SET05,18,阅读理解,reading_comprehension,SET05-P01,What should Ryan bring if he has one?,本文の内容に合う答えを選びなさい：何 should Ryan bring if he has one?,A bicycle.,A camera.,An apron.,A passport.,A bicycle.,カメラ。,An apron.,A passport.,C,An apron.,An apron.,本文の内容に合う答えは「An apron.」です。質問文のキーワードと同じ情報を本文から探すと、正解にたどり着けます。,"読解ポイント：質問の Who / What / Where / When / Why に注目する。
+correct answer = An apron.（An apron.）",EIKEN_Pre2,reading_detail,reading,,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET05-Q19,SET05,19,阅读理解,reading_comprehension,SET05-P02,When should students return their books?,本文の内容に合う答えを選びなさい：いつ should students return their books?,After lunch today.,Before winter vacation.,This Friday.,Next Wednesday.,After lunch today.,Before winter vacation.,This Friday.,Next Wednesday.,D,Next Wednesday.,Next Wednesday.,本文の内容に合う答えは「Next Wednesday.」です。質問文のキーワードと同じ情報を本文から探すと、正解にたどり着けます。,"読解ポイント：質問の Who / What / Where / When / Why に注目する。
+correct answer = Next Wednesday.（Next Wednesday.）",EIKEN_Pre2,reading_detail,reading,,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET05-Q20,SET05,20,阅读理解,reading_comprehension,SET05-P02,Why will the library be closed in the morning?,本文の内容に合う答えを選びなさい：なぜ will the library be closed in the morning?,The staff will check the books.,A writer will give a speech.,Students will clean the windows.,New computers will arrive.,The staff will check the books.,A writer will give a speech.,Students will clean the windows.,New computers will arrive.,A,The staff will check the books.,The staff will check the books.,本文の内容に合う答えは「The staff will check the books.」です。質問文のキーワードと同じ情報を本文から探すと、正解にたどり着けます。,"読解ポイント：質問の Who / What / Where / When / Why に注目する。
+correct answer = The staff will check the books.（The staff will check the books.）",EIKEN_Pre2,reading_detail,reading,,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET05-Q21,SET05,21,阅读理解,reading_comprehension,SET05-P02,When can students borrow new books?,本文の内容に合う答えを選びなさい：生徒はいつ新しい本を借りることができますか。,During the first class.,After lunch.,Late at night.,Before school.,During the first class.,After lunch.,Late at night.,Before school.,B,After lunch.,After lunch.,本文の内容に合う答えは「After lunch.」です。質問文のキーワードと同じ情報を本文から探すと、正解にたどり着けます。,"読解ポイント：質問の Who / What / Where / When / Why に注目する。
+correct answer = After lunch.（After lunch.）",EIKEN_Pre2,reading_detail,reading,,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET05-Q22,SET05,22,阅读理解,reading_comprehension,SET05-P03,Why did the bakery almost close?,本文の内容に合う答えを選びなさい：なぜそのパン屋は閉店しそうになりましたか。,Fewer people were buying bread there.,Students stopped visiting the town.,The building was too new.,The owner moved away.,Fewer people were buying bread there.,Students stopped visiting the town.,The building was too new.,The owner moved away.,A,Fewer people were buying bread there.,Fewer people were buying bread there.,本文の内容に合う答えは「Fewer people were buying bread there.」です。質問文のキーワードと同じ情報を本文から探すと、正解にたどり着けます。,"読解ポイント：質問の Who / What / Where / When / Why に注目する。
+correct answer = Fewer people were buying bread there.（Fewer people were buying bread there.）",EIKEN_Pre2,reading_detail,reading,,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET05-Q23,SET05,23,阅读理解,reading_comprehension,SET05-P03,What did Mr. Clark start using?,本文の内容に合う答えを選びなさい：クラークさんは何を使い始めましたか。,Local fruit.,Imported cheese.,Old recipes only.,Coffee beans.,Local fruit.,Imported cheese.,Old recipes only.,Coffee beans.,A,Local fruit.,Local fruit.,本文の内容に合う答えは「Local fruit.」です。質問文のキーワードと同じ情報を本文から探すと、正解にたどり着けます。,"読解ポイント：質問の Who / What / Where / When / Why に注目する。
+correct answer = Local fruit.（Local fruit.）",EIKEN_Pre2,reading_detail,reading,,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET05-Q24,SET05,24,阅读理解,reading_comprehension,SET05-P03,What does Mr. Clark do on weekends now?,本文の内容に合う答えを選びなさい：クラークさんは今、週末に何をしていますか。,He closes the bakery.,He visits a museum.,He sells bicycles.,He teaches baking classes.,He closes the bakery.,He visits a museum.,He sells bicycles.,He teaches baking classes.,D,He teaches baking classes.,He teaches baking classes.,本文の内容に合う答えは「He teaches baking classes.」です。質問文のキーワードと同じ情報を本文から探すと、正解にたどり着けます。,"読解ポイント：質問の Who / What / Where / When / Why に注目する。
+correct answer = He teaches baking classes.（He teaches baking classes.）",EIKEN_Pre2,reading_detail,reading,,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET05-Q25,SET05,25,阅读理解,reading_comprehension,SET05-P04,Why were parents worried?,本文の内容に合う答えを選びなさい：なぜ保護者は心配していましたか。,The children had too much homework.,There were no teachers.,The school was too small.,The road near the school was busy.,The children had too much homework.,There were no teachers.,The school was too small.,The road near the school was busy.,D,The road near the school was busy.,The road near the school was busy.,本文の内容に合う答えは「The road near the school was busy.」です。質問文のキーワードと同じ情報を本文から探すと、正解にたどり着けます。,"読解ポイント：質問の Who / What / Where / When / Why に注目する。
+correct answer = The road near the school was busy.（The road near the school was busy.）",EIKEN_Pre2,reading_detail,reading,,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET05-Q26,SET05,26,阅读理解,reading_comprehension,SET05-P04,What is a walking bus?,本文の内容に合う答えを選びなさい：ウォーキングバスとは何ですか。,A class about traffic signs.,Adults walk with groups of children.,A bus that has no seats.,A game played after school.,A class about traffic signs.,Adults walk with groups of children.,A bus that has no seats.,A game played after school.,B,Adults walk with groups of children.,Adults walk with groups of children.,本文の内容に合う答えは「Adults walk with groups of children.」です。質問文のキーワードと同じ情報を本文から探すと、正解にたどり着けます。,"読解ポイント：質問の Who / What / Where / When / Why に注目する。
+correct answer = Adults walk with groups of children.（Adults walk with groups of children.）",EIKEN_Pre2,reading_detail,reading,,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET05-Q27,SET05,27,阅读理解,reading_comprehension,SET05-P04,What is one good point of the walking bus?,本文の内容に合う答えを選びなさい：ウォーキングバスの良い点は何ですか。,The road becomes shorter.,Children get exercise.,Parents never need to work.,Children can sleep longer.,The road becomes shorter.,Children get exercise.,Parents never need to work.,Children can sleep longer.,B,Children get exercise.,Children get exercise.,本文の内容に合う答えは「Children get exercise.」です。質問文のキーワードと同じ情報を本文から探すと、正解にたどり着けます。,"読解ポイント：質問の Who / What / Where / When / Why に注目する。
+correct answer = Children get exercise.（Children get exercise.）",EIKEN_Pre2,reading_detail,reading,,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET05-Q28,SET05,28,阅读理解,reading_comprehension,SET05-P05,What does the group collect?,本文の内容に合う答えを選びなさい：そのグループは何を集めますか。,Old computers.,School uniforms.,Plastic bottles.,Old bicycles.,古いコンピューター。,School uniforms.,ペットボトル。,Old bicycles.,A,Old computers.,古いコンピューター。,本文の内容に合う答えは「Old computers.」です。質問文のキーワードと同じ情報を本文から探すと、正解にたどり着けます。,"読解ポイント：質問の Who / What / Where / When / Why に注目する。
+correct answer = Old computers.（古いコンピューター。）",EIKEN_Pre2,reading_detail,reading,,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET05-Q29,SET05,29,阅读理解,reading_comprehension,SET05-P05,Who receives the repaired computers?,本文の内容に合う答えを選びなさい：修理されたコンピューターは誰が受け取りますか。,Tourists.,Children who do not have computers at home.,Computer companies.,University teachers.,Tourists.,家にコンピューターがない子どもたち。,Computer companies.,University teachers.,B,Children who do not have computers at home.,家にコンピューターがない子どもたち。,本文の内容に合う答えは「Children who do not have computers at home.」です。質問文のキーワードと同じ情報を本文から探すと、正解にたどり着けます。,"読解ポイント：質問の Who / What / Where / When / Why に注目する。
+correct answer = Children who do not have computers at home.（家にコンピューターがない子どもたち。）",EIKEN_Pre2,reading_detail,reading,,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET05-Q30,SET05,30,阅读理解,reading_comprehension,SET05-P05,What else do the students teach?,本文の内容に合う答えを選びなさい：生徒たちは他に何を教えますか。,How to use the Internet safely.,How to cook dinner.,How to fix cars.,How to play the violin.,インターネットを安全に使う方法。,How to cook dinner.,How to fix cars.,How to play the violin.,A,How to use the Internet safely.,インターネットを安全に使う方法。,本文の内容に合う答えは「How to use the Internet safely.」です。質問文のキーワードと同じ情報を本文から探すと、正解にたどり着けます。,"読解ポイント：質問の Who / What / Where / When / Why に注目する。
+correct answer = How to use the Internet safely.（インターネットを安全に使う方法。）",EIKEN_Pre2,reading_detail,reading,,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET06-Q01,SET06,1,短句填空,sentence_fill,,"A: Why did you bring a map?
+B: I don’t want to get (____) in this big city.","A：どうして地図を持ってきたの？
+B：この大きな町で（　）なりたくないからです。",full,lost,safe,ready,いっぱいの,道に迷った／失った,安全な,準備ができた,B,lost,道に迷った／失った,文脈から「lost」が最も自然です。意味は「道に迷った／失った」です。空所の前後の言葉を手がかりにすると選びやすくなります。,"lost = 道に迷った／失った
+文脈：空所の前後から意味を判断する。",EIKEN_Pre2,adjective,vocabulary,lost,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET06-Q02,SET06,2,短句填空,sentence_fill,,The movie was so (____) that many people laughed from beginning to end.,その映画はとても（　）だったので、多くの人が最初から最後まで笑いました。,funny,square,deep,weak,おもしろい,四角い,深い,弱い,A,funny,おもしろい,文脈から「funny」が最も自然です。意味は「おもしろい」です。空所の前後の言葉を手がかりにすると選びやすくなります。,"funny = おもしろい
+文脈：空所の前後から意味を判断する。",EIKEN_Pre2,adjective,vocabulary,funny,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET06-Q03,SET06,3,短句填空,sentence_fill,,The teacher asked the students to (____) their names at the top of the paper.,The teacher asked the students to （　） their names at the top of the paper.,carry,taste,write,invite,carry,taste,write,invite,C,write,write,文脈から「write」が最も自然です。意味は「write」です。空所の前後の言葉を手がかりにすると選びやすくなります。,"write = write
+文脈：空所の前後から意味を判断する。",EIKEN_Pre2,verb,vocabulary,write,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET06-Q04,SET06,4,短句填空,sentence_fill,,It is important to (____) your teeth after meals.,It is important to （　） your teeth after meals.,brush,break,measure,land,brush,break,measure,land,A,brush,brush,文脈から「brush」が最も自然です。意味は「brush」です。空所の前後の言葉を手がかりにすると選びやすくなります。,"brush = brush
+文脈：空所の前後から意味を判断する。",EIKEN_Pre2,verb,vocabulary,brush,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET06-Q05,SET06,5,短句填空,sentence_fill,,Emma saved money for three months because she wanted to (____) a new bicycle.,Emma saved money for three months because she wanted to （　） a new bicycle.,knock,afford,search,boil,knock,afford,search,boil,B,afford,afford,文脈から「afford」が最も自然です。意味は「afford」です。空所の前後の言葉を手がかりにすると選びやすくなります。,"afford = afford
+文脈：空所の前後から意味を判断する。",EIKEN_Pre2,verb,vocabulary,afford,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET06-Q06,SET06,6,短句填空,sentence_fill,,"The old clock still works, but it is not very (____). It is often five minutes slow.","The old clock still works, but it is not very （　）. It is often five minutes slow.",empty,central,accurate,social,空の,中心の,accurate,social,C,accurate,accurate,文脈から「accurate」が最も自然です。意味は「accurate」です。空所の前後の言葉を手がかりにすると選びやすくなります。,"accurate = accurate
+文脈：空所の前後から意味を判断する。",EIKEN_Pre2,adjective,vocabulary,accurate,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET06-Q07,SET06,7,短句填空,sentence_fill,,"A: Can I use your dictionary?
+B: Sure, but please (____) it before English class ends.","A: Can I use your dictionary?
+B: Sure, but please （　） it before English class ends.",invent,cover,warn,return,invent,覆い／表紙,警告する,返す,D,return,返す,文脈から「return」が最も自然です。意味は「返す」です。空所の前後の言葉を手がかりにすると選びやすくなります。,"return = 返す
+文脈：空所の前後から意味を判断する。",EIKEN_Pre2,verb,vocabulary,return,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET06-Q08,SET06,8,短句填空,sentence_fill,,The students were excited because their class trip was (____) for next Monday.,The students were excited because their class trip was （　） for next Monday.,repaired,burned,hidden,scheduled,修理した,burned,hidden,scheduled,D,scheduled,scheduled,文脈から「scheduled」が最も自然です。意味は「scheduled」です。空所の前後の言葉を手がかりにすると選びやすくなります。,"scheduled = scheduled
+文脈：空所の前後から意味を判断する。",EIKEN_Pre2,verb,vocabulary,schedule,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET06-Q09,SET06,9,短句填空,sentence_fill,,"A: Did you finish the book report?
+B: Almost. I still need to (____) one more paragraph about the ending.","A: Did you finish the book report?
+B: Almost. I still need to （　） one more paragraph about the ending.",freeze,write,throw,lend,freeze,write,throw,lend,B,write,write,文脈から「write」が最も自然です。意味は「write」です。空所の前後の言葉を手がかりにすると選びやすくなります。,"write = write
+文脈：空所の前後から意味を判断する。",EIKEN_Pre2,vocabulary,vocabulary,write,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET06-Q10,SET06,10,短句填空,sentence_fill,,"The library was very (____), so Yuta could study there without any trouble.","The library was very （　）, so Yuta could study there without any trouble.",golden,empty,dangerous,quiet,golden,空の,dangerous,quiet,D,quiet,quiet,文脈から「quiet」が最も自然です。意味は「quiet」です。空所の前後の言葉を手がかりにすると選びやすくなります。,"quiet = quiet
+文脈：空所の前後から意味を判断する。",EIKEN_Pre2,adjective,vocabulary,quiet,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET06-Q11,SET06,11,对话完成,dialogue_completion,,"A: Why are you carrying so many boxes?
+B: I’m moving to a new apartment tomorrow.
+A: Do you need any help?
+B: (____)","次の会話を完成させなさい。
+A： Why are you carrying so many boxes?
+B： I’m moving to a new apartment tomorrow.
+A： Do you need any help?
+B： （　）","Yes, I watched it yesterday.",The concert was canceled.,Thanks. Could you carry this small one?,"No, my cat is sleeping.","Yes, I watched it yesterday.",The concert was canceled.,Thanks. Could you carry this small one?,"No, my cat is sleeping.",C,Thanks. Could you carry this small one?,Thanks. Could you carry this small one?,会話の流れに合う返事は「Thanks. Could you carry this small one?」です。前の発言をよく読むと、自然につながる内容を選べます。,"会話表現：相手の質問や依頼に合う自然な返事を選ぶ。
+correct answer = Thanks. Could you carry this small one?（Thanks. Could you carry this small one?）",EIKEN_Pre2,daily life,conversation,,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET06-Q12,SET06,12,对话完成,dialogue_completion,,"A: Your speech was very clear.
+B: Thank you. I practiced a lot.
+A: Are you going to join the next contest?
+B: (____)","次の会話を完成させなさい。
+A： Your speech was very clear.
+B： Thank you. I practiced a lot.
+A： Are you going to join the next contest?
+B： （　）","No, this bag is too heavy.",I cooked curry last night.,I think so. I want to try again.,The room is on the third floor.,"No, this bag is too heavy.",I cooked curry last night.,I think so. I want to try again.,The room is on the third floor.,C,I think so. I want to try again.,I think so. I want to try again.,会話の流れに合う返事は「I think so. I want to try again.」です。前の発言をよく読むと、自然につながる内容を選べます。,"会話表現：相手の質問や依頼に合う自然な返事を選ぶ。
+correct answer = I think so. I want to try again.（I think so. I want to try again.）",EIKEN_Pre2,school,conversation,,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET06-Q13,SET06,13,对话完成,dialogue_completion,,"A: Excuse me. I lost my train ticket.
+B: Do you remember where you bought it?
+A: Yes, at the machine near Gate 2.
+B: (____)","次の会話を完成させなさい。
+A： Excuse me. I lost my train ticket.
+B： Do you remember where you bought it?
+A： Yes, at the machine near Gate 2.
+B： （　）",I want to buy a new bicycle.,I ate lunch already.,Please go to the station office over there.,The movie starts at seven.,I want to buy a new bicycle.,I ate lunch already.,Please go to the station office over there.,The movie starts at seven.,C,Please go to the station office over there.,Please go to the station office over there.,会話の流れに合う返事は「Please go to the station office over there.」です。前の発言をよく読むと、自然につながる内容を選べます。,"会話表現：相手の質問や依頼に合う自然な返事を選ぶ。
+correct answer = Please go to the station office over there.（Please go to the station office over there.）",EIKEN_Pre2,lost item,conversation,,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET06-Q14,SET06,14,对话完成,dialogue_completion,,"A: Mom, can I invite Ken to dinner tonight?
+B: Sure. What time will he come?
+A: Around six thirty.
+B: (____)","次の会話を完成させなさい。
+A： Mom, can I invite Ken to dinner tonight?
+B： Sure. What time will he come?
+A： Around six thirty.
+B： （　）",It is raining outside.,"No, I went there last week.",The test was very difficult.,OK. I’ll cook a little extra food.,It is raining outside.,"No, I went there last week.",The test was very difficult.,OK. I’ll cook a little extra food.,D,OK. I’ll cook a little extra food.,OK. I’ll cook a little extra food.,会話の流れに合う返事は「OK. I’ll cook a little extra food.」です。前の発言をよく読むと、自然につながる内容を選べます。,"会話表現：相手の質問や依頼に合う自然な返事を選ぶ。
+correct answer = OK. I’ll cook a little extra food.（OK. I’ll cook a little extra food.）",EIKEN_Pre2,home,conversation,,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET06-Q15,SET06,15,对话完成,dialogue_completion,,"A: Welcome to Lake View Hotel. How may I help you?
+B: I’d like to check in. My name is Tanaka.
+A: Let me see. Yes, we have your reservation.
+B: (____)","次の会話を完成させなさい。
+A： Welcome to Lake View Hotel. How may I help you?
+B： I’d like to check in. My name is Tanaka.
+A： Let me see. Yes, we have your reservation.
+B： （　）",Great. Could you tell me where the elevator is?,I bought it yesterday.,My dog likes the park.,I don’t have any homework.,Great. Could you tell me where the elevator is?,I bought it yesterday.,My dog likes the park.,I don’t have any homework.,A,Great. Could you tell me where the elevator is?,Great. Could you tell me where the elevator is?,会話の流れに合う返事は「Great. Could you tell me where the elevator is?」です。前の発言をよく読むと、自然につながる内容を選べます。,"会話表現：相手の質問や依頼に合う自然な返事を選ぶ。
+correct answer = Great. Could you tell me where the elevator is?（Great. Could you tell me where the elevator is?）",EIKEN_Pre2,hotel,conversation,,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET06-Q16,SET06,16,阅读理解,reading_comprehension,SET06-P01,Where will Friday’s practice be held?,本文の内容に合う答えを選びなさい：金曜日の練習はどこで行われますか。,At Green Park.,In the gym.,In Room 4C.,At the city pool.,グリーンパークで。,体育館で。,4C教室で。,市民プールで。,A,At Green Park.,グリーンパークで。,本文の内容に合う答えは「At Green Park.」です。質問文のキーワードと同じ情報を本文から探すと、正解にたどり着けます。,"読解ポイント：質問の Who / What / Where / When / Why に注目する。
+correct answer = At Green Park.（グリーンパークで。）",EIKEN_Pre2,reading_detail,reading,,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET06-Q17,SET06,17,阅读理解,reading_comprehension,SET06-P01,Why is the practice place changing?,本文の内容に合う答えを選びなさい：なぜ練習場所が変わりますか。,The coach is sick.,The school field is being repaired.,The team has a game.,It will rain heavily.,コーチが病気だから。,学校のグラウンドが修理中だから。,チームに試合があるから。,大雨が降るから。,B,The school field is being repaired.,学校のグラウンドが修理中だから。,本文の内容に合う答えは「The school field is being repaired.」です。質問文のキーワードと同じ情報を本文から探すと、正解にたどり着けます。,"読解ポイント：質問の Who / What / Where / When / Why に注目する。
+correct answer = The school field is being repaired.（学校のグラウンドが修理中だから。）",EIKEN_Pre2,reading_detail,reading,,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET06-Q18,SET06,18,阅读理解,reading_comprehension,SET06-P01,What should students bring?,本文の内容に合う答えを選びなさい：生徒は何を持ってくるべきですか。,A camera.,A water bottle.,A lunch box.,A dictionary.,カメラ。,水筒。,弁当箱。,辞書。,B,A water bottle.,水筒。,本文の内容に合う答えは「A water bottle.」です。質問文のキーワードと同じ情報を本文から探すと、正解にたどり着けます。,"読解ポイント：質問の Who / What / Where / When / Why に注目する。
+correct answer = A water bottle.（水筒。）",EIKEN_Pre2,reading_detail,reading,,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET06-Q19,SET06,19,阅读理解,reading_comprehension,SET06-P02,Where did Sofia go yesterday?,本文の内容に合う答えを選びなさい：ソフィアは昨日どこへ行きましたか。,To the city art museum.,To her school library.,To a train station.,To a zoo.,市立美術館へ。,学校の図書館へ。,駅へ。,動物園へ。,A,To the city art museum.,市立美術館へ。,本文の内容に合う答えは「To the city art museum.」です。質問文のキーワードと同じ情報を本文から探すと、正解にたどり着けます。,"読解ポイント：質問の Who / What / Where / When / Why に注目する。
+correct answer = To the city art museum.（市立美術館へ。）",EIKEN_Pre2,reading_detail,reading,,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET06-Q20,SET06,20,阅读理解,reading_comprehension,SET06-P02,What was the special exhibition about?,本文の内容に合う答えを選びなさい：特別展は何についてでしたか。,Space travel.,Famous singers.,Old cameras.,Animals in paintings.,宇宙旅行。,有名な歌手。,古いカメラ。,絵の中の動物。,D,Animals in paintings.,絵の中の動物。,本文の内容に合う答えは「Animals in paintings.」です。質問文のキーワードと同じ情報を本文から探すと、正解にたどり着けます。,"読解ポイント：質問の Who / What / Where / When / Why に注目する。
+correct answer = Animals in paintings.（絵の中の動物。）",EIKEN_Pre2,reading_detail,reading,,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET06-Q21,SET06,21,阅读理解,reading_comprehension,SET06-P02,What did Sofia buy?,本文の内容に合う答えを選びなさい：ソフィアは何を買いましたか。,A painting.,Postcards.,A toy horse.,A notebook.,絵。,ポストカード。,おもちゃの馬。,ノート。,B,Postcards.,ポストカード。,本文の内容に合う答えは「Postcards.」です。質問文のキーワードと同じ情報を本文から探すと、正解にたどり着けます。,"読解ポイント：質問の Who / What / Where / When / Why に注目する。
+correct answer = Postcards.（ポストカード。）",EIKEN_Pre2,reading_detail,reading,,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET06-Q22,SET06,22,阅读理解,reading_comprehension,SET06-P03,Where was the empty space?,本文の内容に合う答えを選びなさい：空き地はどこにありましたか。,Behind a hospital.,Inside a station.,Beside the city hall.,Next to a river.,病院の後ろ。,駅の中。,市役所の横。,川の隣。,C,Beside the city hall.,市役所の横。,本文の内容に合う答えは「Beside the city hall.」です。質問文のキーワードと同じ情報を本文から探すと、正解にたどり着けます。,"読解ポイント：質問の Who / What / Where / When / Why に注目する。
+correct answer = Beside the city hall.（市役所の横。）",EIKEN_Pre2,reading_detail,reading,,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET06-Q23,SET06,23,阅读理解,reading_comprehension,SET06-P03,What did neighbors plant?,本文の内容に合う答えを選びなさい：近所の人たちは何を植えましたか。,Grass for sports.,Rice and tea.,Vegetables and flowers.,Only tall trees.,スポーツ用の芝生。,米とお茶。,野菜と花。,高い木だけ。,C,Vegetables and flowers.,野菜と花。,本文の内容に合う答えは「Vegetables and flowers.」です。質問文のキーワードと同じ情報を本文から探すと、正解にたどり着けます。,"読解ポイント：質問の Who / What / Where / When / Why に注目する。
+correct answer = Vegetables and flowers.（野菜と花。）",EIKEN_Pre2,reading_detail,reading,,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET06-Q24,SET06,24,阅读理解,reading_comprehension,SET06-P03,What did children do during summer?,本文の内容に合う答えを選びなさい：子どもたちは夏の間に何をしましたか。,They painted the city hall.,They sold tickets.,They helped water the plants.,They built a bridge.,市役所にペンキを塗った。,チケットを売った。,植物に水をやる手伝いをした。,橋を作った。,C,They helped water the plants.,植物に水をやる手伝いをした。,本文の内容に合う答えは「They helped water the plants.」です。質問文のキーワードと同じ情報を本文から探すと、正解にたどり着けます。,"読解ポイント：質問の Who / What / Where / When / Why に注目する。
+correct answer = They helped water the plants.（植物に水をやる手伝いをした。）",EIKEN_Pre2,reading_detail,reading,,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET06-Q25,SET06,25,阅读理解,reading_comprehension,SET06-P04,What happened during Maya’s first speech contest?,本文の内容に合う答えを選びなさい：マヤの最初のスピーチコンテストで何が起こりましたか。,She lost her notebook.,She won first prize.,She forgot some words.,She arrived too late.,彼女はノートをなくした。,彼女は一位になった。,彼女はいくつかの言葉を忘れた。,彼女は遅れて着いた。,C,She forgot some words.,彼女はいくつかの言葉を忘れた。,本文の内容に合う答えは「She forgot some words.」です。質問文のキーワードと同じ情報を本文から探すと、正解にたどり着けます。,"読解ポイント：質問の Who / What / Where / When / Why に注目する。
+correct answer = She forgot some words.（彼女はいくつかの言葉を忘れた。）",EIKEN_Pre2,reading_detail,reading,,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET06-Q26,SET06,26,阅读理解,reading_comprehension,SET06-P04,What did her teacher tell her?,本文の内容に合う答えを選びなさい：先生は彼女に何と言いましたか。,The contest was canceled.,She needed a new school.,She should stop speaking English.,Mistakes could help her learn.,The contest was canceled.,She needed a new school.,She should stop speaking English.,間違いは学びの助けになる。,D,Mistakes could help her learn.,間違いは学びの助けになる。,本文の内容に合う答えは「Mistakes could help her learn.」です。質問文のキーワードと同じ情報を本文から探すと、正解にたどり着けます。,"読解ポイント：質問の Who / What / Where / When / Why に注目する。
+correct answer = Mistakes could help her learn.（間違いは学びの助けになる。）",EIKEN_Pre2,reading_detail,reading,,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET06-Q27,SET06,27,阅读理解,reading_comprehension,SET06-P04,How did Maya speak this year?,本文の内容に合う答えを選びなさい：今年マヤはどのように話しましたか。,Very quietly.,In Japanese only.,With confidence.,Without practicing.,とても小さな声で。,In Japanese only.,自信を持って。,練習せずに。,C,With confidence.,自信を持って。,本文の内容に合う答えは「With confidence.」です。質問文のキーワードと同じ情報を本文から探すと、正解にたどり着けます。,"読解ポイント：質問の Who / What / Where / When / Why に注目する。
+correct answer = With confidence.（自信を持って。）",EIKEN_Pre2,reading_detail,reading,,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET06-Q28,SET06,28,阅读理解,reading_comprehension,SET06-P05,When is the night market held?,本文の内容に合う答えを選びなさい：ナイトマーケットはいつ開かれますか。,On the first Monday of each month.,Only on New Year’s Day.,Every morning in winter.,Every Friday in summer.,On the first Monday of each month.,Only on New Year’s Day.,Every morning in winter.,Every Friday in summer.,D,Every Friday in summer.,Every Friday in summer.,本文の内容に合う答えは「Every Friday in summer.」です。質問文のキーワードと同じ情報を本文から探すと、正解にたどり着けます。,"読解ポイント：質問の Who / What / Where / When / Why に注目する。
+correct answer = Every Friday in summer.（Every Friday in summer.）",EIKEN_Pre2,reading_detail,reading,,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET06-Q29,SET06,29,阅读理解,reading_comprehension,SET06-P05,Where do musicians play music?,本文の内容に合う答えを選びなさい：音楽家たちはどこで演奏しますか。,Inside the library.,Behind the hospital.,At the bus stop.,Near the fountain.,Inside the library.,Behind the hospital.,At the bus stop.,Near the fountain.,D,Near the fountain.,Near the fountain.,本文の内容に合う答えは「Near the fountain.」です。質問文のキーワードと同じ情報を本文から探すと、正解にたどり着けます。,"読解ポイント：質問の Who / What / Where / When / Why に注目する。
+correct answer = Near the fountain.（Near the fountain.）",EIKEN_Pre2,reading_detail,reading,,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET06-Q30,SET06,30,阅读理解,reading_comprehension,SET06-P05,Who does the market help?,本文の内容に合う答えを選びなさい：その市場は誰を助けますか。,Foreign airlines.,Only large hotels.,Small shops.,Farm animals.,Foreign airlines.,Only large hotels.,小さなお店。,Farm animals.,C,Small shops.,小さなお店。,本文の内容に合う答えは「Small shops.」です。質問文のキーワードと同じ情報を本文から探すと、正解にたどり着けます。,"読解ポイント：質問の Who / What / Where / When / Why に注目する。
+correct answer = Small shops.（小さなお店。）",EIKEN_Pre2,reading_detail,reading,,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET07-Q01,SET07,1,短句填空,sentence_fill,,The students were excited because their class trip was (____) for next Monday.,The students were excited because their class trip was （　） for next Monday.,repaired,burned,scheduled,hidden,修理した,burned,scheduled,hidden,C,scheduled,scheduled,文脈から「scheduled」が最も自然です。意味は「scheduled」です。空所の前後の言葉を手がかりにすると選びやすくなります。,"scheduled = scheduled
+文脈：空所の前後から意味を判断する。",EIKEN_Pre2,verb,vocabulary,schedule,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET07-Q02,SET07,2,短句填空,sentence_fill,,"A: Did you finish the book report?
+B: Almost. I still need to (____) one more paragraph about the ending.","A: Did you finish the book report?
+B: Almost. I still need to （　） one more paragraph about the ending.",lend,write,throw,freeze,lend,write,throw,freeze,B,write,write,文脈から「write」が最も自然です。意味は「write」です。空所の前後の言葉を手がかりにすると選びやすくなります。,"write = write
+文脈：空所の前後から意味を判断する。",EIKEN_Pre2,vocabulary,vocabulary,write,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET07-Q03,SET07,3,短句填空,sentence_fill,,"The library was very (____), so Yuta could study there without any trouble.","The library was very （　）, so Yuta could study there without any trouble.",dangerous,quiet,golden,empty,dangerous,quiet,golden,空の,B,quiet,quiet,文脈から「quiet」が最も自然です。意味は「quiet」です。空所の前後の言葉を手がかりにすると選びやすくなります。,"quiet = quiet
+文脈：空所の前後から意味を判断する。",EIKEN_Pre2,adjective,vocabulary,quiet,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET07-Q04,SET07,4,短句填空,sentence_fill,,"Miki forgot her lunch, so her friend decided to (____) a sandwich with her.","Miki forgot her lunch, so her friend decided to （　） a sandwich with her.",refuse,repair,collect,share,refuse,repair,collect,共有する,D,share,共有する,文脈から「share」が最も自然です。意味は「共有する」です。空所の前後の言葉を手がかりにすると選びやすくなります。,"share = 共有する
+文脈：空所の前後から意味を判断する。",EIKEN_Pre2,verb,vocabulary,share,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET07-Q05,SET07,5,短句填空,sentence_fill,,The train was delayed because of heavy snow. Many passengers had to (____) at the station for an hour.,The train was delayed because of heavy snow. Many passengers had to （　） at the station for an hour.,hide,push,wait,paint,hide,push,wait,paint,C,wait,wait,文脈から「wait」が最も自然です。意味は「wait」です。空所の前後の言葉を手がかりにすると選びやすくなります。,"wait = wait
+文脈：空所の前後から意味を判断する。",EIKEN_Pre2,verb,vocabulary,wait,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET07-Q06,SET07,6,短句填空,sentence_fill,,"A: This math problem is too hard.
+B: Don’t worry. I’ll (____) it to you step by step.","A: This math problem is too hard.
+B: Don’t worry. I’ll （　） it to you step by step.",invite,deliver,guess,explain,invite,配達する,guess,explain,D,explain,explain,文脈から「explain」が最も自然です。意味は「explain」です。空所の前後の言葉を手がかりにすると選びやすくなります。,"explain = explain
+文脈：空所の前後から意味を判断する。",EIKEN_Pre2,verb,vocabulary,explain,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET07-Q07,SET07,7,短句填空,sentence_fill,,"The new supermarket is very (____). It sells food, clothes, and even school supplies.","The new supermarket is very （　）. It sells food, clothes, and even school supplies.",silent,narrow,convenient,ancient,silent,狭い,convenient,ancient,C,convenient,convenient,文脈から「convenient」が最も自然です。意味は「convenient」です。空所の前後の言葉を手がかりにすると選びやすくなります。,"convenient = convenient
+文脈：空所の前後から意味を判断する。",EIKEN_Pre2,adjective,vocabulary,convenient,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET07-Q08,SET07,8,短句填空,sentence_fill,,Aya practiced the piano every day and finally won first (____) in the contest.,Aya practiced the piano every day and finally won first （　） in the contest.,prize,noise,habit,reason,賞,noise,habit,reason,A,prize,賞,文脈から「prize」が最も自然です。意味は「賞」です。空所の前後の言葉を手がかりにすると選びやすくなります。,"prize = 賞
+文脈：空所の前後から意味を判断する。",EIKEN_Pre2,noun,vocabulary,prize,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET07-Q09,SET07,9,短句填空,sentence_fill,,"My brother is too young to cook by himself, so an adult must (____) him in the kitchen.",弟は一人で料理するには幼すぎるので、大人が台所で彼を（　）必要があります。,miss,watch,fold,print,逃す／恋しく思う,見守る,折る,印刷する,B,watch,見守る,文脈から「watch」が最も自然です。意味は「見守る」です。空所の前後の言葉を手がかりにすると選びやすくなります。,"watch = 見守る
+文脈：空所の前後から意味を判断する。",EIKEN_Pre2,verb,vocabulary,watch,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET07-Q10,SET07,10,短句填空,sentence_fill,,The museum guide spoke slowly so that everyone could (____) her explanation.,博物館の案内係は、みんなが説明を（　）できるようにゆっくり話しました。,understand,return,damage,borrow,理解する,返す,損害を与える,借りる,A,understand,理解する,文脈から「understand」が最も自然です。意味は「理解する」です。空所の前後の言葉を手がかりにすると選びやすくなります。,"understand = 理解する
+文脈：空所の前後から意味を判断する。",EIKEN_Pre2,verb,vocabulary,understand,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET07-Q11,SET07,11,对话完成,dialogue_completion,,"A: Mom, can I invite Ken to dinner tonight?
+B: Sure. What time will he come?
+A: Around six thirty.
+B: (____)","次の会話を完成させなさい。
+A： Mom, can I invite Ken to dinner tonight?
+B： Sure. What time will he come?
+A： Around six thirty.
+B： （　）",The test was very difficult.,OK. I’ll cook a little extra food.,It is raining outside.,"No, I went there last week.",The test was very difficult.,OK. I’ll cook a little extra food.,It is raining outside.,"No, I went there last week.",B,OK. I’ll cook a little extra food.,OK. I’ll cook a little extra food.,会話の流れに合う返事は「OK. I’ll cook a little extra food.」です。前の発言をよく読むと、自然につながる内容を選べます。,"会話表現：相手の質問や依頼に合う自然な返事を選ぶ。
+correct answer = OK. I’ll cook a little extra food.（OK. I’ll cook a little extra food.）",EIKEN_Pre2,home,conversation,,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET07-Q12,SET07,12,对话完成,dialogue_completion,,"A: Welcome to Lake View Hotel. How may I help you?
+B: I’d like to check in. My name is Tanaka.
+A: Let me see. Yes, we have your reservation.
+B: (____)","次の会話を完成させなさい。
+A： Welcome to Lake View Hotel. How may I help you?
+B： I’d like to check in. My name is Tanaka.
+A： Let me see. Yes, we have your reservation.
+B： （　）",I don’t have any homework.,I bought it yesterday.,Great. Could you tell me where the elevator is?,My dog likes the park.,I don’t have any homework.,I bought it yesterday.,Great. Could you tell me where the elevator is?,My dog likes the park.,C,Great. Could you tell me where the elevator is?,Great. Could you tell me where the elevator is?,会話の流れに合う返事は「Great. Could you tell me where the elevator is?」です。前の発言をよく読むと、自然につながる内容を選べます。,"会話表現：相手の質問や依頼に合う自然な返事を選ぶ。
+correct answer = Great. Could you tell me where the elevator is?（Great. Could you tell me where the elevator is?）",EIKEN_Pre2,hotel,conversation,,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET07-Q13,SET07,13,对话完成,dialogue_completion,,"A: You look tired, Ben.
+B: I stayed up late finishing my science project.
+A: Is it due today?
+B: (____)","次の会話を完成させなさい。
+A： You look tired, Ben.
+B： I stayed up late finishing my science project.
+A： Is it due today?
+B： （　）",It was sunny yesterday.,"Yes, I have to hand it in this morning.","No, I never study science.",I like sandwiches.,昨日は晴れていました。,はい、今朝提出しなければなりません。,いいえ、私は理科を勉強しません。,私はサンドイッチが好きです。,B,"Yes, I have to hand it in this morning.",はい、今朝提出しなければなりません。,"会話の流れに合う返事は「Yes, I have to hand it in this morning.」です。前の発言をよく読むと、自然につながる内容を選べます。","会話表現：相手の質問や依頼に合う自然な返事を選ぶ。
+correct answer = Yes, I have to hand it in this morning.（はい、今朝提出しなければなりません。）",EIKEN_Pre2,school,conversation,,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET07-Q14,SET07,14,对话完成,dialogue_completion,,"A: This jacket is nice, but it’s too small.
+B: Would you like to try a larger size?
+A: Yes, please.
+B: (____)","次の会話を完成させなさい。
+A： This jacket is nice, but it’s too small.
+B： Would you like to try a larger size?
+A： Yes, please.
+B： （　）",You should ride the bus.,I’ll bring one from the back.,The library is closed today.,I finished reading it.,バスに乗るべきです。,奥から一つ持ってきます。,図書館は今日は閉まっています。,それを読み終えました。,B,I’ll bring one from the back.,奥から一つ持ってきます。,会話の流れに合う返事は「I’ll bring one from the back.」です。前の発言をよく読むと、自然につながる内容を選べます。,"会話表現：相手の質問や依頼に合う自然な返事を選ぶ。
+correct answer = I’ll bring one from the back.（奥から一つ持ってきます。）",EIKEN_Pre2,shopping,conversation,,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET07-Q15,SET07,15,对话完成,dialogue_completion,,"A: Dad, may I use the computer?
+B: Did you finish your homework first?
+A: Yes, I finished it a few minutes ago.
+B: (____)","次の会話を完成させなさい。
+A： Dad, may I use the computer?
+B： Did you finish your homework first?
+A： Yes, I finished it a few minutes ago.
+B： （　）",I like your new shoes.,"No, we need more milk.",All right. You can use it for thirty minutes.,The train was late.,あなたの新しい靴が好きです。,いいえ、もっと牛乳が必要です。,いいですよ。30分使ってよいです。,電車が遅れました。,C,All right. You can use it for thirty minutes.,いいですよ。30分使ってよいです。,会話の流れに合う返事は「All right. You can use it for thirty minutes.」です。前の発言をよく読むと、自然につながる内容を選べます。,"会話表現：相手の質問や依頼に合う自然な返事を選ぶ。
+correct answer = All right. You can use it for thirty minutes.（いいですよ。30分使ってよいです。）",EIKEN_Pre2,home,conversation,,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET07-Q16,SET07,16,阅读理解,reading_comprehension,SET07-P01,What will the group clean?,本文の内容に合う答えを選びなさい：何 will the group clean?,A shopping street.,A school garden.,Sunrise Beach.,A mountain trail.,A shopping street.,A school garden.,Sunrise Beach.,A mountain trail.,C,Sunrise Beach.,Sunrise Beach.,本文の内容に合う答えは「Sunrise Beach.」です。質問文のキーワードと同じ情報を本文から探すと、正解にたどり着けます。,"読解ポイント：質問の Who / What / Where / When / Why に注目する。
+correct answer = Sunrise Beach.（Sunrise Beach.）",EIKEN_Pre2,reading_detail,reading,,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET07-Q17,SET07,17,阅读理解,reading_comprehension,SET07-P01,What did they find last month?,本文の内容に合う答えを選びなさい：何 did they find last month?,A lost dog.,Broken bicycles.,Old coins.,Many plastic bags.,A lost dog.,Broken bicycles.,Old coins.,Many plastic bags.,D,Many plastic bags.,Many plastic bags.,本文の内容に合う答えは「Many plastic bags.」です。質問文のキーワードと同じ情報を本文から探すと、正解にたどり着けます。,"読解ポイント：質問の Who / What / Where / When / Why に注目する。
+correct answer = Many plastic bags.（Many plastic bags.）",EIKEN_Pre2,reading_detail,reading,,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET07-Q18,SET07,18,阅读理解,reading_comprehension,SET07-P01,When will the work finish?,本文の内容に合う答えを選びなさい：いつ will the work finish?,At 6 p.m.,Before noon.,After dinner.,Next Monday.,At 6 p.m.,Before noon.,After dinner.,Next Monday.,B,Before noon.,Before noon.,本文の内容に合う答えは「Before noon.」です。質問文のキーワードと同じ情報を本文から探すと、正解にたどり着けます。,"読解ポイント：質問の Who / What / Where / When / Why に注目する。
+correct answer = Before noon.（Before noon.）",EIKEN_Pre2,reading_detail,reading,,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET07-Q19,SET07,19,阅读理解,reading_comprehension,SET07-P02,What kind of club is looking for new members?,本文の内容に合う答えを選びなさい：何 kind of club is looking for new members?,The tennis club.,The cooking club.,The drama club.,The computer club.,The tennis club.,The cooking club.,The drama club.,The computer club.,C,The drama club.,The drama club.,本文の内容に合う答えは「The drama club.」です。質問文のキーワードと同じ情報を本文から探すと、正解にたどり着けます。,"読解ポイント：質問の Who / What / Where / When / Why に注目する。
+correct answer = The drama club.（The drama club.）",EIKEN_Pre2,reading_detail,reading,,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET07-Q20,SET07,20,阅读理解,reading_comprehension,SET07-P02,What does Lily say students do not need?,本文の内容に合う答えを選びなさい：何 does Lily say students do not need?,Their parents’ help.,Acting experience.,A camera.,A music room.,Their parents’ help.,Acting experience.,カメラ。,A music room.,B,Acting experience.,Acting experience.,本文の内容に合う答えは「Acting experience.」です。質問文のキーワードと同じ情報を本文から探すと、正解にたどり着けます。,"読解ポイント：質問の Who / What / Where / When / Why に注目する。
+correct answer = Acting experience.（Acting experience.）",EIKEN_Pre2,reading_detail,reading,,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET07-Q21,SET07,21,阅读理解,reading_comprehension,SET07-P02,When will the first meeting be?,本文の内容に合う答えを選びなさい：いつ will the first meeting be?,On Saturday night.,On Monday morning.,During lunch today.,On Tuesday after school.,On Saturday night.,On Monday morning.,During lunch today.,On Tuesday after school.,D,On Tuesday after school.,On Tuesday after school.,本文の内容に合う答えは「On Tuesday after school.」です。質問文のキーワードと同じ情報を本文から探すと、正解にたどり着けます。,"読解ポイント：質問の Who / What / Where / When / Why に注目する。
+correct answer = On Tuesday after school.（On Tuesday after school.）",EIKEN_Pre2,reading_detail,reading,,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET07-Q22,SET07,22,阅读理解,reading_comprehension,SET07-P03,What did students check first?,本文の内容に合う答えを選びなさい：何 did students check first?,How much water was used.,How old the building was.,How fast students ran.,How many books were lost.,How much water was used.,How old the building was.,How fast students ran.,How many books were lost.,A,How much water was used.,How much water was used.,本文の内容に合う答えは「How much water was used.」です。質問文のキーワードと同じ情報を本文から探すと、正解にたどり着けます。,"読解ポイント：質問の Who / What / Where / When / Why に注目する。
+correct answer = How much water was used.（How much water was used.）",EIKEN_Pre2,reading_detail,reading,,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET07-Q23,SET07,23,阅读理解,reading_comprehension,SET07-P03,What did the posters ask people to do?,本文の内容に合う答えを選びなさい：何 did the posters ask people to do?,Buy new bags.,Open windows.,Eat lunch outside.,Turn off taps carefully.,Buy new bags.,Open windows.,Eat lunch outside.,Turn off taps carefully.,D,Turn off taps carefully.,Turn off taps carefully.,本文の内容に合う答えは「Turn off taps carefully.」です。質問文のキーワードと同じ情報を本文から探すと、正解にたどり着けます。,"読解ポイント：質問の Who / What / Where / When / Why に注目する。
+correct answer = Turn off taps carefully.（Turn off taps carefully.）",EIKEN_Pre2,reading_detail,reading,,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET07-Q24,SET07,24,阅读理解,reading_comprehension,SET07-P03,What happened after two months?,本文の内容に合う答えを選びなさい：何 happened after two months?,The school used less water.,Students stopped making posters.,The school closed.,The science rooms became larger.,The school used less water.,Students stopped making posters.,The school closed.,The science rooms became larger.,A,The school used less water.,The school used less water.,本文の内容に合う答えは「The school used less water.」です。質問文のキーワードと同じ情報を本文から探すと、正解にたどり着けます。,"読解ポイント：質問の Who / What / Where / When / Why に注目する。
+correct answer = The school used less water.（The school used less water.）",EIKEN_Pre2,reading_detail,reading,,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET07-Q25,SET07,25,阅读理解,reading_comprehension,SET07-P04,What was difficult for elderly people?,本文の内容に合う答えを選びなさい：何 was difficult for elderly people?,Visiting other countries.,Walking twenty minutes to the bus stop.,Buying raincoats.,Reading bus maps in English.,Visiting other countries.,Walking twenty minutes to the bus stop.,Buying raincoats.,Reading bus maps in English.,B,Walking twenty minutes to the bus stop.,Walking twenty minutes to the bus stop.,本文の内容に合う答えは「Walking twenty minutes to the bus stop.」です。質問文のキーワードと同じ情報を本文から探すと、正解にたどり着けます。,"読解ポイント：質問の Who / What / Where / When / Why に注目する。
+correct answer = Walking twenty minutes to the bus stop.（Walking twenty minutes to the bus stop.）",EIKEN_Pre2,reading_detail,reading,,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET07-Q26,SET07,26,阅读理解,reading_comprehension,SET07-P04,Where does the new bus stop?,本文の内容に合う答えを選びなさい：どこ does the new bus stop?,Inside the library.,In front of the community center.,Behind the airport.,Next to a farm.,Inside the library.,In front of the community center.,Behind the airport.,Next to a farm.,B,In front of the community center.,In front of the community center.,本文の内容に合う答えは「In front of the community center.」です。質問文のキーワードと同じ情報を本文から探すと、正解にたどり着けます。,"読解ポイント：質問の Who / What / Where / When / Why に注目する。
+correct answer = In front of the community center.（In front of the community center.）",EIKEN_Pre2,reading_detail,reading,,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET07-Q27,SET07,27,阅读理解,reading_comprehension,SET07-P04,What can people visit more easily?,本文の内容に合う答えを選びなさい：何 can people visit more easily?,A mountain village.,Foreign schools.,Only the ocean.,"The library, hospital, and shops.",A mountain village.,Foreign schools.,Only the ocean.,"The library, hospital, and shops.",D,"The library, hospital, and shops.","The library, hospital, and shops.","本文の内容に合う答えは「The library, hospital, and shops.」です。質問文のキーワードと同じ情報を本文から探すと、正解にたどり着けます。","読解ポイント：質問の Who / What / Where / When / Why に注目する。
+correct answer = The library, hospital, and shops.（The library, hospital, and shops.）",EIKEN_Pre2,reading_detail,reading,,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET07-Q28,SET07,28,阅读理解,reading_comprehension,SET07-P05,What was the contest about?,本文の内容に合う答えを選びなさい：何 was the contest about?,Fast cars.,Old computers.,Famous actors.,Local nature.,Fast cars.,古いコンピューター。,Famous actors.,Local nature.,D,Local nature.,Local nature.,本文の内容に合う答えは「Local nature.」です。質問文のキーワードと同じ情報を本文から探すと、正解にたどり着けます。,"読解ポイント：質問の Who / What / Where / When / Why に注目する。
+correct answer = Local nature.（Local nature.）",EIKEN_Pre2,reading_detail,reading,,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET07-Q29,SET07,29,阅读理解,reading_comprehension,SET07-P05,Who took the winning photo?,本文の内容に合う答えを選びなさい：誰 took the winning photo?,A professional singer.,The mayor.,A 13-year-old student.,A foreign tourist.,A professional singer.,The mayor.,A 13-year-old student.,A foreign tourist.,C,A 13-year-old student.,A 13-year-old student.,本文の内容に合う答えは「A 13-year-old student.」です。質問文のキーワードと同じ情報を本文から探すと、正解にたどり着けます。,"読解ポイント：質問の Who / What / Where / When / Why に注目する。
+correct answer = A 13-year-old student.（A 13-year-old student.）",EIKEN_Pre2,reading_detail,reading,,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET07-Q30,SET07,30,阅读理解,reading_comprehension,SET07-P05,Where will the photo be used?,本文の内容に合う答えを選びなさい：どこ will the photo be used?,On a train ticket.,In a science textbook.,At a restaurant menu.,On next year’s town calendar.,On a train ticket.,In a science textbook.,At a restaurant menu.,On next year’s town calendar.,D,On next year’s town calendar.,On next year’s town calendar.,本文の内容に合う答えは「On next year’s town calendar.」です。質問文のキーワードと同じ情報を本文から探すと、正解にたどり着けます。,"読解ポイント：質問の Who / What / Where / When / Why に注目する。
+correct answer = On next year’s town calendar.（On next year’s town calendar.）",EIKEN_Pre2,reading_detail,reading,,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET08-Q01,SET08,1,短句填空,sentence_fill,,Aya practiced the piano every day and finally won first (____) in the contest.,Aya practiced the piano every day and finally won first （　） in the contest.,prize,habit,reason,noise,賞,habit,reason,noise,A,prize,賞,文脈から「prize」が最も自然です。意味は「賞」です。空所の前後の言葉を手がかりにすると選びやすくなります。,"prize = 賞
+文脈：空所の前後から意味を判断する。",EIKEN_Pre2,noun,vocabulary,prize,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET08-Q02,SET08,2,短句填空,sentence_fill,,"My brother is too young to cook by himself, so an adult must (____) him in the kitchen.",弟は一人で料理するには幼すぎるので、大人が台所で彼を（　）必要があります。,print,watch,fold,miss,印刷する,見守る,折る,逃す／恋しく思う,B,watch,見守る,文脈から「watch」が最も自然です。意味は「見守る」です。空所の前後の言葉を手がかりにすると選びやすくなります。,"watch = 見守る
+文脈：空所の前後から意味を判断する。",EIKEN_Pre2,verb,vocabulary,watch,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET08-Q03,SET08,3,短句填空,sentence_fill,,The museum guide spoke slowly so that everyone could (____) her explanation.,博物館の案内係は、みんなが説明を（　）できるようにゆっくり話しました。,understand,return,damage,borrow,理解する,返す,損害を与える,借りる,A,understand,理解する,文脈から「understand」が最も自然です。意味は「理解する」です。空所の前後の言葉を手がかりにすると選びやすくなります。,"understand = 理解する
+文脈：空所の前後から意味を判断する。",EIKEN_Pre2,verb,vocabulary,understand,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET08-Q04,SET08,4,短句填空,sentence_fill,,"The box was too (____) for one person to carry, so two students lifted it together.",その箱は一人で運ぶには（　）すぎたので、二人の生徒が一緒に持ち上げました。,bright,kind,straight,heavy,明るい,親切な,まっすぐな,重い,D,heavy,重い,文脈から「heavy」が最も自然です。意味は「重い」です。空所の前後の言葉を手がかりにすると選びやすくなります。,"heavy = 重い
+文脈：空所の前後から意味を判断する。",EIKEN_Pre2,adjective,vocabulary,heavy,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET08-Q05,SET08,5,短句填空,sentence_fill,,"After running three kilometers, Taro felt very (____) and drank a bottle of water.",3キロ走ったあと、太郎はとても（　）感じ、水を一本飲みました。,famous,thirsty,daily,plastic,有名な,のどが渇いた,毎日の,プラスチックの,B,thirsty,のどが渇いた,文脈から「thirsty」が最も自然です。意味は「のどが渇いた」です。空所の前後の言葉を手がかりにすると選びやすくなります。,"thirsty = のどが渇いた
+文脈：空所の前後から意味を判断する。",EIKEN_Pre2,adjective,vocabulary,thirsty,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET08-Q06,SET08,6,短句填空,sentence_fill,,"The school will (____) a science event next Friday, and many parents will come.",学校は来週金曜日に理科イベントを（　）予定で、多くの保護者が来ます。,hold,drop,forget,catch,開催する／持つ,落とす,忘れる,捕まえる,A,hold,開催する／持つ,文脈から「hold」が最も自然です。意味は「開催する／持つ」です。空所の前後の言葉を手がかりにすると選びやすくなります。,"hold = 開催する／持つ
+文脈：空所の前後から意味を判断する。",EIKEN_Pre2,verb,vocabulary,hold,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET08-Q07,SET08,7,短句填空,sentence_fill,,"A: I’m sorry I broke your ruler.
+B: That’s OK. It was an old one, and I can (____) another one.","A：あなたの定規を壊してごめんなさい。
+B：大丈夫。古いものだったし、別のものを（　）ことができます。",climb,solve,buy,wake,登る,解決する,買う,起こす,C,buy,買う,文脈から「buy」が最も自然です。意味は「買う」です。空所の前後の言葉を手がかりにすると選びやすくなります。,"buy = 買う
+文脈：空所の前後から意味を判断する。",EIKEN_Pre2,verb,vocabulary,buy,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET08-Q08,SET08,8,短句填空,sentence_fill,,The restaurant is popular because its meals are delicious and the prices are (____).,そのレストランは料理がおいしく、値段が（　）なので人気があります。,wooden,cloudy,lonely,reasonable,木製の,曇った,さびしい,手ごろな,D,reasonable,手ごろな,文脈から「reasonable」が最も自然です。意味は「手ごろな」です。空所の前後の言葉を手がかりにすると選びやすくなります。,"reasonable = 手ごろな
+文脈：空所の前後から意味を判断する。",EIKEN_Pre2,adjective,vocabulary,reasonable,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET08-Q09,SET08,9,短句填空,sentence_fill,,The soccer coach told the players to (____) carefully before the game to avoid injuries.,サッカーのコーチは、けがを避けるために試合前に注意して（　）よう選手たちに言いました。,trade,stretch,count,decorate,交換する,ストレッチする,数える,飾る,B,stretch,ストレッチする,文脈から「stretch」が最も自然です。意味は「ストレッチする」です。空所の前後の言葉を手がかりにすると選びやすくなります。,"stretch = ストレッチする
+文脈：空所の前後から意味を判断する。",EIKEN_Pre2,verb,vocabulary,stretch,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET08-Q10,SET08,10,短句填空,sentence_fill,,Sarah could not hear the announcement because the room was too (____).,部屋があまりにも（　）だったので、サラは放送を聞くことができませんでした。,correct,private,useful,noisy,訂正する／正しい,個人的な,役に立つ,騒がしい,D,noisy,騒がしい,文脈から「noisy」が最も自然です。意味は「騒がしい」です。空所の前後の言葉を手がかりにすると選びやすくなります。,"noisy = 騒がしい
+文脈：空所の前後から意味を判断する。",EIKEN_Pre2,adjective,vocabulary,noisy,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET08-Q11,SET08,11,对话完成,dialogue_completion,,"A: This jacket is nice, but it’s too small.
+B: Would you like to try a larger size?
+A: Yes, please.
+B: (____)","次の会話を完成させなさい。
+A： This jacket is nice, but it’s too small.
+B： Would you like to try a larger size?
+A： Yes, please.
+B： （　）",You should ride the bus.,I’ll bring one from the back.,I finished reading it.,The library is closed today.,バスに乗るべきです。,奥から一つ持ってきます。,それを読み終えました。,図書館は今日は閉まっています。,B,I’ll bring one from the back.,奥から一つ持ってきます。,会話の流れに合う返事は「I’ll bring one from the back.」です。前の発言をよく読むと、自然につながる内容を選べます。,"会話表現：相手の質問や依頼に合う自然な返事を選ぶ。
+correct answer = I’ll bring one from the back.（奥から一つ持ってきます。）",EIKEN_Pre2,shopping,conversation,,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET08-Q12,SET08,12,对话完成,dialogue_completion,,"A: Dad, may I use the computer?
+B: Did you finish your homework first?
+A: Yes, I finished it a few minutes ago.
+B: (____)","次の会話を完成させなさい。
+A： Dad, may I use the computer?
+B： Did you finish your homework first?
+A： Yes, I finished it a few minutes ago.
+B： （　）","No, we need more milk.",The train was late.,I like your new shoes.,All right. You can use it for thirty minutes.,いいえ、もっと牛乳が必要です。,電車が遅れました。,あなたの新しい靴が好きです。,いいですよ。30分使ってよいです。,D,All right. You can use it for thirty minutes.,いいですよ。30分使ってよいです。,会話の流れに合う返事は「All right. You can use it for thirty minutes.」です。前の発言をよく読むと、自然につながる内容を選べます。,"会話表現：相手の質問や依頼に合う自然な返事を選ぶ。
+correct answer = All right. You can use it for thirty minutes.（いいですよ。30分使ってよいです。）",EIKEN_Pre2,home,conversation,,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET08-Q13,SET08,13,对话完成,dialogue_completion,,"A: I’m looking for a book about space.
+B: Children’s books or adult books?
+A: Children’s books, please.
+B: (____)","次の会話を完成させなさい。
+A： I’m looking for a book about space.
+B： Children’s books or adult books?
+A： Children’s books, please.
+B： （　）",I will take the blue one.,My brother plays tennis.,They are on the second shelf near the window.,The bus leaves at noon.,青いものにします。,私の兄はテニスをします。,窓の近くの2番目の棚にあります。,バスは正午に出発します。,C,They are on the second shelf near the window.,窓の近くの2番目の棚にあります。,会話の流れに合う返事は「They are on the second shelf near the window.」です。前の発言をよく読むと、自然につながる内容を選べます。,"会話表現：相手の質問や依頼に合う自然な返事を選ぶ。
+correct answer = They are on the second shelf near the window.（窓の近くの2番目の棚にあります。）",EIKEN_Pre2,library,conversation,,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET08-Q14,SET08,14,对话完成,dialogue_completion,,"A: The soup is too hot to eat.
+B: Then wait a few minutes.
+A: Good idea.
+B: (____)","次の会話を完成させなさい。
+A： The soup is too hot to eat.
+B： Then wait a few minutes.
+A： Good idea.
+B： （　）",It will cool down soon.,The museum is closed.,I forgot my umbrella.,You should buy new shoes.,すぐに冷めます。,博物館は閉まっています。,傘を忘れました。,新しい靴を買うべきです。,A,It will cool down soon.,すぐに冷めます。,会話の流れに合う返事は「It will cool down soon.」です。前の発言をよく読むと、自然につながる内容を選べます。,"会話表現：相手の質問や依頼に合う自然な返事を選ぶ。
+correct answer = It will cool down soon.（すぐに冷めます。）",EIKEN_Pre2,restaurant,conversation,,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET08-Q15,SET08,15,对话完成,dialogue_completion,,"A: Why are you carrying so many boxes?
+B: I’m moving to a new apartment tomorrow.
+A: Do you need any help?
+B: (____)","次の会話を完成させなさい。
+A： Why are you carrying so many boxes?
+B： I’m moving to a new apartment tomorrow.
+A： Do you need any help?
+B： （　）","Yes, I watched it yesterday.",Thanks. Could you carry this small one?,The concert was canceled.,"No, my cat is sleeping.","Yes, I watched it yesterday.",Thanks. Could you carry this small one?,The concert was canceled.,"No, my cat is sleeping.",B,Thanks. Could you carry this small one?,Thanks. Could you carry this small one?,会話の流れに合う返事は「Thanks. Could you carry this small one?」です。前の発言をよく読むと、自然につながる内容を選べます。,"会話表現：相手の質問や依頼に合う自然な返事を選ぶ。
+correct answer = Thanks. Could you carry this small one?（Thanks. Could you carry this small one?）",EIKEN_Pre2,daily life,conversation,,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET08-Q16,SET08,16,阅读理解,reading_comprehension,SET08-P01,Where does Kevin think he left his phone?,本文の内容に合う答えを選びなさい：どこ does Kevin think he left his phone?,On a train.,In a classroom.,At a restaurant.,In a park.,On a train.,In a classroom.,At a restaurant.,In a park.,A,On a train.,On a train.,本文の内容に合う答えは「On a train.」です。質問文のキーワードと同じ情報を本文から探すと、正解にたどり着けます。,"読解ポイント：質問の Who / What / Where / When / Why に注目する。
+correct answer = On a train.（On a train.）",EIKEN_Pre2,reading_detail,reading,,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET08-Q17,SET08,17,阅读理解,reading_comprehension,SET08-P01,What color is the phone case?,本文の内容に合う答えを選びなさい：何 color is the phone case?,Black.,Green.,Red.,Blue.,Black.,Green.,Red.,Blue.,D,Blue.,Blue.,本文の内容に合う答えは「Blue.」です。質問文のキーワードと同じ情報を本文から探すと、正解にたどり着けます。,"読解ポイント：質問の Who / What / Where / When / Why に注目する。
+correct answer = Blue.（Blue.）",EIKEN_Pre2,reading_detail,reading,,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET08-Q18,SET08,18,阅读理解,reading_comprehension,SET08-P01,When can Kevin come to the station?,本文の内容に合う答えを選びなさい：いつ can Kevin come to the station?,At midnight.,After school.,Next winter.,Before breakfast.,At midnight.,After school.,Next winter.,Before breakfast.,B,After school.,After school.,本文の内容に合う答えは「After school.」です。質問文のキーワードと同じ情報を本文から探すと、正解にたどり着けます。,"読解ポイント：質問の Who / What / Where / When / Why に注目する。
+correct answer = After school.（After school.）",EIKEN_Pre2,reading_detail,reading,,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET08-Q19,SET08,19,阅读理解,reading_comprehension,SET08-P02,What kind of shop does Anna’s uncle own?,本文の内容に合う答えを選びなさい：何 kind of shop does Anna’s uncle own?,A coffee shop.,A shoe shop.,A bookshop.,A flower shop.,A coffee shop.,A shoe shop.,A bookshop.,A flower shop.,D,A flower shop.,A flower shop.,本文の内容に合う答えは「A flower shop.」です。質問文のキーワードと同じ情報を本文から探すと、正解にたどり着けます。,"読解ポイント：質問の Who / What / Where / When / Why に注目する。
+correct answer = A flower shop.（A flower shop.）",EIKEN_Pre2,reading_detail,reading,,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET08-Q20,SET08,20,阅读理解,reading_comprehension,SET08-P02,Why is her uncle busy?,本文の内容に合う答えを選びなさい：なぜ is her uncle busy?,He is moving to another city.,The hospital is closed.,He lost his cards.,Mother’s Day is coming.,He is moving to another city.,The hospital is closed.,He lost his cards.,Mother’s Day is coming.,D,Mother’s Day is coming.,Mother’s Day is coming.,本文の内容に合う答えは「Mother’s Day is coming.」です。質問文のキーワードと同じ情報を本文から探すと、正解にたどり着けます。,"読解ポイント：質問の Who / What / Where / When / Why に注目する。
+correct answer = Mother’s Day is coming.（Mother’s Day is coming.）",EIKEN_Pre2,reading_detail,reading,,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET08-Q21,SET08,21,阅读理解,reading_comprehension,SET08-P02,What will Anna write?,本文の内容に合う答えを選びなさい：何 will Anna write?,A newspaper article.,Short cards for customers.,A school report.,A letter to a doctor.,A newspaper article.,Short cards for customers.,A school report.,A letter to a doctor.,B,Short cards for customers.,Short cards for customers.,本文の内容に合う答えは「Short cards for customers.」です。質問文のキーワードと同じ情報を本文から探すと、正解にたどり着けます。,"読解ポイント：質問の Who / What / Where / When / Why に注目する。
+correct answer = Short cards for customers.（Short cards for customers.）",EIKEN_Pre2,reading_detail,reading,,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET08-Q22,SET08,22,阅读理解,reading_comprehension,SET08-P03,Why did the hospital introduce the robot?,本文の内容に合う答えを選びなさい：なぜ did the hospital introduce the robot?,Visitors had trouble finding rooms.,The building was too small.,Doctors wanted a toy.,Patients disliked elevators.,Visitors had trouble finding rooms.,The building was too small.,Doctors wanted a toy.,Patients disliked elevators.,A,Visitors had trouble finding rooms.,Visitors had trouble finding rooms.,本文の内容に合う答えは「Visitors had trouble finding rooms.」です。質問文のキーワードと同じ情報を本文から探すと、正解にたどり着けます。,"読解ポイント：質問の Who / What / Where / When / Why に注目する。
+correct answer = Visitors had trouble finding rooms.（Visitors had trouble finding rooms.）",EIKEN_Pre2,reading_detail,reading,,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET08-Q23,SET08,23,阅读理解,reading_comprehension,SET08-P03,What can the robot understand?,本文の内容に合う答えを選びなさい：何 can the robot understand?,Animal sounds.,Simple questions.,Foreign movies.,Long novels.,Animal sounds.,Simple questions.,Foreign movies.,Long novels.,B,Simple questions.,Simple questions.,本文の内容に合う答えは「Simple questions.」です。質問文のキーワードと同じ情報を本文から探すと、正解にたどり着けます。,"読解ポイント：質問の Who / What / Where / When / Why に注目する。
+correct answer = Simple questions.（Simple questions.）",EIKEN_Pre2,reading_detail,reading,,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET08-Q24,SET08,24,阅读理解,reading_comprehension,SET08-P03,Why do nurses say the robot is helpful?,本文の内容に合う答えを選びなさい：なぜ do nurses say the robot is helpful?,It writes music.,They can focus more on patients.,It repairs hospital beds.,It cooks lunch for them.,It writes music.,They can focus more on patients.,It repairs hospital beds.,It cooks lunch for them.,B,They can focus more on patients.,They can focus more on patients.,本文の内容に合う答えは「They can focus more on patients.」です。質問文のキーワードと同じ情報を本文から探すと、正解にたどり着けます。,"読解ポイント：質問の Who / What / Where / When / Why に注目する。
+correct answer = They can focus more on patients.（They can focus more on patients.）",EIKEN_Pre2,reading_detail,reading,,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET08-Q25,SET08,25,阅读理解,reading_comprehension,SET08-P04,What do students collect?,本文の内容に合う答えを選びなさい：何 do students collect?,Snowballs.,Old newspapers.,Rainwater.,Sea shells.,Snowballs.,Old newspapers.,Rainwater.,Sea shells.,C,Rainwater.,Rainwater.,本文の内容に合う答えは「Rainwater.」です。質問文のキーワードと同じ情報を本文から探すと、正解にたどり着けます。,"読解ポイント：質問の Who / What / Where / When / Why に注目する。
+correct answer = Rainwater.（Rainwater.）",EIKEN_Pre2,reading_detail,reading,,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET08-Q26,SET08,26,阅读理解,reading_comprehension,SET08-P04,What do they use it for?,本文の内容に合う答えを選びなさい：何 do they use it for?,Cleaning buses.,Washing computers.,Flowers and vegetables.,Cooking lunch.,Cleaning buses.,Washing computers.,Flowers and vegetables.,Cooking lunch.,C,Flowers and vegetables.,Flowers and vegetables.,本文の内容に合う答えは「Flowers and vegetables.」です。質問文のキーワードと同じ情報を本文から探すと、正解にたどり着けます。,"読解ポイント：質問の Who / What / Where / When / Why に注目する。
+correct answer = Flowers and vegetables.（Flowers and vegetables.）",EIKEN_Pre2,reading_detail,reading,,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET08-Q27,SET08,27,阅读理解,reading_comprehension,SET08-P04,What do students learn?,本文の内容に合う答えを選びなさい：何 do students learn?,Weather never changes.,Gardens are always expensive.,Natural resources should be used carefully.,Plants can grow without water.,Weather never changes.,Gardens are always expensive.,Natural resources should be used carefully.,Plants can grow without water.,C,Natural resources should be used carefully.,Natural resources should be used carefully.,本文の内容に合う答えは「Natural resources should be used carefully.」です。質問文のキーワードと同じ情報を本文から探すと、正解にたどり着けます。,"読解ポイント：質問の Who / What / Where / When / Why に注目する。
+correct answer = Natural resources should be used carefully.（Natural resources should be used carefully.）",EIKEN_Pre2,reading_detail,reading,,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET08-Q28,SET08,28,阅读理解,reading_comprehension,SET08-P05,When did the library hold the challenge?,本文の内容に合う答えを選びなさい：いつ did the library hold the challenge?,During the winter festival.,During summer vacation.,Before breakfast.,Every Monday morning.,During the winter festival.,During summer vacation.,Before breakfast.,Every Monday morning.,B,During summer vacation.,During summer vacation.,本文の内容に合う答えは「During summer vacation.」です。質問文のキーワードと同じ情報を本文から探すと、正解にたどり着けます。,"読解ポイント：質問の Who / What / Where / When / Why に注目する。
+correct answer = During summer vacation.（During summer vacation.）",EIKEN_Pre2,reading_detail,reading,,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET08-Q29,SET08,29,阅读理解,reading_comprehension,SET08-P05,What did children get after finishing each book?,本文の内容に合う答えを選びなさい：何 did children get after finishing each book?,A bus ticket.,A stamp.,A toy car.,A free lunch.,A bus ticket.,A stamp.,A toy car.,A free lunch.,B,A stamp.,A stamp.,本文の内容に合う答えは「A stamp.」です。質問文のキーワードと同じ情報を本文から探すと、正解にたどり着けます。,"読解ポイント：質問の Who / What / Where / When / Why に注目する。
+correct answer = A stamp.（A stamp.）",EIKEN_Pre2,reading_detail,reading,,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET08-Q30,SET08,30,阅读理解,reading_comprehension,SET08-P05,What did children receive after reading ten books?,本文の内容に合う答えを選びなさい：何 did children receive after reading ten books?,A soccer ball.,A small notebook.,A new bicycle.,A library computer.,A soccer ball.,A small notebook.,A new bicycle.,A library computer.,B,A small notebook.,A small notebook.,本文の内容に合う答えは「A small notebook.」です。質問文のキーワードと同じ情報を本文から探すと、正解にたどり着けます。,"読解ポイント：質問の Who / What / Where / When / Why に注目する。
+correct answer = A small notebook.（A small notebook.）",EIKEN_Pre2,reading_detail,reading,,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET09-Q01,SET09,1,短句填空,sentence_fill,,The restaurant is popular because its meals are delicious and the prices are (____).,そのレストランは料理がおいしく、値段が（　）なので人気があります。,wooden,reasonable,lonely,cloudy,木製の,手ごろな,さびしい,曇った,B,reasonable,手ごろな,文脈から「reasonable」が最も自然です。意味は「手ごろな」です。空所の前後の言葉を手がかりにすると選びやすくなります。,"reasonable = 手ごろな
+文脈：空所の前後から意味を判断する。",EIKEN_Pre2,adjective,vocabulary,reasonable,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET09-Q02,SET09,2,短句填空,sentence_fill,,The soccer coach told the players to (____) carefully before the game to avoid injuries.,サッカーのコーチは、けがを避けるために試合前に注意して（　）よう選手たちに言いました。,trade,stretch,decorate,count,交換する,ストレッチする,飾る,数える,B,stretch,ストレッチする,文脈から「stretch」が最も自然です。意味は「ストレッチする」です。空所の前後の言葉を手がかりにすると選びやすくなります。,"stretch = ストレッチする
+文脈：空所の前後から意味を判断する。",EIKEN_Pre2,verb,vocabulary,stretch,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET09-Q03,SET09,3,短句填空,sentence_fill,,Sarah could not hear the announcement because the room was too (____).,部屋があまりにも（　）だったので、サラは放送を聞くことができませんでした。,noisy,correct,useful,private,騒がしい,訂正する／正しい,役に立つ,個人的な,A,noisy,騒がしい,文脈から「noisy」が最も自然です。意味は「騒がしい」です。空所の前後の言葉を手がかりにすると選びやすくなります。,"noisy = 騒がしい
+文脈：空所の前後から意味を判断する。",EIKEN_Pre2,adjective,vocabulary,noisy,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET09-Q04,SET09,4,短句填空,sentence_fill,,The city plans to (____) more trees along the main street next spring.,市は来年の春、メインストリート沿いにもっと多くの木を（　）予定です。,charge,tie,mix,plant,料金を請求する,結ぶ,混ぜる,植える,D,plant,植える,文脈から「plant」が最も自然です。意味は「植える」です。空所の前後の言葉を手がかりにすると選びやすくなります。,"plant = 植える
+文脈：空所の前後から意味を判断する。",EIKEN_Pre2,verb,vocabulary,plant,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET09-Q05,SET09,5,短句填空,sentence_fill,,"A: Why did you bring a map?
+B: I don’t want to get (____) in this big city.","A：どうして地図を持ってきたの？
+B：この大きな町で（　）なりたくないからです。",lost,full,ready,safe,道に迷った／失った,いっぱいの,準備ができた,安全な,A,lost,道に迷った／失った,文脈から「lost」が最も自然です。意味は「道に迷った／失った」です。空所の前後の言葉を手がかりにすると選びやすくなります。,"lost = 道に迷った／失った
+文脈：空所の前後から意味を判断する。",EIKEN_Pre2,adjective,vocabulary,lost,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET09-Q06,SET09,6,短句填空,sentence_fill,,The movie was so (____) that many people laughed from beginning to end.,その映画はとても（　）だったので、多くの人が最初から最後まで笑いました。,weak,square,funny,deep,弱い,四角い,おもしろい,深い,C,funny,おもしろい,文脈から「funny」が最も自然です。意味は「おもしろい」です。空所の前後の言葉を手がかりにすると選びやすくなります。,"funny = おもしろい
+文脈：空所の前後から意味を判断する。",EIKEN_Pre2,adjective,vocabulary,funny,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET09-Q07,SET09,7,短句填空,sentence_fill,,The teacher asked the students to (____) their names at the top of the paper.,The teacher asked the students to （　） their names at the top of the paper.,taste,write,carry,invite,taste,write,carry,invite,B,write,write,文脈から「write」が最も自然です。意味は「write」です。空所の前後の言葉を手がかりにすると選びやすくなります。,"write = write
+文脈：空所の前後から意味を判断する。",EIKEN_Pre2,verb,vocabulary,write,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET09-Q08,SET09,8,短句填空,sentence_fill,,It is important to (____) your teeth after meals.,It is important to （　） your teeth after meals.,land,measure,brush,break,land,measure,brush,break,C,brush,brush,文脈から「brush」が最も自然です。意味は「brush」です。空所の前後の言葉を手がかりにすると選びやすくなります。,"brush = brush
+文脈：空所の前後から意味を判断する。",EIKEN_Pre2,verb,vocabulary,brush,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET09-Q09,SET09,9,短句填空,sentence_fill,,Emma saved money for three months because she wanted to (____) a new bicycle.,Emma saved money for three months because she wanted to （　） a new bicycle.,search,afford,knock,boil,search,afford,knock,boil,B,afford,afford,文脈から「afford」が最も自然です。意味は「afford」です。空所の前後の言葉を手がかりにすると選びやすくなります。,"afford = afford
+文脈：空所の前後から意味を判断する。",EIKEN_Pre2,verb,vocabulary,afford,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET09-Q10,SET09,10,短句填空,sentence_fill,,"The old clock still works, but it is not very (____). It is often five minutes slow.","The old clock still works, but it is not very （　）. It is often five minutes slow.",central,empty,accurate,social,中心の,空の,accurate,social,C,accurate,accurate,文脈から「accurate」が最も自然です。意味は「accurate」です。空所の前後の言葉を手がかりにすると選びやすくなります。,"accurate = accurate
+文脈：空所の前後から意味を判断する。",EIKEN_Pre2,adjective,vocabulary,accurate,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET09-Q11,SET09,11,对话完成,dialogue_completion,,"A: The soup is too hot to eat.
+B: Then wait a few minutes.
+A: Good idea.
+B: (____)","次の会話を完成させなさい。
+A： The soup is too hot to eat.
+B： Then wait a few minutes.
+A： Good idea.
+B： （　）",I forgot my umbrella.,It will cool down soon.,The museum is closed.,You should buy new shoes.,傘を忘れました。,すぐに冷めます。,博物館は閉まっています。,新しい靴を買うべきです。,B,It will cool down soon.,すぐに冷めます。,会話の流れに合う返事は「It will cool down soon.」です。前の発言をよく読むと、自然につながる内容を選べます。,"会話表現：相手の質問や依頼に合う自然な返事を選ぶ。
+correct answer = It will cool down soon.（すぐに冷めます。）",EIKEN_Pre2,restaurant,conversation,,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET09-Q12,SET09,12,对话完成,dialogue_completion,,"A: Why are you carrying so many boxes?
+B: I’m moving to a new apartment tomorrow.
+A: Do you need any help?
+B: (____)","次の会話を完成させなさい。
+A： Why are you carrying so many boxes?
+B： I’m moving to a new apartment tomorrow.
+A： Do you need any help?
+B： （　）",The concert was canceled.,"No, my cat is sleeping.",Thanks. Could you carry this small one?,"Yes, I watched it yesterday.",The concert was canceled.,"No, my cat is sleeping.",Thanks. Could you carry this small one?,"Yes, I watched it yesterday.",C,Thanks. Could you carry this small one?,Thanks. Could you carry this small one?,会話の流れに合う返事は「Thanks. Could you carry this small one?」です。前の発言をよく読むと、自然につながる内容を選べます。,"会話表現：相手の質問や依頼に合う自然な返事を選ぶ。
+correct answer = Thanks. Could you carry this small one?（Thanks. Could you carry this small one?）",EIKEN_Pre2,daily life,conversation,,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET09-Q13,SET09,13,对话完成,dialogue_completion,,"A: Your speech was very clear.
+B: Thank you. I practiced a lot.
+A: Are you going to join the next contest?
+B: (____)","次の会話を完成させなさい。
+A： Your speech was very clear.
+B： Thank you. I practiced a lot.
+A： Are you going to join the next contest?
+B： （　）",The room is on the third floor.,I think so. I want to try again.,I cooked curry last night.,"No, this bag is too heavy.",The room is on the third floor.,I think so. I want to try again.,I cooked curry last night.,"No, this bag is too heavy.",B,I think so. I want to try again.,I think so. I want to try again.,会話の流れに合う返事は「I think so. I want to try again.」です。前の発言をよく読むと、自然につながる内容を選べます。,"会話表現：相手の質問や依頼に合う自然な返事を選ぶ。
+correct answer = I think so. I want to try again.（I think so. I want to try again.）",EIKEN_Pre2,school,conversation,,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET09-Q14,SET09,14,对话完成,dialogue_completion,,"A: Excuse me. I lost my train ticket.
+B: Do you remember where you bought it?
+A: Yes, at the machine near Gate 2.
+B: (____)","次の会話を完成させなさい。
+A： Excuse me. I lost my train ticket.
+B： Do you remember where you bought it?
+A： Yes, at the machine near Gate 2.
+B： （　）",Please go to the station office over there.,I want to buy a new bicycle.,I ate lunch already.,The movie starts at seven.,Please go to the station office over there.,I want to buy a new bicycle.,I ate lunch already.,The movie starts at seven.,A,Please go to the station office over there.,Please go to the station office over there.,会話の流れに合う返事は「Please go to the station office over there.」です。前の発言をよく読むと、自然につながる内容を選べます。,"会話表現：相手の質問や依頼に合う自然な返事を選ぶ。
+correct answer = Please go to the station office over there.（Please go to the station office over there.）",EIKEN_Pre2,lost item,conversation,,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET09-Q15,SET09,15,对话完成,dialogue_completion,,"A: Mom, can I invite Ken to dinner tonight?
+B: Sure. What time will he come?
+A: Around six thirty.
+B: (____)","次の会話を完成させなさい。
+A： Mom, can I invite Ken to dinner tonight?
+B： Sure. What time will he come?
+A： Around six thirty.
+B： （　）",It is raining outside.,"No, I went there last week.",OK. I’ll cook a little extra food.,The test was very difficult.,It is raining outside.,"No, I went there last week.",OK. I’ll cook a little extra food.,The test was very difficult.,C,OK. I’ll cook a little extra food.,OK. I’ll cook a little extra food.,会話の流れに合う返事は「OK. I’ll cook a little extra food.」です。前の発言をよく読むと、自然につながる内容を選べます。,"会話表現：相手の質問や依頼に合う自然な返事を選ぶ。
+correct answer = OK. I’ll cook a little extra food.（OK. I’ll cook a little extra food.）",EIKEN_Pre2,home,conversation,,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET09-Q16,SET09,16,阅读理解,reading_comprehension,SET09-P01,Who is the party for?,本文の内容に合う答えを選びなさい：誰 is the party for?,The principal.,Daniel’s brother.,Yuki.,Ms. Carter.,The principal.,Daniel’s brother.,Yuki.,Ms. Carter.,D,Ms. Carter.,Ms. Carter.,本文の内容に合う答えは「Ms. Carter.」です。質問文のキーワードと同じ情報を本文から探すと、正解にたどり着けます。,"読解ポイント：質問の Who / What / Where / When / Why に注目する。
+correct answer = Ms. Carter.（Ms. Carter.）",EIKEN_Pre2,reading_detail,reading,,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET09-Q17,SET09,17,阅读理解,reading_comprehension,SET09-P01,Why do the students want to thank her?,本文の内容に合う答えを選びなさい：なぜ do the students want to thank her?,She cleaned the park.,She bought them bicycles.,She has helped their class a lot.,She won a cooking contest.,She cleaned the park.,She bought them bicycles.,She has helped their class a lot.,She won a cooking contest.,C,She has helped their class a lot.,She has helped their class a lot.,本文の内容に合う答えは「She has helped their class a lot.」です。質問文のキーワードと同じ情報を本文から探すと、正解にたどり着けます。,"読解ポイント：質問の Who / What / Where / When / Why に注目する。
+correct answer = She has helped their class a lot.（She has helped their class a lot.）",EIKEN_Pre2,reading_detail,reading,,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET09-Q18,SET09,18,阅读理解,reading_comprehension,SET09-P01,What should Yuki bring?,本文の内容に合う答えを選びなさい：何 should Yuki bring?,A library book.,A birthday cake.,One photo from a class event.,A music player.,A library book.,A birthday cake.,One photo from a class event.,A music player.,C,One photo from a class event.,One photo from a class event.,本文の内容に合う答えは「One photo from a class event.」です。質問文のキーワードと同じ情報を本文から探すと、正解にたどり着けます。,"読解ポイント：質問の Who / What / Where / When / Why に注目する。
+correct answer = One photo from a class event.（One photo from a class event.）",EIKEN_Pre2,reading_detail,reading,,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET09-Q19,SET09,19,阅读理解,reading_comprehension,SET09-P02,Where will the field trip be?,本文の内容に合う答えを選びなさい：どこ will the field trip be?,Blue River Park.,The city museum.,The school gym.,Green Park Stadium.,Blue River Park.,The city museum.,The school gym.,Green Park Stadium.,A,Blue River Park.,Blue River Park.,本文の内容に合う答えは「Blue River Park.」です。質問文のキーワードと同じ情報を本文から探すと、正解にたどり着けます。,"読解ポイント：質問の Who / What / Where / When / Why に注目する。
+correct answer = Blue River Park.（Blue River Park.）",EIKEN_Pre2,reading_detail,reading,,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET09-Q20,SET09,20,阅读理解,reading_comprehension,SET09-P02,What may the weather be like?,本文の内容に合う答えを選びなさい：何 may the weather be like?,Very hot.,Windy.,Foggy.,Snowy.,Very hot.,Windy.,Foggy.,Snowy.,B,Windy.,Windy.,本文の内容に合う答えは「Windy.」です。質問文のキーワードと同じ情報を本文から探すと、正解にたどり着けます。,"読解ポイント：質問の Who / What / Where / When / Why に注目する。
+correct answer = Windy.（Windy.）",EIKEN_Pre2,reading_detail,reading,,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET09-Q21,SET09,21,阅读理解,reading_comprehension,SET09-P02,What will happen if it rains heavily?,本文の内容に合う答えを選びなさい：何 will happen if it rains heavily?,Teachers will make an announcement.,Lunch will be free.,The park will open earlier.,Students will go home at once.,Teachers will make an announcement.,Lunch will be free.,The park will open earlier.,Students will go home at once.,A,Teachers will make an announcement.,Teachers will make an announcement.,本文の内容に合う答えは「Teachers will make an announcement.」です。質問文のキーワードと同じ情報を本文から探すと、正解にたどり着けます。,"読解ポイント：質問の Who / What / Where / When / Why に注目する。
+correct answer = Teachers will make an announcement.（Teachers will make an announcement.）",EIKEN_Pre2,reading_detail,reading,,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET09-Q22,SET09,22,阅读理解,reading_comprehension,SET09-P03,Who gives free concerts?,本文の内容に合う答えを選びなさい：誰 gives free concerts?,Bus drivers.,University students.,Elementary school teachers.,Restaurant owners.,Bus drivers.,University students.,Elementary school teachers.,Restaurant owners.,B,University students.,University students.,本文の内容に合う答えは「University students.」です。質問文のキーワードと同じ情報を本文から探すと、正解にたどり着けます。,"読解ポイント：質問の Who / What / Where / When / Why に注目する。
+correct answer = University students.（University students.）",EIKEN_Pre2,reading_detail,reading,,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET09-Q23,SET09,23,阅读理解,reading_comprehension,SET09-P03,Where do people usually sit?,本文の内容に合う答えを選びなさい：どこ do people usually sit?,On the grass.,In a swimming pool.,At school desks.,Inside a train.,On the grass.,In a swimming pool.,At school desks.,Inside a train.,A,On the grass.,On the grass.,本文の内容に合う答えは「On the grass.」です。質問文のキーワードと同じ情報を本文から探すと、正解にたどり着けます。,"読解ポイント：質問の Who / What / Where / When / Why に注目する。
+correct answer = On the grass.（On the grass.）",EIKEN_Pre2,reading_detail,reading,,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET09-Q24,SET09,24,阅读理解,reading_comprehension,SET09-P03,Why will students prepare the hall?,本文の内容に合う答えを選びなさい：なぜ will students prepare the hall?,In case of bad weather.,To sell more blankets.,To practice cooking.,Because the park is closed forever.,In case of bad weather.,To sell more blankets.,To practice cooking.,Because the park is closed forever.,A,In case of bad weather.,In case of bad weather.,本文の内容に合う答えは「In case of bad weather.」です。質問文のキーワードと同じ情報を本文から探すと、正解にたどり着けます。,"読解ポイント：質問の Who / What / Where / When / Why に注目する。
+correct answer = In case of bad weather.（In case of bad weather.）",EIKEN_Pre2,reading_detail,reading,,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET09-Q25,SET09,25,阅读理解,reading_comprehension,SET09-P04,Where was the lesson held?,本文の内容に合う答えを選びなさい：どこ was the lesson held?,On a mountain path.,Inside a museum.,At the train station.,At the school playground.,On a mountain path.,Inside a museum.,At the train station.,At the school playground.,D,At the school playground.,At the school playground.,本文の内容に合う答えは「At the school playground.」です。質問文のキーワードと同じ情報を本文から探すと、正解にたどり着けます。,"読解ポイント：質問の Who / What / Where / When / Why に注目する。
+correct answer = At the school playground.（At the school playground.）",EIKEN_Pre2,reading_detail,reading,,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET09-Q26,SET09,26,阅读理解,reading_comprehension,SET09-P04,What did children learn to check?,本文の内容に合う答えを選びなさい：何 did children learn to check?,Brakes.,English spelling.,Library cards.,Weather reports.,Brakes.,English spelling.,Library cards.,Weather reports.,A,Brakes.,Brakes.,本文の内容に合う答えは「Brakes.」です。質問文のキーワードと同じ情報を本文から探すと、正解にたどり着けます。,"読解ポイント：質問の Who / What / Where / When / Why に注目する。
+correct answer = Brakes.（Brakes.）",EIKEN_Pre2,reading_detail,reading,,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET09-Q27,SET09,27,阅读理解,reading_comprehension,SET09-P04,What did each child receive?,本文の内容に合う答えを選びなさい：何 did each child receive?,A small safety card.,A new bicycle.,A lunch ticket.,A large map.,A small safety card.,A new bicycle.,A lunch ticket.,A large map.,A,A small safety card.,A small safety card.,本文の内容に合う答えは「A small safety card.」です。質問文のキーワードと同じ情報を本文から探すと、正解にたどり着けます。,"読解ポイント：質問の Who / What / Where / When / Why に注目する。
+correct answer = A small safety card.（A small safety card.）",EIKEN_Pre2,reading_detail,reading,,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET09-Q28,SET09,28,阅读理解,reading_comprehension,SET09-P05,What did Hiro and his classmates make?,本文の内容に合う答えを選びなさい：何 did Hiro and his classmates make?,A school uniform.,A train model.,A cooking video.,A guidebook in English.,A school uniform.,A train model.,A cooking video.,A guidebook in English.,D,A guidebook in English.,A guidebook in English.,本文の内容に合う答えは「A guidebook in English.」です。質問文のキーワードと同じ情報を本文から探すと、正解にたどり着けます。,"読解ポイント：質問の Who / What / Where / When / Why に注目する。
+correct answer = A guidebook in English.（A guidebook in English.）",EIKEN_Pre2,reading_detail,reading,,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET09-Q29,SET09,29,阅读理解,reading_comprehension,SET09-P05,What did they add to it?,本文の内容に合う答えを選びなさい：何 did they add to it?,Pictures of food only.,Math tests.,Songs and jokes.,Short explanations and maps.,Pictures of food only.,Math tests.,Songs and jokes.,Short explanations and maps.,D,Short explanations and maps.,Short explanations and maps.,本文の内容に合う答えは「Short explanations and maps.」です。質問文のキーワードと同じ情報を本文から探すと、正解にたどり着けます。,"読解ポイント：質問の Who / What / Where / When / Why に注目する。
+correct answer = Short explanations and maps.（Short explanations and maps.）",EIKEN_Pre2,reading_detail,reading,,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET09-Q30,SET09,30,阅读理解,reading_comprehension,SET09-P05,Where was the guidebook put?,本文の内容に合う答えを選びなさい：どこ was the guidebook put?,Inside a hospital room.,On every bus seat.,At Hiro’s house.,At the tourist information center.,Inside a hospital room.,On every bus seat.,At Hiro’s house.,At the tourist information center.,D,At the tourist information center.,At the tourist information center.,本文の内容に合う答えは「At the tourist information center.」です。質問文のキーワードと同じ情報を本文から探すと、正解にたどり着けます。,"読解ポイント：質問の Who / What / Where / When / Why に注目する。
+correct answer = At the tourist information center.（At the tourist information center.）",EIKEN_Pre2,reading_detail,reading,,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET10-Q01,SET10,1,短句填空,sentence_fill,,It is important to (____) your teeth after meals.,It is important to （　） your teeth after meals.,break,measure,land,brush,break,measure,land,brush,D,brush,brush,文脈から「brush」が最も自然です。意味は「brush」です。空所の前後の言葉を手がかりにすると選びやすくなります。,"brush = brush
+文脈：空所の前後から意味を判断する。",EIKEN_Pre2,verb,vocabulary,brush,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET10-Q02,SET10,2,短句填空,sentence_fill,,Emma saved money for three months because she wanted to (____) a new bicycle.,Emma saved money for three months because she wanted to （　） a new bicycle.,boil,knock,search,afford,boil,knock,search,afford,D,afford,afford,文脈から「afford」が最も自然です。意味は「afford」です。空所の前後の言葉を手がかりにすると選びやすくなります。,"afford = afford
+文脈：空所の前後から意味を判断する。",EIKEN_Pre2,verb,vocabulary,afford,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET10-Q03,SET10,3,短句填空,sentence_fill,,"The old clock still works, but it is not very (____). It is often five minutes slow.","The old clock still works, but it is not very （　）. It is often five minutes slow.",accurate,central,social,empty,accurate,中心の,social,空の,A,accurate,accurate,文脈から「accurate」が最も自然です。意味は「accurate」です。空所の前後の言葉を手がかりにすると選びやすくなります。,"accurate = accurate
+文脈：空所の前後から意味を判断する。",EIKEN_Pre2,adjective,vocabulary,accurate,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET10-Q04,SET10,4,短句填空,sentence_fill,,"A: Can I use your dictionary?
+B: Sure, but please (____) it before English class ends.","A: Can I use your dictionary?
+B: Sure, but please （　） it before English class ends.",return,cover,warn,invent,返す,覆い／表紙,警告する,invent,A,return,返す,文脈から「return」が最も自然です。意味は「返す」です。空所の前後の言葉を手がかりにすると選びやすくなります。,"return = 返す
+文脈：空所の前後から意味を判断する。",EIKEN_Pre2,verb,vocabulary,return,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET10-Q05,SET10,5,短句填空,sentence_fill,,The students were excited because their class trip was (____) for next Monday.,The students were excited because their class trip was （　） for next Monday.,scheduled,repaired,burned,hidden,scheduled,修理した,burned,hidden,A,scheduled,scheduled,文脈から「scheduled」が最も自然です。意味は「scheduled」です。空所の前後の言葉を手がかりにすると選びやすくなります。,"scheduled = scheduled
+文脈：空所の前後から意味を判断する。",EIKEN_Pre2,verb,vocabulary,schedule,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET10-Q06,SET10,6,短句填空,sentence_fill,,"A: Did you finish the book report?
+B: Almost. I still need to (____) one more paragraph about the ending.","A: Did you finish the book report?
+B: Almost. I still need to （　） one more paragraph about the ending.",throw,freeze,lend,write,throw,freeze,lend,write,D,write,write,文脈から「write」が最も自然です。意味は「write」です。空所の前後の言葉を手がかりにすると選びやすくなります。,"write = write
+文脈：空所の前後から意味を判断する。",EIKEN_Pre2,vocabulary,vocabulary,write,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET10-Q07,SET10,7,短句填空,sentence_fill,,"The library was very (____), so Yuta could study there without any trouble.","The library was very （　）, so Yuta could study there without any trouble.",dangerous,golden,quiet,empty,dangerous,golden,quiet,空の,C,quiet,quiet,文脈から「quiet」が最も自然です。意味は「quiet」です。空所の前後の言葉を手がかりにすると選びやすくなります。,"quiet = quiet
+文脈：空所の前後から意味を判断する。",EIKEN_Pre2,adjective,vocabulary,quiet,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET10-Q08,SET10,8,短句填空,sentence_fill,,"Miki forgot her lunch, so her friend decided to (____) a sandwich with her.","Miki forgot her lunch, so her friend decided to （　） a sandwich with her.",collect,share,refuse,repair,collect,共有する,refuse,repair,B,share,共有する,文脈から「share」が最も自然です。意味は「共有する」です。空所の前後の言葉を手がかりにすると選びやすくなります。,"share = 共有する
+文脈：空所の前後から意味を判断する。",EIKEN_Pre2,verb,vocabulary,share,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET10-Q09,SET10,9,短句填空,sentence_fill,,The train was delayed because of heavy snow. Many passengers had to (____) at the station for an hour.,The train was delayed because of heavy snow. Many passengers had to （　） at the station for an hour.,push,hide,wait,paint,push,hide,wait,paint,C,wait,wait,文脈から「wait」が最も自然です。意味は「wait」です。空所の前後の言葉を手がかりにすると選びやすくなります。,"wait = wait
+文脈：空所の前後から意味を判断する。",EIKEN_Pre2,verb,vocabulary,wait,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET10-Q10,SET10,10,短句填空,sentence_fill,,"A: This math problem is too hard.
+B: Don’t worry. I’ll (____) it to you step by step.","A: This math problem is too hard.
+B: Don’t worry. I’ll （　） it to you step by step.",invite,guess,deliver,explain,invite,guess,配達する,explain,D,explain,explain,文脈から「explain」が最も自然です。意味は「explain」です。空所の前後の言葉を手がかりにすると選びやすくなります。,"explain = explain
+文脈：空所の前後から意味を判断する。",EIKEN_Pre2,verb,vocabulary,explain,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET10-Q11,SET10,11,对话完成,dialogue_completion,,"A: Excuse me. I lost my train ticket.
+B: Do you remember where you bought it?
+A: Yes, at the machine near Gate 2.
+B: (____)","次の会話を完成させなさい。
+A： Excuse me. I lost my train ticket.
+B： Do you remember where you bought it?
+A： Yes, at the machine near Gate 2.
+B： （　）",Please go to the station office over there.,The movie starts at seven.,I ate lunch already.,I want to buy a new bicycle.,Please go to the station office over there.,The movie starts at seven.,I ate lunch already.,I want to buy a new bicycle.,A,Please go to the station office over there.,Please go to the station office over there.,会話の流れに合う返事は「Please go to the station office over there.」です。前の発言をよく読むと、自然につながる内容を選べます。,"会話表現：相手の質問や依頼に合う自然な返事を選ぶ。
+correct answer = Please go to the station office over there.（Please go to the station office over there.）",EIKEN_Pre2,lost item,conversation,,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET10-Q12,SET10,12,对话完成,dialogue_completion,,"A: Mom, can I invite Ken to dinner tonight?
+B: Sure. What time will he come?
+A: Around six thirty.
+B: (____)","次の会話を完成させなさい。
+A： Mom, can I invite Ken to dinner tonight?
+B： Sure. What time will he come?
+A： Around six thirty.
+B： （　）","No, I went there last week.",OK. I’ll cook a little extra food.,It is raining outside.,The test was very difficult.,"No, I went there last week.",OK. I’ll cook a little extra food.,It is raining outside.,The test was very difficult.,B,OK. I’ll cook a little extra food.,OK. I’ll cook a little extra food.,会話の流れに合う返事は「OK. I’ll cook a little extra food.」です。前の発言をよく読むと、自然につながる内容を選べます。,"会話表現：相手の質問や依頼に合う自然な返事を選ぶ。
+correct answer = OK. I’ll cook a little extra food.（OK. I’ll cook a little extra food.）",EIKEN_Pre2,home,conversation,,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET10-Q13,SET10,13,对话完成,dialogue_completion,,"A: Welcome to Lake View Hotel. How may I help you?
+B: I’d like to check in. My name is Tanaka.
+A: Let me see. Yes, we have your reservation.
+B: (____)","次の会話を完成させなさい。
+A： Welcome to Lake View Hotel. How may I help you?
+B： I’d like to check in. My name is Tanaka.
+A： Let me see. Yes, we have your reservation.
+B： （　）",I bought it yesterday.,Great. Could you tell me where the elevator is?,My dog likes the park.,I don’t have any homework.,I bought it yesterday.,Great. Could you tell me where the elevator is?,My dog likes the park.,I don’t have any homework.,B,Great. Could you tell me where the elevator is?,Great. Could you tell me where the elevator is?,会話の流れに合う返事は「Great. Could you tell me where the elevator is?」です。前の発言をよく読むと、自然につながる内容を選べます。,"会話表現：相手の質問や依頼に合う自然な返事を選ぶ。
+correct answer = Great. Could you tell me where the elevator is?（Great. Could you tell me where the elevator is?）",EIKEN_Pre2,hotel,conversation,,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET10-Q14,SET10,14,对话完成,dialogue_completion,,"A: You look tired, Ben.
+B: I stayed up late finishing my science project.
+A: Is it due today?
+B: (____)","次の会話を完成させなさい。
+A： You look tired, Ben.
+B： I stayed up late finishing my science project.
+A： Is it due today?
+B： （　）",It was sunny yesterday.,"Yes, I have to hand it in this morning.","No, I never study science.",I like sandwiches.,昨日は晴れていました。,はい、今朝提出しなければなりません。,いいえ、私は理科を勉強しません。,私はサンドイッチが好きです。,B,"Yes, I have to hand it in this morning.",はい、今朝提出しなければなりません。,"会話の流れに合う返事は「Yes, I have to hand it in this morning.」です。前の発言をよく読むと、自然につながる内容を選べます。","会話表現：相手の質問や依頼に合う自然な返事を選ぶ。
+correct answer = Yes, I have to hand it in this morning.（はい、今朝提出しなければなりません。）",EIKEN_Pre2,school,conversation,,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET10-Q15,SET10,15,对话完成,dialogue_completion,,"A: This jacket is nice, but it’s too small.
+B: Would you like to try a larger size?
+A: Yes, please.
+B: (____)","次の会話を完成させなさい。
+A： This jacket is nice, but it’s too small.
+B： Would you like to try a larger size?
+A： Yes, please.
+B： （　）",I’ll bring one from the back.,The library is closed today.,I finished reading it.,You should ride the bus.,奥から一つ持ってきます。,図書館は今日は閉まっています。,それを読み終えました。,バスに乗るべきです。,A,I’ll bring one from the back.,奥から一つ持ってきます。,会話の流れに合う返事は「I’ll bring one from the back.」です。前の発言をよく読むと、自然につながる内容を選べます。,"会話表現：相手の質問や依頼に合う自然な返事を選ぶ。
+correct answer = I’ll bring one from the back.（奥から一つ持ってきます。）",EIKEN_Pre2,shopping,conversation,,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET10-Q16,SET10,16,阅读理解,reading_comprehension,SET10-P01,What will Emily’s class sell?,本文の内容に合う答えを選びなさい：何 will Emily’s class sell?,Handmade cookies.,Concert tickets.,Old books.,Sports uniforms.,Handmade cookies.,Concert tickets.,Old books.,Sports uniforms.,A,Handmade cookies.,Handmade cookies.,本文の内容に合う答えは「Handmade cookies.」です。質問文のキーワードと同じ情報を本文から探すと、正解にたどり着けます。,"読解ポイント：質問の Who / What / Where / When / Why に注目する。
+correct answer = Handmade cookies.（Handmade cookies.）",EIKEN_Pre2,reading_detail,reading,,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET10-Q17,SET10,17,阅读理解,reading_comprehension,SET10-P01,What will the money be used for?,本文の内容に合う答えを選びなさい：何 will the money be used for?,To pay for a class trip.,To buy new books for the library.,To repair the gym.,To buy lunch for teachers.,To pay for a class trip.,To buy new books for the library.,To repair the gym.,To buy lunch for teachers.,B,To buy new books for the library.,To buy new books for the library.,本文の内容に合う答えは「To buy new books for the library.」です。質問文のキーワードと同じ情報を本文から探すと、正解にたどり着けます。,"読解ポイント：質問の Who / What / Where / When / Why に注目する。
+correct answer = To buy new books for the library.（To buy new books for the library.）",EIKEN_Pre2,reading_detail,reading,,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET10-Q18,SET10,18,阅读理解,reading_comprehension,SET10-P01,What should Ryan bring if he has one?,本文の内容に合う答えを選びなさい：何 should Ryan bring if he has one?,A bicycle.,A passport.,An apron.,A camera.,A bicycle.,A passport.,An apron.,カメラ。,C,An apron.,An apron.,本文の内容に合う答えは「An apron.」です。質問文のキーワードと同じ情報を本文から探すと、正解にたどり着けます。,"読解ポイント：質問の Who / What / Where / When / Why に注目する。
+correct answer = An apron.（An apron.）",EIKEN_Pre2,reading_detail,reading,,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET10-Q19,SET10,19,阅读理解,reading_comprehension,SET10-P02,When should students return their books?,本文の内容に合う答えを選びなさい：いつ should students return their books?,Next Wednesday.,This Friday.,Before winter vacation.,After lunch today.,Next Wednesday.,This Friday.,Before winter vacation.,After lunch today.,A,Next Wednesday.,Next Wednesday.,本文の内容に合う答えは「Next Wednesday.」です。質問文のキーワードと同じ情報を本文から探すと、正解にたどり着けます。,"読解ポイント：質問の Who / What / Where / When / Why に注目する。
+correct answer = Next Wednesday.（Next Wednesday.）",EIKEN_Pre2,reading_detail,reading,,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET10-Q20,SET10,20,阅读理解,reading_comprehension,SET10-P02,Why will the library be closed in the morning?,本文の内容に合う答えを選びなさい：なぜ will the library be closed in the morning?,A writer will give a speech.,New computers will arrive.,Students will clean the windows.,The staff will check the books.,A writer will give a speech.,New computers will arrive.,Students will clean the windows.,The staff will check the books.,D,The staff will check the books.,The staff will check the books.,本文の内容に合う答えは「The staff will check the books.」です。質問文のキーワードと同じ情報を本文から探すと、正解にたどり着けます。,"読解ポイント：質問の Who / What / Where / When / Why に注目する。
+correct answer = The staff will check the books.（The staff will check the books.）",EIKEN_Pre2,reading_detail,reading,,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET10-Q21,SET10,21,阅读理解,reading_comprehension,SET10-P02,When can students borrow new books?,本文の内容に合う答えを選びなさい：生徒はいつ新しい本を借りることができますか。,Before school.,During the first class.,After lunch.,Late at night.,Before school.,During the first class.,After lunch.,Late at night.,C,After lunch.,After lunch.,本文の内容に合う答えは「After lunch.」です。質問文のキーワードと同じ情報を本文から探すと、正解にたどり着けます。,"読解ポイント：質問の Who / What / Where / When / Why に注目する。
+correct answer = After lunch.（After lunch.）",EIKEN_Pre2,reading_detail,reading,,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET10-Q22,SET10,22,阅读理解,reading_comprehension,SET10-P03,Why did the bakery almost close?,本文の内容に合う答えを選びなさい：なぜそのパン屋は閉店しそうになりましたか。,The owner moved away.,The building was too new.,Fewer people were buying bread there.,Students stopped visiting the town.,The owner moved away.,The building was too new.,Fewer people were buying bread there.,Students stopped visiting the town.,C,Fewer people were buying bread there.,Fewer people were buying bread there.,本文の内容に合う答えは「Fewer people were buying bread there.」です。質問文のキーワードと同じ情報を本文から探すと、正解にたどり着けます。,"読解ポイント：質問の Who / What / Where / When / Why に注目する。
+correct answer = Fewer people were buying bread there.（Fewer people were buying bread there.）",EIKEN_Pre2,reading_detail,reading,,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET10-Q23,SET10,23,阅读理解,reading_comprehension,SET10-P03,What did Mr. Clark start using?,本文の内容に合う答えを選びなさい：クラークさんは何を使い始めましたか。,Imported cheese.,Old recipes only.,Coffee beans.,Local fruit.,Imported cheese.,Old recipes only.,Coffee beans.,Local fruit.,D,Local fruit.,Local fruit.,本文の内容に合う答えは「Local fruit.」です。質問文のキーワードと同じ情報を本文から探すと、正解にたどり着けます。,"読解ポイント：質問の Who / What / Where / When / Why に注目する。
+correct answer = Local fruit.（Local fruit.）",EIKEN_Pre2,reading_detail,reading,,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET10-Q24,SET10,24,阅读理解,reading_comprehension,SET10-P03,What does Mr. Clark do on weekends now?,本文の内容に合う答えを選びなさい：クラークさんは今、週末に何をしていますか。,He closes the bakery.,He visits a museum.,He teaches baking classes.,He sells bicycles.,He closes the bakery.,He visits a museum.,He teaches baking classes.,He sells bicycles.,C,He teaches baking classes.,He teaches baking classes.,本文の内容に合う答えは「He teaches baking classes.」です。質問文のキーワードと同じ情報を本文から探すと、正解にたどり着けます。,"読解ポイント：質問の Who / What / Where / When / Why に注目する。
+correct answer = He teaches baking classes.（He teaches baking classes.）",EIKEN_Pre2,reading_detail,reading,,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET10-Q25,SET10,25,阅读理解,reading_comprehension,SET10-P04,Why were parents worried?,本文の内容に合う答えを選びなさい：なぜ保護者は心配していましたか。,The school was too small.,The children had too much homework.,There were no teachers.,The road near the school was busy.,The school was too small.,The children had too much homework.,There were no teachers.,The road near the school was busy.,D,The road near the school was busy.,The road near the school was busy.,本文の内容に合う答えは「The road near the school was busy.」です。質問文のキーワードと同じ情報を本文から探すと、正解にたどり着けます。,"読解ポイント：質問の Who / What / Where / When / Why に注目する。
+correct answer = The road near the school was busy.（The road near the school was busy.）",EIKEN_Pre2,reading_detail,reading,,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET10-Q26,SET10,26,阅读理解,reading_comprehension,SET10-P04,What is a walking bus?,本文の内容に合う答えを選びなさい：ウォーキングバスとは何ですか。,A bus that has no seats.,A game played after school.,A class about traffic signs.,Adults walk with groups of children.,A bus that has no seats.,A game played after school.,A class about traffic signs.,Adults walk with groups of children.,D,Adults walk with groups of children.,Adults walk with groups of children.,本文の内容に合う答えは「Adults walk with groups of children.」です。質問文のキーワードと同じ情報を本文から探すと、正解にたどり着けます。,"読解ポイント：質問の Who / What / Where / When / Why に注目する。
+correct answer = Adults walk with groups of children.（Adults walk with groups of children.）",EIKEN_Pre2,reading_detail,reading,,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET10-Q27,SET10,27,阅读理解,reading_comprehension,SET10-P04,What is one good point of the walking bus?,本文の内容に合う答えを選びなさい：ウォーキングバスの良い点は何ですか。,The road becomes shorter.,Parents never need to work.,Children get exercise.,Children can sleep longer.,The road becomes shorter.,Parents never need to work.,Children get exercise.,Children can sleep longer.,C,Children get exercise.,Children get exercise.,本文の内容に合う答えは「Children get exercise.」です。質問文のキーワードと同じ情報を本文から探すと、正解にたどり着けます。,"読解ポイント：質問の Who / What / Where / When / Why に注目する。
+correct answer = Children get exercise.（Children get exercise.）",EIKEN_Pre2,reading_detail,reading,,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET10-Q28,SET10,28,阅读理解,reading_comprehension,SET10-P05,What does the group collect?,本文の内容に合う答えを選びなさい：そのグループは何を集めますか。,School uniforms.,Old computers.,Old bicycles.,Plastic bottles.,School uniforms.,古いコンピューター。,Old bicycles.,ペットボトル。,B,Old computers.,古いコンピューター。,本文の内容に合う答えは「Old computers.」です。質問文のキーワードと同じ情報を本文から探すと、正解にたどり着けます。,"読解ポイント：質問の Who / What / Where / When / Why に注目する。
+correct answer = Old computers.（古いコンピューター。）",EIKEN_Pre2,reading_detail,reading,,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET10-Q29,SET10,29,阅读理解,reading_comprehension,SET10-P05,Who receives the repaired computers?,本文の内容に合う答えを選びなさい：修理されたコンピューターは誰が受け取りますか。,Tourists.,Children who do not have computers at home.,Computer companies.,University teachers.,Tourists.,家にコンピューターがない子どもたち。,Computer companies.,University teachers.,B,Children who do not have computers at home.,家にコンピューターがない子どもたち。,本文の内容に合う答えは「Children who do not have computers at home.」です。質問文のキーワードと同じ情報を本文から探すと、正解にたどり着けます。,"読解ポイント：質問の Who / What / Where / When / Why に注目する。
+correct answer = Children who do not have computers at home.（家にコンピューターがない子どもたち。）",EIKEN_Pre2,reading_detail,reading,,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.
+SET10-Q30,SET10,30,阅读理解,reading_comprehension,SET10-P05,What else do the students teach?,本文の内容に合う答えを選びなさい：生徒たちは他に何を教えますか。,How to use the Internet safely.,How to cook dinner.,How to play the violin.,How to fix cars.,インターネットを安全に使う方法。,How to cook dinner.,How to play the violin.,How to fix cars.,A,How to use the Internet safely.,インターネットを安全に使う方法。,本文の内容に合う答えは「How to use the Internet safely.」です。質問文のキーワードと同じ情報を本文から探すと、正解にたどり着けます。,"読解ポイント：質問の Who / What / Where / When / Why に注目する。
+correct answer = How to use the Internet safely.（インターネットを安全に使う方法。）",EIKEN_Pre2,reading_detail,reading,,Original item modeled on uploaded EIKEN Grade Pre-2 format; not a copied past exam question.

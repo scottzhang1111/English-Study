@@ -1,0 +1,2 @@
+﻿attempt_id,student_id,set_id,started_at,completed_at,total_questions,correct_count,score_percent,time_minutes,notes
+A001,S001,SET01,,,30,,,,sample row; app calculates after submit
