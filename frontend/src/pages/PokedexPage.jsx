@@ -4,6 +4,21 @@ import { getBattleMonsters, getPetsData } from '../api';
 
 const CHILD_STORAGE_KEY = 'selected_child_id';
 
+const pokemonArtwork = (id) =>
+  `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${id}.png`;
+
+const DEFAULT_PETS = [
+  { pokemon_id: 1, name: 'Bulbasaur', level: 1, exp: 0, max_exp: 100, exp_progress: 0, total_exp: 0, unlocked: true, image_url: pokemonArtwork(1) },
+  { pokemon_id: 4, name: 'Charmander', level: 1, exp: 0, max_exp: 100, exp_progress: 0, total_exp: 0, unlocked: true, image_url: pokemonArtwork(4) },
+  { pokemon_id: 7, name: 'Squirtle', level: 1, exp: 0, max_exp: 100, exp_progress: 0, total_exp: 0, unlocked: true, image_url: pokemonArtwork(7) },
+  { pokemon_id: 25, name: 'Pikachu', level: 1, exp: 0, max_exp: 100, exp_progress: 0, total_exp: 0, unlocked: true, image_url: pokemonArtwork(25) },
+];
+
+const DEFAULT_BATTLE_MONSTERS = [
+  { id: 'infinitive_pup', nameJa: 'Infinitive Pup', imageUrl: pokemonArtwork(133), grammarCategory: 'infinitive', captured: true, level: 1, exp: 0, grammarTip: 'want to do / decide to do / It is important to do' },
+  { id: 'gerund_fox', nameJa: 'Gerund Fox', imageUrl: pokemonArtwork(37), grammarCategory: 'gerund', captured: true, level: 1, exp: 0, grammarTip: 'enjoy / finish / after prepositions, use -ing' },
+];
+
 function getPokemonImage(pet) {
   return pet?.image_url || pet?.sprite_url || '';
 }
@@ -57,10 +72,20 @@ export default function PokedexPage() {
         setOwnedCount(data.owned_count || nextPets.filter((pet) => pet.unlocked).length);
         setTotalCount(data.total_count || 151);
       })
-      .catch((err) => setError(err.message));
+      .catch((err) => {
+        setError(err.message);
+        setPets(DEFAULT_PETS);
+        setCurrentPet(DEFAULT_PETS[3]);
+        setOwnedCount(DEFAULT_PETS.length);
+        setTotalCount(151);
+        setRewardStatus({ today_progress: 0, today_target: 20, today_progress_percent: 0, next_unlock_exp: 20, has_locked_pokemon: true });
+      });
     getBattleMonsters(childId)
       .then((data) => setBattleMonsters(data.monsters || []))
-      .catch((err) => setError(err.message));
+      .catch((err) => {
+        setError(err.message);
+        setBattleMonsters(DEFAULT_BATTLE_MONSTERS);
+      });
   }, [childId]);
 
   useEffect(() => {

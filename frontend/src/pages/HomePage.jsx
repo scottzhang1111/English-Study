@@ -7,6 +7,24 @@ import { getChildren, getHomeData } from '../api';
 
 const CHILD_STORAGE_KEY = 'selected_child_id';
 
+const DEFAULT_HOME_DATA = {
+  progress: 0,
+  target: 20,
+  remain: 20,
+  total_words: 735,
+  mastered_words: 0,
+  study_days: 0,
+  pet: {
+    pokemon_id: 25,
+    name: 'Pikachu',
+    level: 1,
+    exp: 0,
+    max_exp: 100,
+    total_exp: 0,
+    image_url: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/25.png',
+  },
+};
+
 const PARTNER_LINES = [
   'お疲れ様！よく頑張ったね！',
   '失敗しても大丈夫！次はきっとできるよ！',
@@ -50,7 +68,10 @@ export default function HomePage() {
 
         setSelectedChildId(initialId);
       })
-      .catch((err) => setError(err.message));
+      .catch((err) => {
+        setError(err.message);
+        setChildrenLoaded(true);
+      });
   }, [navigate]);
 
   useEffect(() => {
@@ -60,7 +81,10 @@ export default function HomePage() {
 
     getHomeData(selectedChildId || undefined)
       .then(setData)
-      .catch((err) => setError(err.message));
+      .catch((err) => {
+        setError(err.message);
+        setData(DEFAULT_HOME_DATA);
+      });
   }, [selectedChildId]);
 
   useEffect(() => {
@@ -80,7 +104,7 @@ export default function HomePage() {
     : '0%';
   const challengeLevel = selectedChild?.target_level || '準2級';
 
-  if (childrenLoaded && children.length === 0) {
+  if (childrenLoaded && children.length === 0 && !error) {
     return null;
   }
 
@@ -88,9 +112,12 @@ export default function HomePage() {
     <div className="mx-auto max-w-7xl px-4 pb-24 pt-2 sm:px-6">
       <HeaderBar subtitle="キミと見つける、英語のちから！" />
 
-      {error ? (
-        <div className="panel px-5 py-5 text-sm text-rose-700">{error}</div>
-      ) : (
+      {error && (
+        <div className="panel mb-4 px-5 py-4 text-sm font-semibold text-amber-800">
+          API data is unavailable, so a preview home screen is shown. {error}
+        </div>
+      )}
+
         <motion.section
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
@@ -182,7 +209,6 @@ export default function HomePage() {
             </div>
           </div>
         </motion.section>
-      )}
 
       <section className="mt-5">
         <div className="rounded-[30px] border border-white/80 bg-white/78 p-5 shadow-[0_12px_28px_rgba(145,177,209,0.10)]">

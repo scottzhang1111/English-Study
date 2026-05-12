@@ -45,6 +45,7 @@ function App() {
         <AnimatePresence mode="wait" initial={false}>
           <Routes location={location} key={location.pathname}>
             <Route path="/" element={<AnimatedPage><HomePage /></AnimatedPage>} />
+            <Route path="/app" element={<AnimatedPage><HomePage /></AnimatedPage>} />
             <Route path="/flashcard" element={<AnimatedPage><FlashcardPage /></AnimatedPage>} />
             <Route path="/quiz" element={<AnimatedPage><QuizPage /></AnimatedPage>} />
             <Route path="/ai-practice" element={<AnimatedPage><AiPracticePage /></AnimatedPage>} />

@@ -1,8 +1,16 @@
 const apiFetch = async (path, options = {}) => {
-  const response = await fetch(path, options);
+  const apiBaseUrl = (import.meta.env.VITE_API_BASE_URL || '').replace(/\/$/, '');
+  const url = `${apiBaseUrl}${path}`;
+  const response = await fetch(url, options);
+  const contentType = response.headers.get('content-type') || '';
   if (!response.ok) {
     const body = await response.text();
     throw new Error(`API ${path} failed: ${response.status} ${body}`);
+  }
+  if (!contentType.includes('application/json')) {
+    const body = await response.text();
+    const preview = body.trim().slice(0, 80);
+    throw new Error(`API ${path} returned non-JSON response: ${preview}`);
   }
   return response.json();
 };
