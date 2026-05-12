@@ -18,6 +18,50 @@ function shuffle(items) {
   return [...items].sort(() => Math.random() - 0.5);
 }
 
+const FALLBACK_DAILY_WORDS = [
+  ['1', 'let', '〜に…させる', '让；允许', 'My mother let me play video games after homework.', '母は宿題を終えた後でゲームをさせてくれた。', '妈妈让我在做完作业后玩游戏。', 'let me do'],
+  ['2', 'decide', '決心する', '决定', 'I decided to study English every day.', '私は毎日英語を勉強することに決めた。', '我决定每天学习英语。', 'decide to do'],
+  ['3', 'leave', '置いたままにする；去離れる', '留下；离开', 'Please leave the window open.', '窓を開けたままにしてください。', '请把窗户开着。', 'leave open'],
+  ['4', 'long', '切望する', '渴望', 'She longed for peace and quiet.', '彼女は平和で静かな生活を切望していた。', '她渴望和平与安静。', 'long for'],
+  ['5', 'practice', '練習する', '练习', 'He practices playing the guitar every night.', '彼は毎晩ギターを弾く練習をしている。', '他每天晚上练习弹吉他。', 'practice doing'],
+  ['6', 'move', '引っ越す；動かす', '搬家；移动', 'We moved to Yokohama last year.', '私たちは去年横浜に引っ越しました。', '我们去年搬到了横滨。', 'move to'],
+  ['7', 'pay', '支払う', '支付', 'I paid 500 yen for the lunch.', '私は昼食に500円を払いました。', '我为午餐支付了500日元。', 'pay for'],
+  ['8', 'change', '変える；変わる', '改变', 'Water changes into ice in winter.', '水は冬に氷に変わります。', '水在冬天会变成冰。', 'change into'],
+  ['9', 'spell', 'つづる', '拼写', 'Can you spell your name in English?', 'あなたの名前を英語でつづれますか。', '你能用英语拼写你的名字吗？', 'spell a word'],
+  ['10', 'grow', '成長する；増える', '成长；增加', 'Vegetables grow quickly in summer.', '野菜は夏に早く育ちます。', '蔬菜在夏天长得很快。', 'grow quickly'],
+  ['11', 'spend', '費やす', '花费', 'She spends a lot of time reading books.', '彼女は本を読むことに多くの時間を費やしています。', '她花很多时间读书。', 'spend time doing'],
+  ['12', 'order', '注文する；命じる', '点餐；命令', 'We ordered pizza for dinner.', '私たちは夕食にピザを注文しました。', '我们晚餐点了披萨。', 'order food'],
+  ['13', 'share', '共有する', '分享；共用', 'I shared my umbrella with my friend.', '私は友だちと傘を共有しました。', '我和朋友共用了一把伞。', 'share with'],
+  ['14', 'check', '確かめる；調べる', '检查', 'Please check your homework carefully.', '宿題を注意深く確認してください。', '请仔细检查你的作业。', 'check carefully'],
+  ['15', 'forget', '忘れる', '忘记', 'I forgot to bring my notebook today.', '私は今日ノートを持ってくるのを忘れました。', '我今天忘了带笔记本。', 'forget to do'],
+  ['16', 'guide', '案内する', '引导；带领', 'He guided us around Tokyo Station.', '彼は私たちを東京駅周辺に案内してくれました。', '他带我们参观了东京站。', 'guide around'],
+  ['17', 'hold', '開催する；持つ', '举办；拿着', 'Our school will hold a sports festival next month.', '私たちの学校は来月、運動会を開催します。', '我们学校下个月将举办运动会。', 'hold a meeting'],
+  ['18', 'report', '報道する；報告する', '报道；报告', 'She reported the accident to the police.', '彼女はその事故を警察に報告しました。', '她向警察报告了事故。', 'report to'],
+  ['19', 'return', '帰る；戻る', '返回；归还', 'He returned to Japan last week.', '彼は先週日本に戻りました。', '他上周回到了日本。', 'return to'],
+  ['20', 'seem', '〜のようだ', '看起来；似乎', 'She seems very happy today.', '彼女は今日とても幸せそうに見えます。', '她今天看起来很开心。', 'seem to be'],
+].map(([id, word, meaningJa, meaningZh, exampleEn, exampleJa, exampleZh, phrase]) => ({
+  id,
+  word,
+  partOfSpeech: '',
+  meaningJa,
+  meaningZh,
+  exampleEn,
+  exampleJa,
+  exampleZh,
+  phrase,
+  importance: 'A',
+}));
+
+function selectDailyWords(allWords, childId) {
+  const learnedIds = new Set(
+    getDailyLearningRecords()
+      .filter((record) => record.childId === childId && record.passed)
+      .flatMap((record) => record.studiedWordIds || []),
+  );
+  const availableWords = allWords.filter((word) => !learnedIds.has(word.id));
+  return (availableWords.length >= DAILY_WORD_TARGET ? availableWords : allWords).slice(0, DAILY_WORD_TARGET);
+}
+
 function buildQuiz(words) {
   const targets = shuffle(words).slice(0, Math.min(DAILY_QUIZ_COUNT, words.length));
   return targets.map((word, index) => {
@@ -61,13 +105,7 @@ export default function DailyWordUnitPage() {
     }
     getDailyWords(200)
       .then((payload) => {
-        const learnedIds = new Set(
-          getDailyLearningRecords()
-            .filter((record) => record.childId === child.id && record.passed)
-            .flatMap((record) => record.studiedWordIds || []),
-        );
-        const availableWords = (payload.words || []).filter((word) => !learnedIds.has(word.id));
-        const words = (availableWords.length >= DAILY_WORD_TARGET ? availableWords : payload.words || []).slice(0, DAILY_WORD_TARGET);
+        const words = selectDailyWords(payload.words || [], child.id);
         setTodayWords(words);
         upsertTodayRecord(child.id, {
           targetWordCount: words.length || DAILY_WORD_TARGET,
@@ -75,7 +113,16 @@ export default function DailyWordUnitPage() {
           passed: false,
         });
       })
-      .catch((err) => setError(err.message));
+      .catch(() => {
+        const words = selectDailyWords(FALLBACK_DAILY_WORDS, child.id);
+        setTodayWords(words);
+        setError('');
+        upsertTodayRecord(child.id, {
+          targetWordCount: words.length || DAILY_WORD_TARGET,
+          studiedWordIds: [],
+          passed: false,
+        });
+      });
   }, [child, navigate]);
 
   const currentWord = todayWords[studyIndex] || null;
