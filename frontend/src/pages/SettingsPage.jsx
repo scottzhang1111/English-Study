@@ -21,6 +21,15 @@ const DEFAULT_FORM = {
 const GRADE_OPTIONS = ['1', '2', '3', '4', '5', '6'];
 const TARGET_OPTIONS = ['3級', '準2級'];
 const CHILD_STORAGE_KEY = 'selected_child_id';
+const pokemonArtwork = (id) =>
+  `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${id}.png`;
+const pokemonSprite = (id) =>
+  `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${id}.png`;
+const DEFAULT_STARTER_OPTIONS = [
+  { id: 4, name: 'ヒトカゲ', image_url: pokemonArtwork(4), sprite_url: pokemonSprite(4), types: [{ name: 'fire' }] },
+  { id: 7, name: 'ゼニガメ', image_url: pokemonArtwork(7), sprite_url: pokemonSprite(7), types: [{ name: 'water' }] },
+  { id: 1, name: 'フシギダネ', image_url: pokemonArtwork(1), sprite_url: pokemonSprite(1), types: [{ name: 'grass' }] },
+];
 
 const partnerLines = [
   'いっしょに、少しずつ進もう。',
@@ -66,14 +75,25 @@ export default function SettingsPage() {
   const refreshStarterOptions = async () => {
     setLoadingOptions(true);
     try {
-      const payload = await getChildStarterOptions();
-      const options = payload.options || [];
+      const payload = await Promise.race([
+        getChildStarterOptions(),
+        new Promise((_, reject) => window.setTimeout(() => reject(new Error('starter options timeout')), 4000)),
+      ]);
+      const options = payload.options?.length ? payload.options : DEFAULT_STARTER_OPTIONS;
       setStarterOptions(options);
       setSelectedStarterId((prev) => {
         if (prev && options.some((option) => String(option.id) === String(prev))) {
           return prev;
         }
         return options[0] ? String(options[0].id) : '';
+      });
+    } catch (err) {
+      setStarterOptions(DEFAULT_STARTER_OPTIONS);
+      setSelectedStarterId((prev) => {
+        if (prev && DEFAULT_STARTER_OPTIONS.some((option) => String(option.id) === String(prev))) {
+          return prev;
+        }
+        return String(DEFAULT_STARTER_OPTIONS[0].id);
       });
     } finally {
       setLoadingOptions(false);
@@ -242,7 +262,7 @@ export default function SettingsPage() {
           </div>
           <div className="mt-4 grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
             <div className="rounded-[40px] border border-white/80 bg-white/82 p-6 shadow-[0_14px_34px_rgba(145,177,209,0.12)]">
-              <h2 className="display-font text-2xl font-extrabold text-[#354172]">学習の土台を整える</h2>
+              <h2 className="display-font text-2xl font-extrabold text-[#354172]">子どもの基本情報を入力してください</h2>
               <p className="mt-2 text-sm leading-6 text-[#5f6f94]">
                 名前、学年、目標、毎日の学習量をここでまとめて設定します。
               </p>
@@ -316,7 +336,7 @@ export default function SettingsPage() {
 
             <div className="rounded-[40px] border border-white/80 bg-[linear-gradient(180deg,rgba(255,255,255,0.94)_0%,rgba(246,250,255,0.92)_100%)] p-5 shadow-[0_14px_34px_rgba(145,177,209,0.12)]">
               <div className="inline-flex rounded-full bg-[#eef8ff] px-4 py-2 text-sm font-bold text-[#6f7da8]">
-                伙伴选择
+                初期の相棒
               </div>
               <p className="mt-3 text-sm leading-6 text-[#5f6f94]">
                 初期の相棒を選びます。タップすると下の相棒がその姿に切り替わります。

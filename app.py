@@ -2316,25 +2316,11 @@ def get_child_starter_options(count=3):
             'sprite_url': _row_value(row, 'sprite_url'),
             'types': [],
         }
-        try:
-            pokemon = get_cached_pokemon_by_id(pokemon_id)
-            sprites = pokemon.get('sprites') or {}
-            other = sprites.get('other') or {}
-            artwork = other.get('official-artwork') or {}
-            option.update(
-                {
-                    'name': pokemon.get('name_jp') or pokemon.get('name') or option['name'],
-                    'image_url': artwork.get('front_default') or option['image_url'],
-                    'sprite_url': sprites.get('front_default') or option['sprite_url'],
-                    'types': pokemon.get('types') or [],
-                }
-            )
-        except Exception:
-            if row and _row_value(row, 'types'):
-                try:
-                    option['types'] = json.loads(_row_value(row, 'types'))
-                except (TypeError, json.JSONDecodeError):
-                    option['types'] = []
+        if row and _row_value(row, 'types'):
+            try:
+                option['types'] = json.loads(_row_value(row, 'types'))
+            except (TypeError, json.JSONDecodeError):
+                option['types'] = []
         if not option['image_url'] or not option['sprite_url']:
             fallback_image_url, fallback_sprite_url = get_pokemon_fallback_image_urls(pokemon_id)
             option['image_url'] = option['image_url'] or fallback_image_url
