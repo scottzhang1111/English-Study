@@ -10,9 +10,12 @@ function playAudio(text, audioRef) {
   if (audioRef.current) {
     audioRef.current.pause();
   }
-  const player = new Audio(`/api/tts?text=${encodeURIComponent(text)}&lang=en`);
-  audioRef.current = player;
-  player.play().catch(() => {});
+  if ('speechSynthesis' in window) {
+    window.speechSynthesis.cancel();
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.lang = 'en-US';
+    window.speechSynthesis.speak(utterance);
+  }
 }
 
 export default function LearnedWordsPage() {

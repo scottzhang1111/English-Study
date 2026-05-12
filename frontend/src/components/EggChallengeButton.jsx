@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
+import { getEikenQuestions } from '../api';
 
 export default function EggChallengeButton({ onQuestionsLoaded, isLoading = false }) {
   const [isShaking, setIsShaking] = useState(false);
@@ -13,8 +14,7 @@ export default function EggChallengeButton({ onQuestionsLoaded, isLoading = fals
     setTimeout(() => setIsShaking(false), 600);
 
     try {
-      const response = await fetch('/api/eiken');
-      const data = await response.json();
+      const data = await getEikenQuestions();
       setTimeout(() => {
         setShowLoading(false);
         onQuestionsLoaded?.(data.questions || []);

@@ -1,0 +1,28 @@
+{
+  "eiken": [
+    {
+      "id": "static-q1",
+      "type": "Vocabulary",
+      "question": "choose の意味はどれ？",
+      "choices": ["選ぶ", "忘れる", "集める", "決める"],
+      "correct": "選ぶ",
+      "explanation": "choose は「選ぶ」という意味です。"
+    },
+    {
+      "id": "static-q2",
+      "type": "Vocabulary",
+      "question": "「支払う」は英語でどれ？",
+      "choices": ["pay", "play", "pray", "plan"],
+      "correct": "pay",
+      "explanation": "pay は「支払う」という意味です。"
+    }
+  ],
+  "review": [
+    {
+      "question": "let の意味はどれ？",
+      "choices": ["〜に…させる", "忘れる", "支払う", "戻る"],
+      "correct": "〜に…させる",
+      "word": "let"
+    }
+  ]
+}

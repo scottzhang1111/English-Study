@@ -1,6 +1,6 @@
 # Frontend Setup
 
-This project is a React SPA frontend for the existing Flask app.
+This project is a React SPA frontend. By default it runs in static data mode so local Vite and Vercel read the same JSON files from `public/data/`.
 
 ## Install dependencies
 
@@ -23,8 +23,7 @@ npm run build
 
 ## Notes
 
-- The frontend proxies `/api` requests to the Flask backend at `http://127.0.0.1:5000`.
-- The Flask backend already exposes JSON endpoints used by the React app such as `/api/home`, `/api/flashcard`, `/api/quiz`, `/api/pokedex`, `/api/petroom`, `/api/petlevel`, and `/api/progress`.
-- Production builds are served under `/app/` with Flask via the new `serve_react_app` route.
-- The Flask root path `/` redirects to the React SPA, and legacy page endpoints like `/flashcard`, `/quiz`, `/pokedex`, `/petroom`, `/petlevel`, `/progress`, and `/settings` also redirect into `/app/`.
+- Static JSON data lives in `public/data/`.
+- The default data mode is `VITE_DATA_MODE=static`.
+- To experiment with the legacy Flask backend locally, set `VITE_DATA_MODE=api` and optionally `VITE_API_BASE_URL=http://127.0.0.1:5000`. The React app should not depend on this mode for Vercel.
 - If `npm` is not available in your environment, install Node.js first.

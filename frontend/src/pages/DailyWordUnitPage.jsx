@@ -1,6 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import HeaderBar from '../components/HeaderBar';
 import { getDailyWords } from '../api';
 import { getCurrentChild, getPartner } from '../utils/childStorage';
 import {
@@ -9,57 +8,93 @@ import {
   DAILY_QUIZ_COUNT,
   DAILY_WORD_TARGET,
   addPartnerExp,
-  getDailyLearningRecords,
   getPartnerExp,
+  getTodayRecord,
   upsertTodayRecord,
 } from '../utils/dailyLearningStorage';
+import {
+  enrichWordsWithProgress,
+  markWordsStudied,
+  recordQuizResults,
+} from '../utils/vocabProgressStorage';
+
+const PARTNER_JA = {
+  bulbasaur: 'フシギダネ',
+  charmander: 'ヒトカゲ',
+  squirtle: 'ゼニガメ',
+};
 
 function shuffle(items) {
   return [...items].sort(() => Math.random() - 0.5);
 }
 
-const FALLBACK_DAILY_WORDS = [
-  ['1', 'let', '〜に…させる', '让；允许', 'My mother let me play video games after homework.', '母は宿題を終えた後でゲームをさせてくれた。', '妈妈让我在做完作业后玩游戏。', 'let me do'],
-  ['2', 'decide', '決心する', '决定', 'I decided to study English every day.', '私は毎日英語を勉強することに決めた。', '我决定每天学习英语。', 'decide to do'],
-  ['3', 'leave', '置いたままにする；去離れる', '留下；离开', 'Please leave the window open.', '窓を開けたままにしてください。', '请把窗户开着。', 'leave open'],
-  ['4', 'long', '切望する', '渴望', 'She longed for peace and quiet.', '彼女は平和で静かな生活を切望していた。', '她渴望和平与安静。', 'long for'],
-  ['5', 'practice', '練習する', '练习', 'He practices playing the guitar every night.', '彼は毎晩ギターを弾く練習をしている。', '他每天晚上练习弹吉他。', 'practice doing'],
-  ['6', 'move', '引っ越す；動かす', '搬家；移动', 'We moved to Yokohama last year.', '私たちは去年横浜に引っ越しました。', '我们去年搬到了横滨。', 'move to'],
-  ['7', 'pay', '支払う', '支付', 'I paid 500 yen for the lunch.', '私は昼食に500円を払いました。', '我为午餐支付了500日元。', 'pay for'],
-  ['8', 'change', '変える；変わる', '改变', 'Water changes into ice in winter.', '水は冬に氷に変わります。', '水在冬天会变成冰。', 'change into'],
-  ['9', 'spell', 'つづる', '拼写', 'Can you spell your name in English?', 'あなたの名前を英語でつづれますか。', '你能用英语拼写你的名字吗？', 'spell a word'],
-  ['10', 'grow', '成長する；増える', '成长；增加', 'Vegetables grow quickly in summer.', '野菜は夏に早く育ちます。', '蔬菜在夏天长得很快。', 'grow quickly'],
-  ['11', 'spend', '費やす', '花费', 'She spends a lot of time reading books.', '彼女は本を読むことに多くの時間を費やしています。', '她花很多时间读书。', 'spend time doing'],
-  ['12', 'order', '注文する；命じる', '点餐；命令', 'We ordered pizza for dinner.', '私たちは夕食にピザを注文しました。', '我们晚餐点了披萨。', 'order food'],
-  ['13', 'share', '共有する', '分享；共用', 'I shared my umbrella with my friend.', '私は友だちと傘を共有しました。', '我和朋友共用了一把伞。', 'share with'],
-  ['14', 'check', '確かめる；調べる', '检查', 'Please check your homework carefully.', '宿題を注意深く確認してください。', '请仔细检查你的作业。', 'check carefully'],
-  ['15', 'forget', '忘れる', '忘记', 'I forgot to bring my notebook today.', '私は今日ノートを持ってくるのを忘れました。', '我今天忘了带笔记本。', 'forget to do'],
-  ['16', 'guide', '案内する', '引导；带领', 'He guided us around Tokyo Station.', '彼は私たちを東京駅周辺に案内してくれました。', '他带我们参观了东京站。', 'guide around'],
-  ['17', 'hold', '開催する；持つ', '举办；拿着', 'Our school will hold a sports festival next month.', '私たちの学校は来月、運動会を開催します。', '我们学校下个月将举办运动会。', 'hold a meeting'],
-  ['18', 'report', '報道する；報告する', '报道；报告', 'She reported the accident to the police.', '彼女はその事故を警察に報告しました。', '她向警察报告了事故。', 'report to'],
-  ['19', 'return', '帰る；戻る', '返回；归还', 'He returned to Japan last week.', '彼は先週日本に戻りました。', '他上周回到了日本。', 'return to'],
-  ['20', 'seem', '〜のようだ', '看起来；似乎', 'She seems very happy today.', '彼女は今日とても幸せそうに見えます。', '她今天看起来很开心。', 'seem to be'],
-].map(([id, word, meaningJa, meaningZh, exampleEn, exampleJa, exampleZh, phrase]) => ({
-  id,
-  word,
-  partOfSpeech: '',
-  meaningJa,
-  meaningZh,
-  exampleEn,
-  exampleJa,
-  exampleZh,
-  phrase,
-  importance: 'A',
-}));
+function speak(text, lang = 'en-US') {
+  if (!text || typeof window === 'undefined' || !('speechSynthesis' in window)) return;
+  window.speechSynthesis.cancel();
+  const utterance = new SpeechSynthesisUtterance(text);
+  utterance.lang = lang;
+  utterance.rate = 0.9;
+  window.speechSynthesis.speak(utterance);
+}
 
-function selectDailyWords(allWords, childId) {
-  const learnedIds = new Set(
-    getDailyLearningRecords()
-      .filter((record) => record.childId === childId && record.passed)
-      .flatMap((record) => record.studiedWordIds || []),
+function getPartnerName(child, partner) {
+  return PARTNER_JA[child?.partnerMonsterId] || partner?.name || 'パートナー';
+}
+
+function getPartnerImage(child, partner) {
+  return partner?.imageUrl || partner?.image_url || '';
+}
+
+const IMPORTANCE_ORDER = { A: 0, B: 1, C: 2 };
+const PART_OF_SPEECH_ORDER = [
+  ['動詞', '动词', 'verb', 'v.'],
+  ['形容詞', '形容词', 'adjective', 'adj.'],
+  ['名詞', '名词', 'noun', 'n.'],
+];
+
+function getImportanceRank(word) {
+  return IMPORTANCE_ORDER[String(word.importance || '').trim().toUpperCase()] ?? 9;
+}
+
+function getPartOfSpeechRank(word) {
+  const value = String(word.partOfSpeech || '').toLowerCase();
+  const index = PART_OF_SPEECH_ORDER.findIndex((terms) => terms.some((term) => value.includes(term.toLowerCase())));
+  return index >= 0 ? index : 9;
+}
+
+function compareLearningOrder(a, b) {
+  return (
+    Number(a.hasStudied) - Number(b.hasStudied) ||
+    getImportanceRank(a) - getImportanceRank(b) ||
+    getPartOfSpeechRank(a) - getPartOfSpeechRank(b) ||
+    Number(a.id) - Number(b.id)
   );
-  const availableWords = allWords.filter((word) => !learnedIds.has(word.id));
-  return (availableWords.length >= DAILY_WORD_TARGET ? availableWords : allWords).slice(0, DAILY_WORD_TARGET);
+}
+
+function compareReviewOrder(a, b) {
+  return (
+    Number(a.familiarity || 0) - Number(b.familiarity || 0) ||
+    Number(b.wrongCount || 0) - Number(a.wrongCount || 0) ||
+    getImportanceRank(a) - getImportanceRank(b) ||
+    getPartOfSpeechRank(a) - getPartOfSpeechRank(b) ||
+    Number(a.id) - Number(b.id)
+  );
+}
+
+function selectBaseWords(allWords, childId) {
+  const wordsWithProgress = enrichWordsWithProgress(allWords, childId);
+  const newWords = wordsWithProgress.filter((word) => !word.hasStudied).sort(compareLearningOrder);
+  const reviewWords = wordsWithProgress
+    .filter((word) => word.hasStudied)
+    .sort(compareReviewOrder);
+  return [...newWords, ...reviewWords];
+}
+
+function getUnitWords(baseWords, unitIndex) {
+  if (!baseWords.length) return [];
+  const start = unitIndex * DAILY_WORD_TARGET;
+  if (start < baseWords.length) return baseWords.slice(start, start + DAILY_WORD_TARGET);
+  return baseWords.slice(0, DAILY_WORD_TARGET);
 }
 
 function buildQuiz(words) {
@@ -72,6 +107,7 @@ function buildQuiz(words) {
       .map((item) => (type === 'en-ja' ? item.meaningJa : item.word))
       .filter(Boolean);
     const choices = shuffle([correct, ...shuffle(pool).slice(0, 3)]).slice(0, 4);
+
     return {
       id: `${word.id}-${type}`,
       word,
@@ -83,18 +119,24 @@ function buildQuiz(words) {
   });
 }
 
+function mergeIds(a = [], b = []) {
+  return Array.from(new Set([...a, ...b].map(String)));
+}
+
 export default function DailyWordUnitPage() {
   const navigate = useNavigate();
   const child = useMemo(() => getCurrentChild(), []);
   const partner = child ? getPartner(child.partnerMonsterId) : null;
   const [stage, setStage] = useState('preview');
-  const [todayWords, setTodayWords] = useState([]);
+  const [allWords, setAllWords] = useState([]);
+  const [unitIndex, setUnitIndex] = useState(0);
   const [studyIndex, setStudyIndex] = useState(0);
   const [quizQuestions, setQuizQuestions] = useState([]);
   const [quizIndex, setQuizIndex] = useState(0);
   const [answers, setAnswers] = useState([]);
   const [selectedChoice, setSelectedChoice] = useState('');
   const [resultStatus, setResultStatus] = useState('');
+  const [earnedExp, setEarnedExp] = useState(0);
   const [partnerExp, setPartnerExp] = useState(child ? getPartnerExp(child.id) : 0);
   const [error, setError] = useState('');
 
@@ -103,33 +145,34 @@ export default function DailyWordUnitPage() {
       navigate('/', { replace: true });
       return;
     }
-    getDailyWords(200)
+
+    getDailyWords(2000)
       .then((payload) => {
-        const words = selectDailyWords(payload.words || [], child.id);
-        setTodayWords(words);
-        upsertTodayRecord(child.id, {
-          targetWordCount: words.length || DAILY_WORD_TARGET,
-          studiedWordIds: [],
-          passed: false,
-        });
+        const words = selectBaseWords(payload.words || [], child.id);
+        setAllWords(words);
+        const existing = getTodayRecord(child.id);
+        if (!existing) {
+          upsertTodayRecord(child.id, {
+            targetWordCount: DAILY_WORD_TARGET,
+            studiedWordIds: [],
+            passed: false,
+          });
+        }
       })
-      .catch(() => {
-        const words = selectDailyWords(FALLBACK_DAILY_WORDS, child.id);
-        setTodayWords(words);
-        setError('');
-        upsertTodayRecord(child.id, {
-          targetWordCount: words.length || DAILY_WORD_TARGET,
-          studiedWordIds: [],
-          passed: false,
-        });
+      .catch((err) => {
+        setError(err.message || '単語データを読み込めませんでした。');
       });
   }, [child, navigate]);
 
+  const todayWords = useMemo(() => getUnitWords(allWords, unitIndex), [allWords, unitIndex]);
   const currentWord = todayWords[studyIndex] || null;
   const currentQuestion = quizQuestions[quizIndex] || null;
   const correctCount = answers.filter((answer) => answer.correct).length;
   const wrongAnswers = answers.filter((answer) => !answer.correct);
   const targetCount = todayWords.length || DAILY_WORD_TARGET;
+  const partnerName = getPartnerName(child, partner);
+  const partnerImage = getPartnerImage(child, partner);
+  const progressPercent = todayWords.length ? ((studyIndex + 1) / todayWords.length) * 100 : 0;
 
   const startStudy = () => {
     setStage('study');
@@ -138,10 +181,16 @@ export default function DailyWordUnitPage() {
 
   const nextStudyWord = () => {
     const studiedWordIds = todayWords.slice(0, studyIndex + 1).map((word) => word.id);
+    const existing = getTodayRecord(child.id);
+    if (currentWord?.id) {
+      markWordsStudied(child.id, [currentWord.id]);
+    }
     upsertTodayRecord(child.id, {
-      targetWordCount: targetCount,
-      studiedWordIds,
+      targetWordCount: DAILY_WORD_TARGET,
+      studiedWordIds: mergeIds(existing?.studiedWordIds, studiedWordIds),
+      passed: existing?.passed || false,
     });
+
     if (studyIndex >= todayWords.length - 1) {
       setQuizQuestions(buildQuiz(todayWords));
       setQuizIndex(0);
@@ -150,19 +199,21 @@ export default function DailyWordUnitPage() {
       setStage('quiz');
       return;
     }
+
     setStudyIndex((index) => index + 1);
   };
 
   const chooseAnswer = (choice) => {
     if (!currentQuestion || selectedChoice) return;
-    setSelectedChoice(choice);
     const correct = choice === currentQuestion.correct;
+    setSelectedChoice(choice);
     setAnswers((prev) => [
       ...prev,
       {
         questionId: currentQuestion.id,
         wordId: currentQuestion.word.id,
         word: currentQuestion.word.word,
+        meaningJa: currentQuestion.word.meaningJa,
         selected: choice,
         correctAnswer: currentQuestion.correct,
         correct,
@@ -170,31 +221,36 @@ export default function DailyWordUnitPage() {
     ]);
   };
 
-  const finishQuiz = (nextAnswers) => {
-    const nextCorrectCount = nextAnswers.filter((answer) => answer.correct).length;
-    const passed = nextCorrectCount >= DAILY_PASSING_SCORE;
-    const wrongWordIds = nextAnswers.filter((answer) => !answer.correct).map((answer) => answer.wordId);
-    const earnedExp = passed ? DAILY_PASS_EXP : 0;
-    const nextPartnerExp = passed ? addPartnerExp(child.id, earnedExp) : getPartnerExp(child.id);
+  const finishQuiz = () => {
+    const passed = correctCount >= DAILY_PASSING_SCORE;
+    const wrongWordIds = wrongAnswers.map((answer) => answer.wordId);
+    const exp = passed ? DAILY_PASS_EXP : 0;
+    const existing = getTodayRecord(child.id);
+    const nextPartnerExp = passed ? addPartnerExp(child.id, exp) : getPartnerExp(child.id);
+    recordQuizResults(child.id, answers);
+    if (passed) {
+      markWordsStudied(child.id, todayWords.map((word) => word.id));
+    }
+
+    setEarnedExp(exp);
     setPartnerExp(nextPartnerExp);
     setResultStatus(passed ? 'passed' : 'failed');
     upsertTodayRecord(child.id, {
-      targetWordCount: targetCount,
-      studiedWordIds: passed ? todayWords.map((word) => word.id) : todayWords.slice(0, studyIndex + 1).map((word) => word.id),
+      targetWordCount: DAILY_WORD_TARGET,
+      studiedWordIds: mergeIds(existing?.studiedWordIds, passed ? todayWords.map((word) => word.id) : []),
       quizQuestionCount: quizQuestions.length,
-      correctCount: nextCorrectCount,
+      correctCount,
       wrongWordIds,
-      passed,
-      completedAt: passed ? new Date().toISOString() : '',
-      earnedExp,
+      passed: passed || existing?.passed || false,
+      completedAt: passed ? new Date().toISOString() : existing?.completedAt || '',
+      earnedExp: (existing?.earnedExp || 0) + exp,
     });
     setStage('result');
   };
 
   const nextQuiz = () => {
-    const nextAnswers = answers;
     if (quizIndex >= quizQuestions.length - 1) {
-      finishQuiz(nextAnswers);
+      finishQuiz();
       return;
     }
     setQuizIndex((index) => index + 1);
@@ -203,9 +259,8 @@ export default function DailyWordUnitPage() {
 
   const retryWrongWords = () => {
     const wrongIds = new Set(wrongAnswers.map((answer) => answer.wordId));
-    const wrongWords = todayWords.filter((word) => wrongIds.has(word.id));
-    setTodayWords(wrongWords.length ? wrongWords : todayWords);
-    setStudyIndex(0);
+    const firstWrongIndex = todayWords.findIndex((word) => wrongIds.has(word.id));
+    setStudyIndex(firstWrongIndex >= 0 ? firstWrongIndex : 0);
     setAnswers([]);
     setSelectedChoice('');
     setStage('study');
@@ -219,36 +274,75 @@ export default function DailyWordUnitPage() {
     setStage('quiz');
   };
 
+  const startNextUnit = () => {
+    setUnitIndex((index) => index + 1);
+    setStage('preview');
+    setStudyIndex(0);
+    setQuizQuestions([]);
+    setQuizIndex(0);
+    setAnswers([]);
+    setSelectedChoice('');
+    setResultStatus('');
+    setEarnedExp(0);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
   if (!child) return null;
 
   return (
-    <div className="mx-auto max-w-5xl px-4 pb-32 pt-6 sm:px-6">
-      <HeaderBar subtitle="今日の単語ユニット" />
-      {error && <div className="panel px-5 py-5 text-sm text-rose-700">{error}</div>}
+    <div className="mx-auto max-w-6xl px-4 pb-32 pt-4 sm:px-6">
+      <header className="panel mb-4 overflow-hidden px-4 py-4 sm:px-6">
+        <div className="flex items-center justify-between gap-4 rounded-[34px] bg-[linear-gradient(135deg,#fffef8_0%,#eef7ff_55%,#f8fbff_100%)] px-5 py-5 sm:px-7">
+          <div className="flex min-w-0 items-center gap-4">
+            <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-[22px] bg-[linear-gradient(180deg,#fff7be_0%,#ffd94d_100%)] text-xl font-black text-[#5d4700] shadow-[0_12px_22px_rgba(255,193,31,0.24)]">
+              PT
+            </div>
+            <div className="min-w-0">
+              <p className="text-[11px] font-black uppercase tracking-[0.28em] text-[#8b9cc4]">ポケ単 Poke-Tan</p>
+              <h1 className="display-font mt-1 text-3xl font-black leading-tight text-[#31406f] sm:text-4xl">今日の単語ユニット</h1>
+              <p className="mt-1 text-sm font-bold text-[#51658a]">いっしょに集めよう！英語の宝物。</p>
+            </div>
+          </div>
+          <div className="hidden rounded-[22px] border border-white/70 bg-white/85 px-4 py-3 text-sm font-bold text-[#6176aa] sm:block">
+            今日<br />
+            {new Intl.DateTimeFormat('ja-JP', { year: 'numeric', month: 'numeric', day: 'numeric' }).format(new Date())}
+          </div>
+        </div>
+      </header>
+
+      {error && <div className="panel px-6 py-5 text-sm font-bold text-rose-700">{error}</div>}
 
       {!error && stage === 'preview' && (
         <section className="panel px-6 py-6 sm:px-8">
           <div className="rounded-[30px] bg-[linear-gradient(180deg,#eef8ff_0%,#fffdf7_100%)] p-6">
             <p className="text-sm font-black text-[#6f7da8]">今日の目標：{targetCount}語</p>
-            <h1 className="display-font mt-3 text-3xl font-extrabold text-[#354172]">今日の単語</h1>
+            <h2 className="display-font mt-3 text-3xl font-extrabold text-[#354172]">今日の単語</h2>
             <p className="mt-2 text-sm font-bold text-[#60709d]">{targetCount}個をいっしょに覚えよう</p>
             <div className="mt-4 flex flex-wrap gap-2 text-xs font-bold text-[#61759e]">
               <span className="rounded-full bg-white/82 px-3 py-1">{child.name} さん</span>
               <span className="rounded-full bg-white/82 px-3 py-1">目標：{child.targetLevel}</span>
-              {partner && <span className="rounded-full bg-[#fff7d6] px-3 py-1">{partner.name} Lv.1</span>}
+              <span className="rounded-full bg-[#fff7d6] px-3 py-1">{partnerName} Lv.1</span>
             </div>
           </div>
 
-          <div className="mt-5 grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="mt-7 grid gap-x-8 gap-y-4 sm:grid-cols-2 lg:grid-cols-4">
             {todayWords.map((word, index) => (
-              <div key={word.id || word.word} className="rounded-[18px] bg-white/78 px-4 py-3 text-sm font-bold text-[#354172]">
+              <button
+                key={`${word.id}-${index}`}
+                type="button"
+                onClick={() => {
+                  setStudyIndex(index);
+                  setStage('study');
+                }}
+                className="rounded-[18px] bg-white/70 px-4 py-3 text-left text-sm font-black text-[#354172] transition hover:-translate-y-0.5 hover:bg-white"
+              >
                 {index + 1}. {word.word}
                 <p className="mt-1 truncate text-xs text-[#6f7da8]">{word.meaningJa}</p>
-              </div>
+              </button>
             ))}
           </div>
 
-          <button type="button" onClick={startStudy} disabled={!todayWords.length} className="pill-button mt-6 px-7 py-4 disabled:opacity-40">
+          <button type="button" onClick={startStudy} disabled={!todayWords.length} className="pill-button mt-8 px-8 py-4 disabled:opacity-40">
             学習をスタート
           </button>
         </section>
@@ -256,23 +350,71 @@ export default function DailyWordUnitPage() {
 
       {!error && stage === 'study' && currentWord && (
         <section className="panel px-6 py-6 sm:px-8">
-          <div className="mb-4 flex items-center justify-between text-sm font-black text-[#6f7da8]">
-            <span>{studyIndex + 1} / {todayWords.length}</span>
-            <span>{child.name} さん</span>
+          <div className="mb-6">
+            <div className="flex items-end justify-between gap-4">
+              <div>
+                <p className="text-xs font-black text-[#8fa0c2]">Day {unitIndex + 1}</p>
+                <h2 className="display-font text-3xl font-black text-[#354172]">
+                  {studyIndex + 1} / {todayWords.length} words
+                </h2>
+              </div>
+              <span className="rounded-full bg-[#fff2bb] px-4 py-2 text-xs font-black text-[#6b5a2d]">今日の学習</span>
+            </div>
+            <div className="mt-4 h-3 overflow-hidden rounded-full bg-[#e6f4ff]">
+              <div className="h-full rounded-full bg-[linear-gradient(90deg,#ffe65a,#ffb81f)]" style={{ width: `${progressPercent}%` }} />
+            </div>
           </div>
-          <article className="rounded-[34px] bg-white/88 p-6 shadow-[0_14px_34px_rgba(145,177,209,0.12)]">
-            <p className="text-sm font-black text-[#8fa0c2]">{currentWord.partOfSpeech}</p>
-            <h1 className="display-font mt-2 text-5xl font-extrabold text-[#354172]">{currentWord.word}</h1>
-            <p className="mt-5 text-2xl font-black text-[#4f627f]">{currentWord.meaningJa}</p>
-            {currentWord.meaningZh && <p className="mt-2 text-base font-bold text-[#6f7da8]">中文：{currentWord.meaningZh}</p>}
-            {currentWord.phrase && <p className="mt-4 rounded-[20px] bg-[#fff7d6] px-4 py-3 text-sm font-bold text-[#6b5a2d]">{currentWord.phrase}</p>}
-            {currentWord.exampleEn && <p className="mt-5 text-lg font-bold leading-8 text-[#34406f]">{currentWord.exampleEn}</p>}
-            {currentWord.exampleJa && <p className="mt-2 text-sm font-bold leading-7 text-[#60709d]">{currentWord.exampleJa}</p>}
-            {currentWord.exampleZh && <p className="mt-1 text-sm font-bold leading-7 text-[#7b86a8]">{currentWord.exampleZh}</p>}
-          </article>
-          <button type="button" onClick={nextStudyWord} className="pill-button mt-6 px-7 py-4">
-            {studyIndex >= todayWords.length - 1 ? '小テストへ' : '次の単語へ'}
-          </button>
+
+          <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_300px]">
+            <article className="rounded-[34px] bg-white/88 p-6 shadow-[0_14px_34px_rgba(145,177,209,0.12)]">
+              <p className="inline-flex rounded-full bg-[#eef6ff] px-4 py-2 text-sm font-black text-[#6f7da8]">意味と例文</p>
+              <h1 className="display-font mt-6 text-5xl font-extrabold text-[#354172]">{currentWord.word}</h1>
+              {currentWord.partOfSpeech && <p className="mt-2 text-sm font-bold text-[#8fa0c2]">{currentWord.partOfSpeech}</p>}
+              <p className="mt-5 text-2xl font-black text-[#4f627f]">{currentWord.meaningJa}</p>
+              {currentWord.meaningZh && <p className="mt-2 text-base font-bold text-[#6f7da8]">中文：{currentWord.meaningZh}</p>}
+              {currentWord.phrase && <p className="mt-5 rounded-[20px] bg-[#fff7d6] px-4 py-3 text-sm font-bold text-[#6b5a2d]">熟語：{currentWord.phrase}</p>}
+              {currentWord.exampleEn && <p className="mt-7 text-lg font-bold leading-8 text-[#34406f]">英語の例文: {currentWord.exampleEn}</p>}
+              {currentWord.exampleJa && <p className="mt-3 text-sm font-bold leading-7 text-[#60709d]">例文の意味: {currentWord.exampleJa}</p>}
+              {currentWord.exampleZh && <p className="mt-1 text-sm font-bold leading-7 text-[#7b86a8]">中文例句: {currentWord.exampleZh}</p>}
+
+              <div className="mt-7 flex flex-wrap gap-3">
+                <button type="button" onClick={() => speak(currentWord.word)} className="pill-button px-5 py-3 text-sm">
+                  単語を聞く
+                </button>
+                {currentWord.exampleEn && (
+                  <button type="button" onClick={() => speak(currentWord.exampleEn)} className="ghost-button px-5 py-3 text-sm">
+                    例文を聞く
+                  </button>
+                )}
+                <button type="button" onClick={nextStudyWord} className="ghost-button px-5 py-3 text-sm">
+                  {studyIndex >= todayWords.length - 1 ? '小テストへ' : '次へ'}
+                </button>
+              </div>
+            </article>
+
+            <aside className="rounded-[34px] bg-white/82 p-5 text-center shadow-[0_14px_34px_rgba(145,177,209,0.14)]">
+              <p className="text-xs font-black text-[#8fa0c2]">現在の子ども</p>
+              <p className="mt-2 text-lg font-black text-[#354172]">{child.name} さん</p>
+              <div className="mt-6 rounded-[30px] bg-[#eef8ff] p-4">
+                {partnerImage ? (
+                  <img src={partnerImage} alt={partnerName} className="mx-auto h-48 w-48 object-contain" />
+                ) : (
+                  <div className="mx-auto flex h-48 w-48 items-center justify-center rounded-[28px] bg-white text-4xl font-black text-[#354172]">PT</div>
+                )}
+              </div>
+              <h3 className="display-font mt-4 text-3xl font-black text-[#354172]">{partnerName}</h3>
+              <p className="mt-3 rounded-full bg-[#f3f7ff] px-4 py-2 text-sm font-bold text-[#51688f]">今日もいっしょにがんばろう。</p>
+              <div className="mt-5 rounded-[24px] bg-[#f8fbff] px-4 py-4">
+                <div className="flex justify-between text-sm font-bold text-[#6f7da8]">
+                  <span>EXP</span>
+                  <span>{partnerExp} / 100</span>
+                </div>
+                <div className="mt-3 h-2 overflow-hidden rounded-full bg-[#e6f4ff]">
+                  <div className="h-full rounded-full bg-[linear-gradient(90deg,#bdefff,#83d7ff)]" style={{ width: `${Math.min(100, partnerExp % 100)}%` }} />
+                </div>
+              </div>
+            </aside>
+          </div>
         </section>
       )}
 
@@ -283,7 +425,7 @@ export default function DailyWordUnitPage() {
             <span>正解 {correctCount}</span>
           </div>
           <div className="rounded-[30px] bg-[linear-gradient(180deg,#eef8ff_0%,#fffdf7_100%)] p-6">
-            <p className="text-sm font-black uppercase tracking-[0.18em] text-[#6f7da8]">小テスト</p>
+            <p className="text-sm font-black text-[#6f7da8]">小テスト</p>
             <h2 className="display-font mt-4 text-3xl font-extrabold text-[#354172]">{currentQuestion.question}</h2>
           </div>
           <div className="mt-6 grid gap-3">
@@ -339,8 +481,8 @@ export default function DailyWordUnitPage() {
             </p>
             <div className="mt-5 flex flex-wrap justify-center gap-2 text-sm font-black text-[#61759e]">
               <span className="rounded-full bg-white/82 px-4 py-2">正解数：{correctCount} / {quizQuestions.length}</span>
-              <span className="rounded-full bg-[#fff7d6] px-4 py-2">獲得EXP：+{resultStatus === 'passed' ? DAILY_PASS_EXP : 0}</span>
-              {partner && <span className="rounded-full bg-white/82 px-4 py-2">{partner.name} EXP：{partnerExp}</span>}
+              <span className="rounded-full bg-[#fff7d6] px-4 py-2">獲得EXP：+{earnedExp}</span>
+              <span className="rounded-full bg-white/82 px-4 py-2">{partnerName} EXP：{partnerExp}</span>
             </div>
           </div>
 
@@ -367,6 +509,11 @@ export default function DailyWordUnitPage() {
                   もう一度テストする
                 </button>
               </>
+            )}
+            {resultStatus === 'passed' && (
+              <button type="button" onClick={startNextUnit} className="pill-button px-5 py-3">
+                次の20語へ
+              </button>
             )}
             <button type="button" onClick={() => navigate('/app')} className="ghost-button px-5 py-3">
               ホームへ
