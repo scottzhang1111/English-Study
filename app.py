@@ -5219,6 +5219,32 @@ def api_flashcard():
     )
 
 
+@app.route('/api/daily-words')
+def api_daily_words():
+    try:
+        limit = int(request.args.get('limit', 20))
+    except (TypeError, ValueError):
+        limit = 20
+    limit = max(1, min(200, limit))
+    words = []
+    for vocab in vocab_list[:limit]:
+        words.append(
+            {
+                'id': vocab.get('ID', ''),
+                'word': vocab.get('English', ''),
+                'partOfSpeech': vocab.get('Category', ''),
+                'meaningJa': vocab.get('Japanese', ''),
+                'meaningZh': vocab.get('Chinese', ''),
+                'exampleEn': vocab.get('Example_English', '') or vocab.get('Example_English_Short', ''),
+                'exampleJa': vocab.get('Example_Japanese', ''),
+                'exampleZh': vocab.get('Example_Chinese', ''),
+                'phrase': vocab.get('Phrase', ''),
+                'importance': vocab.get('Importance', ''),
+            }
+        )
+    return jsonify(words=words, targetWordCount=limit)
+
+
 @app.route('/api/mark-mastered', methods=['POST'])
 def api_mark_mastered():
     data = request.get_json(silent=True) or {}

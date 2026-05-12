@@ -3,6 +3,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 import HomePage from './pages/HomePage';
 import AddChildPage from './pages/AddChildPage';
 import ChildSelectPage from './pages/ChildSelectPage';
+import DailyWordUnitPage from './pages/DailyWordUnitPage';
 import FlashcardPage from './pages/FlashcardPage';
 import QuizPage from './pages/QuizPage';
 import VocabExpansionPage from './pages/VocabExpansionPage';
@@ -51,6 +52,8 @@ function App() {
             <Route path="/" element={<AnimatedPage><StartupGate /></AnimatedPage>} />
             <Route path="/app" element={<AnimatedPage><StartupGate /></AnimatedPage>} />
             <Route path="/select-child" element={<AnimatedPage><ChildSelectPage /></AnimatedPage>} />
+            <Route path="/daily-words" element={<AnimatedPage><DailyWordUnitPage /></AnimatedPage>} />
+            <Route path="/app/daily-words" element={<AnimatedPage><DailyWordUnitPage /></AnimatedPage>} />
             <Route path="/flashcard" element={<AnimatedPage><FlashcardPage /></AnimatedPage>} />
             <Route path="/quiz" element={<AnimatedPage><QuizPage /></AnimatedPage>} />
             <Route path="/vocab-expansion" element={<AnimatedPage><VocabExpansionPage /></AnimatedPage>} />

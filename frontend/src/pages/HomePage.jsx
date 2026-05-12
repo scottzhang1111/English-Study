@@ -4,7 +4,8 @@ import { Link, useNavigate } from 'react-router-dom';
 import HeaderBar from '../components/HeaderBar';
 import PetDisplay from '../components/PetDisplay';
 import { getHomeData } from '../api';
-import { clearInvalidChildData, getChildren, getCurrentChild, getPartner } from '../utils/childStorage';
+import { clearInvalidChildData, getCurrentChild, getPartner } from '../utils/childStorage';
+import { DAILY_WORD_TARGET, getTodayProgress } from '../utils/dailyLearningStorage';
 
 const DEFAULT_HOME_DATA = {
   progress: 0,
@@ -39,10 +40,15 @@ export default function HomePage() {
   const [partnerLineIndex, setPartnerLineIndex] = useState(0);
   const navigate = useNavigate();
   const selectedChild = useMemo(() => getCurrentChild(), []);
-  const children = useMemo(() => getChildren(), []);
+  const dailyProgress = selectedChild ? getTodayProgress(selectedChild.id, DAILY_WORD_TARGET) : null;
+  const dailyButtonText = dailyProgress?.passed
+    ? '今日の学習を見る'
+    : dailyProgress?.studiedCount > 0
+      ? 'つづきから'
+      : '学習をはじめる';
 
   const dailyTrainingItems = [
-    { label: '単語カード', subtitle: '読む・聞く・例文で覚える', status: `今日 ${data?.progress ?? 0}/${data?.target ?? 20}`, to: '/flashcard', icon: '読' },
+    { label: '単語カード', subtitle: '読む・聞く・例文で覚える', status: `今日 ${dailyProgress?.studiedCount ?? 0}/${dailyProgress?.targetWordCount ?? DAILY_WORD_TARGET}`, to: '/flashcard', icon: '読' },
     { label: 'クイズ練習', subtitle: '覚えた単語をチェック', status: '未開始', to: '/quiz', icon: '練' },
     { label: 'Word Web', subtitle: 'Synonym / antonym practice', status: '1500 words', to: '/vocab-expansion', icon: 'W' },
     { label: 'まちがい直し', subtitle: '苦手な問題をもう一度', status: '3問', to: '/review', icon: '復' },
@@ -72,7 +78,7 @@ export default function HomePage() {
   }, []);
 
   const progressWidth = data
-    ? `${Math.min(100, (data.progress / Math.max(1, data.target)) * 100)}%`
+    ? `${Math.min(100, ((dailyProgress?.studiedCount ?? 0) / Math.max(1, dailyProgress?.targetWordCount ?? DAILY_WORD_TARGET)) * 100)}%`
     : '0%';
   const challengeLevel = selectedChild?.targetLevel || '準2級';
   const partner = selectedChild ? getPartner(selectedChild.partnerMonsterId) : null;
@@ -122,10 +128,10 @@ export default function HomePage() {
                 <div className="min-w-0">
                   <button
                     type="button"
-                    onClick={() => navigate('/battle')}
+                    onClick={() => navigate('/daily-words')}
                     className="pill-button px-8 py-4 text-[2rem] font-black text-[#4f3900] shadow-[0_12px_0_rgba(170,120,0,0.92),0_18px_30px_rgba(255,191,31,0.30)] transition-all duration-200 hover:-translate-y-0.5 hover:brightness-105 active:translate-y-0 active:scale-[0.99]"
                   >
-                    学習をはじめる
+                    {dailyButtonText}
                   </button>
                   <p className="mt-3 text-[0.98rem] leading-6 text-[#44556f] sm:text-base">
                     今日の目標に向けて、単語をひとつずつ進めましょう。
@@ -153,7 +159,7 @@ export default function HomePage() {
                   <div className="flex items-center justify-between gap-4 text-sm font-bold text-[#5e7093]">
                     <span>今日の進み具合</span>
                     <span>
-                      {data.progress} / {data.target}
+                      {dailyProgress?.studiedCount ?? 0} / {dailyProgress?.targetWordCount ?? DAILY_WORD_TARGET}
                     </span>
                   </div>
                   <div className="mt-3 h-3.5 overflow-hidden rounded-full bg-[#edf1f7] shadow-[inset_0_1px_3px_rgba(96,110,140,0.10)]">
@@ -163,7 +169,7 @@ export default function HomePage() {
                     />
                   </div>
                   <p className="mt-2.5 text-sm font-semibold text-[#4f627f]">
-                    あと {data.remain} 語で今日の目標です。
+                    あと {Math.max(0, (dailyProgress?.targetWordCount ?? DAILY_WORD_TARGET) - (dailyProgress?.studiedCount ?? 0))} 語で今日の目標です。
                   </p>
                 </div>
               )}

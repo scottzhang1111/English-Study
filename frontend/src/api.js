@@ -27,6 +27,7 @@ export const getFlashcardData = ({ word, importance, frequency } = {}) => {
   const suffix = params.toString() ? `?${params.toString()}` : '';
   return apiFetch(`/api/flashcard${suffix}`);
 };
+export const getDailyWords = (limit = 20) => apiFetch(`/api/daily-words?limit=${encodeURIComponent(limit)}`);
 export const markMastered = ({ word, childId, vocabId }) => apiFetch('/api/mark-mastered', {
   method: 'POST',
   headers: { 'Content-Type': 'application/json' },
