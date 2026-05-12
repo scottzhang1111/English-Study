@@ -114,8 +114,6 @@ export default function PokedexPage() {
   return (
     <div className="mx-auto max-w-6xl px-4 pb-32 pt-6 sm:px-6">
       <HeaderBar subtitle="Pokémon list" />
-      {error && <div className="panel mb-4 p-5 text-sm text-rose-700">{error}</div>}
-
       <section className="mb-5 rounded-[36px] border border-white/80 bg-[linear-gradient(180deg,#eef8ff_0%,#fffdf7_100%)] px-5 py-5 shadow-[0_18px_44px_rgba(145,177,209,0.14)]">
         <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
           <div>

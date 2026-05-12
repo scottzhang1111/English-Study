@@ -112,12 +112,6 @@ export default function HomePage() {
     <div className="mx-auto max-w-7xl px-4 pb-24 pt-2 sm:px-6">
       <HeaderBar subtitle="キミと見つける、英語のちから！" />
 
-      {error && (
-        <div className="panel mb-4 px-5 py-4 text-sm font-semibold text-amber-800">
-          API data is unavailable, so a preview home screen is shown. {error}
-        </div>
-      )}
-
         <motion.section
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
