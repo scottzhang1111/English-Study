@@ -46,6 +46,7 @@ export default function HomePage() {
   const dailyTrainingItems = [
     { label: '単語カード', subtitle: '読む・聞く・例文で覚える', status: `今日 ${data?.progress ?? 0}/${data?.target ?? 20}`, to: '/flashcard', icon: '読' },
     { label: 'クイズ練習', subtitle: '覚えた単語をチェック', status: '未開始', to: '/quiz', icon: '練' },
+    { label: 'Word Web', subtitle: 'Synonym / antonym practice', status: '1500 words', to: '/vocab-expansion', icon: 'W' },
     { label: 'まちがい直し', subtitle: '苦手な問題をもう一度', status: '3問', to: '/review', icon: '復' },
   ];
 

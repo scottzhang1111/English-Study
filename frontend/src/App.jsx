@@ -3,6 +3,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 import HomePage from './pages/HomePage';
 import FlashcardPage from './pages/FlashcardPage';
 import QuizPage from './pages/QuizPage';
+import VocabExpansionPage from './pages/VocabExpansionPage';
 import AiPracticePage from './pages/AiPracticePage';
 import EikenPage from './pages/EikenPage';
 import EikenPre2PracticePage from './pages/EikenPre2PracticePage';
@@ -48,6 +49,7 @@ function App() {
             <Route path="/app" element={<AnimatedPage><HomePage /></AnimatedPage>} />
             <Route path="/flashcard" element={<AnimatedPage><FlashcardPage /></AnimatedPage>} />
             <Route path="/quiz" element={<AnimatedPage><QuizPage /></AnimatedPage>} />
+            <Route path="/vocab-expansion" element={<AnimatedPage><VocabExpansionPage /></AnimatedPage>} />
             <Route path="/ai-practice" element={<AnimatedPage><AiPracticePage /></AnimatedPage>} />
             <Route path="/battle" element={<AnimatedPage><BattlePage /></AnimatedPage>} />
             <Route path="/eiken" element={<AnimatedPage><EikenPage /></AnimatedPage>} />

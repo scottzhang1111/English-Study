@@ -16,7 +16,7 @@ from pokeapi_service import PokeApiError, getPokemonById
 app = Flask(__name__)
 
 DB_FILENAME = 'practice_data.db'
-VOCAB_FILENAME = 'eiken_vocab_database.csv'
+VOCAB_FILENAME = os.path.join('data', 'eiken_vocab_database_with_synonyms_utf8_bom.csv')
 EIKEN_PRE2_BANK_FILENAME = os.path.join('data', 'eiken_pre2_web_ready_db', 'eiken_pre2_web_ready.sqlite')
 OPENAI_RESPONSES_URL = 'https://api.openai.com/v1/responses'
 AI_QUESTION_TYPES = ['Vocabulary', 'Grammar', 'Conversation', 'Reading Cloze']
@@ -173,16 +173,22 @@ def normalize_vocab_row(row):
         'ID': _clean_csv_value(row.get('ID') or row.get('No')),
         'No': _clean_csv_value(row.get('No') or row.get('ID')),
         'English': english,
-        'Category': _clean_csv_value(row.get('category') or row.get('Category')),
-        'Japanese': _clean_csv_value(row.get('Japanese')),
-        'Chinese': _clean_csv_value(row.get('Chinese')),
-        'Example_English_Short': _clean_csv_value(row.get('Example_English short')),
-        'Example_English': _clean_csv_value(row.get('Example_English')),
-        'Example_Japanese': _clean_csv_value(row.get('Example_Japanese')),
-        'Example_Chinese': _clean_csv_value(row.get('Example_Chinese')),
-        'Importance': _clean_csv_value(row.get('Importance')),
-        'Mistake_Time': _clean_csv_value(row.get('mistake time')),
-        'Frequency_In_Test': _clean_csv_value(row.get('Frequncy in test') or row.get('Frequency in test')),
+        'Category': _clean_csv_value(row.get('词性') or row.get('category') or row.get('Category')),
+        'Japanese': _clean_csv_value(row.get('日文释义') or row.get('Japanese')),
+        'Chinese': _clean_csv_value(row.get('中文翻译') or row.get('Chinese')),
+        'Example_English_Short': _clean_csv_value(row.get('Example_English short') or row.get('英文例句')),
+        'Example_English': _clean_csv_value(row.get('英文例句') or row.get('Example_English')),
+        'Example_Japanese': _clean_csv_value(row.get('例句日文') or row.get('Example_Japanese')),
+        'Example_Chinese': _clean_csv_value(row.get('例句中文') or row.get('Example_Chinese')),
+        'Phrase': _clean_csv_value(row.get('熟语/搭配') or row.get('Phrase')),
+        'Importance': _clean_csv_value(row.get('重要度') or row.get('Importance')),
+        'Review_Count': _clean_csv_value(row.get('复习次数') or row.get('Review_Count')),
+        'Mistake_Time': _clean_csv_value(row.get('错误次数') or row.get('mistake time')),
+        'Frequency_In_Test': _clean_csv_value(row.get('出现频率') or row.get('Frequncy in test') or row.get('Frequency in test')),
+        'Antonyms': _clean_csv_value(row.get('反义词') or row.get('Antonyms')),
+        'Antonyms_Japanese': _clean_csv_value(row.get('反义词日语翻译') or row.get('Antonyms_Japanese')),
+        'Synonyms': _clean_csv_value(row.get('近义词') or row.get('Synonyms')),
+        'Synonyms_Japanese': _clean_csv_value(row.get('近义词日语翻译') or row.get('Synonyms_Japanese')),
     }
 
 
@@ -232,6 +238,82 @@ def filter_vocab_entries(entries, importance=None, frequency=None):
         ]
 
     return filtered
+
+
+def split_related_vocab_terms(value):
+    text = _clean_csv_value(value)
+    if not text:
+        return []
+    terms = re.split(r'[;,/、，；]+', text)
+    return [term.strip() for term in terms if term.strip()]
+
+
+def get_vocab_expansion_entries(entries=None):
+    entries = entries or vocab_list
+    return [
+        entry for entry in entries
+        if split_related_vocab_terms(entry.get('Synonyms')) or split_related_vocab_terms(entry.get('Antonyms'))
+    ]
+
+
+def build_vocab_expansion_question(mode=None):
+    candidates = get_vocab_expansion_entries()
+    if not candidates:
+        raise LookupError('No vocabulary expansion data is available')
+
+    requested_mode = _clean_csv_value(mode).lower()
+    if requested_mode not in ['synonym', 'antonym']:
+        requested_mode = random.choice(['synonym', 'antonym'])
+
+    mode_key = 'Synonyms' if requested_mode == 'synonym' else 'Antonyms'
+    available = [entry for entry in candidates if split_related_vocab_terms(entry.get(mode_key))]
+    if not available:
+        fallback_mode = 'antonym' if requested_mode == 'synonym' else 'synonym'
+        mode_key = 'Synonyms' if fallback_mode == 'synonym' else 'Antonyms'
+        available = [entry for entry in candidates if split_related_vocab_terms(entry.get(mode_key))]
+        requested_mode = fallback_mode
+    if not available:
+        raise LookupError('No vocabulary expansion data is available')
+
+    entry = random.choice(available)
+    correct = random.choice(split_related_vocab_terms(entry.get(mode_key)))
+    distractor_pool = []
+    for other in candidates:
+        if get_vocab_key(other) == get_vocab_key(entry):
+            continue
+        distractor_pool.extend(split_related_vocab_terms(other.get('Synonyms')))
+        distractor_pool.extend(split_related_vocab_terms(other.get('Antonyms')))
+
+    seen = {correct.lower(), entry.get('English', '').strip().lower()}
+    distractors = []
+    for term in random.sample(distractor_pool, len(distractor_pool)):
+        normalized = term.lower()
+        if normalized and normalized not in seen:
+            distractors.append(term)
+            seen.add(normalized)
+        if len(distractors) >= 3:
+            break
+
+    choices = [correct] + distractors
+    random.shuffle(choices)
+    label = 'synonym' if requested_mode == 'synonym' else 'antonym'
+    return {
+        'id': entry.get('ID', ''),
+        'word': entry.get('English', ''),
+        'mode': requested_mode,
+        'question': f'Choose the best {label} for "{entry.get("English", "")}".',
+        'choices': choices,
+        'correct': correct,
+        'japanese': entry.get('Japanese', ''),
+        'chinese': entry.get('Chinese', ''),
+        'example': entry.get('Example_English', ''),
+        'example_jp': entry.get('Example_Japanese', ''),
+        'phrase': entry.get('Phrase', ''),
+        'synonyms': split_related_vocab_terms(entry.get('Synonyms')),
+        'synonyms_japanese': entry.get('Synonyms_Japanese', ''),
+        'antonyms': split_related_vocab_terms(entry.get('Antonyms')),
+        'antonyms_japanese': entry.get('Antonyms_Japanese', ''),
+    }
 
 
 def load_vocabulary(filename=VOCAB_FILENAME):
@@ -5138,6 +5220,11 @@ def api_flashcard():
         category=vocab.get('Category', ''),
         importance=vocab.get('Importance', ''),
         frequency_in_test=vocab.get('Frequency_In_Test', ''),
+        phrase=vocab.get('Phrase', ''),
+        synonyms=vocab.get('Synonyms', ''),
+        synonyms_japanese=vocab.get('Synonyms_Japanese', ''),
+        antonyms=vocab.get('Antonyms', ''),
+        antonyms_japanese=vocab.get('Antonyms_Japanese', ''),
         example_short=vocab.get('Example_English_Short', ''),
         example=vocab['Example_English'],
         example_jp=vocab.get('Example_Japanese', ''),
@@ -5321,6 +5408,44 @@ def api_quiz():
         mastered_count=len(mastered_words),
         error_count=get_entry_error_count(correct_vocab),
         review_mode='mastered_words',
+    )
+
+
+@app.route('/api/vocab-expansion')
+def api_vocab_expansion():
+    try:
+        question = build_vocab_expansion_question(request.args.get('mode'))
+    except LookupError as exc:
+        abort(404, str(exc))
+    return jsonify(question)
+
+
+@app.route('/api/vocab-expansion/answer', methods=['POST'])
+def api_vocab_expansion_answer():
+    data = request.get_json(silent=True) or {}
+    vocab_id = _clean_csv_value(data.get('id') or data.get('vocab_id'))
+    selected = _clean_csv_value(data.get('selected'))
+    correct = _clean_csv_value(data.get('correct'))
+    child_id = data.get('child_id')
+    if not selected or not correct:
+        abort(400, 'selected and correct are required')
+
+    is_correct = selected.lower() == correct.lower()
+    study_result = None
+    if vocab_id.isdigit() and child_id not in [None, '', 'null']:
+        try:
+            study_result = recordStudyResult(int(child_id), int(vocab_id), is_correct)
+        except ValueError:
+            study_result = None
+    if not is_correct and vocab_id:
+        log_error(vocab_id)
+
+    return jsonify(
+        correct=is_correct,
+        correct_answer=correct,
+        selected=selected,
+        pet_exp_awarded=study_result['pet_exp_awarded'] if study_result else 0,
+        pet=study_result['pet'] if study_result else None,
     )
 
 
@@ -5835,6 +5960,11 @@ def flashcard_redirect():
 @app.route('/quiz')
 def quiz_redirect():
     return redirect('/app/quiz')
+
+
+@app.route('/vocab-expansion')
+def vocab_expansion_redirect():
+    return redirect('/app/vocab-expansion')
 
 
 @app.route('/ai-practice')

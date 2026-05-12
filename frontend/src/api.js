@@ -46,6 +46,16 @@ export const getQuizData = ({ word, importance, frequency } = {}) => {
   const suffix = params.toString() ? `?${params.toString()}` : '';
   return apiFetch(`/api/quiz${suffix}`);
 };
+export const getVocabExpansionQuestion = (mode) => {
+  const suffix = mode ? `?mode=${encodeURIComponent(mode)}` : '';
+  return apiFetch(`/api/vocab-expansion${suffix}`);
+};
+export const submitVocabExpansionAnswer = ({ id, selected, correct, childId }) =>
+  apiFetch('/api/vocab-expansion/answer', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ id, selected, correct, child_id: childId ?? '' }),
+  });
 export const getTodayReviewQuiz = () => apiFetch('/api/today-review-quiz');
 export const getAiPracticeQuestion = (childId) => {
   const suffix = childId ? `?child_id=${encodeURIComponent(childId)}` : '';
