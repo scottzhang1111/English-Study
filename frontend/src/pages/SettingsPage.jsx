@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
 import HeaderBar from '../components/HeaderBar';
 import PetDisplay from '../components/PetDisplay';
 import {
@@ -10,6 +11,7 @@ import {
   saveChildProfile,
   saveSettings,
 } from '../api';
+import { getCurrentChild, getPartner } from '../utils/childStorage';
 
 const DEFAULT_FORM = {
   name: '',
@@ -47,6 +49,7 @@ function normalizeTargetLevel(value) {
 }
 
 export default function SettingsPage() {
+  const navigate = useNavigate();
   const [dailyTarget, setDailyTarget] = useState(20);
   const [dailyMessage, setDailyMessage] = useState('');
   const [dailyError, setDailyError] = useState(null);
@@ -213,12 +216,49 @@ export default function SettingsPage() {
   };
 
   const currentBubble = partnerLines[partnerLineIndex % partnerLines.length];
+  const localCurrentChild = getCurrentChild();
+  const localPartner = localCurrentChild ? getPartner(localCurrentChild.partnerMonsterId) : null;
 
   return (
     <div className="mx-auto max-w-5xl px-4 pb-32 pt-6 sm:px-6">
       <HeaderBar subtitle="子ども設定" />
 
       <div className="grid gap-6">
+        <motion.section
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="rounded-[40px] border border-white/80 bg-white/88 px-6 py-6 shadow-[0_18px_44px_rgba(145,177,209,0.16)]"
+        >
+          <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+            <div>
+              <div className="inline-flex rounded-full bg-[#eef8ff] px-4 py-2 text-sm font-bold text-[#6f7da8]">
+                子どもプロフィール
+              </div>
+              <h2 className="display-font mt-4 text-2xl font-extrabold text-[#354172]">
+                {localCurrentChild ? `${localCurrentChild.name} さん` : 'まだ子どもが選ばれていません'}
+              </h2>
+              {localCurrentChild ? (
+                <div className="mt-3 flex flex-wrap gap-2 text-xs font-bold text-[#61759e]">
+                  <span className="rounded-full bg-[#f8fbff] px-3 py-1">名前：{localCurrentChild.name}</span>
+                  <span className="rounded-full bg-[#f8fbff] px-3 py-1">学年：{localCurrentChild.grade}</span>
+                  <span className="rounded-full bg-[#f8fbff] px-3 py-1">目標：{localCurrentChild.targetLevel}</span>
+                  {localPartner && <span className="rounded-full bg-[#fff7d6] px-3 py-1">パートナー：{localPartner.name}</span>}
+                </div>
+              ) : (
+                <p className="mt-3 text-sm font-bold text-[#6f7da8]">学習する子どもを追加してください。</p>
+              )}
+            </div>
+            <div className="flex flex-wrap gap-3">
+              <button type="button" onClick={() => navigate('/settings/add-child')} className="pill-button px-5 py-3">
+                子どもを追加
+              </button>
+              <button type="button" onClick={() => navigate('/select-child')} className="ghost-button px-5 py-3">
+                子どもを切り替える
+              </button>
+            </div>
+          </div>
+        </motion.section>
+
         <motion.section
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}

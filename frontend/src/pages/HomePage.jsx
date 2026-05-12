@@ -3,9 +3,8 @@ import { motion } from 'framer-motion';
 import { Link, useNavigate } from 'react-router-dom';
 import HeaderBar from '../components/HeaderBar';
 import PetDisplay from '../components/PetDisplay';
-import { getChildren, getHomeData } from '../api';
-
-const CHILD_STORAGE_KEY = 'selected_child_id';
+import { getHomeData } from '../api';
+import { clearInvalidChildData, getChildren, getCurrentChild, getPartner } from '../utils/childStorage';
 
 const DEFAULT_HOME_DATA = {
   progress: 0,
@@ -36,12 +35,11 @@ const PARTNER_LINES = [
 
 export default function HomePage() {
   const [data, setData] = useState(null);
-  const [children, setChildren] = useState([]);
-  const [selectedChildId, setSelectedChildId] = useState('');
   const [error, setError] = useState(null);
-  const [childrenLoaded, setChildrenLoaded] = useState(false);
   const [partnerLineIndex, setPartnerLineIndex] = useState(0);
   const navigate = useNavigate();
+  const selectedChild = useMemo(() => getCurrentChild(), []);
+  const children = useMemo(() => getChildren(), []);
 
   const dailyTrainingItems = [
     { label: '単語カード', subtitle: '読む・聞く・例文で覚える', status: `今日 ${data?.progress ?? 0}/${data?.target ?? 20}`, to: '/flashcard', icon: '読' },
@@ -51,42 +49,20 @@ export default function HomePage() {
   ];
 
   useEffect(() => {
-    getChildren()
-      .then((payload) => {
-        const list = payload.children || [];
-        setChildren(list);
-        setChildrenLoaded(true);
-
-        const stored = localStorage.getItem(CHILD_STORAGE_KEY);
-        const hasStored = stored && list.some((child) => String(child.id) === stored);
-        const initialId = hasStored ? stored : list[0]?.id ? String(list[0].id) : '';
-
-        if (list.length === 0) {
-          localStorage.removeItem(CHILD_STORAGE_KEY);
-          navigate('/settings', { replace: true });
-          return;
-        }
-
-        setSelectedChildId(initialId);
-      })
-      .catch((err) => {
-        setError(err.message);
-        setChildrenLoaded(true);
-      });
+    clearInvalidChildData();
+    if (!selectedChild) {
+      navigate('/', { replace: true });
+    }
   }, [navigate]);
 
   useEffect(() => {
-    if (selectedChildId) {
-      localStorage.setItem(CHILD_STORAGE_KEY, selectedChildId);
-    }
-
-    getHomeData(selectedChildId || undefined)
+    getHomeData()
       .then(setData)
       .catch((err) => {
         setError(err.message);
         setData(DEFAULT_HOME_DATA);
       });
-  }, [selectedChildId]);
+  }, []);
 
   useEffect(() => {
     const timer = window.setInterval(() => {
@@ -95,17 +71,13 @@ export default function HomePage() {
     return () => window.clearInterval(timer);
   }, []);
 
-  const selectedChild = useMemo(
-    () => children.find((child) => String(child.id) === String(selectedChildId)) || null,
-    [children, selectedChildId],
-  );
-
   const progressWidth = data
     ? `${Math.min(100, (data.progress / Math.max(1, data.target)) * 100)}%`
     : '0%';
-  const challengeLevel = selectedChild?.target_level || '準2級';
+  const challengeLevel = selectedChild?.targetLevel || '準2級';
+  const partner = selectedChild ? getPartner(selectedChild.partnerMonsterId) : null;
 
-  if (childrenLoaded && children.length === 0 && !error) {
+  if (!selectedChild) {
     return null;
   }
 
@@ -127,19 +99,23 @@ export default function HomePage() {
               <div className="rounded-[24px] bg-white/80 p-4 shadow-[0_10px_24px_rgba(145,177,209,0.08)]">
                 <div className="flex flex-wrap items-center gap-2">
                   <p className="text-lg font-extrabold text-[#354172]">
-                    {selectedChild ? selectedChild.name : '未登録'}
+                    {selectedChild.name} さん
                   </p>
-                  {selectedChild && (
-                    <>
-                      <span className="rounded-full bg-white px-3 py-1 text-xs font-bold text-[#61759e]">
-                        学年 {selectedChild.grade}
-                      </span>
-                      <span className="rounded-full bg-white px-3 py-1 text-xs font-bold text-[#61759e]">
-                        目標 {selectedChild.target_level}
-                      </span>
-                    </>
-                  )}
+                  <span className="rounded-full bg-white px-3 py-1 text-xs font-bold text-[#61759e]">
+                    学年：{selectedChild.grade}
+                  </span>
+                  <span className="rounded-full bg-white px-3 py-1 text-xs font-bold text-[#61759e]">
+                    目標：{selectedChild.targetLevel}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => navigate('/select-child')}
+                    className="rounded-full bg-[#fff7d6] px-3 py-1 text-xs font-black text-[#6b5a2d]"
+                  >
+                    切り替え
+                  </button>
                 </div>
+                {partner && <p className="mt-2 text-xs font-bold text-[#6f7da8]">パートナー：{partner.name} Lv.1</p>}
               </div>
 
               <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_300px] xl:items-start">

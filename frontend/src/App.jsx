@@ -1,6 +1,8 @@
 import { Routes, Route, useLocation, Navigate } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import HomePage from './pages/HomePage';
+import AddChildPage from './pages/AddChildPage';
+import ChildSelectPage from './pages/ChildSelectPage';
 import FlashcardPage from './pages/FlashcardPage';
 import QuizPage from './pages/QuizPage';
 import VocabExpansionPage from './pages/VocabExpansionPage';
@@ -20,6 +22,7 @@ import PetLevelPage from './pages/PetLevelPage';
 import ProgressPage from './pages/ProgressPage';
 import SettingsPage from './pages/SettingsPage';
 import BottomNav from './components/BottomNav';
+import StartupGate from './components/StartupGate';
 import { LanguageProvider } from './LanguageContext';
 
 function AnimatedPage({ children }) {
@@ -45,8 +48,9 @@ function App() {
       <div className="app-shell min-h-screen text-slate-900">
         <AnimatePresence mode="wait" initial={false}>
           <Routes location={location} key={location.pathname}>
-            <Route path="/" element={<AnimatedPage><HomePage /></AnimatedPage>} />
-            <Route path="/app" element={<AnimatedPage><HomePage /></AnimatedPage>} />
+            <Route path="/" element={<AnimatedPage><StartupGate /></AnimatedPage>} />
+            <Route path="/app" element={<AnimatedPage><StartupGate /></AnimatedPage>} />
+            <Route path="/select-child" element={<AnimatedPage><ChildSelectPage /></AnimatedPage>} />
             <Route path="/flashcard" element={<AnimatedPage><FlashcardPage /></AnimatedPage>} />
             <Route path="/quiz" element={<AnimatedPage><QuizPage /></AnimatedPage>} />
             <Route path="/vocab-expansion" element={<AnimatedPage><VocabExpansionPage /></AnimatedPage>} />
@@ -65,6 +69,7 @@ function App() {
             <Route path="/petlevel" element={<AnimatedPage><PetLevelPage /></AnimatedPage>} />
             <Route path="/progress" element={<AnimatedPage><ProgressPage /></AnimatedPage>} />
             <Route path="/settings" element={<AnimatedPage><SettingsPage /></AnimatedPage>} />
+            <Route path="/settings/add-child" element={<AnimatedPage><AddChildPage /></AnimatedPage>} />
             <Route path="*" element={<Navigate replace to="/" />} />
           </Routes>
         </AnimatePresence>
