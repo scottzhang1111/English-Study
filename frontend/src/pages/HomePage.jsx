@@ -1,11 +1,13 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { Link, useNavigate } from 'react-router-dom';
 import HeaderBar from '../components/HeaderBar';
 import PetDisplay from '../components/PetDisplay';
-import { getHomeData } from '../api';
-import { clearInvalidChildData, getCurrentChild, getPartner } from '../utils/childStorage';
-import { DAILY_WORD_TARGET, getTodayProgress } from '../utils/dailyLearningStorage';
+import { getChildren, getHomeData } from '../api';
+import { getPartner } from '../utils/childStorage';
+
+const DEFAULT_DAILY_WORD_TARGET = 20;
+const CHILD_STORAGE_KEY = 'selected_child_id';
 
 const DEFAULT_HOME_DATA = {
   progress: 0,
@@ -34,41 +36,109 @@ const PARTNER_LINES = [
   'ピッカ～！いっしょに頑張ろう！',
 ];
 
+function clearSelectedChildId() {
+  localStorage.removeItem(CHILD_STORAGE_KEY);
+  try {
+    sessionStorage.removeItem(CHILD_STORAGE_KEY);
+  } catch (err) {
+    // sessionStorage can be unavailable in restricted browser modes.
+  }
+}
+
 export default function HomePage() {
   const [data, setData] = useState(null);
   const [error, setError] = useState(null);
   const [partnerLineIndex, setPartnerLineIndex] = useState(0);
+  const [selectedChild, setSelectedChild] = useState(null);
+  const [selectedChildId, setSelectedChildId] = useState(() => localStorage.getItem(CHILD_STORAGE_KEY) || '');
+  const [childrenLoaded, setChildrenLoaded] = useState(false);
+  const [hasNoChildren, setHasNoChildren] = useState(false);
   const navigate = useNavigate();
-  const selectedChild = useMemo(() => getCurrentChild(), []);
-  const dailyProgress = selectedChild ? getTodayProgress(selectedChild.id, DAILY_WORD_TARGET) : null;
-  const dailyButtonText = dailyProgress?.passed
-    ? '今日の学習を見る'
-    : dailyProgress?.studiedCount > 0
-      ? 'つづきから'
-      : '学習をはじめる';
+  const todayTarget = Number(data?.target || selectedChild?.daily_target || DEFAULT_DAILY_WORD_TARGET);
+  const todayStudied = Number(data?.progress ?? 0);
+  const safeTodayTarget = Math.max(1, todayTarget);
+  const isDailyComplete = todayStudied === safeTodayTarget;
+  const isDailyOverComplete = todayStudied > safeTodayTarget;
+  const bonusCount = Math.max(0, todayStudied - safeTodayTarget);
+  const dailyTitle = isDailyOverComplete || isDailyComplete ? '今日の目標クリア！' : '今日の学習';
+  const dailyButtonText = isDailyOverComplete
+    ? 'ボーナスチャレンジ'
+    : isDailyComplete
+      ? '今日の学習を見る'
+      : todayStudied > 0
+        ? 'つづきから'
+        : '学習をはじめる';
+  const dailyStatusText = isDailyOverComplete
+    ? `${todayStudied}問 達成`
+    : isDailyComplete
+      ? '目標クリア'
+      : `${todayStudied} / ${safeTodayTarget}`;
+  const dailyDetailText = isDailyOverComplete
+    ? `目標 ${safeTodayTarget}問 + ボーナス${bonusCount}問`
+    : isDailyComplete
+      ? `${safeTodayTarget}問 達成`
+      : `あと ${Math.max(0, safeTodayTarget - todayStudied)} 語で今日の目標です。`;
+  const dailyMessage = isDailyOverComplete
+    ? 'すごい！今日はもう十分がんばりました。'
+    : isDailyComplete
+      ? '今日の目標を達成しました。よくがんばりました。'
+      : '今日の目標に向けて、単語をひとつずつ進めましょう。';
+  const petBubbleText = isDailyOverComplete ? 'すごすぎる！でも休憩も大事だよ！' : PARTNER_LINES[partnerLineIndex];
 
   const dailyTrainingItems = [
-    { label: '単語カード', subtitle: '読む・聞く・例文で覚える', status: `今日 ${dailyProgress?.studiedCount ?? 0}/${dailyProgress?.targetWordCount ?? DAILY_WORD_TARGET}`, to: '/flashcard', icon: '読' },
+    { label: '単語カード', subtitle: '読む・聞く・例文で覚える', status: isDailyOverComplete ? `目標クリア +${bonusCount}` : `今日 ${todayStudied}/${safeTodayTarget}`, to: '/flashcard', icon: '読' },
     { label: 'クイズ練習', subtitle: '覚えた単語をチェック', status: '未開始', to: '/quiz', icon: '練' },
     { label: 'Word Web', subtitle: 'Synonym / antonym practice', status: '1500 words', to: '/vocab-expansion', icon: 'W' },
     { label: 'まちがい直し', subtitle: '苦手な問題をもう一度', status: '3問', to: '/review', icon: '復' },
   ];
 
   useEffect(() => {
-    clearInvalidChildData();
-    if (!selectedChild) {
-      navigate('/', { replace: true });
-    }
-  }, [navigate]);
+    let cancelled = false;
+    getChildren()
+      .then((payload) => {
+        if (cancelled) return;
+        const childList = payload.children || [];
+        setChildrenLoaded(true);
+        if (childList.length === 0) {
+          clearSelectedChildId();
+          setSelectedChildId('');
+          setSelectedChild(null);
+          setHasNoChildren(true);
+          setData(null);
+          return;
+        }
+        setHasNoChildren(false);
+        if (!selectedChildId) {
+          navigate('/settings/children', { replace: true });
+          return;
+        }
+        const child = childList.find((item) => String(item.id) === String(selectedChildId));
+        if (!child) {
+          clearSelectedChildId();
+          setSelectedChildId('');
+          navigate('/settings/children', { replace: true });
+          return;
+        }
+        setSelectedChild(child);
+      })
+      .catch((err) => {
+        setChildrenLoaded(true);
+        setError(err.message);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [navigate, selectedChildId]);
 
   useEffect(() => {
-    getHomeData()
+    if (!selectedChildId || hasNoChildren) return;
+    getHomeData(selectedChildId)
       .then(setData)
       .catch((err) => {
         setError(err.message);
         setData(DEFAULT_HOME_DATA);
       });
-  }, []);
+  }, [hasNoChildren, selectedChildId]);
 
   useEffect(() => {
     const timer = window.setInterval(() => {
@@ -78,10 +148,29 @@ export default function HomePage() {
   }, []);
 
   const progressWidth = data
-    ? `${Math.min(100, ((dailyProgress?.studiedCount ?? 0) / Math.max(1, dailyProgress?.targetWordCount ?? DAILY_WORD_TARGET)) * 100)}%`
+    ? `${Math.min(100, (todayStudied / safeTodayTarget) * 100)}%`
     : '0%';
   const challengeLevel = selectedChild?.targetLevel || '準2級';
   const partner = selectedChild ? getPartner(selectedChild.partnerMonsterId) : null;
+
+  if (!childrenLoaded) {
+    return null;
+  }
+
+  if (hasNoChildren) {
+    return (
+      <div className="mx-auto max-w-5xl px-4 pb-24 pt-6 sm:px-6">
+        <HeaderBar subtitle="キミと見つける、英語のちから！" />
+        <section className="panel px-6 py-10 text-center sm:px-10">
+          <h1 className="display-font text-3xl font-extrabold text-[#354172]">子どもが登録されていません</h1>
+          <p className="mt-3 text-sm font-bold text-[#6f7da8]">今日の学習を始めるには、子どもを追加してください。</p>
+          <button type="button" onClick={() => navigate('/settings/children')} className="pill-button mt-7 px-7 py-4 text-base">
+            子どもを追加する
+          </button>
+        </section>
+      </div>
+    );
+  }
 
   if (!selectedChild) {
     return null;
@@ -126,6 +215,9 @@ export default function HomePage() {
 
               <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_300px] xl:items-start">
                 <div className="min-w-0">
+                  <h1 className="display-font mb-3 text-3xl font-extrabold text-[#354172]">
+                    {dailyTitle}
+                  </h1>
                   <button
                     type="button"
                     onClick={() => navigate('/daily-words')}
@@ -133,9 +225,21 @@ export default function HomePage() {
                   >
                     {dailyButtonText}
                   </button>
+                  {isDailyOverComplete && (
+                    <button
+                      type="button"
+                      onClick={() => navigate('/petroom')}
+                      className="ghost-button ml-0 mt-3 px-6 py-3 text-sm sm:ml-3 sm:mt-0"
+                    >
+                      ペットを見る
+                    </button>
+                  )}
                   <p className="mt-3 text-[0.98rem] leading-6 text-[#44556f] sm:text-base">
-                    今日の目標に向けて、単語をひとつずつ進めましょう。
+                    {dailyMessage}
                   </p>
+                  {isDailyOverComplete && (
+                    <p className="mt-2 text-sm font-bold text-[#6f7da8]">つづける時は、少し休んでからね。</p>
+                  )}
                 </div>
 
                 <div className="grid grid-cols-3 gap-2">
@@ -158,9 +262,7 @@ export default function HomePage() {
                 <div className="rounded-[24px] bg-white/80 p-4 shadow-[0_10px_24px_rgba(145,177,209,0.08)]">
                   <div className="flex items-center justify-between gap-4 text-sm font-bold text-[#5e7093]">
                     <span>今日の進み具合</span>
-                    <span>
-                      {dailyProgress?.studiedCount ?? 0} / {dailyProgress?.targetWordCount ?? DAILY_WORD_TARGET}
-                    </span>
+                    <span>{dailyStatusText}</span>
                   </div>
                   <div className="mt-3 h-3.5 overflow-hidden rounded-full bg-[#edf1f7] shadow-[inset_0_1px_3px_rgba(96,110,140,0.10)]">
                     <div
@@ -169,8 +271,11 @@ export default function HomePage() {
                     />
                   </div>
                   <p className="mt-2.5 text-sm font-semibold text-[#4f627f]">
-                    あと {Math.max(0, (dailyProgress?.targetWordCount ?? DAILY_WORD_TARGET) - (dailyProgress?.studiedCount ?? 0))} 語で今日の目標です。
+                    {dailyDetailText}
                   </p>
+                  {isDailyOverComplete && (
+                    <p className="mt-1.5 text-xs font-black text-[#b07a00]">目標クリア</p>
+                  )}
                 </div>
               )}
             </div>
@@ -181,7 +286,7 @@ export default function HomePage() {
                 className="relative z-10 w-full"
                 showDetails={false}
                 enableEffects
-                bubbleText={PARTNER_LINES[partnerLineIndex]}
+                bubbleText={petBubbleText}
               />
             </div>
           </div>

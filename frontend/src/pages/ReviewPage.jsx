@@ -14,7 +14,7 @@ export default function ReviewPage() {
   useEffect(() => {
     const childId = localStorage.getItem(CHILD_STORAGE_KEY) || '';
     setLoading(true);
-    Promise.all([getReviewList(), getBattleWrongQuestions(childId)])
+    Promise.all([getReviewList(childId), getBattleWrongQuestions(childId)])
       .then(([reviewData, battleData]) => {
         setReviewList(reviewData.review_list || []);
         setBattleWrongList(battleData.wrongQuestions || []);

@@ -1,6 +1,14 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { addChild, DEFAULT_PARTNER_ID, PARTNERS, setCurrentChildId } from '../utils/childStorage';
+import { saveChildProfile } from '../api';
+import { DEFAULT_PARTNER_ID, PARTNERS } from '../utils/childStorage';
+
+const CHILD_STORAGE_KEY = 'selected_child_id';
+const STARTER_POKEMON_IDS = {
+  bulbasaur: 1,
+  charmander: 4,
+  squirtle: 7,
+};
 
 const GRADE_OPTIONS = [
   '小学1年生',
@@ -24,7 +32,7 @@ export default function AddChildPage() {
   const [partnerMonsterId, setPartnerMonsterId] = useState(DEFAULT_PARTNER_ID);
   const [error, setError] = useState('');
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
     setError('');
     if (!name.trim()) {
@@ -32,14 +40,21 @@ export default function AddChildPage() {
       return;
     }
 
-    const child = addChild({
-      name: name.trim(),
-      grade,
-      targetLevel,
-      partnerMonsterId,
-    });
-    setCurrentChildId(child.id);
-    navigate('/app', { replace: true });
+    try {
+      const result = await saveChildProfile({
+        name: name.trim(),
+        grade,
+        target_level: targetLevel,
+        starter_pokemon_id: STARTER_POKEMON_IDS[partnerMonsterId] || STARTER_POKEMON_IDS[DEFAULT_PARTNER_ID],
+      });
+      const childId = result?.child?.id;
+      if (childId) {
+        localStorage.setItem(CHILD_STORAGE_KEY, String(childId));
+      }
+      navigate('/app', { replace: true });
+    } catch (err) {
+      setError(err.message || '保存できませんでした。');
+    }
   };
 
   return (

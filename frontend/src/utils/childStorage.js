@@ -1,5 +1,5 @@
 const CHILDREN_KEY = 'children';
-const CURRENT_CHILD_ID_KEY = 'currentChildId';
+const CURRENT_CHILD_ID_KEY = 'selected_child_id';
 
 export const DEFAULT_PARTNER_ID = 'bulbasaur';
 

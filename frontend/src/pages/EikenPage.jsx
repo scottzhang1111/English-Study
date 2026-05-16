@@ -5,6 +5,7 @@ import PetDisplay from '../components/PetDisplay';
 import { getEikenQuestions, submitPracticeAnswer, getReviewList } from '../api';
 
 export default function EikenPage() {
+  const childId = localStorage.getItem('selected_child_id') || '';
   const [questions, setQuestions] = useState([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [selectedAnswer, setSelectedAnswer] = useState(null);
@@ -26,6 +27,7 @@ export default function EikenPage() {
     setLoading(true);
     setError(null);
     getEikenQuestions({
+      childId,
       forceAi,
       importance: importance === 'ALL' ? '' : importance,
       frequency: frequency === 'ALL' ? '' : frequency,
@@ -56,7 +58,6 @@ export default function EikenPage() {
     if (!currentQuestion || selectedAnswer) return;
     setSelectedAnswer(choice);
     try {
-      const childId = localStorage.getItem('selected_child_id') || '';
       const result = await submitPracticeAnswer({
         id: currentQuestion.id,
         word: currentQuestion.word,
@@ -82,7 +83,7 @@ export default function EikenPage() {
 
   const loadReview = () => {
     setReviewError(null);
-    getReviewList()
+    getReviewList(childId)
       .then((data) => setReviewList(data.review_list || []))
       .catch((err) => setReviewError(err.message || '復習リストの読み込みに失敗しました。'));
   };

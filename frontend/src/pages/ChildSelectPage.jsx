@@ -1,14 +1,31 @@
-import { useMemo } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getChildren, getCurrentChildId, getPartner, setCurrentChildId } from '../utils/childStorage';
+import { getChildren } from '../api';
+import { getPartner } from '../utils/childStorage';
+
+const CHILD_STORAGE_KEY = 'selected_child_id';
+
+function getPartnerForChild(child) {
+  const starter = String(child.partnerMonsterId || child.starter_pokemon_id || '');
+  const byPokemonId = { 1: 'bulbasaur', 4: 'charmander', 7: 'squirtle' };
+  return getPartner(byPokemonId[starter] || starter);
+}
 
 export default function ChildSelectPage() {
   const navigate = useNavigate();
-  const currentChildId = getCurrentChildId();
-  const children = useMemo(() => getChildren(), []);
+  const [children, setChildren] = useState([]);
+  const [currentChildId, setCurrentChildId] = useState(localStorage.getItem(CHILD_STORAGE_KEY) || '');
+  const [error, setError] = useState('');
+
+  useEffect(() => {
+    getChildren()
+      .then((payload) => setChildren(payload.children || []))
+      .catch((err) => setError(err.message || '読み込みに失敗しました。'));
+  }, []);
 
   const handleSelect = (childId) => {
-    setCurrentChildId(childId);
+    localStorage.setItem(CHILD_STORAGE_KEY, String(childId));
+    setCurrentChildId(String(childId));
     navigate('/app', { replace: true });
   };
 
@@ -32,10 +49,12 @@ export default function ChildSelectPage() {
           </button>
         </div>
 
+        {error && <div className="mt-5 rounded-[24px] bg-rose-50 px-5 py-4 text-sm font-bold text-rose-700">{error}</div>}
+
         <div className="mt-7 grid gap-4 md:grid-cols-2">
           {children.map((child) => {
-            const partner = getPartner(child.partnerMonsterId);
-            const active = child.id === currentChildId;
+            const partner = getPartnerForChild(child);
+            const active = String(child.id) === String(currentChildId);
             return (
               <article
                 key={child.id}

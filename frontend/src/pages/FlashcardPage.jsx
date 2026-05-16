@@ -83,7 +83,7 @@ export default function FlashcardPage() {
     setStudyLoading(true);
     setStudyError(null);
     try {
-      const payload = await getFlashcardData(word ? { word } : {});
+      const payload = await getFlashcardData({ word, childId: selectedChildId });
       setFlashcard(payload);
       setStep(1);
       setRecallChoice('');
@@ -103,7 +103,7 @@ export default function FlashcardPage() {
     setReviewLoading(true);
     setReviewError(null);
     try {
-      const payload = await getTodayReviewQuiz();
+      const payload = await getTodayReviewQuiz(selectedChildId);
       setReviewData(payload);
       setReviewIndex(0);
       setReviewAnswer('');
@@ -123,8 +123,12 @@ export default function FlashcardPage() {
     let cancelled = false;
 
     const bootstrap = async () => {
+      if (!selectedChildId) {
+        navigate('/select-child', { replace: true });
+        return;
+      }
       try {
-        const payload = await getHomeData(selectedChildId || undefined);
+        const payload = await getHomeData(selectedChildId);
         if (cancelled) return;
         setHomeData(payload);
         if ((payload?.progress || 0) >= DAILY_TARGET) {

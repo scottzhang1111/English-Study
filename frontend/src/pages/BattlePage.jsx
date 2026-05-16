@@ -36,6 +36,10 @@ export default function BattlePage() {
   const navigate = useNavigate();
 
   useEffect(() => {
+    if (!childId) {
+      navigate('/select-child', { replace: true });
+      return;
+    }
     setLoading(true);
     startBattle({ childId })
       .then((payload) => {
@@ -44,7 +48,7 @@ export default function BattlePage() {
       })
       .catch((err) => setError(err.message))
       .finally(() => setLoading(false));
-  }, [childId]);
+  }, [childId, navigate]);
 
   const question = questions[index];
   const isAnswered = Boolean(answerResult);

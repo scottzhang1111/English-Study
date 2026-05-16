@@ -2234,7 +2234,60 @@ def get_context_sentence(word):
     return match.get('sentence_jp', '').strip() if match else ''
 
 
-def get_review_list():
+def parse_optional_child_id_arg():
+    raw_child_id = request.args.get('child_id') or request.args.get('childId') or ''
+    raw_child_id = str(raw_child_id).strip()
+    if not raw_child_id:
+        return None
+    try:
+        return int(raw_child_id)
+    except (TypeError, ValueError):
+        abort(400, 'child_id must be an integer')
+
+
+def get_child_review_list(child_id):
+    init_db()
+    conn = get_db_connection()
+    try:
+        child_row = conn.execute('SELECT id FROM children WHERE id = ?', (child_id,)).fetchone()
+        if not child_row:
+            raise LookupError('child not found')
+        rows = conn.execute(
+            '''
+            SELECT vocab_id, wrong_count, review_count, mastery, last_studied_at, updated_at
+            FROM child_vocab_progress
+            WHERE child_id = ? AND wrong_count > 0 AND mastered = 0 AND mastery < 100
+            ORDER BY wrong_count DESC, review_count DESC, last_studied_at DESC, id DESC
+            ''',
+            (child_id,),
+        ).fetchall()
+    finally:
+        conn.close()
+
+    review_items = []
+    for row in rows:
+        vocab_id = str(row['vocab_id'])
+        vocab = resolve_vocab_entry(vocab_id, vocab_list)
+        sentence_jp = get_context_sentence(vocab['English'] if vocab else vocab_id) if vocab else ''
+        review_items.append({
+            'word_id': vocab_id,
+            'id': vocab.get('ID', '') if vocab else vocab_id,
+            'word': vocab['English'] if vocab else vocab_id,
+            'japanese': vocab['Japanese'] if vocab else '',
+            'example_japanese': vocab.get('Example_Japanese', '').strip() if vocab else '',
+            'sentence_jp': sentence_jp,
+            'error_count': int(row['wrong_count'] or 0),
+            'review_count': int(row['review_count'] or 0),
+            'mastery': int(row['mastery'] or 0),
+            'last_error_date': row['last_studied_at'] or row['updated_at'],
+        })
+    return review_items
+
+
+def get_review_list(child_id=None):
+    if child_id is not None:
+        return get_child_review_list(child_id)
+
     init_db()
     conn = get_db_connection()
     try:
@@ -3298,7 +3351,49 @@ def generate_20_questions(db_path=None):
     return generate_rule_questions(load_question_entries(db_path))
 
 
-def get_today_review_entries(limit=20):
+def get_child_review_entries(child_id, limit=20):
+    init_db()
+    conn = get_db_connection()
+    try:
+        child_row = conn.execute('SELECT id FROM children WHERE id = ?', (child_id,)).fetchone()
+        if not child_row:
+            raise LookupError('child not found')
+        rows = conn.execute(
+            '''
+            SELECT vocab_id, wrong_count, mastery, mastered, last_studied_at, updated_at
+            FROM child_vocab_progress
+            WHERE child_id = ? AND (mastered = 1 OR wrong_count > 0)
+            ORDER BY wrong_count DESC, mastered DESC, last_studied_at DESC, id DESC
+            LIMIT ?
+            ''',
+            (child_id, max(limit * 2, limit)),
+        ).fetchall()
+    finally:
+        conn.close()
+
+    combined = []
+    seen = set()
+    for row in rows:
+        entry = resolve_vocab_entry(str(row['vocab_id']), vocab_list)
+        if not entry:
+            continue
+        key = get_vocab_key(entry)
+        if key and key not in seen:
+            seen.add(key)
+            combined.append(entry)
+
+    if len(combined) < limit:
+        remainder = [entry for entry in vocab_list if get_vocab_key(entry) not in seen]
+        random.shuffle(remainder)
+        combined.extend(remainder[: max(0, limit - len(combined))])
+
+    return combined[:limit]
+
+
+def get_today_review_entries(limit=20, child_id=None):
+    if child_id is not None:
+        return get_child_review_entries(child_id, limit=limit)
+
     progress = load_progress()
     mastered_words = [w.strip() for w in progress.get('mastered_words', []) if w.strip()]
     recent_words = mastered_words[-8:]
@@ -3436,8 +3531,8 @@ def _generate_review_cloze_question(entry, entries):
     }
 
 
-def generate_today_review_questions(limit=20):
-    entries = get_today_review_entries(limit=limit)
+def generate_today_review_questions(limit=20, child_id=None):
+    entries = get_today_review_entries(limit=limit, child_id=child_id)
     if not entries:
         return []
 
@@ -3477,13 +3572,30 @@ def generate_today_review_questions(limit=20):
     return questions[:20]
 
 
-def api_today_review_quiz_payload():
-    questions = generate_today_review_questions()
-    progress = load_progress()
+def api_today_review_quiz_payload(child_id=None):
+    if child_id is None:
+        raise LookupError('child_id is required')
+    questions = generate_today_review_questions(child_id=child_id)
+    conn = get_db_connection()
+    try:
+        child_row = conn.execute(
+            'SELECT daily_target FROM children WHERE id = ?',
+            (child_id,),
+        ).fetchone()
+        if not child_row:
+            raise LookupError('child not found')
+        mastered_row = conn.execute(
+            'SELECT COUNT(*) AS count FROM child_vocab_progress WHERE child_id = ? AND mastered = 1',
+            (child_id,),
+        ).fetchone()
+    finally:
+        conn.close()
+    progress_count = int(mastered_row['count'] or 0) if mastered_row else 0
+    target = int(child_row['daily_target'] or 20)
     return {
-        'day': int(progress.get('count', 0) // 20) + 1 if progress.get('count', 0) else 1,
-        'progress': int(progress.get('count', 0)),
-        'target': 20,
+        'day': int(progress_count // max(1, target)) + 1 if progress_count else 1,
+        'progress': progress_count,
+        'target': target,
         'questions': questions,
     }
 
@@ -5104,7 +5216,8 @@ def api_home():
     settings = load_settings()
     progress = load_progress()
     target = settings.get('daily_target', 20)
-    remain = max(0, target - progress['count'])
+    progress_count = int(progress.get('count') or 0)
+    remain = max(0, target - progress_count)
     total_words = len(vocab_list)
     child_id = request.args.get('child_id', '').strip()
     if child_id:
@@ -5122,6 +5235,10 @@ def api_home():
                 'SELECT daily_target FROM children WHERE id = ?',
                 (child_id,),
             ).fetchone()
+            daily_row = conn.execute(
+                'SELECT studied_count FROM daily_study_log WHERE child_id = ? AND study_date = ?',
+                (child_id, get_today()),
+            ).fetchone()
             mastered_row = conn.execute(
                 'SELECT COUNT(*) AS count FROM child_vocab_progress WHERE child_id = ? AND mastered = 1',
                 (child_id,),
@@ -5134,7 +5251,8 @@ def api_home():
             conn.close()
         if child_row and child_row['daily_target']:
             target = int(child_row['daily_target'])
-            remain = max(0, target - progress['count'])
+        progress_count = int(daily_row['studied_count'] or 0) if daily_row else 0
+        remain = max(0, target - progress_count)
         mastered_words = int(mastered_row['count'] or 0) if mastered_row else 0
         study_days = int(study_days_row['count'] or 0) if study_days_row else 0
     else:
@@ -5143,11 +5261,11 @@ def api_home():
 
     pet = get_child_pet_state(child_id) or get_pet_state(progress, settings)
     if child_id and pet:
-        pet['learned_today'] = progress['count']
+        pet['learned_today'] = progress_count
         pet['daily_target'] = target
-        pet['completion'] = min(100, round((progress['count'] / max(1, target)) * 100))
+        pet['completion'] = min(100, round((progress_count / max(1, target)) * 100))
     return jsonify(
-        progress=progress['count'],
+        progress=progress_count,
         target=target,
         remain=remain,
         total_words=total_words,
@@ -5182,14 +5300,34 @@ def api_flashcard():
     requested_word = request.args.get('word', '').strip()
     importance = request.args.get('importance', '').strip()
     frequency = request.args.get('frequency', '').strip()
-    progress = load_progress()
-    mastered_words = [w.strip() for w in progress.get('mastered_words', []) if w.strip()]
+    child_id = parse_optional_child_id_arg()
+    mastered_vocab_ids = set()
+    mastered_words = []
+    if child_id is not None:
+        conn = get_db_connection()
+        try:
+            child_row = conn.execute('SELECT id FROM children WHERE id = ?', (child_id,)).fetchone()
+            if not child_row:
+                abort(404, 'child not found')
+            mastered_rows = conn.execute(
+                'SELECT vocab_id FROM child_vocab_progress WHERE child_id = ? AND mastered = 1',
+                (child_id,),
+            ).fetchall()
+            mastered_vocab_ids = {str(row['vocab_id']) for row in mastered_rows}
+        finally:
+            conn.close()
+    else:
+        progress = load_progress()
+        mastered_words = [w.strip() for w in progress.get('mastered_words', []) if w.strip()]
     entries = filter_vocab_entries(vocab_list, importance=importance, frequency=frequency)
 
     if requested_word:
         vocab = resolve_vocab_entry(requested_word, entries) or resolve_vocab_entry(requested_word, vocab_list)
     else:
-        available = [v for v in entries if v['English'].strip() not in mastered_words]
+        if child_id is not None:
+            available = [v for v in entries if str(v.get('ID', '')).strip() not in mastered_vocab_ids]
+        else:
+            available = [v for v in entries if v['English'].strip() not in mastered_words]
         if not available:
             available = entries or vocab_list
         vocab = random.choice(available)
@@ -5219,29 +5357,109 @@ def api_flashcard():
     )
 
 
+DAILY_IMPORTANCE_ORDER = {'A': 0, 'B': 1, 'C': 2}
+DAILY_PART_OF_SPEECH_ORDER = [
+    ('\u52d5\u8a5e', '\u52a8\u8bcd', 'verb', 'v.'),
+    ('\u5f62\u5bb9\u8a5e', '\u5f62\u5bb9\u8bcd', 'adjective', 'adj.'),
+    ('\u540d\u8a5e', '\u540d\u8bcd', 'noun', 'n.'),
+]
+
+
+def get_daily_importance_rank(vocab):
+    importance = str(vocab.get('Importance') or '').strip().upper()
+    return DAILY_IMPORTANCE_ORDER.get(importance, 9)
+
+
+def get_daily_part_of_speech_rank(vocab):
+    category = str(vocab.get('Category') or '').strip().lower()
+    for index, terms in enumerate(DAILY_PART_OF_SPEECH_ORDER):
+        if any(term.lower() in category for term in terms):
+            return index
+    return 9
+
+
+def get_child_mastered_vocab_keys(child_id):
+    if child_id is None:
+        return set()
+    conn = get_db_connection()
+    try:
+        rows = conn.execute(
+            '''
+            SELECT vocab_id
+            FROM child_vocab_progress
+            WHERE child_id = ? AND (mastered = 1 OR mastery >= 100)
+            ''',
+            (child_id,),
+        ).fetchall()
+    finally:
+        conn.close()
+    return {str(row['vocab_id']).strip().lower() for row in rows if str(row['vocab_id']).strip()}
+
+
+def select_daily_vocab_entries(limit, child_id=None):
+    mastered_keys = get_child_mastered_vocab_keys(child_id)
+    candidates = []
+    for index, vocab in enumerate(vocab_list):
+        vocab_key = get_vocab_key(vocab)
+        if vocab_key and vocab_key in mastered_keys:
+            continue
+        candidates.append((index, vocab))
+
+    candidates.sort(
+        key=lambda item: (
+            get_daily_importance_rank(item[1]),
+            get_daily_part_of_speech_rank(item[1]),
+            item[0],
+        )
+    )
+    return [vocab for _, vocab in candidates[:limit]]
+
+
+def build_daily_word_payloads(entries):
+    return [
+        {
+            'id': vocab.get('ID', ''),
+            'word': vocab.get('English', ''),
+            'partOfSpeech': vocab.get('Category', ''),
+            'meaningJa': vocab.get('Japanese', ''),
+            'meaningZh': vocab.get('Chinese', ''),
+            'exampleEn': vocab.get('Example_English', '') or vocab.get('Example_English_Short', ''),
+            'exampleJa': vocab.get('Example_Japanese', ''),
+            'exampleZh': vocab.get('Example_Chinese', ''),
+            'phrase': vocab.get('Phrase', ''),
+            'importance': vocab.get('Importance', ''),
+        }
+        for vocab in entries
+    ]
+
+
 @app.route('/api/daily-words')
 def api_daily_words():
+    child_id = request.args.get('child_id', '').strip()
+    requested_limit = request.args.get('limit')
+    resolved_child_id = None
+    child_row = None
+    if child_id:
+        try:
+            resolved_child_id = int(child_id)
+        except (TypeError, ValueError):
+            abort(400, 'child_id must be an integer')
+        conn = get_db_connection()
+        try:
+            child_row = conn.execute('SELECT daily_target FROM children WHERE id = ?', (resolved_child_id,)).fetchone()
+        finally:
+            conn.close()
+        if not child_row:
+            abort(404, 'child not found')
     try:
-        limit = int(request.args.get('limit', 20))
+        limit = int(requested_limit if requested_limit not in [None, ''] else 20)
     except (TypeError, ValueError):
         limit = 20
+    if requested_limit in [None, ''] and child_row:
+        if child_row and child_row['daily_target']:
+            limit = int(child_row['daily_target'])
     limit = max(1, min(200, limit))
-    words = []
-    for vocab in vocab_list[:limit]:
-        words.append(
-            {
-                'id': vocab.get('ID', ''),
-                'word': vocab.get('English', ''),
-                'partOfSpeech': vocab.get('Category', ''),
-                'meaningJa': vocab.get('Japanese', ''),
-                'meaningZh': vocab.get('Chinese', ''),
-                'exampleEn': vocab.get('Example_English', '') or vocab.get('Example_English_Short', ''),
-                'exampleJa': vocab.get('Example_Japanese', ''),
-                'exampleZh': vocab.get('Example_Chinese', ''),
-                'phrase': vocab.get('Phrase', ''),
-                'importance': vocab.get('Importance', ''),
-            }
-        )
+    words = build_daily_word_payloads(select_daily_vocab_entries(limit, resolved_child_id))
     return jsonify(words=words, targetWordCount=limit)
 
 
@@ -5463,7 +5681,11 @@ def api_vocab_expansion_answer():
 
 @app.route('/api/today-review-quiz')
 def api_today_review_quiz():
-    return jsonify(api_today_review_quiz_payload())
+    child_id = parse_optional_child_id_arg()
+    try:
+        return jsonify(api_today_review_quiz_payload(child_id=child_id))
+    except LookupError as exc:
+        abort(404, str(exc))
 
 
 @app.route('/api/ai-practice/next')
@@ -5848,8 +6070,11 @@ def api_practice_answer():
 
 @app.route('/api/error-review')
 def api_error_review():
+    child_id = parse_optional_child_id_arg()
     try:
-        review_list = get_review_list()
+        review_list = get_review_list(child_id)
+    except LookupError as exc:
+        abort(404, str(exc))
     except Exception as exc:
         abort(500, str(exc))
     return jsonify(review_list=review_list)

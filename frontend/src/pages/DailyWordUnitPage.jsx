@@ -1,28 +1,18 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getDailyWords } from '../api';
-import { getCurrentChild, getPartner } from '../utils/childStorage';
-import {
-  DAILY_PASS_EXP,
-  DAILY_PASSING_SCORE,
-  DAILY_QUIZ_COUNT,
-  DAILY_WORD_TARGET,
-  addPartnerExp,
-  getPartnerExp,
-  getTodayRecord,
-  upsertTodayRecord,
-} from '../utils/dailyLearningStorage';
-import {
-  enrichWordsWithProgress,
-  markWordsStudied,
-  recordQuizResults,
-} from '../utils/vocabProgressStorage';
+import { addPokemonExp, getChildren, getDailyWords, getHomeData, markMastered, submitPracticeAnswer } from '../api';
+import { getPartner } from '../utils/childStorage';
+
+const DEFAULT_DAILY_WORD_TARGET = 20;
+const DAILY_PASS_EXP = 20;
 
 const PARTNER_JA = {
   bulbasaur: 'フシギダネ',
   charmander: 'ヒトカゲ',
   squirtle: 'ゼニガメ',
 };
+
+const CHILD_STORAGE_KEY = 'selected_child_id';
 
 function shuffle(items) {
   return [...items].sort(() => Math.random() - 0.5);
@@ -47,9 +37,9 @@ function getPartnerImage(child, partner) {
 
 const IMPORTANCE_ORDER = { A: 0, B: 1, C: 2 };
 const PART_OF_SPEECH_ORDER = [
-  ['動詞', '动词', 'verb', 'v.'],
-  ['形容詞', '形容词', 'adjective', 'adj.'],
-  ['名詞', '名词', 'noun', 'n.'],
+  ['動詞', 'verb', 'v.'],
+  ['形容詞', 'adjective', 'adj.'],
+  ['名詞', 'noun', 'n.'],
 ];
 
 function getImportanceRank(word) {
@@ -81,28 +71,33 @@ function compareReviewOrder(a, b) {
   );
 }
 
-function selectBaseWords(allWords, childId) {
-  const wordsWithProgress = enrichWordsWithProgress(allWords, childId);
-  const newWords = wordsWithProgress.filter((word) => !word.hasStudied).sort(compareLearningOrder);
-  const reviewWords = wordsWithProgress
-    .filter((word) => word.hasStudied)
-    .sort(compareReviewOrder);
-  return [...newWords, ...reviewWords];
+function selectBaseWords(allWords) {
+  return [...allWords];
 }
 
-function getUnitWords(baseWords, unitIndex) {
+function getUnitWords(baseWords, unitIndex, targetCount = DEFAULT_DAILY_WORD_TARGET) {
   if (!baseWords.length) return [];
-  const start = unitIndex * DAILY_WORD_TARGET;
-  if (start < baseWords.length) return baseWords.slice(start, start + DAILY_WORD_TARGET);
-  return baseWords.slice(0, DAILY_WORD_TARGET);
+  const safeTargetCount = Math.max(1, Number(targetCount) || DEFAULT_DAILY_WORD_TARGET);
+  const start = unitIndex * safeTargetCount;
+  if (start < baseWords.length) return baseWords.slice(start, start + safeTargetCount);
+  return baseWords.slice(0, safeTargetCount);
 }
 
-function buildQuiz(words) {
-  const targets = shuffle(words).slice(0, Math.min(DAILY_QUIZ_COUNT, words.length));
+function buildCloze(sentence, word) {
+  if (!sentence || !word) return '';
+  const escaped = word.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const withBoundary = sentence.replace(new RegExp(`\\b${escaped}\\b`, 'i'), '______');
+  if (withBoundary !== sentence) return withBoundary;
+  return sentence.replace(new RegExp(escaped, 'i'), '______');
+}
+
+function buildQuizQuestions(words, choiceSource = words) {
+  const targets = shuffle(words);
   return targets.map((word, index) => {
-    const type = index % 2 === 0 ? 'en-ja' : 'ja-en';
+    const clozeSentence = buildCloze(word.exampleEn || '', word.word);
+    const type = clozeSentence ? ['en-ja', 'ja-en', 'cloze'][index % 3] : index % 2 === 0 ? 'en-ja' : 'ja-en';
     const correct = type === 'en-ja' ? word.meaningJa : word.word;
-    const pool = words
+    const pool = choiceSource
       .filter((item) => item.id !== word.id)
       .map((item) => (type === 'en-ja' ? item.meaningJa : item.word))
       .filter(Boolean);
@@ -112,21 +107,23 @@ function buildQuiz(words) {
       id: `${word.id}-${type}`,
       word,
       type,
-      question: type === 'en-ja' ? `${word.word} の意味はどれ？` : `「${word.meaningJa}」は英語でどれ？`,
+      question:
+        type === 'en-ja'
+          ? `${word.word} の意味はどれ？`
+          : type === 'cloze'
+            ? `空欄に入る単語はどれ？\n${clozeSentence}`
+            : `「${word.meaningJa}」は英語でどれ？`,
       correct,
       choices,
     };
   });
 }
 
-function mergeIds(a = [], b = []) {
-  return Array.from(new Set([...a, ...b].map(String)));
-}
-
 export default function DailyWordUnitPage() {
   const navigate = useNavigate();
-  const child = useMemo(() => getCurrentChild(), []);
-  const partner = child ? getPartner(child.partnerMonsterId) : null;
+  const selectedChildId = useMemo(() => localStorage.getItem(CHILD_STORAGE_KEY) || '', []);
+  const [child, setChild] = useState(null);
+  const partner = child ? getPartner(child.partnerMonsterId || child.starter_pokemon_id) : null;
   const [stage, setStage] = useState('preview');
   const [allWords, setAllWords] = useState([]);
   const [unitIndex, setUnitIndex] = useState(0);
@@ -137,39 +134,56 @@ export default function DailyWordUnitPage() {
   const [selectedChoice, setSelectedChoice] = useState('');
   const [resultStatus, setResultStatus] = useState('');
   const [earnedExp, setEarnedExp] = useState(0);
-  const [partnerExp, setPartnerExp] = useState(child ? getPartnerExp(child.id) : 0);
+  const [partnerExp, setPartnerExp] = useState(0);
+  const [dailyTarget, setDailyTarget] = useState(DEFAULT_DAILY_WORD_TARGET);
   const [error, setError] = useState('');
 
   useEffect(() => {
-    if (!child) {
-      navigate('/', { replace: true });
+    if (!selectedChildId) {
+      navigate('/select-child', { replace: true });
       return;
     }
 
-    getDailyWords(2000)
+    let cancelled = false;
+    getChildren()
       .then((payload) => {
-        const words = selectBaseWords(payload.words || [], child.id);
-        setAllWords(words);
-        const existing = getTodayRecord(child.id);
-        if (!existing) {
-          upsertTodayRecord(child.id, {
-            targetWordCount: DAILY_WORD_TARGET,
-            studiedWordIds: [],
-            passed: false,
-          });
+        const selected = (payload.children || []).find((item) => String(item.id) === String(selectedChildId));
+        if (!selected) {
+          navigate('/select-child', { replace: true });
+          return null;
         }
+        if (!cancelled) {
+          setChild(selected);
+          setDailyTarget(Math.max(1, Number(selected.daily_target) || DEFAULT_DAILY_WORD_TARGET));
+        }
+        const target = Math.max(1, Number(selected.daily_target) || DEFAULT_DAILY_WORD_TARGET);
+        return Promise.all([
+          getDailyWords({ childId: selected.id, limit: target }),
+          getHomeData(selected.id).catch(() => null),
+        ]);
+      })
+      .then((result) => {
+        if (cancelled || !result) return;
+        const [dailyPayload, homePayload] = result;
+        setDailyTarget(Math.max(1, Number(dailyPayload.targetWordCount || homePayload?.target) || DEFAULT_DAILY_WORD_TARGET));
+        const words = selectBaseWords(dailyPayload.words || []);
+        setAllWords(words);
+        setPartnerExp(Number(homePayload?.pet?.total_exp ?? homePayload?.pet?.exp ?? 0));
       })
       .catch((err) => {
         setError(err.message || '単語データを読み込めませんでした。');
       });
-  }, [child, navigate]);
+    return () => {
+      cancelled = true;
+    };
+  }, [navigate, selectedChildId]);
 
-  const todayWords = useMemo(() => getUnitWords(allWords, unitIndex), [allWords, unitIndex]);
+  const todayWords = useMemo(() => getUnitWords(allWords, unitIndex, dailyTarget), [allWords, unitIndex, dailyTarget]);
   const currentWord = todayWords[studyIndex] || null;
   const currentQuestion = quizQuestions[quizIndex] || null;
   const correctCount = answers.filter((answer) => answer.correct).length;
   const wrongAnswers = answers.filter((answer) => !answer.correct);
-  const targetCount = todayWords.length || DAILY_WORD_TARGET;
+  const targetCount = todayWords.length || dailyTarget;
   const partnerName = getPartnerName(child, partner);
   const partnerImage = getPartnerImage(child, partner);
   const progressPercent = todayWords.length ? ((studyIndex + 1) / todayWords.length) * 100 : 0;
@@ -180,19 +194,9 @@ export default function DailyWordUnitPage() {
   };
 
   const nextStudyWord = () => {
-    const studiedWordIds = todayWords.slice(0, studyIndex + 1).map((word) => word.id);
-    const existing = getTodayRecord(child.id);
-    if (currentWord?.id) {
-      markWordsStudied(child.id, [currentWord.id]);
-    }
-    upsertTodayRecord(child.id, {
-      targetWordCount: DAILY_WORD_TARGET,
-      studiedWordIds: mergeIds(existing?.studiedWordIds, studiedWordIds),
-      passed: existing?.passed || false,
-    });
 
     if (studyIndex >= todayWords.length - 1) {
-      setQuizQuestions(buildQuiz(todayWords));
+      setQuizQuestions(buildQuizQuestions(todayWords, allWords));
       setQuizIndex(0);
       setAnswers([]);
       setSelectedChoice('');
@@ -221,30 +225,40 @@ export default function DailyWordUnitPage() {
     ]);
   };
 
-  const finishQuiz = () => {
-    const passed = correctCount >= DAILY_PASSING_SCORE;
-    const wrongWordIds = wrongAnswers.map((answer) => answer.wordId);
+  const finishQuiz = async () => {
+    const passed = correctCount === quizQuestions.length;
     const exp = passed ? DAILY_PASS_EXP : 0;
-    const existing = getTodayRecord(child.id);
-    const nextPartnerExp = passed ? addPartnerExp(child.id, exp) : getPartnerExp(child.id);
-    recordQuizResults(child.id, answers);
+    let nextPartnerExp = partnerExp;
+    try {
+      await Promise.all(answers.map((answer) => {
+        const payload = {
+          id: answer.wordId,
+          word: answer.word,
+          selected: answer.selected,
+          correct: answer.correctAnswer,
+          childId: child.id,
+        };
+        return answer.correct
+          ? markMastered({ word: answer.word, childId: child.id, vocabId: answer.wordId })
+          : submitPracticeAnswer(payload);
+      }));
+    } catch (err) {
+      setError(err.message || '学習結果を保存できませんでした。');
+      return;
+    }
     if (passed) {
-      markWordsStudied(child.id, todayWords.map((word) => word.id));
+      try {
+        const payload = await addPokemonExp(child.id, exp);
+        nextPartnerExp = Number(payload?.pet?.total_exp ?? payload?.pet?.exp ?? nextPartnerExp);
+      } catch (err) {
+        setError(err.message || 'EXPを保存できませんでした。');
+        return;
+      }
     }
 
     setEarnedExp(exp);
     setPartnerExp(nextPartnerExp);
     setResultStatus(passed ? 'passed' : 'failed');
-    upsertTodayRecord(child.id, {
-      targetWordCount: DAILY_WORD_TARGET,
-      studiedWordIds: mergeIds(existing?.studiedWordIds, passed ? todayWords.map((word) => word.id) : []),
-      quizQuestionCount: quizQuestions.length,
-      correctCount,
-      wrongWordIds,
-      passed: passed || existing?.passed || false,
-      completedAt: passed ? new Date().toISOString() : existing?.completedAt || '',
-      earnedExp: (existing?.earnedExp || 0) + exp,
-    });
     setStage('result');
   };
 
@@ -258,16 +272,19 @@ export default function DailyWordUnitPage() {
   };
 
   const retryWrongWords = () => {
-    const wrongIds = new Set(wrongAnswers.map((answer) => answer.wordId));
-    const firstWrongIndex = todayWords.findIndex((word) => wrongIds.has(word.id));
-    setStudyIndex(firstWrongIndex >= 0 ? firstWrongIndex : 0);
+    const wrongIds = new Set(wrongAnswers.map((answer) => String(answer.wordId)));
+    const wrongWords = todayWords.filter((word) => wrongIds.has(String(word.id)));
+    setQuizQuestions(buildQuizQuestions(wrongWords, allWords));
+    setQuizIndex(0);
     setAnswers([]);
     setSelectedChoice('');
-    setStage('study');
+    setResultStatus('');
+    setEarnedExp(0);
+    setStage('quiz');
   };
 
   const retryQuiz = () => {
-    setQuizQuestions(buildQuiz(todayWords));
+    setQuizQuestions(buildQuizQuestions(todayWords, allWords));
     setQuizIndex(0);
     setAnswers([]);
     setSelectedChoice('');
@@ -298,9 +315,9 @@ export default function DailyWordUnitPage() {
               PT
             </div>
             <div className="min-w-0">
-              <p className="text-[11px] font-black uppercase tracking-[0.28em] text-[#8b9cc4]">ポケ単 Poke-Tan</p>
+              <p className="text-[11px] font-black uppercase tracking-[0.28em] text-[#8b9cc4]">Poke-Tan</p>
               <h1 className="display-font mt-1 text-3xl font-black leading-tight text-[#31406f] sm:text-4xl">今日の単語ユニット</h1>
-              <p className="mt-1 text-sm font-bold text-[#51658a]">いっしょに集めよう！英語の宝物。</p>
+              <p className="mt-1 text-sm font-bold text-[#51658a]">いっしょに英単語を覚えよう</p>
             </div>
           </div>
           <div className="hidden rounded-[22px] border border-white/70 bg-white/85 px-4 py-3 text-sm font-bold text-[#6176aa] sm:block">
@@ -315,12 +332,12 @@ export default function DailyWordUnitPage() {
       {!error && stage === 'preview' && (
         <section className="panel px-6 py-6 sm:px-8">
           <div className="rounded-[30px] bg-[linear-gradient(180deg,#eef8ff_0%,#fffdf7_100%)] p-6">
-            <p className="text-sm font-black text-[#6f7da8]">今日の目標：{targetCount}語</p>
+            <p className="text-sm font-black text-[#6f7da8]">今日の目標: {targetCount}語</p>
             <h2 className="display-font mt-3 text-3xl font-extrabold text-[#354172]">今日の単語</h2>
             <p className="mt-2 text-sm font-bold text-[#60709d]">{targetCount}個をいっしょに覚えよう</p>
             <div className="mt-4 flex flex-wrap gap-2 text-xs font-bold text-[#61759e]">
               <span className="rounded-full bg-white/82 px-3 py-1">{child.name} さん</span>
-              <span className="rounded-full bg-white/82 px-3 py-1">目標：{child.targetLevel}</span>
+              <span className="rounded-full bg-white/82 px-3 py-1">目標: {child.targetLevel}</span>
               <span className="rounded-full bg-[#fff7d6] px-3 py-1">{partnerName} Lv.1</span>
             </div>
           </div>
@@ -371,11 +388,9 @@ export default function DailyWordUnitPage() {
               <h1 className="display-font mt-6 text-5xl font-extrabold text-[#354172]">{currentWord.word}</h1>
               {currentWord.partOfSpeech && <p className="mt-2 text-sm font-bold text-[#8fa0c2]">{currentWord.partOfSpeech}</p>}
               <p className="mt-5 text-2xl font-black text-[#4f627f]">{currentWord.meaningJa}</p>
-              {currentWord.meaningZh && <p className="mt-2 text-base font-bold text-[#6f7da8]">中文：{currentWord.meaningZh}</p>}
-              {currentWord.phrase && <p className="mt-5 rounded-[20px] bg-[#fff7d6] px-4 py-3 text-sm font-bold text-[#6b5a2d]">熟語：{currentWord.phrase}</p>}
+              {currentWord.phrase && <p className="mt-5 rounded-[20px] bg-[#fff7d6] px-4 py-3 text-sm font-bold text-[#6b5a2d]">フレーズ: {currentWord.phrase}</p>}
               {currentWord.exampleEn && <p className="mt-7 text-lg font-bold leading-8 text-[#34406f]">英語の例文: {currentWord.exampleEn}</p>}
               {currentWord.exampleJa && <p className="mt-3 text-sm font-bold leading-7 text-[#60709d]">例文の意味: {currentWord.exampleJa}</p>}
-              {currentWord.exampleZh && <p className="mt-1 text-sm font-bold leading-7 text-[#7b86a8]">中文例句: {currentWord.exampleZh}</p>}
 
               <div className="mt-7 flex flex-wrap gap-3">
                 <button type="button" onClick={() => speak(currentWord.word)} className="pill-button px-5 py-3 text-sm">
@@ -393,7 +408,7 @@ export default function DailyWordUnitPage() {
             </article>
 
             <aside className="rounded-[34px] bg-white/82 p-5 text-center shadow-[0_14px_34px_rgba(145,177,209,0.14)]">
-              <p className="text-xs font-black text-[#8fa0c2]">現在の子ども</p>
+              <p className="text-xs font-black text-[#8fa0c2]">今の子ども</p>
               <p className="mt-2 text-lg font-black text-[#354172]">{child.name} さん</p>
               <div className="mt-6 rounded-[30px] bg-[#eef8ff] p-4">
                 {partnerImage ? (
@@ -403,7 +418,7 @@ export default function DailyWordUnitPage() {
                 )}
               </div>
               <h3 className="display-font mt-4 text-3xl font-black text-[#354172]">{partnerName}</h3>
-              <p className="mt-3 rounded-full bg-[#f3f7ff] px-4 py-2 text-sm font-bold text-[#51688f]">今日もいっしょにがんばろう。</p>
+              <p className="mt-3 rounded-full bg-[#f3f7ff] px-4 py-2 text-sm font-bold text-[#51688f]">今日もいっしょにがんばろう</p>
               <div className="mt-5 rounded-[24px] bg-[#f8fbff] px-4 py-4">
                 <div className="flex justify-between text-sm font-bold text-[#6f7da8]">
                   <span>EXP</span>
@@ -426,7 +441,17 @@ export default function DailyWordUnitPage() {
           </div>
           <div className="rounded-[30px] bg-[linear-gradient(180deg,#eef8ff_0%,#fffdf7_100%)] p-6">
             <p className="text-sm font-black text-[#6f7da8]">小テスト</p>
-            <h2 className="display-font mt-4 text-3xl font-extrabold text-[#354172]">{currentQuestion.question}</h2>
+            <h2 className="display-font mt-4 whitespace-pre-line text-3xl font-extrabold text-[#354172]">{currentQuestion.question}</h2>
+            <div className="mt-5 flex flex-wrap gap-3">
+              <button type="button" onClick={() => speak(currentQuestion.word.word)} className="ghost-button px-5 py-3 text-sm">
+                単語を聞く
+              </button>
+              {currentQuestion.word.exampleEn && (
+                <button type="button" onClick={() => speak(currentQuestion.word.exampleEn)} className="ghost-button px-5 py-3 text-sm">
+                  例文を聞く
+                </button>
+              )}
+            </div>
           </div>
           <div className="mt-6 grid gap-3">
             {currentQuestion.choices.map((choice) => {
@@ -454,10 +479,10 @@ export default function DailyWordUnitPage() {
           {selectedChoice && (
             <div className="mt-5 rounded-[24px] bg-[#f9fcff] p-5 text-sm font-bold leading-7 text-[#60709d]">
               <p className="text-base font-black text-[#354172]">
-                {selectedChoice === currentQuestion.correct ? '正解！' : `答え：${currentQuestion.correct}`}
+                {selectedChoice === currentQuestion.correct ? '正解！' : `答え: ${currentQuestion.correct}`}
               </p>
               <p className="mt-1">
-                {currentQuestion.word.word}：{currentQuestion.word.meaningJa}
+                {currentQuestion.word.word} / {currentQuestion.word.meaningJa}
               </p>
               {currentQuestion.word.exampleEn && <p className="mt-1">{currentQuestion.word.exampleEn}</p>}
               <button type="button" onClick={nextQuiz} className="pill-button mt-4 px-5 py-3">
@@ -480,9 +505,9 @@ export default function DailyWordUnitPage() {
                 : 'まちがえた単語だけ、もう一度見てみよう。'}
             </p>
             <div className="mt-5 flex flex-wrap justify-center gap-2 text-sm font-black text-[#61759e]">
-              <span className="rounded-full bg-white/82 px-4 py-2">正解数：{correctCount} / {quizQuestions.length}</span>
-              <span className="rounded-full bg-[#fff7d6] px-4 py-2">獲得EXP：+{earnedExp}</span>
-              <span className="rounded-full bg-white/82 px-4 py-2">{partnerName} EXP：{partnerExp}</span>
+              <span className="rounded-full bg-white/82 px-4 py-2">正解数: {correctCount} / {quizQuestions.length}</span>
+              <span className="rounded-full bg-[#fff7d6] px-4 py-2">獲得EXP: {earnedExp}</span>
+              <span className="rounded-full bg-white/82 px-4 py-2">{partnerName} EXP: {partnerExp}</span>
             </div>
           </div>
 
@@ -492,7 +517,7 @@ export default function DailyWordUnitPage() {
               <div className="mt-3 grid gap-2 sm:grid-cols-2">
                 {wrongAnswers.map((answer) => (
                   <div key={answer.questionId} className="rounded-[18px] bg-[#f8fbff] px-4 py-3 text-sm font-bold text-[#60709d]">
-                    {answer.word} / 答え：{answer.correctAnswer}
+                    {answer.word} / 答え: {answer.correctAnswer}
                   </div>
                 ))}
               </div>
@@ -512,7 +537,7 @@ export default function DailyWordUnitPage() {
             )}
             {resultStatus === 'passed' && (
               <button type="button" onClick={startNextUnit} className="pill-button px-5 py-3">
-                次の20語へ
+                次の{dailyTarget}語へ
               </button>
             )}
             <button type="button" onClick={() => navigate('/app')} className="ghost-button px-5 py-3">
@@ -524,3 +549,4 @@ export default function DailyWordUnitPage() {
     </div>
   );
 }
+

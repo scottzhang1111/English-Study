@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import HeaderBar from '../components/HeaderBar';
@@ -22,6 +22,7 @@ export default function EikenPre2WrongReviewPage() {
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState(null);
+  const didInitialLoad = useRef(false);
 
   const setIds = useMemo(() => [...new Set(wrongQuestions.map((item) => item.set_id))], [wrongQuestions]);
   const weakPointTags = useMemo(
@@ -69,6 +70,7 @@ export default function EikenPre2WrongReviewPage() {
         setSelectedChildId(initialId);
         if (initialId) {
           localStorage.setItem(CHILD_STORAGE_KEY, initialId);
+          didInitialLoad.current = true;
           loadWrongQuestions(initialId, questionType);
         } else {
           setLoading(false);
@@ -87,6 +89,11 @@ export default function EikenPre2WrongReviewPage() {
     if (!selectedChildId) return;
     localStorage.setItem(CHILD_STORAGE_KEY, selectedChildId);
   }, [selectedChildId]);
+
+  useEffect(() => {
+    if (!selectedChildId || !didInitialLoad.current) return;
+    loadWrongQuestions(selectedChildId, questionType, weakPointTag);
+  }, [selectedChildId, questionType, weakPointTag]);
 
   const chooseAnswer = (option) => {
     if (!currentQuestion || locked) return;
