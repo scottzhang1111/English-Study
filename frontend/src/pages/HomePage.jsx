@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
 import { Link, Navigate, useNavigate } from 'react-router-dom';
 import HeaderBar from '../components/HeaderBar';
@@ -40,10 +40,13 @@ export default function HomePage() {
   const [grammarData, setGrammarData] = useState(null);
   const [error, setError] = useState(null);
   const [partnerLineIndex, setPartnerLineIndex] = useState(0);
-  const [selectedChild, setSelectedChild] = useState(null);
   const [hasNoChildren, setHasNoChildren] = useState(false);
   const { children, childrenLoading, childrenError, selectedChildId, setSelectedChildId, refreshChildren } = useChildren();
   const navigate = useNavigate();
+  const selectedChild = useMemo(
+    () => children.find((item) => String(item.id) === String(selectedChildId)) || null,
+    [children, selectedChildId],
+  );
   const todayTarget = Number(data?.target || selectedChild?.daily_target || DEFAULT_DAILY_WORD_TARGET);
   const todayStudied = Number(data?.progress ?? 0);
   const safeTodayTarget = Math.max(1, todayTarget);
@@ -107,7 +110,6 @@ export default function HomePage() {
     if (childrenLoading) return;
     if (children.length === 0) {
       setSelectedChildId('');
-      setSelectedChild(null);
       setHasNoChildren(true);
       setData(null);
       return;
@@ -123,7 +125,6 @@ export default function HomePage() {
       navigate('/settings/children', { replace: true });
       return;
     }
-    setSelectedChild(child);
   }, [children, childrenLoading, navigate, selectedChildId, setSelectedChildId]);
 
   useEffect(() => {

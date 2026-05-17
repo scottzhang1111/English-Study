@@ -1,10 +1,9 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { saveChildProfile } from '../api';
+import { useChildren } from '../ChildrenContext';
 import { DEFAULT_PARTNER_ID } from '../utils/childStorage';
 import { PET_STARTER_OPTIONS } from '../lib/petMaster';
-
-const CHILD_STORAGE_KEY = 'selected_child_id';
 
 const GRADE_OPTIONS = [
   '小学1年生',
@@ -22,6 +21,7 @@ const TARGET_LEVEL_OPTIONS = ['英検5級', '英検4級', '英検3級', '準2級
 
 export default function AddChildPage() {
   const navigate = useNavigate();
+  const { setSelectedChildId, refreshChildren } = useChildren();
   const [name, setName] = useState('');
   const [grade, setGrade] = useState('小学2年生');
   const [targetLevel, setTargetLevel] = useState('準2級');
@@ -44,8 +44,9 @@ export default function AddChildPage() {
         starter_pokemon_id: Number(partnerMonsterId || DEFAULT_PARTNER_ID),
       });
       const childId = result?.child?.id;
+      await refreshChildren();
       if (childId) {
-        localStorage.setItem(CHILD_STORAGE_KEY, String(childId));
+        setSelectedChildId(String(childId));
       }
       navigate('/app', { replace: true });
     } catch (err) {

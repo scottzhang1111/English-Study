@@ -1,5 +1,6 @@
 ﻿import { useEffect, useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
 import HeaderBar from '../components/HeaderBar';
 import { useChildren } from '../ChildrenContext';
 import {
@@ -17,7 +18,6 @@ const DEFAULT_FORM = {
 };
 
 const GRADE_OPTIONS = ['1', '2', '3', '4', '5', '6'];
-const CHILD_STORAGE_KEY = 'selected_child_id';
 
 const TYPE_LABELS = {
   air: 'そら',
@@ -49,33 +49,19 @@ function getTypeNames(option) {
     .filter(Boolean);
 }
 
-function getSelectedChildId() {
-  if (typeof window === 'undefined') return '';
-  return window.localStorage.getItem(CHILD_STORAGE_KEY) || '';
-}
-
-function clearSelectedChildId() {
-  localStorage.removeItem(CHILD_STORAGE_KEY);
-  try {
-    sessionStorage.removeItem(CHILD_STORAGE_KEY);
-  } catch (err) {
-    // sessionStorage can be unavailable in restricted browser modes.
-  }
-}
-
 export default function SettingsPage() {
+  const navigate = useNavigate();
   const [starterOptions, setStarterOptions] = useState([]);
   const [loadingOptions, setLoadingOptions] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [editingChildId, setEditingChildId] = useState(null);
-  const [selectedChildId, setSelectedChildId] = useState(getSelectedChildId);
   const [selectedStarterId, setSelectedStarterId] = useState('');
   const [form, setForm] = useState(DEFAULT_FORM);
   const [profileError, setProfileError] = useState('');
   const [profileMessage, setProfileMessage] = useState('');
   const [deleteTargetChild, setDeleteTargetChild] = useState(null);
   const [isDeletingChild, setIsDeletingChild] = useState(false);
-  const { children, childrenError, refreshChildren } = useChildren();
+  const { children, childrenError, selectedChildId, setSelectedChildId, refreshChildren } = useChildren();
 
   const selectedStarter = useMemo(
     () => starterOptions.find((option) => String(option.id) === String(selectedStarterId)) || null,
@@ -155,9 +141,8 @@ export default function SettingsPage() {
   };
 
   const handleSelectChild = (childId) => {
-    localStorage.setItem(CHILD_STORAGE_KEY, String(childId));
     setSelectedChildId(String(childId));
-    setProfileMessage('学習する子を切り替えました。');
+    navigate('/app', { replace: true });
   };
 
   const handleSaveProfile = async () => {
@@ -183,7 +168,6 @@ export default function SettingsPage() {
       const childrenList = await refreshChildren();
       const nextChildId = payload?.child?.id || childrenList[0]?.id;
       if (nextChildId) {
-        localStorage.setItem(CHILD_STORAGE_KEY, String(nextChildId));
         setSelectedChildId(String(nextChildId));
       }
 
@@ -217,15 +201,9 @@ export default function SettingsPage() {
       const nextChildren = await refreshChildren();
       if (String(selectedChildId) === String(childId)) {
         const nextSelected = nextChildren[0]?.id ? String(nextChildren[0].id) : '';
-        if (nextSelected) {
-          localStorage.setItem(CHILD_STORAGE_KEY, nextSelected);
-        } else {
-          clearSelectedChildId();
-        }
         setSelectedChildId(nextSelected);
       }
       if (nextChildren.length === 0) {
-        clearSelectedChildId();
         setSelectedChildId('');
       }
       if (String(editingChildId) === String(childId)) {
