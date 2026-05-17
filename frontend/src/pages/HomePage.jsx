@@ -35,6 +35,8 @@ const PARTNER_LINES = [
   'ピッカ～！いっしょに頑張ろう！',
 ];
 
+const MENU_ICONS = ['📖', '📝', '🔗', '❌', '✍️', '🏆', '🎧'];
+
 export default function HomePage() {
   const [data, setData] = useState(null);
   const [grammarData, setGrammarData] = useState(null);
@@ -236,10 +238,11 @@ export default function HomePage() {
                   <h1 className="display-font mb-3 text-2xl font-extrabold text-[#354172] md:text-3xl">
                     {dailyTitle}
                   </h1>
+                  <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
                   <button
                     type="button"
                     onClick={() => navigate('/daily-words')}
-                    className="pill-button w-full px-5 py-4 text-lg font-black text-[#4f3900] shadow-[0_8px_0_rgba(170,120,0,0.92),0_14px_24px_rgba(255,191,31,0.24)] transition-all duration-200 active:translate-y-0 active:scale-[0.98] md:w-auto md:px-8 md:text-[2rem] md:shadow-[0_12px_0_rgba(170,120,0,0.92),0_18px_30px_rgba(255,191,31,0.30)] md:hover:-translate-y-0.5 md:hover:brightness-105"
+                    className="pill-button w-full px-5 py-4 text-lg font-black text-[#4f3900] shadow-[0_8px_0_rgba(170,120,0,0.92),0_14px_24px_rgba(255,191,31,0.24)] transition-all duration-200 active:translate-y-0 active:scale-[0.98] sm:w-auto md:px-8 md:text-[2rem] md:shadow-[0_12px_0_rgba(170,120,0,0.92),0_18px_30px_rgba(255,191,31,0.30)] md:hover:-translate-y-0.5 md:hover:brightness-105"
                   >
                     {dailyButtonText}
                   </button>
@@ -247,11 +250,12 @@ export default function HomePage() {
                     <button
                       type="button"
                       onClick={() => navigate('/petroom')}
-                      className="ghost-button ml-0 mt-3 px-6 py-3 text-sm sm:ml-3 sm:mt-0"
+                      className="w-full rounded-full border border-[#d9e8f8] bg-white/90 px-6 py-3 text-sm font-black text-[#435987] shadow-[0_10px_22px_rgba(103,148,191,0.10)] transition hover:-translate-y-0.5 hover:bg-[#f8fcff] sm:w-auto"
                     >
                       ペットを見る
                     </button>
                   )}
+                  </div>
                   <p className="mt-3 text-[0.98rem] leading-6 text-[#44556f] sm:text-base">
                     {dailyMessage}
                   </p>
@@ -360,18 +364,18 @@ export default function HomePage() {
               <Link
                 key={item.to}
                 to={item.to}
-                className={`group flex min-h-[112px] flex-col items-start gap-2 rounded-2xl border border-white/90 bg-white/78 p-3 text-[#1f315f] shadow-[0_12px_30px_rgba(145,177,209,0.10)] transition-all duration-200 active:scale-[0.98] md:min-h-[118px] md:rounded-3xl md:p-4 md:hover:-translate-y-1 md:hover:bg-white/92 md:hover:shadow-lg ${
+              className={`group flex min-h-[132px] flex-col items-start gap-2.5 rounded-2xl border border-white/90 bg-white/78 p-3.5 text-[#1f315f] shadow-[0_12px_30px_rgba(145,177,209,0.10)] transition-all duration-200 active:scale-[0.98] md:min-h-[118px] md:rounded-3xl md:p-4 md:hover:-translate-y-1 md:hover:bg-white/92 md:hover:shadow-lg ${
                   index === 6 ? 'col-span-2 md:col-span-1' : ''
                 }`}
               >
-                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[14px] border border-[#dfeefa] bg-[#f8fcff] text-base font-black shadow-[inset_0_0_0_1px_rgba(132,173,222,0.10)] md:h-14 md:w-14 md:rounded-[20px] md:text-xl">
-                  {item.icon}
+                <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-[15px] border border-[#dfeefa] bg-[#f8fcff] text-xl font-black shadow-[inset_0_0_0_1px_rgba(132,173,222,0.10)] md:h-14 md:w-14 md:rounded-[20px] md:text-2xl">
+                  {MENU_ICONS[index] || item.icon}
                 </span>
                 <span className="min-w-0 flex-1">
-                  <span className="display-font block text-[13px] font-extrabold leading-snug md:text-base">{item.label}</span>
-                  <span className="mt-1 block text-xs font-bold leading-5 text-[#536685] md:text-sm">{item.subtitle}</span>
+                  <span className="display-font block text-sm font-extrabold leading-snug md:text-base">{item.label}</span>
+                  <span className="mt-1.5 block text-[12px] font-bold leading-5 text-[#536685] md:text-sm">{item.subtitle}</span>
                 </span>
-                <span className="mt-auto hidden shrink-0 text-xs font-black text-[#3b4864] md:block">
+                <span className="mt-auto shrink-0 rounded-full bg-[#eef8ff] px-2.5 py-1 text-[11px] font-black text-[#3b4864] md:text-xs">
                   {item.status}
                 </span>
               </Link>

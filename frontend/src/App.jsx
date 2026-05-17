@@ -1,4 +1,4 @@
-import { Routes, Route, useLocation, Navigate } from 'react-router-dom';
+import { Link, Routes, Route, useLocation, Navigate } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import HomePage from './pages/HomePage';
 import AddChildPage from './pages/AddChildPage';
@@ -49,8 +49,41 @@ function ChildRequiredPage({ children }) {
   return <RequireCurrentChild>{children}</RequireCurrentChild>;
 }
 
+const STUDY_ROUTE_PREFIXES = [
+  '/daily-words',
+  '/app/daily-words',
+  '/flashcard',
+  '/quiz',
+  '/vocab-expansion',
+  '/grammar-practice',
+  '/ai-practice',
+  '/battle',
+  '/eiken',
+  '/eiken-pre2',
+  '/eiken-real',
+  '/review',
+  '/error-review',
+  '/today-review-quiz',
+];
+
+function isStudyRoute(pathname) {
+  return STUDY_ROUTE_PREFIXES.some((path) => pathname === path || pathname.startsWith(`${path}/`));
+}
+
+function StudyReturnControl() {
+  return (
+    <Link
+      to="/"
+      className="fixed left-3 top-3 z-30 rounded-full border border-white/80 bg-white/95 px-4 py-2 text-sm font-black text-[#435987] shadow-[0_12px_28px_rgba(103,148,191,0.16)] backdrop-blur transition hover:-translate-y-0.5 hover:bg-[#f8fcff]"
+    >
+      ← ホームに戻る
+    </Link>
+  );
+}
+
 function App() {
   const location = useLocation();
+  const hideBottomNav = isStudyRoute(location.pathname);
 
   return (
     <LanguageProvider>
@@ -93,7 +126,7 @@ function App() {
             <Route path="*" element={<Navigate replace to="/" />} />
             </Routes>
           </AnimatePresence>
-          <BottomNav />
+          {hideBottomNav ? <StudyReturnControl /> : <BottomNav />}
         </div>
       </ChildrenProvider>
     </LanguageProvider>

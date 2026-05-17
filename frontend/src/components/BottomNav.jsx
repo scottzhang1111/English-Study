@@ -45,7 +45,7 @@ export default function BottomNav() {
   ];
 
   return (
-    <nav className="bottom-nav fixed bottom-[max(0.75rem,env(safe-area-inset-bottom))] left-1/2 z-20 flex -translate-x-1/2 items-stretch justify-between gap-1 rounded-[28px] border border-white/70 bg-white/92 px-2 py-2 shadow-[0_14px_34px_rgba(129,164,199,0.20)] backdrop-blur">
+    <nav className="bottom-nav fixed bottom-[max(0.75rem,env(safe-area-inset-bottom))] left-1/2 z-20 flex w-[calc(100%-1rem)] max-w-md -translate-x-1/2 items-stretch justify-between gap-1 rounded-[28px] border border-white/70 bg-white/92 px-2 py-2 shadow-[0_14px_34px_rgba(129,164,199,0.20)] backdrop-blur sm:w-auto">
       {items.map((item) => (
         <NavLink
           key={item.path}
