@@ -128,7 +128,7 @@ export default function HomePage() {
   }, [children, childrenLoading, navigate, selectedChildId, setSelectedChildId]);
 
   useEffect(() => {
-    if (!selectedChildId || hasNoChildren) return;
+    if (!selectedChildId || hasNoChildren || !selectedChild) return;
     Promise.all([
       getHomeData(selectedChildId),
       getGrammarLessons(selectedChildId).catch(() => null),
@@ -142,7 +142,7 @@ export default function HomePage() {
         setData(DEFAULT_HOME_DATA);
         setGrammarData(null);
       });
-  }, [hasNoChildren, selectedChildId]);
+  }, [hasNoChildren, selectedChild, selectedChildId]);
 
   useEffect(() => {
     const timer = window.setInterval(() => {
