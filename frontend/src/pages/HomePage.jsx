@@ -8,8 +8,6 @@ import { useChildren } from '../ChildrenContext';
 import { getPartner } from '../utils/childStorage';
 
 const DEFAULT_DAILY_WORD_TARGET = 20;
-const CHILD_STORAGE_KEY = 'selected_child_id';
-
 const DEFAULT_HOME_DATA = {
   progress: 0,
   target: 20,
@@ -37,24 +35,14 @@ const PARTNER_LINES = [
   'ピッカ～！いっしょに頑張ろう！',
 ];
 
-function clearSelectedChildId() {
-  localStorage.removeItem(CHILD_STORAGE_KEY);
-  try {
-    sessionStorage.removeItem(CHILD_STORAGE_KEY);
-  } catch (err) {
-    // sessionStorage can be unavailable in restricted browser modes.
-  }
-}
-
 export default function HomePage() {
   const [data, setData] = useState(null);
   const [grammarData, setGrammarData] = useState(null);
   const [error, setError] = useState(null);
   const [partnerLineIndex, setPartnerLineIndex] = useState(0);
   const [selectedChild, setSelectedChild] = useState(null);
-  const [selectedChildId, setSelectedChildId] = useState(() => localStorage.getItem(CHILD_STORAGE_KEY) || '');
   const [hasNoChildren, setHasNoChildren] = useState(false);
-  const { children, childrenLoading, childrenError, refreshChildren } = useChildren();
+  const { children, childrenLoading, childrenError, selectedChildId, setSelectedChildId, refreshChildren } = useChildren();
   const navigate = useNavigate();
   const todayTarget = Number(data?.target || selectedChild?.daily_target || DEFAULT_DAILY_WORD_TARGET);
   const todayStudied = Number(data?.progress ?? 0);
@@ -118,7 +106,6 @@ export default function HomePage() {
   useEffect(() => {
     if (childrenLoading) return;
     if (children.length === 0) {
-      clearSelectedChildId();
       setSelectedChildId('');
       setSelectedChild(null);
       setHasNoChildren(true);
@@ -132,13 +119,12 @@ export default function HomePage() {
     }
     const child = children.find((item) => String(item.id) === String(selectedChildId));
     if (!child) {
-      clearSelectedChildId();
       setSelectedChildId('');
       navigate('/settings/children', { replace: true });
       return;
     }
     setSelectedChild(child);
-  }, [children, childrenLoading, navigate, selectedChildId]);
+  }, [children, childrenLoading, navigate, selectedChildId, setSelectedChildId]);
 
   useEffect(() => {
     if (!selectedChildId || hasNoChildren) return;

@@ -3,11 +3,28 @@ import { getChildren } from './api';
 
 const ChildrenContext = createContext(null);
 let initialChildrenRequest = null;
+const CHILD_STORAGE_KEY = 'selected_child_id';
 
 export function ChildrenProvider({ children }) {
   const [childrenList, setChildrenList] = useState([]);
   const [childrenLoading, setChildrenLoading] = useState(true);
   const [childrenError, setChildrenError] = useState('');
+  const [selectedChildId, setSelectedChildIdState] = useState(() => localStorage.getItem(CHILD_STORAGE_KEY) || '');
+
+  const setSelectedChildId = useCallback((childId) => {
+    const nextId = childId ? String(childId) : '';
+    if (nextId) {
+      localStorage.setItem(CHILD_STORAGE_KEY, nextId);
+    } else {
+      localStorage.removeItem(CHILD_STORAGE_KEY);
+      try {
+        sessionStorage.removeItem(CHILD_STORAGE_KEY);
+      } catch (err) {
+        // sessionStorage can be unavailable in restricted browser modes.
+      }
+    }
+    setSelectedChildIdState(nextId);
+  }, []);
 
   const refreshChildren = useCallback(async ({ force = true } = {}) => {
     setChildrenLoading(true);
@@ -46,9 +63,11 @@ export function ChildrenProvider({ children }) {
       children: childrenList,
       childrenLoading,
       childrenError,
+      selectedChildId,
+      setSelectedChildId,
       refreshChildren,
     }),
-    [childrenList, childrenLoading, childrenError, refreshChildren],
+    [childrenList, childrenLoading, childrenError, selectedChildId, setSelectedChildId, refreshChildren],
   );
 
   return <ChildrenContext.Provider value={value}>{children}</ChildrenContext.Provider>;

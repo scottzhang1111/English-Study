@@ -1,23 +1,26 @@
-import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useChildren } from '../ChildrenContext';
 import { getPartner } from '../utils/childStorage';
 
-const CHILD_STORAGE_KEY = 'selected_child_id';
-
 function getPartnerForChild(child) {
-  const starter = String(child.partnerMonsterId || child.starter_pokemon_id || '');
+  const starter = String(
+    child.partnerMonsterId
+      || child.starter_pokemon_id
+      || child.starterPokemonId
+      || child.pet?.pokemon_id
+      || child.pet?.catalog_id
+      || child.pet?.id
+      || '',
+  );
   return getPartner(starter || 1);
 }
 
 export default function ChildSelectPage() {
   const navigate = useNavigate();
-  const [currentChildId, setCurrentChildId] = useState(localStorage.getItem(CHILD_STORAGE_KEY) || '');
-  const { children, childrenLoading, childrenError, refreshChildren } = useChildren();
+  const { children, childrenLoading, childrenError, selectedChildId, setSelectedChildId, refreshChildren } = useChildren();
 
   const handleSelect = (childId) => {
-    localStorage.setItem(CHILD_STORAGE_KEY, String(childId));
-    setCurrentChildId(String(childId));
+    setSelectedChildId(childId);
     navigate('/app', { replace: true });
   };
 
@@ -54,7 +57,7 @@ export default function ChildSelectPage() {
         <div className="mt-7 grid gap-4 md:grid-cols-2">
           {children.map((child) => {
             const partner = getPartnerForChild(child);
-            const active = String(child.id) === String(currentChildId);
+            const active = String(child.id) === String(selectedChildId);
             return (
               <article
                 key={child.id}
@@ -64,7 +67,11 @@ export default function ChildSelectPage() {
               >
                 <div className="flex items-center gap-4">
                   <div className="flex h-[250px] w-[250px] max-w-full shrink-0 items-center justify-center rounded-[28px] bg-white/40">
-                    <img src={partner.imageUrl} alt={partner.name} className="h-[250px] w-[250px] max-w-full object-contain" />
+                    {partner.imageUrl ? (
+                      <img src={partner.imageUrl} alt={partner.name} className="h-[250px] w-[250px] max-w-full object-contain" />
+                    ) : (
+                      <span className="text-2xl font-black text-[#354172]">PT</span>
+                    )}
                   </div>
                   <div className="min-w-0">
                     <h2 className="truncate text-2xl font-black text-[#354172]">{child.name}</h2>
