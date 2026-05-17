@@ -7,8 +7,7 @@ const CHILD_STORAGE_KEY = 'selected_child_id';
 
 function getPartnerForChild(child) {
   const starter = String(child.partnerMonsterId || child.starter_pokemon_id || '');
-  const byPokemonId = { 1: 'bulbasaur', 4: 'charmander', 7: 'squirtle' };
-  return getPartner(byPokemonId[starter] || starter);
+  return getPartner(starter || 1);
 }
 
 export default function ChildSelectPage() {
@@ -63,8 +62,8 @@ export default function ChildSelectPage() {
                 }`}
               >
                 <div className="flex items-center gap-4">
-                  <div className="flex h-24 w-24 shrink-0 items-center justify-center rounded-[28px] bg-white/88">
-                    <img src={partner.imageUrl} alt={partner.name} className="h-full w-full object-contain p-2" />
+                  <div className="flex h-[250px] w-[250px] max-w-full shrink-0 items-center justify-center rounded-[28px] bg-white/40">
+                    <img src={partner.imageUrl} alt={partner.name} className="h-[250px] w-[250px] max-w-full object-contain" />
                   </div>
                   <div className="min-w-0">
                     <h2 className="truncate text-2xl font-black text-[#354172]">{child.name}</h2>

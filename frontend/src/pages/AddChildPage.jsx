@@ -1,14 +1,10 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { saveChildProfile } from '../api';
-import { DEFAULT_PARTNER_ID, PARTNERS } from '../utils/childStorage';
+import { DEFAULT_PARTNER_ID } from '../utils/childStorage';
+import { PET_STARTER_OPTIONS } from '../lib/petMaster';
 
 const CHILD_STORAGE_KEY = 'selected_child_id';
-const STARTER_POKEMON_IDS = {
-  bulbasaur: 1,
-  charmander: 4,
-  squirtle: 7,
-};
 
 const GRADE_OPTIONS = [
   '小学1年生',
@@ -45,7 +41,7 @@ export default function AddChildPage() {
         name: name.trim(),
         grade,
         target_level: targetLevel,
-        starter_pokemon_id: STARTER_POKEMON_IDS[partnerMonsterId] || STARTER_POKEMON_IDS[DEFAULT_PARTNER_ID],
+        starter_pokemon_id: Number(partnerMonsterId || DEFAULT_PARTNER_ID),
       });
       const childId = result?.child?.id;
       if (childId) {
@@ -125,19 +121,19 @@ export default function AddChildPage() {
         <div className="rounded-[34px] bg-[linear-gradient(180deg,#eef8ff_0%,#fffdf7_100%)] p-5">
           <p className="text-sm font-bold text-[#6f7da8]">パートナー</p>
           <div className="mt-4 grid gap-3">
-            {Object.values(PARTNERS).map((partner) => {
-              const active = partnerMonsterId === partner.id;
+            {PET_STARTER_OPTIONS.map((partner) => {
+              const active = String(partnerMonsterId) === String(partner.id);
               return (
                 <button
                   key={partner.id}
                   type="button"
-                  onClick={() => setPartnerMonsterId(partner.id)}
+                  onClick={() => setPartnerMonsterId(String(partner.id))}
                   className={`flex items-center gap-4 rounded-[28px] border p-3 text-left transition ${
                     active ? 'border-[#f0c24f] bg-[#fff7d6]' : 'border-white/80 bg-white/88 hover:-translate-y-0.5'
                   }`}
                 >
-                  <span className="flex h-20 w-20 shrink-0 items-center justify-center rounded-[24px] bg-white/86">
-                    <img src={partner.imageUrl} alt={partner.name} className="h-full w-full object-contain p-2" />
+                  <span className="flex h-[250px] w-[250px] max-w-full shrink-0 items-center justify-center rounded-[24px] bg-white/40">
+                    <img src={partner.image_url} alt={partner.name} className="h-[250px] w-[250px] max-w-full object-contain" />
                   </span>
                   <span>
                     <span className="block text-lg font-black text-[#354172]">{partner.name}</span>

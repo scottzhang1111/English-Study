@@ -19,11 +19,15 @@
 
 html {
   scroll-behavior: smooth;
+  max-width: 100%;
+  overflow-x: hidden;
 }
 
 body {
+  width: 100%;
   min-height: 100vh;
   margin: 0;
+  overflow-x: hidden;
   font-family: 'Quicksand', 'Segoe UI', sans-serif;
   color: var(--ink);
   background:
@@ -36,22 +40,40 @@ body {
   box-sizing: border-box;
 }
 
+img,
+video,
+canvas,
+svg,
+table {
+  max-width: 100%;
+}
+
 button {
   transition: all 180ms ease-out;
 }
 
 #root {
+  width: 100%;
   min-height: 100vh;
+  overflow-x: hidden;
 }
 
 .app-shell {
   position: relative;
+  width: 100%;
+  min-height: 100vh;
+  margin: 0 auto;
   overflow-x: hidden;
+  background:
+    radial-gradient(circle at 12% 22%, rgba(255, 214, 90, 0.24), transparent 18%),
+    radial-gradient(circle at 88% 30%, rgba(255, 177, 197, 0.20), transparent 20%),
+    linear-gradient(180deg, #dff3ff 0%, #f8fcff 100%);
+  box-shadow: 0 0 40px rgba(112, 158, 203, 0.14);
 }
 
 .app-shell::before,
 .app-shell::after {
-  content: '';
+  content: none;
   position: fixed;
   top: 16px;
   bottom: 16px;
@@ -72,6 +94,13 @@ button {
 .page-wrap {
   position: relative;
   z-index: 1;
+  width: 100%;
+  margin: 0 auto;
+  overflow-x: hidden;
+}
+
+.bottom-nav {
+  width: min(760px, calc(100% - 1rem));
 }
 
 .panel {
@@ -188,23 +217,23 @@ button {
   }
 }
 
-.pokemon-aura-ring {
+.pet-aura-ring {
   position: relative;
   isolation: isolate;
 }
 
-.pokemon-aura-ring > * {
+.pet-aura-ring > * {
   position: relative;
   z-index: 1;
 }
 
-.pokemon-aura-ring img {
+.pet-aura-ring img {
   animation: breathe 3s ease-in-out infinite;
   transform-origin: center bottom;
   will-change: transform;
 }
 
-.pokemon-aura-ring::before {
+.pet-aura-ring::before {
   content: '';
   position: absolute;
   inset: -18px;
@@ -233,7 +262,7 @@ button {
   z-index: 0;
 }
 
-.pokemon-aura-ring::after {
+.pet-aura-ring::after {
   content: '';
   position: absolute;
   inset: -2px;
@@ -249,9 +278,188 @@ button {
   z-index: 0;
 }
 
+.eiken-exam-page {
+  font-family: 'Quicksand', 'Meiryo', 'Segoe UI', sans-serif;
+}
+
+.eiken-exam-sidebar {
+  border-right: 1px solid rgba(215, 230, 246, 0.75);
+  background: rgba(245, 251, 255, 0.86);
+  box-shadow: 14px 0 34px rgba(145, 177, 209, 0.10);
+}
+
+.eiken-exam-sidebar audio {
+  height: 36px;
+}
+
+.eiken-real-content {
+  color: #26376d;
+  font-family: 'Meiryo', 'Quicksand', sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.75;
+}
+
+.eiken-real-content blockquote {
+  margin: 0;
+}
+
+.eiken-real-content .ttl,
+.eiken-real-content ol,
+.eiken-real-content > br {
+  display: none;
+}
+
+.eiken-real-content table {
+  width: 100% !important;
+}
+
+.eiken-real-content table.form {
+  border-collapse: separate !important;
+  border-spacing: 0 12px !important;
+}
+
+.eiken-real-content table.form > tbody > tr {
+  display: block;
+  overflow: hidden;
+  border: 1px solid #cfe2f6;
+  border-radius: 18px;
+  background: rgba(250, 253, 255, 0.92);
+}
+
+.eiken-real-content table.form > tbody > tr:first-child {
+  background: #eaf7ff;
+}
+
+.eiken-real-content table.form > tbody > tr > th,
+.eiken-real-content table.form > tbody > tr > td {
+  display: block;
+  width: 100% !important;
+  border: 0 !important;
+  background: transparent !important;
+  padding: 0 !important;
+  text-align: left !important;
+}
+
+.eiken-real-content table.form > tbody > tr:first-child > th,
+.eiken-real-content table.form > tbody > tr:first-child > td {
+  padding: 14px 12px 0 !important;
+}
+
+.eiken-real-content table.form > tbody > tr:first-child > th:last-child,
+.eiken-real-content table.form > tbody > tr:first-child > td:last-child {
+  padding-bottom: 14px !important;
+}
+
+.eiken-real-content table.form > tbody > tr > th:first-child {
+  padding: 11px 12px 0 !important;
+  color: #5d70a1;
+  font-size: 11px !important;
+  font-weight: 900;
+}
+
+.eiken-real-content table.form > tbody > tr > td,
+.eiken-real-content table.form > tbody > tr > th[colspan='5'] {
+  padding: 12px !important;
+}
+
+.eiken-real-content table.form > tbody > tr:nth-child(2) {
+  background: #fbfdff;
+}
+
+.eiken-real-content table.form font[color='#ff00ff'],
+.eiken-real-content table.form font[color='#FF00FF'] {
+  color: #ff00cc !important;
+}
+
+.eiken-real-content audio {
+  width: 100%;
+  height: 36px;
+  margin-top: 10px;
+}
+
+.eiken-real-content .hpb-cnt-tb1 {
+  width: 100% !important;
+  margin-top: 8px;
+  border-collapse: collapse !important;
+  border: 1px solid #cfe2f6 !important;
+  border-radius: 14px;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.92) !important;
+  box-shadow: 0 8px 18px rgba(145, 177, 209, 0.10);
+}
+
+.eiken-real-content .hpb-cnt-tb1 tbody,
+.eiken-real-content .hpb-cnt-tb1 tr {
+  width: 100%;
+}
+
+.eiken-real-content .hpb-cnt-tb1 td {
+  border: 1px solid #d8e8f8 !important;
+  background: rgba(255, 255, 255, 0.82) !important;
+  padding: 9px 10px !important;
+  color: #26376d;
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1.6;
+  vertical-align: top;
+}
+
+.eiken-real-content .hpb-cnt-tb1 tr:hover td {
+  background: #f4fbff !important;
+}
+
+.eiken-real-content .hpb-cnt-tb1 tr:has(input[type='radio']:checked) td {
+  border-color: #9ed8f4 !important;
+  background: #eaf8ff !important;
+  color: #24386d;
+}
+
+.eiken-real-content .hpb-cnt-tb1 td:first-child {
+  width: 128px !important;
+  white-space: nowrap;
+  color: #52668c;
+}
+
+.eiken-real-content input[type='radio'] {
+  width: 14px;
+  height: 14px;
+  margin-right: 8px;
+  accent-color: #19baf2;
+  vertical-align: -1px;
+}
+
+.eiken-real-content img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 12px;
+}
+
+@media (max-width: 1023px) {
+  .eiken-exam-sidebar {
+    border-right: 0;
+    border-bottom: 1px solid rgba(215, 230, 246, 0.75);
+  }
+}
+
 @media (max-width: 768px) {
   .app-shell::before,
   .app-shell::after {
     display: none;
+  }
+}
+
+@media (max-width: 640px) {
+  .app-shell,
+  .page-wrap {
+    max-width: 430px;
+  }
+
+  .bottom-nav {
+    width: min(430px, calc(100% - 1rem));
+  }
+
+  .page-wrap {
+    padding-bottom: calc(7rem + env(safe-area-inset-bottom));
   }
 }

@@ -1,0 +1,253 @@
+{
+  "worldId": "AETHERIA",
+  "worldNameJa": "エセリア",
+  "worldNameEn": "Aetheria",
+  "titleJa": "エセリアと消えた英語クリスタル",
+  "mainCrystalNameJa": "始源英語クリスタル",
+  "mainCrystalNameEn": "Origin English Crystal",
+  "heroRoleJa": "語彙の目覚めし者",
+  "heroRoleEn": "Vocabulary Awakener",
+
+  "prologueTitleJa": "失われた魔法大陸",
+  "prologueJa": "はるか遠い魔法大陸エセリアには、かつて八つの古く強大なペット氏族が暮らしていました。この大陸を支えていた中心の力は、天空都市に浮かぶ巨大な神秘の結晶――始源英語クリスタルでした。エセリアでは、一つひとつの英単語が強力な魔法の呪文です。ペットたちは戦うのではなく、人間の子どもたちが英単語を読み、聞き、つづりを覚える声から力を受け取っていました。正しい発音とスペルが響くたび、クリスタルは純粋なエーテルエネルギーを放ち、世界を満たしていたのです。",
+
+  "catastropheTitleJa": "暗影虚空の封印",
+  "catastropheJa": "しかし百年前、『忘却の魔王』と呼ばれる闇の怪物が天空都市を襲いました。忘却の魔王は、ペットと人間の子どもたちの絆をねたみ、闇の魔法で始源英語クリスタルを打ち砕きました。クリスタルは無数の『英単語のかけら』となって大陸中に散らばり、語彙魔法の守りを失ったエセリアは静まり返りました。八大氏族のペットたちは色と力を失い、最も幼い姿へ退化し、闇の魔法が生んだ『シャドウキューブ』に封印されてしまいました。",
+
+  "missionTitleJa": "英語クリスタル収集計画",
+  "missionJa": "伝説によれば、異世界から来た『語彙の目覚めし者』だけが、現実世界で失われた英単語を見つけ、読み、意味を理解し、正しくつづることで、英単語のかけらを再び高エネルギーの『英語クリスタル』へ戻すことができます。英語クリスタルを封印陣へ注ぐと、シャドウキューブは砕け、閉じ込められていたペットを救うことができます。",
+
+  "mainGoalTitleJa": "八大元素氏族を救え",
+  "mainGoalJa": "勇者はエセリア大陸の八つの地域を旅し、それぞれの英語クリスタルを集め、封印された八大氏族を救い出します。クリスタルが増え、語彙の力が高まるほど、ペットたちは本来の力を取り戻し、多段階の進化を重ね、やがて神話の姿へ到達します。",
+
+  "gameStartTitleJa": "冒険の始まり",
+  "gameStartJa": "今、八大氏族の幼いペットたちは、灰色の封印の中で弱ったまま眠っています。語彙の目覚めし者であるあなたが、最初の英語クリスタルを集めることで、彼らの封印を解く冒険が始まります。",
+
+  "shadowEnemy": {
+    "nameJa": "忘却の魔王",
+    "nameEn": "The Demon of Forgetting",
+    "descriptionJa": "ペットと人間の子どもたちの絆をねたむ闇の怪物。始源英語クリスタルを砕き、エセリアから語彙魔法の力を奪いました。"
+  },
+
+  "seal": {
+    "nameJa": "シャドウキューブ",
+    "nameEn": "Shadow Cube",
+    "descriptionJa": "忘却の魔王の闇魔法によって生まれた封印。封じられたペットは動くことも進化することもできず、語彙の目覚めし者による救出を待っています。",
+    "lockedLabelJa": "シャドウキューブに封印中",
+    "unlockLabelJa": "封印解除",
+    "unlockMessageTemplateJa": "シャドウキューブが砕けた！{petName}を救い出した！"
+  },
+
+  "englishCrystal": {
+    "nameJa": "英語クリスタル",
+    "nameEn": "English Crystal",
+    "descriptionJa": "失われた英単語のかけらが、読み・意味・スペルの力によって再び結晶化したもの。ペットの封印を解き、進化を助ける力を持っています。",
+    "energyNameJa": "英語クリスタルエネルギー",
+    "gainMessageTemplateJa": "{amount} の英語クリスタルエネルギーを手に入れた！",
+    "evolutionButtonJa": "英語クリスタルを注いで進化",
+    "unlockButtonJa": "英語クリスタルで封印を解く"
+  },
+
+  "crystalRules": [
+    {
+      "ruleId": "READ",
+      "titleJa": "読める",
+      "descriptionJa": "英単語を正しく読むことで、発音のエネルギーが生まれます。"
+    },
+    {
+      "ruleId": "UNDERSTAND",
+      "titleJa": "意味がわかる",
+      "descriptionJa": "英単語の意味を理解することで、理解のエネルギーが生まれます。"
+    },
+    {
+      "ruleId": "SPELL",
+      "titleJa": "つづれる",
+      "descriptionJa": "英単語を正しくつづることで、記憶のエネルギーが生まれます。"
+    },
+    {
+      "ruleId": "MASTER",
+      "titleJa": "完全に覚える",
+      "descriptionJa": "一組の単語をしっかり習得すると、英語クリスタルが生成されます。"
+    },
+    {
+      "ruleId": "EVOLVE",
+      "titleJa": "進化する",
+      "descriptionJa": "集めた英語クリスタルエネルギーを注ぐことで、ペットは封印を破り、次の姿へ進化します。"
+    }
+  ],
+
+  "learningActions": {
+    "dailyWordsCompleted": {
+      "labelJa": "今日の単語学習完了",
+      "worldMessageJa": "今日の単語のかけらが輝き、英語クリスタルエネルギーになりました。",
+      "rewardExp": 20
+    },
+    "quizPassed": {
+      "labelJa": "今日の小テスト合格",
+      "worldMessageJa": "正しい答えが封印陣に届き、シャドウキューブにひびが入りました。",
+      "rewardExp": 50
+    },
+    "mistakeReviewCompleted": {
+      "labelJa": "弱点復習完了",
+      "worldMessageJa": "忘れかけた単語のかけらを修復しました。",
+      "rewardExp": 30
+    },
+    "listeningCompleted": {
+      "labelJa": "リスニング練習完了",
+      "worldMessageJa": "正しい発音の響きが、クリスタルに光を戻しました。",
+      "rewardExp": 20
+    },
+    "speakingCompleted": {
+      "labelJa": "スピーキング練習完了",
+      "worldMessageJa": "勇者の声がエセリアに届き、眠っていたペットが反応しました。",
+      "rewardExp": 20
+    },
+    "streakThreeDays": {
+      "labelJa": "3日連続学習",
+      "worldMessageJa": "連続する学びの力が、エーテル共鳴を起こしました。",
+      "rewardExp": 100
+    }
+  },
+
+  "evolutionRules": {
+    "stage1ToStage2": {
+      "fromStage": 1,
+      "toStage": 2,
+      "requiredExp": 300,
+      "descriptionJa": "最初の封印が砕け、ペットは本来の力を少し取り戻します。"
+    },
+    "stage2ToStage3": {
+      "fromStage": 2,
+      "toStage": 3,
+      "requiredExp": 1000,
+      "descriptionJa": "氏族の力が完全に目覚め、ペットは神話の姿へ近づきます。"
+    },
+    "finalStage": {
+      "stage": 3,
+      "descriptionJa": "最終形態です。これ以上進化しませんが、氏族の守護者として大きな力を発揮します。"
+    }
+  },
+
+  "clans": [
+    {
+      "clanId": "AIR_RABBIT",
+      "clanNameJa": "霜羽うさぎ族",
+      "element": "air",
+      "elementNameJa": "風",
+      "regionJa": "風のエリア",
+      "areaNameJa": "極寒の氷原",
+      "crystalTypeJa": "基礎とリスニングの英語クリスタル",
+      "unlockFocusJa": ["基礎単語", "リスニング", "発音"],
+      "sealedDescriptionJa": "極寒の氷原でシャドウキューブに封印され、風の羽を失っています。",
+      "restoreGoalJa": "基礎単語を読み、聞き取る力で霜羽うさぎ族を目覚めさせます。"
+    },
+    {
+      "clanId": "FIRE_FOX",
+      "clanNameJa": "烈火きつね族",
+      "element": "fire",
+      "elementNameJa": "火",
+      "regionJa": "火のエリア",
+      "areaNameJa": "溶岩火山",
+      "crystalTypeJa": "高頻度コア単語クリスタル",
+      "unlockFocusJa": ["高頻度単語", "コア語彙", "すばやい意味理解"],
+      "sealedDescriptionJa": "溶岩火山で火を失い、冷たい封印の中に閉じ込められています。",
+      "restoreGoalJa": "よく使う重要単語を覚えることで、烈火きつね族の炎を取り戻します。"
+    },
+    {
+      "clanId": "ELEC_SHEEP",
+      "clanNameJa": "奔雷ひつじ族",
+      "element": "elec",
+      "elementNameJa": "雷",
+      "regionJa": "雷のエリア",
+      "areaNameJa": "落雷高地",
+      "crystalTypeJa": "文法と文型の英語クリスタル",
+      "unlockFocusJa": ["文法", "文型", "語順"],
+      "sealedDescriptionJa": "落雷高地で雷雲に閉じ込められ、文法の力を失っています。",
+      "restoreGoalJa": "文法と文型を理解し、奔雷ひつじ族の雷を呼び戻します。"
+    },
+    {
+      "clanId": "WOOD_DEER",
+      "clanNameJa": "古樹しか族",
+      "element": "wood",
+      "elementNameJa": "木",
+      "regionJa": "木のエリア",
+      "areaNameJa": "エメラルド草原",
+      "crystalTypeJa": "読解と短文の英語クリスタル",
+      "unlockFocusJa": ["読解", "短文理解", "例文"],
+      "sealedDescriptionJa": "エメラルド草原で森とともに枯れかけ、力を失っています。",
+      "restoreGoalJa": "英文を読み、意味を理解することで、古樹しか族と森を復活させます。"
+    },
+    {
+      "clanId": "ROCK_TURTLE",
+      "clanNameJa": "晶背かめ族",
+      "element": "rock",
+      "elementNameJa": "岩",
+      "regionJa": "岩のエリア",
+      "areaNameJa": "地底晶窟",
+      "crystalTypeJa": "復習と弱点克服の英語クリスタル",
+      "unlockFocusJa": ["復習", "弱点克服", "長期記憶"],
+      "sealedDescriptionJa": "地底晶窟の奥深くに埋もれ、背中の結晶が曇っています。",
+      "restoreGoalJa": "間違えた単語を復習し、弱点を克服することで、晶背かめ族の甲羅を強化します。"
+    },
+    {
+      "clanId": "STAR_CAT",
+      "clanNameJa": "星夜ねこ族",
+      "element": "star",
+      "elementNameJa": "影",
+      "regionJa": "影のエリア",
+      "areaNameJa": "終わりなき夜",
+      "crystalTypeJa": "スピーキング表現の英語クリスタル",
+      "unlockFocusJa": ["スピーキング", "英語表現", "フレーズ"],
+      "sealedDescriptionJa": "終わりなき夜に迷い込み、星の光を失っています。",
+      "restoreGoalJa": "英語を声に出して表現することで、星夜ねこ族の夜空を照らします。"
+    },
+    {
+      "clanId": "WATER_OTTER",
+      "clanNameJa": "幻海れいじゅう族",
+      "element": "water",
+      "elementNameJa": "水",
+      "regionJa": "水のエリア",
+      "areaNameJa": "干上がった海",
+      "crystalTypeJa": "品詞分類の英語クリスタル",
+      "unlockFocusJa": ["品詞", "単語分類", "語彙整理"],
+      "sealedDescriptionJa": "干上がった海で水の流れを失い、静かな封印の中で眠っています。",
+      "restoreGoalJa": "名詞・動詞・形容詞などを分類し、幻海れいじゅう族の海をよみがえらせます。"
+    },
+    {
+      "clanId": "LIGHT_UNICORN",
+      "clanNameJa": "聖光ユニコーン族",
+      "element": "light",
+      "elementNameJa": "光",
+      "regionJa": "光のエリア",
+      "areaNameJa": "天空神殿",
+      "crystalTypeJa": "英検突破の高位英語クリスタル",
+      "unlockFocusJa": ["英検総合", "高位チャレンジ", "最終試練"],
+      "sealedDescriptionJa": "天空神殿の最深部で、最後の強い封印に閉じ込められています。",
+      "restoreGoalJa": "英検レベルの総合力を身につけ、聖光ユニコーン族の究極進化を目覚めさせます。"
+    }
+  ],
+
+  "uiText": {
+    "petDexTitleJa": "エセリア図鑑",
+    "myPetsTitleJa": "救出したペット",
+    "sealedPetJa": "封印中のペット",
+    "rescuedPetJa": "救出済み",
+    "activePetJa": "いっしょに冒険中",
+    "evolutionRouteJa": "進化ルート",
+    "requiredCrystalJa": "必要な英語クリスタル",
+    "regionJa": "地域",
+    "clanJa": "氏族",
+    "skillJa": "スキル",
+    "storyJa": "ストーリー",
+    "historyJa": "伝承",
+    "unlockStoryJa": "解放ストーリー",
+    "evolutionStoryJa": "進化ストーリー",
+    "expLabelJa": "英語クリスタルエネルギー",
+    "remainingExpTemplateJa": "進化まであと {amount} エネルギー",
+    "canEvolveJa": "進化できます！",
+    "finalEvolutionJa": "最終形態",
+    "studyRewardJa": "学習報酬",
+    "shadowCubeBrokenJa": "シャドウキューブが砕けた！",
+    "crystalCompletedJa": "英語クリスタルが完成した！"
+  }
+}

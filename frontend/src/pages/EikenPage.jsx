@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import HeaderBar from '../components/HeaderBar';
 import PetDisplay from '../components/PetDisplay';
+import TtsButton from '../components/TtsButton';
 import { getEikenQuestions, submitPracticeAnswer, getReviewList } from '../api';
 
 export default function EikenPage() {
@@ -239,6 +240,12 @@ export default function EikenPage() {
                 )}
 
                 <div className="mt-5 rounded-[24px] bg-white/72 p-5 text-sm leading-7 text-[#5f6f9a]">
+                  {currentQuestion.word && (
+                    <div className="flex flex-wrap items-center gap-3">
+                      <p className="font-bold text-[#354172]">{currentQuestion.word}</p>
+                      <TtsButton text={currentQuestion.word} label="Word" />
+                    </div>
+                  )}
                   {currentQuestion.japanese && (
                     <>
                       <p className="font-bold text-[#354172]">日本語訳</p>
@@ -248,7 +255,10 @@ export default function EikenPage() {
                   {currentQuestion.example && (
                     <>
                       <p className="mt-3 font-bold text-[#354172]">英文例</p>
-                      <p className="mt-2">{currentQuestion.example}</p>
+                      <div className="mt-2 flex flex-wrap items-center gap-3">
+                        <p>{currentQuestion.example}</p>
+                        <TtsButton text={currentQuestion.example} label="Example" />
+                      </div>
                     </>
                   )}
                   {currentQuestion.example_jp && (
@@ -308,7 +318,10 @@ export default function EikenPage() {
                 <ul className="mt-3 space-y-3 text-sm leading-7 text-[#5f6f9a]">
                   {reviewList.map((item) => (
                     <li key={item.word_id} className="rounded-[20px] bg-[#f6fbff] p-4">
-                      <span className="font-bold text-[#354172]">{item.word}</span>
+                      <span className="inline-flex flex-wrap items-center gap-3">
+                        <span className="font-bold text-[#354172]">{item.word}</span>
+                        <TtsButton text={item.word} label="Word" />
+                      </span>
                       {' '}
                       - {item.japanese} - 誤答回数 {item.error_count}
                     </li>

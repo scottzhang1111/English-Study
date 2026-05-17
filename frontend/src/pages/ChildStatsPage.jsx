@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import HeaderBar from '../components/HeaderBar';
+import TtsButton from '../components/TtsButton';
 import { getChildStats } from '../api';
 
 const CHILD_STORAGE_KEY = 'selected_child_id';
@@ -69,7 +70,10 @@ export default function ChildStatsPage() {
                     className="flex items-center justify-between gap-4 rounded-[22px] bg-white/80 px-5 py-4 shadow-[0_10px_24px_rgba(145,177,209,0.08)]"
                   >
                     <div className="min-w-0">
-                      <p className="display-font truncate text-xl font-extrabold text-[#354172]">{item.word}</p>
+                      <div className="flex flex-wrap items-center gap-3">
+                        <p className="display-font truncate text-xl font-extrabold text-[#354172]">{item.word}</p>
+                        <TtsButton text={item.word} label="Word" />
+                      </div>
                       <p className="mt-1 text-sm font-bold text-[#6f7da8]">{item.japanese}</p>
                     </div>
                     <div className="flex shrink-0 flex-col items-end text-sm font-bold text-[#69557e]">

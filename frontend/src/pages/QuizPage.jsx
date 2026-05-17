@@ -2,36 +2,71 @@ import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import HeaderBar from '../components/HeaderBar';
-import { getQuizData, submitPracticeAnswer } from '../api';
+import TtsButton from '../components/TtsButton';
+import { getLearnedWords, getQuizData, submitPracticeAnswer } from '../api';
+
+function shuffleItems(items) {
+  return [...items].sort(() => Math.random() - 0.5);
+}
 
 export default function QuizPage() {
-  const [history, setHistory] = useState([]);
-  const [currentIndex, setCurrentIndex] = useState(-1);
+  const [questions, setQuestions] = useState([]);
+  const [currentIndex, setCurrentIndex] = useState(0);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [answer, setAnswer] = useState(null);
   const [result, setResult] = useState(null);
+  const [answers, setAnswers] = useState([]);
+  const [usedWordIds, setUsedWordIds] = useState([]);
+  const [emptyMessage, setEmptyMessage] = useState('');
   const navigate = useNavigate();
 
-  const currentQuiz = history[currentIndex] || null;
+  const currentQuiz = questions[currentIndex] || null;
   const masteredCount = currentQuiz?.mastered_count ?? 0;
   const errorCount = currentQuiz?.error_count ?? 0;
   const isInitialLoading = loading && !currentQuiz;
-  const hasNoReviewWords = currentQuiz && currentQuiz.choices.length === 0;
-  const pageText = currentQuiz ? `${currentIndex + 1} / ${history.length}` : '- / -';
+  const isBatchComplete = questions.length > 0 && currentIndex >= questions.length;
+  const hasNoReviewWords = (!loading && questions.length === 0) || (currentQuiz && currentQuiz.choices.length === 0);
+  const pageText = questions.length ? `${Math.min(currentIndex + 1, questions.length)} / ${questions.length}` : '- / -';
+  const correctCount = answers.filter((item) => item.correct).length;
+  const wrongAnswers = answers.filter((item) => !item.correct);
 
-  const fetchQuiz = async ({ word } = {}) => {
+  const fetchQuizBatch = async ({ retryWrong = false } = {}) => {
     setLoading(true);
     setError(null);
+    setEmptyMessage('');
     try {
-      const quizData = await getQuizData({ word });
-      setHistory((prev) => {
-        const base = currentIndex >= 0 && currentIndex < prev.length - 1 ? prev.slice(0, currentIndex + 1) : prev;
-        setCurrentIndex(base.length);
-        return [...base, quizData];
-      });
+      const childId = localStorage.getItem('selected_child_id') || '';
+      const learnedPayload = await getLearnedWords(childId);
+      const learnedWords = learnedPayload.words || [];
+      if (learnedWords.length < 4) {
+        setQuestions([]);
+        setEmptyMessage('4択クイズには、覚えた単語が4つ以上必要です。まず単語カードで覚えましょう。');
+        return;
+      }
+
+      const sourceWords = retryWrong
+        ? wrongAnswers.map((item) => item.quiz).filter(Boolean)
+        : learnedWords.filter((word) => !usedWordIds.includes(String(word.id || word.word)));
+      const selectedWords = shuffleItems(sourceWords).slice(0, Math.min(10, sourceWords.length));
+
+      if (selectedWords.length === 0) {
+        setQuestions([]);
+        setEmptyMessage('今回は出せる新しい問題がありません。単語をもっと覚えたら、また挑戦しましょう。');
+        return;
+      }
+
+      const nextQuestions = await Promise.all(
+        selectedWords.map((word) => getQuizData({ word: word.word || word.id, childId })),
+      );
+      setQuestions(nextQuestions);
+      setCurrentIndex(0);
       setAnswer(null);
+      setAnswers([]);
       setResult(null);
+      if (!retryWrong) {
+        setUsedWordIds((prev) => [...prev, ...selectedWords.map((word) => String(word.id || word.word))]);
+      }
     } catch (err) {
       setError(err.message);
     } finally {
@@ -40,8 +75,14 @@ export default function QuizPage() {
   };
 
   useEffect(() => {
-    fetchQuiz();
+    fetchQuizBatch();
   }, []);
+
+  useEffect(() => {
+    const saved = answers.find((item) => item.index === currentIndex);
+    setAnswer(saved?.selected || null);
+    setResult(null);
+  }, [currentIndex]);
 
   const openCard = () => {
     const word = currentQuiz?.word || currentQuiz?.correct;
@@ -61,6 +102,15 @@ export default function QuizPage() {
         childId,
       });
       setResult(payload);
+      setAnswers((prev) => [
+        ...prev.filter((item) => item.index !== currentIndex),
+        {
+          index: currentIndex,
+          selected: choice,
+          correct: choice === currentQuiz.correct,
+          quiz: currentQuiz,
+        },
+      ]);
     } catch (err) {
       setError(err.message);
     }
@@ -69,19 +119,15 @@ export default function QuizPage() {
   const handlePrev = () => {
     if (currentIndex > 0) {
       setCurrentIndex(currentIndex - 1);
-      setAnswer(null);
-      setResult(null);
     }
   };
 
   const handleNext = () => {
-    if (currentIndex < history.length - 1) {
+    if (currentIndex < questions.length - 1) {
       setCurrentIndex(currentIndex + 1);
-      setAnswer(null);
-      setResult(null);
       return;
     }
-    fetchQuiz();
+    setCurrentIndex(questions.length);
   };
 
   return (
@@ -101,16 +147,18 @@ export default function QuizPage() {
                 まちがい {errorCount}
               </span>
             </div>
-            <p className="mt-5 text-sm font-bold uppercase tracking-[0.18em] text-[#6f7da8]">復習テスト</p>
+            <p className="mt-5 text-sm font-bold uppercase tracking-[0.18em] text-[#6f7da8]">例文4択クイズ</p>
             <h2 className="display-font mt-4 text-3xl font-extrabold leading-tight text-[#354172] sm:text-4xl">
               {isInitialLoading
                 ? '復習できる単語を確認しています...'
-                : hasNoReviewWords
-                  ? 'まだ復習できる単語がありません。まず単語カードで覚えましょう。'
+                : isBatchComplete
+                  ? `できました！ ${correctCount} / ${questions.length} 正解`
+                  : hasNoReviewWords
+                  ? emptyMessage || 'まだ復習できる単語がありません。まず単語カードで覚えましょう。'
                   : currentQuiz?.question || '問題を読み込み中...'}
             </h2>
             <p className="mt-3 text-sm font-bold leading-6 text-[#6f7da8]">
-              覚えた単語から出題します。まちがいが多い単語ほど出やすくなります。
+              ランダムに最大10問出します。同じセットの中では同じ単語を出しません。
             </p>
           </div>
 
@@ -118,9 +166,28 @@ export default function QuizPage() {
             <div className="mt-6 rounded-[24px] bg-white/78 p-5 text-center text-sm font-bold leading-7 text-[#60709d]">
               少し待ってね。復習リストを作っています。
             </div>
+          ) : isBatchComplete ? (
+            <div className="mt-6 rounded-[24px] bg-white/78 p-5 text-sm font-bold leading-7 text-[#60709d]">
+              <p className="text-lg font-black text-[#354172]">結果: {correctCount} / {questions.length}</p>
+              {wrongAnswers.length > 0 ? (
+                <p className="mt-2">まちがえた問題は、もう一度練習できます。</p>
+              ) : (
+                <p className="mt-2">全問正解です。よくできました！</p>
+              )}
+              <div className="mt-5 flex flex-wrap gap-3">
+                {wrongAnswers.length > 0 && (
+                  <button type="button" onClick={() => fetchQuizBatch({ retryWrong: true })} className="ghost-button px-5 py-3">
+                    まちがいを練習
+                  </button>
+                )}
+                <button type="button" onClick={() => fetchQuizBatch()} className="pill-button px-5 py-3">
+                  別の10問に挑戦
+                </button>
+              </div>
+            </div>
           ) : hasNoReviewWords ? (
             <div className="mt-6 rounded-[24px] bg-white/78 p-5 text-center text-sm font-bold leading-7 text-[#60709d]">
-              まだ復習できる単語がありません。単語カードで単語を覚えてから、もう一度ためしましょう。
+              {emptyMessage || 'まだ復習できる単語がありません。単語カードで単語を覚えてから、もう一度ためしましょう。'}
               <div className="mt-4">
                 <button type="button" onClick={openCard} className="pill-button px-6 py-3">
                   単語カードへ
@@ -158,8 +225,14 @@ export default function QuizPage() {
                   <p className="text-base font-black text-[#354172]">
                     {answer === currentQuiz.correct ? 'せいかい！' : `こたえ: ${currentQuiz.correct}`}
                   </p>
+                  {currentQuiz.word && <div className="mt-3"><TtsButton text={currentQuiz.word} label="単語" /></div>}
                   {currentQuiz.japanese && <p className="mt-2">意味: {currentQuiz.japanese}</p>}
-                  {currentQuiz.example && <p className="mt-2">使い方: {currentQuiz.example}</p>}
+                  {currentQuiz.example && (
+                    <div className="mt-2">
+                      <p>使い方: {currentQuiz.example}</p>
+                      <div className="mt-2"><TtsButton text={currentQuiz.example} label="例文" /></div>
+                    </div>
+                  )}
                   {currentQuiz.example_jp && <p className="mt-2">例文の意味: {currentQuiz.example_jp}</p>}
                   {result?.pet_exp_awarded > 0 && (
                     <p className="mt-2 font-bold text-[#6b5a2d]">ポケモン EXP +{result.pet_exp_awarded}</p>
@@ -187,10 +260,10 @@ export default function QuizPage() {
             <button
               type="button"
               onClick={handleNext}
-              disabled={loading || !currentQuiz?.correct}
+              disabled={loading || !currentQuiz?.correct || !answer}
               className="pill-button px-5 py-3 disabled:opacity-40"
             >
-              {loading ? '読み込み中...' : '次の問題'}
+              {loading ? '読み込み中...' : currentIndex >= questions.length - 1 ? '結果を見る' : '次の問題'}
             </button>
           </div>
         </motion.section>

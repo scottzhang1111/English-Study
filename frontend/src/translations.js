@@ -26,7 +26,7 @@ export const translations = {
     childStats: '学習統計',
     childStatsDesc: '子どもごとの学習量と、よく間違える単語を見られます。',
     childProfile: '子どもプロフィール',
-    childProfileDesc: '名前、目標レベル、1日の学習量、初期 Pokémon をここで設定します。',
+    childProfileDesc: '名前、目標レベル、1日の学習量、初期ペットをここで設定します。',
     petRoom: 'ペットルーム',
     petRoomDesc: '学習に合わせて育つポケモンを確認できます。',
     progress: '進捗',

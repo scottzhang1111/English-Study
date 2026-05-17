@@ -1,9 +1,8 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import HeaderBar from '../components/HeaderBar';
-import PetDisplay from '../components/PetDisplay';
-import { addPokemonExp, getFlashcardData, getHomeData, getTodayReviewQuiz, markMastered } from '../api';
+import { addPetExp, getFlashcardData, getHomeData, getLearnedWords, getTodayReviewQuiz, markMastered } from '../api';
 
 const DAILY_TARGET = 20;
 const CHILD_STORAGE_KEY = 'selected_child_id';
@@ -42,6 +41,27 @@ function buildCloze(sentence, word) {
   return sentence.replace(new RegExp(escaped, 'i'), '______');
 }
 
+function getMasteryStars(word) {
+  const mastery = Number(word?.mastery || 0);
+  const correctCount = Number(word?.correct_count || 0);
+  const reviewCount = Number(word?.review_count || 0);
+  const wrongCount = Number(word?.wrong_count || 0);
+  const score = mastery || Math.max(0, Math.min(100, correctCount * 18 + reviewCount * 8 - wrongCount * 16));
+  return Math.max(1, Math.min(5, Math.ceil(score / 20)));
+}
+
+function MasteryStars({ count }) {
+  return (
+    <span className="inline-flex gap-0.5 text-lg" aria-label={`習熟度 ${count} / 5`}>
+      {Array.from({ length: 5 }, (_, index) => (
+        <span key={index} className={index < count ? 'text-[#ffc933]' : 'text-[#d7e2ef]'}>
+          ★
+        </span>
+      ))}
+    </span>
+  );
+}
+
 export default function FlashcardPage() {
   const [homeData, setHomeData] = useState(null);
   const [flashcard, setFlashcard] = useState(null);
@@ -54,6 +74,9 @@ export default function FlashcardPage() {
   const [fillCorrect, setFillCorrect] = useState(false);
   const [earnedExp, setEarnedExp] = useState(0);
   const [mode, setMode] = useState('study');
+  const [studyWords, setStudyWords] = useState([]);
+  const [studyIndex, setStudyIndex] = useState(0);
+  const [studyEmpty, setStudyEmpty] = useState(false);
   const [reviewData, setReviewData] = useState(null);
   const [reviewLoading, setReviewLoading] = useState(false);
   const [reviewError, setReviewError] = useState(null);
@@ -64,14 +87,25 @@ export default function FlashcardPage() {
   const [reviewStreak, setReviewStreak] = useState(0);
   const audioRef = useRef(null);
   const navigate = useNavigate();
+  const location = useLocation();
   const [searchParams] = useSearchParams();
 
   const selectedChildId = useMemo(() => localStorage.getItem(CHILD_STORAGE_KEY) || '', []);
   const requestedWord = searchParams.get('word') || '';
+  const shouldLoadReviewQuiz = location.pathname.includes('today-review-quiz');
   const progressValue = Math.min(DAILY_TARGET, Number(homeData?.progress || 0));
   const progressPercent = `${(progressValue / DAILY_TARGET) * 100}%`;
   const dayLabel = `Day ${Math.floor(progressValue / DAILY_TARGET) + 1}`;
-  const progressText = `${progressValue} / ${DAILY_TARGET} words`;
+  const studyProgressPercent = studyWords.length ? `${((studyIndex + 1) / studyWords.length) * 100}%` : '0%';
+  const progressText = mode === 'list'
+    ? `${studyWords.length} words`
+    : mode === 'study'
+    ? studyWords.length
+      ? `${studyIndex + 1} / ${studyWords.length} words`
+      : studyEmpty
+        ? '0 words'
+        : '読み込み中...'
+    : `${progressValue} / ${DAILY_TARGET} words`;
   const currentReviewQuestion = reviewData?.questions?.[reviewIndex] || null;
   const reviewTotal = reviewData?.questions?.length || 0;
   const clozeSentence = useMemo(
@@ -79,19 +113,62 @@ export default function FlashcardPage() {
     [flashcard?.example, flashcard?.word],
   );
 
+  const showWordList = (words = studyWords) => {
+    setStudyWords(words);
+    setFlashcard(null);
+    setStep(1);
+    setEarnedExp(0);
+    setStudyEmpty(words.length === 0);
+    setMode('list');
+  };
+
+  const showStudyWord = (wordItem, index, words = studyWords) => {
+    if (!wordItem) {
+      setFlashcard(null);
+      setStudyEmpty(true);
+      setStudyLoading(false);
+      return;
+    }
+    setStudyWords(words);
+    setStudyIndex(index);
+    setFlashcard({
+      ...wordItem,
+      sentence_jp: wordItem.sentence_jp || wordItem.example_jp,
+    });
+    setStep(1);
+    setRecallChoice('');
+    setFillAnswer('');
+    setFillFeedback('');
+    setFillCorrect(false);
+    setEarnedExp(0);
+    setMode('study');
+    setStudyEmpty(false);
+  };
+
+  const loadLearnedStudyWords = async () => {
+    setStudyLoading(true);
+    setStudyError(null);
+    try {
+      const payload = await getLearnedWords(selectedChildId);
+      const words = payload.words || [];
+      showWordList(words);
+    } catch (err) {
+      setStudyError(err.message);
+    } finally {
+      setStudyLoading(false);
+    }
+  };
+
+  const openStudyWord = (wordItem, index) => {
+    showStudyWord(wordItem, index, studyWords);
+  };
+
   const loadStudyWord = async (word) => {
     setStudyLoading(true);
     setStudyError(null);
     try {
       const payload = await getFlashcardData({ word, childId: selectedChildId });
-      setFlashcard(payload);
-      setStep(1);
-      setRecallChoice('');
-      setFillAnswer('');
-      setFillFeedback('');
-      setFillCorrect(false);
-      setEarnedExp(0);
-      setMode('study');
+      showStudyWord(payload, 0, [payload]);
     } catch (err) {
       setStudyError(err.message);
     } finally {
@@ -131,10 +208,12 @@ export default function FlashcardPage() {
         const payload = await getHomeData(selectedChildId);
         if (cancelled) return;
         setHomeData(payload);
-        if ((payload?.progress || 0) >= DAILY_TARGET) {
+        if (shouldLoadReviewQuiz) {
           await loadReviewQuiz();
+        } else if (requestedWord) {
+          await loadStudyWord(requestedWord);
         } else {
-          await loadStudyWord(requestedWord || undefined);
+          await loadLearnedStudyWords();
         }
       } catch (err) {
         if (!cancelled) setStudyError(err.message);
@@ -145,12 +224,12 @@ export default function FlashcardPage() {
     return () => {
       cancelled = true;
     };
-  }, [selectedChildId, requestedWord]);
+  }, [selectedChildId, requestedWord, shouldLoadReviewQuiz]);
 
-  const awardPokemonExp = async (expAmount) => {
+  const awardPetExp = async (expAmount) => {
     if (!selectedChildId) return;
     try {
-      const payload = await addPokemonExp(selectedChildId, expAmount);
+      const payload = await addPetExp(selectedChildId, expAmount);
       setEarnedExp(expAmount);
       setHomeData((prev) => ({
         ...(prev || {}),
@@ -177,10 +256,13 @@ export default function FlashcardPage() {
         remain: result?.remain ?? Math.max(0, DAILY_TARGET - nextProgress),
       }));
 
-      if (nextProgress >= DAILY_TARGET) {
+      const hasReviewSequence = !requestedWord && studyWords.length > 0;
+      if (hasReviewSequence && studyIndex < studyWords.length - 1) {
+        showStudyWord(studyWords[studyIndex + 1], studyIndex + 1, studyWords);
+      } else if (hasReviewSequence || requestedWord || nextProgress >= DAILY_TARGET) {
         navigate('/progress');
       } else {
-        await loadStudyWord();
+        await loadLearnedStudyWords();
       }
     } catch (err) {
       setStudyError(err.message);
@@ -195,7 +277,7 @@ export default function FlashcardPage() {
     const expAmount = isCorrect ? 10 : 2;
     setFillCorrect(isCorrect);
     setFillFeedback(isCorrect ? 'せいかい！' : `こたえ: ${flashcard.word}`);
-    await awardPokemonExp(expAmount);
+    await awardPetExp(expAmount);
     setStep(5);
   };
 
@@ -210,7 +292,7 @@ export default function FlashcardPage() {
     } else {
       setReviewStreak(0);
     }
-    await awardPokemonExp(isCorrect ? 10 : 2);
+    await awardPetExp(isCorrect ? 10 : 2);
   };
 
   const handleReviewNext = () => {
@@ -224,9 +306,13 @@ export default function FlashcardPage() {
     navigate('/progress');
   };
 
-  const progressWidth = mode === 'review-complete' || progressValue >= DAILY_TARGET ? '100%' : progressPercent;
-  const pet = homeData?.pet || null;
-
+  const progressWidth = mode === 'list'
+    ? studyWords.length ? '100%' : '0%'
+    : mode === 'study'
+    ? studyProgressPercent
+    : mode === 'review-complete' || progressValue >= DAILY_TARGET
+      ? '100%'
+      : progressPercent;
   if (studyError) {
     return (
       <div className="mx-auto max-w-5xl px-4 pb-32 pt-6 sm:px-6">
@@ -261,7 +347,7 @@ export default function FlashcardPage() {
               <h2 className="display-font mt-1 text-3xl font-extrabold text-[#354172]">{progressText}</h2>
             </div>
             <div className="rounded-full bg-[#fff2bb] px-4 py-2 text-sm font-bold text-[#69557e]">
-              {mode === 'review' || mode === 'review-complete' ? '復習クイズ' : '今日の学習'}
+              {mode === 'review' || mode === 'review-complete' ? '復習クイズ' : mode === 'list' ? '単語一覧' : '単語復習'}
             </div>
           </div>
           <div className="mt-4 h-3 overflow-hidden rounded-full bg-[#e6f4ff]">
@@ -274,11 +360,92 @@ export default function FlashcardPage() {
           </div>
         </div>
 
-        <div className="grid gap-6 lg:grid-cols-[1.2fr_0.8fr]">
-          <div>
+        <div>
+            {mode === 'list' && (
+              <AnimatePresence mode="wait">
+                {studyLoading ? (
+                  <motion.div
+                    key="list-loading"
+                    initial={{ opacity: 0, y: 12 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -12 }}
+                    className="rounded-[28px] bg-[#f8fbff] px-6 py-10 text-center text-[#6f7da8]"
+                  >
+                    読み込み中...
+                  </motion.div>
+                ) : studyEmpty ? (
+                  <motion.div
+                    key="list-empty"
+                    initial={{ opacity: 0, y: 12 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -12 }}
+                    className="rounded-[28px] bg-[#f8fbff] px-6 py-10 text-center text-[#6f7da8]"
+                  >
+                    <h2 className="display-font text-2xl font-extrabold text-[#354172]">まだ復習できる単語がありません</h2>
+                    <p className="mt-3 text-sm font-bold leading-7">まず今日の学習で単語を覚えてから、ここに単語リストを作りましょう。</p>
+                    <button type="button" onClick={() => navigate('/daily-words')} className="pill-button mt-6 px-6 py-3">
+                      今日の学習へ
+                    </button>
+                  </motion.div>
+                ) : (
+                  <motion.div
+                    key="word-list"
+                    initial={{ opacity: 0, y: 12 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -12 }}
+                    className="space-y-5"
+                  >
+                    <div>
+                      <p className="text-sm font-black text-[#6f7da8]">覚えた単語</p>
+                      <h2 className="display-font mt-1 text-3xl font-extrabold text-[#354172]">確認したい単語を選ぼう</h2>
+                    </div>
+
+                    <div className="grid gap-3">
+                      {studyWords.map((word, index) => {
+                        const stars = getMasteryStars(word);
+                        return (
+                          <button
+                            key={`${word.id}-${word.word}`}
+                            type="button"
+                            onClick={() => openStudyWord(word, index)}
+                            className="group flex flex-col gap-3 rounded-[24px] border border-white/80 bg-white/82 px-5 py-4 text-left shadow-[0_12px_28px_rgba(145,177,209,0.10)] transition hover:-translate-y-0.5 hover:bg-[#f8fcff] sm:flex-row sm:items-center sm:justify-between"
+                          >
+                            <span className="min-w-0">
+                              <span className="display-font block text-2xl font-extrabold text-[#354172]">{word.word}</span>
+                              <span className="mt-1 block text-sm font-bold leading-6 text-[#60709d]">{word.jp || '意味を読み込み中...'}</span>
+                            </span>
+                            <span className="flex shrink-0 flex-col gap-1 sm:items-end">
+                              <MasteryStars count={stars} />
+                              <span className="text-xs font-black text-[#7b8aad]">
+                                練習 {Number(word.review_count || 0)} / まちがい {Number(word.wrong_count || 0)}
+                              </span>
+                            </span>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            )}
+
             {mode === 'study' && (
               <AnimatePresence mode="wait">
-                {studyLoading || !flashcard ? (
+                {studyEmpty ? (
+                  <motion.div
+                    key="study-empty"
+                    initial={{ opacity: 0, y: 12 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -12 }}
+                    className="rounded-[28px] bg-[#f8fbff] px-6 py-10 text-center text-[#6f7da8]"
+                  >
+                    <h2 className="display-font text-2xl font-extrabold text-[#354172]">まだ復習できる単語がありません</h2>
+                    <p className="mt-3 text-sm font-bold leading-7">まず今日の学習で単語を覚えてから、ここで順番に復習しましょう。</p>
+                    <button type="button" onClick={() => navigate('/daily-words')} className="pill-button mt-6 px-6 py-3">
+                      今日の学習へ
+                    </button>
+                  </motion.div>
+                ) : studyLoading || !flashcard ? (
                   <motion.div
                     key="study-loading"
                     initial={{ opacity: 0, y: 12 }}
@@ -298,8 +465,15 @@ export default function FlashcardPage() {
                   >
                     {step === 1 && (
                       <div className="space-y-4">
-                        <div className="inline-flex rounded-full bg-[#eef8ff] px-4 py-2 text-sm font-bold text-[#6f7da8]">
-                          {flashcard?.importance ? `重要度 ${flashcard.importance}` : '単語カード'}
+                        <div className="flex flex-wrap items-center justify-between gap-3">
+                          <div className="inline-flex rounded-full bg-[#eef8ff] px-4 py-2 text-sm font-bold text-[#6f7da8]">
+                            {flashcard?.importance ? `重要度 ${flashcard.importance}` : '単語カード'}
+                          </div>
+                          {!requestedWord && studyWords.length > 0 && (
+                            <button type="button" onClick={() => showWordList(studyWords)} className="ghost-button px-4 py-2 text-sm">
+                              一覧へ戻る
+                            </button>
+                          )}
                         </div>
                         <h2 className="display-font text-4xl font-extrabold text-[#354172] sm:text-5xl">{flashcard.word}</h2>
                         <p className="text-lg font-bold text-[#7081ab]">まず音を聞いて、意味をたしかめよう。</p>
@@ -433,7 +607,7 @@ export default function FlashcardPage() {
                         <p className="text-lg font-bold text-[#7081ab]">{fillFeedback || '単語と例文を確認できました。'}</p>
                         {earnedExp > 0 && (
                           <div className="rounded-[24px] bg-[#fff2bb] px-4 py-3 text-sm font-black text-[#6b5a2d]">
-                            Pokemon EXP +{earnedExp}
+                            ペット EXP +{earnedExp}
                           </div>
                         )}
 
@@ -594,17 +768,6 @@ export default function FlashcardPage() {
                 )}
               </AnimatePresence>
             )}
-          </div>
-
-          <div className="lg:sticky lg:top-6">
-            <div className="mb-4 rounded-[28px] bg-white/82 p-5 shadow-[0_18px_40px_rgba(145,177,209,0.18)]">
-              <p className="text-sm font-bold text-[#6f7da8]">現在の子ども</p>
-              <p className="mt-1 text-lg font-extrabold text-[#354172]">
-                {homeData?.pet?.child_name || '未選択'}
-              </p>
-            </div>
-            <PetDisplay pet={pet} earnedExp={earnedExp} className="w-full" enableEffects />
-          </div>
         </div>
       </motion.section>
     </div>

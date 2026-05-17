@@ -1,0 +1,546 @@
+[
+  {
+    "test_id": "GTF-PREP2-001",
+    "lesson_id": "G-PREP2-001",
+    "category": "完了形",
+    "title": "過去完了",
+    "target_grammar": "had + 過去分詞",
+    "base_word": "finish",
+    "question_jp": "母が帰宅した時点より前に宿題を終えていた、という意味になるように空所を選びなさい。",
+    "prompt_en": "I _____ my homework when Mother came home.",
+    "choices": [
+      {
+        "text": "finish",
+        "explanation_jp": "現在形なので、過去のある時点より前の出来事を表せない。"
+      },
+      {
+        "text": "finished",
+        "explanation_jp": "単純な過去形。『母が帰宅した時より前に終えていた』という前後関係が弱い。"
+      },
+      {
+        "text": "had finished",
+        "explanation_jp": "正解。過去の時点 came home より前に完了していたことを表す。"
+      },
+      {
+        "text": "have finished",
+        "explanation_jp": "現在完了なので、過去の基準時点 came home とは合わない。"
+      }
+    ],
+    "answer_index": 2,
+    "full_answer": "I had finished my homework when Mother came home.",
+    "correct_reason_jp": "when Mother came home が過去の基準時点。その前に宿題を終えていたので had finished を使う。",
+    "skill_focus": "過去よりさらに前の出来事を過去完了で表す"
+  },
+  {
+    "test_id": "GTF-PREP2-002",
+    "lesson_id": "G-PREP2-002",
+    "category": "仮定法",
+    "title": "仮定法過去完了",
+    "target_grammar": "If + had + 過去分詞",
+    "base_word": "get up",
+    "question_jp": "過去に実際は早く起きなかったことを仮定する文になるように選びなさい。",
+    "prompt_en": "If I _____ early, I wouldn't have missed the bus.",
+    "choices": [
+      {
+        "text": "get up",
+        "explanation_jp": "現在形なので、過去の事実と反対の仮定には使えない。"
+      },
+      {
+        "text": "got up",
+        "explanation_jp": "仮定法過去の形。現在の事実と反対なら使えるが、ここでは missed the bus という過去の結果。"
+      },
+      {
+        "text": "had got up",
+        "explanation_jp": "正解。過去の事実と反対の仮定なので If + had + 過去分詞を使う。"
+      },
+      {
+        "text": "have got up",
+        "explanation_jp": "現在完了なので、過去の反実仮想の if 節には合わない。"
+      }
+    ],
+    "answer_index": 2,
+    "full_answer": "If I had got up early, I wouldn't have missed the bus.",
+    "correct_reason_jp": "wouldn't have missed があるので、過去に実際は起きなかったことを仮定している。if節は had got up。",
+    "skill_focus": "過去の事実と反対の仮定を作る"
+  },
+  {
+    "test_id": "GTF-PREP2-003",
+    "lesson_id": "G-PREP2-003",
+    "category": "完了形",
+    "title": "未来完了",
+    "target_grammar": "will have + 過去分詞",
+    "base_word": "finish",
+    "question_jp": "あなたが到着する時までには仕事を終えているだろう、という意味になるように選びなさい。",
+    "prompt_en": "I _____ my work by the time you arrive.",
+    "choices": [
+      {
+        "text": "finish",
+        "explanation_jp": "現在形なので、未来のある時点までの完了を表せない。"
+      },
+      {
+        "text": "finished",
+        "explanation_jp": "過去形なので、未来の基準時点 by the time you arrive と合わない。"
+      },
+      {
+        "text": "will finish",
+        "explanation_jp": "単純未来。『その時までに終えている』という完了の意味が弱い。"
+      },
+      {
+        "text": "will have finished",
+        "explanation_jp": "正解。未来のある時点までに完了していることを表す。"
+      }
+    ],
+    "answer_index": 3,
+    "full_answer": "I will have finished my work by the time you arrive.",
+    "correct_reason_jp": "by the time you arrive は未来の基準時点。その時までに完了しているので will have finished。",
+    "skill_focus": "未来の基準時点までの完了を表す"
+  },
+  {
+    "test_id": "GTF-PREP2-004",
+    "lesson_id": "G-PREP2-004",
+    "category": "助動詞",
+    "title": "助動詞＋完了",
+    "target_grammar": "must have + 過去分詞",
+    "base_word": "come",
+    "question_jp": "彼女のかばんが机にあるので『彼女はここに来たにちがいない』という意味になるように選びなさい。",
+    "prompt_en": "She _____ here.",
+    "choices": [
+      {
+        "text": "must come",
+        "explanation_jp": "現在・未来について『来なければならない』に近く、過去の推量ではない。"
+      },
+      {
+        "text": "must have come",
+        "explanation_jp": "正解。過去について『〜したにちがいない』は must have + 過去分詞。"
+      },
+      {
+        "text": "must be coming",
+        "explanation_jp": "今来ている途中という進行の意味になり、過去に来た推量ではない。"
+      },
+      {
+        "text": "must came",
+        "explanation_jp": "助動詞 must の後に過去形 came は置けない。"
+      }
+    ],
+    "answer_index": 1,
+    "full_answer": "She must have come here.",
+    "correct_reason_jp": "過去の出来事を強く推量しているので must have come が正しい。",
+    "skill_focus": "過去についての強い推量"
+  },
+  {
+    "test_id": "GTF-PREP2-005",
+    "lesson_id": "G-PREP2-005",
+    "category": "助動詞",
+    "title": "助動詞の慣用表現",
+    "target_grammar": "had better + 原形",
+    "base_word": "study",
+    "question_jp": "『もっと一生懸命勉強したほうがよい』という忠告になるように選びなさい。",
+    "prompt_en": "You had better _____ harder.",
+    "choices": [
+      {
+        "text": "study",
+        "explanation_jp": "正解。had better の後は動詞の原形を使う。"
+      },
+      {
+        "text": "to study",
+        "explanation_jp": "had better の後に to不定詞は使わない。"
+      },
+      {
+        "text": "studying",
+        "explanation_jp": "動名詞は使えない。had better の後は原形。"
+      },
+      {
+        "text": "studied",
+        "explanation_jp": "過去形は使えない。had better の後は原形。"
+      }
+    ],
+    "answer_index": 0,
+    "full_answer": "You had better study harder.",
+    "correct_reason_jp": "had better は助動詞のように働くので、後ろは必ず動詞の原形。",
+    "skill_focus": "慣用表現 had better の形"
+  },
+  {
+    "test_id": "GTF-PREP2-006",
+    "lesson_id": "G-PREP2-006",
+    "category": "受動態",
+    "title": "受動態の発展",
+    "target_grammar": "must be + 過去分詞",
+    "base_word": "return",
+    "question_jp": "『その本はすぐ返されなければならない』という受動態になるように選びなさい。",
+    "prompt_en": "The book must _____ soon.",
+    "choices": [
+      {
+        "text": "return",
+        "explanation_jp": "能動態の形。The book が自分で返る意味になってしまう。"
+      },
+      {
+        "text": "be returned",
+        "explanation_jp": "正解。助動詞つき受動態は must be + 過去分詞。"
+      },
+      {
+        "text": "returned",
+        "explanation_jp": "must の後に直接過去分詞だけを置くことはできない。be が必要。"
+      },
+      {
+        "text": "be returning",
+        "explanation_jp": "進行形で『返しているところ』に近く、受動態ではない。"
+      }
+    ],
+    "answer_index": 1,
+    "full_answer": "The book must be returned soon.",
+    "correct_reason_jp": "本は返される側なので受動態。助動詞 must の後は be returned。",
+    "skill_focus": "助動詞つき受動態"
+  },
+  {
+    "test_id": "GTF-PREP2-007",
+    "lesson_id": "G-PREP2-007",
+    "category": "不定詞",
+    "title": "不定詞の発展用法",
+    "target_grammar": "too ... to ~",
+    "base_word": "run",
+    "question_jp": "『疲れすぎて走れなかった』という意味になるように選びなさい。",
+    "prompt_en": "I was too tired _____ .",
+    "choices": [
+      {
+        "text": "run",
+        "explanation_jp": "too ... の後には to + 原形が必要。"
+      },
+      {
+        "text": "to run",
+        "explanation_jp": "正解。too ... to ~ で『〜すぎて…できない』。"
+      },
+      {
+        "text": "running",
+        "explanation_jp": "動名詞では too ... to の構文にならない。"
+      },
+      {
+        "text": "ran",
+        "explanation_jp": "過去形は使えない。to不定詞が必要。"
+      }
+    ],
+    "answer_index": 1,
+    "full_answer": "I was too tired to run.",
+    "correct_reason_jp": "too + 形容詞 + to + 原形で『〜すぎて…できない』を表す。",
+    "skill_focus": "too ... to 構文"
+  },
+  {
+    "test_id": "GTF-PREP2-008",
+    "lesson_id": "G-PREP2-008",
+    "category": "不定詞",
+    "title": "原形不定詞",
+    "target_grammar": "make + 人 + 原形",
+    "base_word": "do",
+    "question_jp": "make を使って『私は彼にその仕事をさせた』という意味になるように選びなさい。",
+    "prompt_en": "I made him _____ the work.",
+    "choices": [
+      {
+        "text": "do",
+        "explanation_jp": "正解。make + 人 + 原形で『人に〜させる』。"
+      },
+      {
+        "text": "to do",
+        "explanation_jp": "make の使役用法では to はつけない。"
+      },
+      {
+        "text": "doing",
+        "explanation_jp": "現在分詞ではなく、原形不定詞を使う。"
+      },
+      {
+        "text": "did",
+        "explanation_jp": "made がすでに過去形なので、後ろの動詞は過去形にしない。"
+      }
+    ],
+    "answer_index": 0,
+    "full_answer": "I made him do the work.",
+    "correct_reason_jp": "使役動詞 make の後は『人 + 動詞の原形』になる。",
+    "skill_focus": "使役動詞の原形不定詞"
+  },
+  {
+    "test_id": "GTF-PREP2-009",
+    "lesson_id": "G-PREP2-009",
+    "category": "動名詞",
+    "title": "動名詞",
+    "target_grammar": "remember + ~ing",
+    "base_word": "meet",
+    "question_jp": "『彼に会ったことを覚えている』という意味になるように選びなさい。",
+    "prompt_en": "I remember _____ him.",
+    "choices": [
+      {
+        "text": "meet",
+        "explanation_jp": "原形だけでは remember の目的語として不自然。"
+      },
+      {
+        "text": "to meet",
+        "explanation_jp": "remember to ~ は『忘れずに〜する』。これから会う意味になる。"
+      },
+      {
+        "text": "meeting",
+        "explanation_jp": "正解。remember ~ing は『〜したことを覚えている』。"
+      },
+      {
+        "text": "met",
+        "explanation_jp": "過去形 met をそのまま remember の後に置くことはできない。"
+      }
+    ],
+    "answer_index": 2,
+    "full_answer": "I remember meeting him.",
+    "correct_reason_jp": "過去に会った経験を覚えているので remember meeting を使う。",
+    "skill_focus": "remember to と remember ~ing の意味の違い"
+  },
+  {
+    "test_id": "GTF-PREP2-010",
+    "lesson_id": "G-PREP2-010",
+    "category": "分詞",
+    "title": "分詞と分詞構文",
+    "target_grammar": "目的語 + 過去分詞",
+    "base_word": "call",
+    "question_jp": "『自分の名前が呼ばれるのを聞いた』という意味になるように選びなさい。",
+    "prompt_en": "I heard my name _____ .",
+    "choices": [
+      {
+        "text": "call",
+        "explanation_jp": "my name が何かを呼ぶ意味になってしまう。"
+      },
+      {
+        "text": "calling",
+        "explanation_jp": "my name が呼んでいる意味に近くなり、受け身の意味ではない。"
+      },
+      {
+        "text": "called",
+        "explanation_jp": "正解。my name は呼ばれる側なので過去分詞を使う。"
+      },
+      {
+        "text": "to call",
+        "explanation_jp": "hear + 目的語 の後にこの意味で to不定詞は使わない。"
+      }
+    ],
+    "answer_index": 2,
+    "full_answer": "I heard my name called.",
+    "correct_reason_jp": "名前は『呼ばれる』側なので、過去分詞 called が正しい。",
+    "skill_focus": "目的語と分詞の関係"
+  },
+  {
+    "test_id": "GTF-PREP2-011",
+    "lesson_id": "G-PREP2-011",
+    "category": "仮定法",
+    "title": "仮定法過去・I wish",
+    "target_grammar": "If + 過去形, would + 原形",
+    "base_word": "have",
+    "question_jp": "現在はお金が十分にない、という事実と反対の仮定になるように選びなさい。",
+    "prompt_en": "If I _____ much money, I would buy it.",
+    "choices": [
+      {
+        "text": "have",
+        "explanation_jp": "現在形なので、現実と反対の仮定を表せない。"
+      },
+      {
+        "text": "had",
+        "explanation_jp": "正解。現在の事実と反対の仮定では if節に過去形を使う。"
+      },
+      {
+        "text": "will have",
+        "explanation_jp": "未来の意味になり、仮定法の形ではない。"
+      },
+      {
+        "text": "have had",
+        "explanation_jp": "現在完了なので、この仮定法過去の文には合わない。"
+      }
+    ],
+    "answer_index": 1,
+    "full_answer": "If I had much money, I would buy it.",
+    "correct_reason_jp": "現在の事実と反対なので、if節は過去形 had、主節は would + 原形。",
+    "skill_focus": "現在の事実と反対の仮定"
+  },
+  {
+    "test_id": "GTF-PREP2-012",
+    "lesson_id": "G-PREP2-012",
+    "category": "関係詞",
+    "title": "関係代名詞",
+    "target_grammar": "whose",
+    "base_word": "who",
+    "question_jp": "『その女の子の名前』という所有関係を表す語を選びなさい。",
+    "prompt_en": "I met a girl _____ name is Olivia.",
+    "choices": [
+      {
+        "text": "who",
+        "explanation_jp": "who は主語・目的語の関係代名詞で、後ろに name のような名詞を直接続けて所有を表せない。"
+      },
+      {
+        "text": "whose",
+        "explanation_jp": "正解。whose + 名詞で『〜の名詞』という所有を表す。"
+      },
+      {
+        "text": "whom",
+        "explanation_jp": "whom は目的格。所有の意味は表せない。"
+      },
+      {
+        "text": "which",
+        "explanation_jp": "which は物・動物などに使うことが多く、ここでは所有を表せない。"
+      }
+    ],
+    "answer_index": 1,
+    "full_answer": "I met a girl whose name is Olivia.",
+    "correct_reason_jp": "name という名詞の前に置いて『その女の子の名前』を表すので whose が正しい。",
+    "skill_focus": "所有を表す関係代名詞"
+  },
+  {
+    "test_id": "GTF-PREP2-013",
+    "lesson_id": "G-PREP2-013",
+    "category": "関係詞",
+    "title": "関係副詞",
+    "target_grammar": "where",
+    "base_word": "where",
+    "question_jp": "town という場所を説明する関係副詞を選びなさい。",
+    "prompt_en": "I visited the town _____ she was born.",
+    "choices": [
+      {
+        "text": "when",
+        "explanation_jp": "when は時を説明する。town は場所なので合わない。"
+      },
+      {
+        "text": "where",
+        "explanation_jp": "正解。場所を説明する関係副詞なので where。"
+      },
+      {
+        "text": "why",
+        "explanation_jp": "why は理由を説明する。場所には使わない。"
+      },
+      {
+        "text": "how",
+        "explanation_jp": "how は方法を表す。場所を説明する語ではない。"
+      }
+    ],
+    "answer_index": 1,
+    "full_answer": "I visited the town where she was born.",
+    "correct_reason_jp": "先行詞 the town は場所なので、場所を表す where を使う。",
+    "skill_focus": "場所を説明する関係副詞"
+  },
+  {
+    "test_id": "GTF-PREP2-014",
+    "lesson_id": "G-PREP2-014",
+    "category": "関係詞",
+    "title": "複合関係詞",
+    "target_grammar": "whatever",
+    "base_word": "what",
+    "question_jp": "『あなたが何をあげても』という意味になる語を選びなさい。",
+    "prompt_en": "_____ you give, she will be pleased.",
+    "choices": [
+      {
+        "text": "Whoever",
+        "explanation_jp": "whoever は『誰が〜しても』。物をあげる内容には合いにくい。"
+      },
+      {
+        "text": "Whatever",
+        "explanation_jp": "正解。whatever は『何を〜しても』を表す。"
+      },
+      {
+        "text": "Whenever",
+        "explanation_jp": "whenever は『いつ〜しても』。時間を表す語。"
+      },
+      {
+        "text": "Wherever",
+        "explanation_jp": "wherever は『どこで〜しても』。場所を表す語。"
+      }
+    ],
+    "answer_index": 1,
+    "full_answer": "Whatever you give, she will be pleased.",
+    "correct_reason_jp": "give の目的語になる『何を』を表すので Whatever が正しい。",
+    "skill_focus": "複合関係詞の意味の使い分け"
+  },
+  {
+    "test_id": "GTF-PREP2-015",
+    "lesson_id": "G-PREP2-015",
+    "category": "比較",
+    "title": "比較の発展表現",
+    "target_grammar": "the 比較級, the 比較級",
+    "base_word": "good",
+    "question_jp": "『練習すればするほど、上手になる』という意味になるように選びなさい。",
+    "prompt_en": "The more you practice, _____ you play.",
+    "choices": [
+      {
+        "text": "good",
+        "explanation_jp": "原級なので、the 比較級, the 比較級 の形にならない。"
+      },
+      {
+        "text": "better",
+        "explanation_jp": "比較級だが、この構文では前に the が必要。"
+      },
+      {
+        "text": "the better",
+        "explanation_jp": "正解。The more ..., the better ... の形で『〜すればするほど…』。"
+      },
+      {
+        "text": "best",
+        "explanation_jp": "最上級なので、この比例関係の構文には合わない。"
+      }
+    ],
+    "answer_index": 2,
+    "full_answer": "The more you practice, the better you play.",
+    "correct_reason_jp": "『〜すればするほど…』は the + 比較級, the + 比較級。better には the が必要。",
+    "skill_focus": "比較級の構文"
+  },
+  {
+    "test_id": "GTF-PREP2-016",
+    "lesson_id": "G-PREP2-016",
+    "category": "構文",
+    "title": "無生物主語",
+    "target_grammar": "remind A of B",
+    "base_word": "remind",
+    "question_jp": "この写真が私に彼女を思い出させる、という英語らしい表現になるように選びなさい。",
+    "prompt_en": "This picture _____ me of her.",
+    "choices": [
+      {
+        "text": "remind",
+        "explanation_jp": "主語 This picture は三人称単数なので、現在形なら reminds にする必要がある。"
+      },
+      {
+        "text": "reminds",
+        "explanation_jp": "正解。This picture が主語なので reminds。remind A of B の形。"
+      },
+      {
+        "text": "reminded",
+        "explanation_jp": "過去形。文脈が現在の一般的な内容なのでここでは合わない。"
+      },
+      {
+        "text": "reminding",
+        "explanation_jp": "現在分詞だけでは述語動詞になれない。is reminding などが必要。"
+      }
+    ],
+    "answer_index": 1,
+    "full_answer": "This picture reminds me of her.",
+    "correct_reason_jp": "This picture は三人称単数なので reminds。remind A of B で『AにBを思い出させる』。",
+    "skill_focus": "無生物主語と三単現"
+  },
+  {
+    "test_id": "GTF-PREP2-017",
+    "lesson_id": "G-PREP2-017",
+    "category": "構文",
+    "title": "強調構文",
+    "target_grammar": "It was ... that ~",
+    "base_word": "see",
+    "question_jp": "Jim を強調して『エイミーを見かけたのはジムだった』という意味になるように選びなさい。",
+    "prompt_en": "It was Jim that _____ Amy at the shop.",
+    "choices": [
+      {
+        "text": "see",
+        "explanation_jp": "過去の出来事なので、動詞は過去形にする必要がある。"
+      },
+      {
+        "text": "saw",
+        "explanation_jp": "正解。強調構文でも that 以下の動詞は元の文 Jim saw Amy に合わせる。"
+      },
+      {
+        "text": "seen",
+        "explanation_jp": "過去分詞だけでは述語動詞になれない。"
+      },
+      {
+        "text": "seeing",
+        "explanation_jp": "現在分詞だけでは過去の出来事を表す述語動詞になれない。"
+      }
+    ],
+    "answer_index": 1,
+    "full_answer": "It was Jim that saw Amy at the shop.",
+    "correct_reason_jp": "元の文は Jim saw Amy at the shop。Jim を強調しても that 以下の動詞は saw のまま。",
+    "skill_focus": "強調構文内の動詞の形"
+  }
+]

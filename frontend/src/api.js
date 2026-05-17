@@ -2,9 +2,23 @@ import { addPartnerExp, getPartnerExp } from './utils/dailyLearningStorage';
 import { addChild, getChildren as getLocalChildren, getCurrentChild, setCurrentChildId, updateChild } from './utils/childStorage';
 import { loadDailyWords, loadQuizSets, loadWordBank, readLocalJson, toDailyWord, writeLocalJson } from './lib/staticData';
 import { getChildVocabProgress, updateWordProgress } from './utils/vocabProgressStorage';
+import { PET_STARTER_OPTIONS, buildStaticPetCollection, decoratePet } from './lib/petMaster';
 
 const DATA_MODE = import.meta.env.VITE_DATA_MODE || 'api';
-const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL || '').replace(/\/$/, '');
+
+function getDefaultApiBaseUrl() {
+  if (typeof window !== 'undefined') {
+    if (window.location.port === '5173') {
+      return '';
+    }
+    if (window.location.port === '5000') {
+      return window.location.origin;
+    }
+  }
+  return 'http://localhost:5000';
+}
+
+export const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL || getDefaultApiBaseUrl()).replace(/\/$/, '');
 
 function toQuery(params = {}) {
   const searchParams = new URLSearchParams();
@@ -38,7 +52,7 @@ function normalizeApiChild(child) {
     id: String(child.id),
     targetLevel: child.targetLevel || child.target_level || '',
     dailyTarget: Number(child.dailyTarget || child.daily_target || 20),
-    partnerMonsterId: child.partnerMonsterId || child.partner_monster_id || child.starter_pokemon_id || 'bulbasaur',
+    partnerMonsterId: child.partnerMonsterId || child.partner_monster_id || child.starter_pokemon_id || 1,
   };
 }
 
@@ -107,15 +121,13 @@ export const getHomeData = async (childId) => {
     total_words: words.length,
     mastered_words: mastered.length,
     study_days: mastered.length > 0 ? 1 : 0,
-    pet: {
-      pokemon_id: 25,
-      name: 'Pikachu',
+    pet: decoratePet({
+      pokemon_id: 1,
       level: 1,
       exp: partnerExp % 100,
       max_exp: 100,
       total_exp: partnerExp,
-      image_url: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/25.png',
-    },
+    }),
   };
 };
 
@@ -167,9 +179,9 @@ export const markMastered = async ({ word, childId, vocabId }) => {
   return { progress: next.length, target: 20, remain: Math.max(0, 20 - next.length), mastered_words: next };
 };
 
-export const addPokemonExp = async (childId, expAmount) => {
+export const addPetExp = async (childId, expAmount) => {
   if (DATA_MODE !== 'static') {
-    return fetchJson('/api/pokemon-exp', {
+    return fetchJson('/api/pet-exp', {
       method: 'POST',
       body: { child_id: childId, exp_amount: expAmount },
     });
@@ -180,12 +192,34 @@ export const addPokemonExp = async (childId, expAmount) => {
   };
 };
 
-export const getQuizData = async ({ word } = {}) => {
+export const getQuizData = async ({ word, childId } = {}) => {
+  if (DATA_MODE !== 'static') {
+    return fetchJson('/api/quiz', { params: { word, child_id: childId } });
+  }
   const words = await getWords();
-  const item = word ? words.find((entry) => entry.word === word) || pickRandom(words) : pickRandom(words);
-  const choices = shuffle([item.word, ...shuffle(words.filter((entry) => entry.id !== item.id)).slice(0, 3).map((entry) => entry.word)]);
+  const mastered = readLocalJson(getMasteredKey(childId), []);
+  const learnedWords = words.filter((entry) => mastered.includes(String(entry.id)) || mastered.includes(entry.word));
+  const pool = learnedWords.length ? learnedWords : [];
+  const item = word ? pool.find((entry) => entry.word === word) : pickRandom(pool);
+  if (!item) {
+    return {
+      question: 'まだ復習できる単語がありません。まず単語カードで覚えましょう。',
+      choices: [],
+      correct: '',
+      word: '',
+      id: '',
+      mastered_count: mastered.length,
+      error_count: 0,
+      review_mode: 'mastered_words',
+    };
+  }
+  const choices = shuffle([item.word, ...shuffle(pool.filter((entry) => entry.id !== item.id)).slice(0, 3).map((entry) => entry.word)]);
+  const example = item.example || '';
+  const question = example
+    ? example.replace(new RegExp(`\\b${item.word.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`, 'i'), '____')
+    : `Choose the word that fits: ____`;
   return {
-    question: `「${item.jp}」は英語でどれ？`,
+    question,
     choices,
     correct: item.word,
     word: item.word,
@@ -193,23 +227,31 @@ export const getQuizData = async ({ word } = {}) => {
     japanese: item.jp,
     example: item.example,
     example_jp: item.example_jp,
-    mastered_count: readLocalJson(getMasteredKey('default'), []).length,
+    mastered_count: mastered.length,
     error_count: 0,
     review_mode: 'static_words',
   };
 };
 
-export const getVocabExpansionQuestion = async (mode = 'synonym') => {
+export const getVocabExpansionQuestion = async (mode = 'synonym', childId) => {
   if (DATA_MODE !== 'static') {
-    return fetchJson('/api/vocab-expansion', { params: { mode } });
+    return fetchJson('/api/vocab-expansion', { params: { mode, child_id: childId } });
   }
   const words = await getWords();
+  const mastered = readLocalJson(getMasteredKey(childId), []);
+  const learnedWords = words.filter((word) => mastered.includes(String(word.id)) || mastered.includes(word.word));
   const requestedMode = mode === 'antonym' ? 'antonym' : 'synonym';
   const key = requestedMode === 'synonym' ? 'synonyms' : 'antonyms';
-  const candidates = words.filter((word) => splitTerms(word[key]).length > 0);
-  const item = pickRandom(candidates.length ? candidates : words);
-  const correct = pickRandom(splitTerms(item[key]).length ? splitTerms(item[key]) : [item.word]);
-  const pool = words.flatMap((word) => [...splitTerms(word.synonyms), ...splitTerms(word.antonyms)]).filter((term) => term !== correct);
+  const learnedSet = new Set(learnedWords.map((word) => word.word.toLowerCase()));
+  const candidates = learnedWords.filter((word) => splitTerms(word[key]).some((term) => learnedSet.has(term.toLowerCase())));
+  const item = pickRandom(candidates);
+  if (!item) {
+    throw new Error('まだ練習できる単語がありません。まず単語カードで覚えましょう。');
+  }
+  const correct = pickRandom(splitTerms(item[key]).filter((term) => learnedSet.has(term.toLowerCase())));
+  const pool = learnedWords
+    .flatMap((word) => [...splitTerms(word.synonyms), ...splitTerms(word.antonyms)])
+    .filter((term) => learnedSet.has(term.toLowerCase()) && term !== correct);
   return {
     id: item.id,
     word: item.word,
@@ -262,7 +304,7 @@ export const getAiPracticeQuestion = async (childId) => {
   if (DATA_MODE !== 'static') {
     return fetchJson('/api/ai-practice/next', { params: { child_id: childId } });
   }
-  const quiz = await getQuizData();
+  const quiz = await getQuizData({ childId });
   return { question: { ...quiz, question_type: 'multiple_choice' } };
 };
 
@@ -280,7 +322,7 @@ export const startBattle = async ({ childId, level } = {}) => {
   if (DATA_MODE !== 'static') {
     return fetchJson('/api/battle/start', { method: 'POST', body: { child_id: childId, level } });
   }
-  return { session_id: `static_${Date.now()}`, question: await getQuizData(), monster: null };
+  return { session_id: `static_${Date.now()}`, question: await getQuizData({ childId }), monster: null };
 };
 export const submitBattleAnswer = async ({ sessionId, questionId, selectedAnswer } = {}) => {
   if (DATA_MODE !== 'static') {
@@ -299,14 +341,21 @@ export const captureBattleMonster = async (sessionId) => {
 };
 export const getBattleMonsters = async (childId) => {
   if (DATA_MODE !== 'static') {
-    return fetchJson('/api/battle/monsters', { params: { child_id: childId } });
+    const payload = await fetchJson('/api/battle/monsters', { params: { child_id: childId } });
+    return {
+      ...payload,
+      monsters: (payload.monsters || []).map((monster, index) => ({
+        ...monster,
+        imageUrl: PET_STARTER_OPTIONS[index % PET_STARTER_OPTIONS.length]?.image_url || monster.imageUrl,
+      })),
+    };
   }
   return {
   monsters: [
     {
       id: 'comparison_cat',
       nameJa: 'くらべキャット',
-      imageUrl: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/300.png',
+      imageUrl: '/assets/pets/elec/ELEC_CAT1.png',
       grammarCategory: 'comparison',
       captured: true,
       level: 1,
@@ -327,6 +376,79 @@ export const masterBattleWrongQuestion = async (wrongId) => {
     return fetchJson(`/api/battle/wrong-questions/${encodeURIComponent(wrongId)}/master`, { method: 'POST', body: {} });
   }
   return { mastered: true };
+};
+
+export const getGrammarLessons = async (childId) => {
+  if (DATA_MODE !== 'static') {
+    return fetchJson('/api/grammar/lessons', { params: { child_id: childId } });
+  }
+  return {
+    childId,
+    lessons: [],
+    todayLesson: null,
+    stats: { total: 0, mastered: 0, learning: 0, remaining: 0, dailyTarget: 1 },
+  };
+};
+
+export const getGrammarLesson = async ({ childId, lessonId } = {}) => {
+  if (DATA_MODE !== 'static') {
+    return fetchJson(`/api/grammar/lessons/${encodeURIComponent(lessonId)}`, { params: { child_id: childId } });
+  }
+  return { childId, lesson: null };
+};
+
+export const markGrammarLessonViewed = async ({ childId, lessonId } = {}) => {
+  if (DATA_MODE !== 'static') {
+    return fetchJson(`/api/grammar/lessons/${encodeURIComponent(lessonId)}/view`, {
+      method: 'POST',
+      body: { child_id: childId },
+    });
+  }
+  return getGrammarLesson({ childId, lessonId });
+};
+
+export const submitGrammarQuizAnswer = async ({ childId, quizId, selectedIndex } = {}) => {
+  if (DATA_MODE !== 'static') {
+    return fetchJson(`/api/grammar/quizzes/${encodeURIComponent(quizId)}/answer`, {
+      method: 'POST',
+      body: { child_id: childId, selected_index: selectedIndex },
+    });
+  }
+  return { childId, quizId, selectedIndex, correctIndex: 0, isCorrect: selectedIndex === 0, explanationJp: '' };
+};
+
+export const getGrammarFormPractice = async ({ childId, limit = 5 } = {}) => {
+  if (DATA_MODE !== 'static') {
+    return fetchJson('/api/grammar/form-practice', { params: { child_id: childId, limit } });
+  }
+  return { childId, learnedLessonCount: 0, questions: [] };
+};
+
+export const submitGrammarFormPracticeAnswer = async ({ childId, testId, selectedIndex } = {}) => {
+  if (DATA_MODE !== 'static') {
+    return fetchJson(`/api/grammar/form-practice/${encodeURIComponent(testId)}/answer`, {
+      method: 'POST',
+      body: { child_id: childId, selected_index: selectedIndex },
+    });
+  }
+  return { childId, testId, selectedIndex, correctIndex: 0, isCorrect: selectedIndex === 0, correctAnswer: '', correctReasonJp: '' };
+};
+
+export const getGrammarFormWrongQuestions = async (childId) => {
+  if (DATA_MODE !== 'static') {
+    return fetchJson('/api/grammar/form-practice/wrong-questions', { params: { child_id: childId } });
+  }
+  return { childId, wrongQuestions: [] };
+};
+
+export const masterGrammarFormWrongQuestion = async ({ childId, testId } = {}) => {
+  if (DATA_MODE !== 'static') {
+    return fetchJson(`/api/grammar/form-practice/wrong-questions/${encodeURIComponent(testId)}/master`, {
+      method: 'POST',
+      body: { child_id: childId },
+    });
+  }
+  return { childId, testId, mastered: true };
 };
 
 export const getEikenQuestions = async ({ childId, forceAi, importance, frequency } = {}) => {
@@ -424,6 +546,16 @@ export const getEikenPre2WrongQuestions = async ({ studentId, childId, latestOnl
   return { wrong_answers: [] };
 };
 
+export const getEikenRealExams = async () => {
+  if (DATA_MODE !== 'static') return fetchJson('/api/eiken-real-exams');
+  return { exams: [] };
+};
+
+export const getEikenRealExamPart = async (partId) => {
+  if (DATA_MODE !== 'static') return fetchJson(`/api/eiken-real-exams/parts/${encodeURIComponent(partId)}`);
+  return { part_id: partId, html: '', audio_paths: [], question_count: 0 };
+};
+
 export const submitPracticeAnswer = async ({ id, word, selected, correct, childId }) => {
   if (DATA_MODE !== 'static') {
     return fetchJson('/api/practice-answer', {
@@ -484,36 +616,31 @@ export const getReviewList = async (childId) => {
 
 export const getPetsData = async (childId) => {
   if (DATA_MODE !== 'static') {
-    return fetchJson('/api/pokedex', { params: { child_id: childId } });
+    const payload = await fetchJson('/api/pokedex', { params: { child_id: childId } });
+    const pets = buildStaticPetCollection(payload.pets || []);
+    const currentPet = decoratePet(payload.current_pet || pets.find((pet) => pet.unlocked) || pets[0]);
+    const ownedCount = pets.filter((pet) => pet.unlocked).length;
+    return {
+      ...payload,
+      pets,
+      current_pet: currentPet,
+      owned_count: ownedCount,
+      total_count: pets.length,
+      reward_status: {
+        ...(payload.reward_status || {}),
+        has_locked_pokemon: ownedCount < pets.length,
+      },
+    };
   }
+  const pets = buildStaticPetCollection([
+    { pokemon_id: 1, level: 1, exp: 0, max_exp: 100, exp_progress: 0, total_exp: 0 },
+  ]);
   return {
   child: null,
-  pets: [
-    {
-      pokemon_id: 1,
-      name: 'フシギダネ',
-      level: 1,
-      exp: 0,
-      max_exp: 100,
-      exp_progress: 0,
-      total_exp: 0,
-      unlocked: true,
-      image_url: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/1.png',
-    },
-  ],
-  current_pet: {
-    pokemon_id: 1,
-    name: 'フシギダネ',
-    level: 1,
-    exp: 0,
-    max_exp: 100,
-    exp_progress: 0,
-    total_exp: 0,
-    unlocked: true,
-    image_url: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/1.png',
-  },
+  pets,
+  current_pet: pets[0],
   owned_count: 1,
-  total_count: 151,
+  total_count: pets.length,
   reward_status: { today_progress: 0, today_target: 20, today_progress_percent: 0, next_unlock_exp: 20, has_locked_pokemon: true },
   };
 };
@@ -563,16 +690,7 @@ export const getChildren = async () => {
 };
 
 export const getChildStarterOptions = async () => {
-  if (DATA_MODE !== 'static') {
-    return fetchJson('/api/child-starter-options');
-  }
-  return {
-    options: [
-      { id: 4, name: 'ヒトカゲ', image_url: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/4.png', sprite_url: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/4.png', types: [{ name: 'fire' }] },
-      { id: 7, name: 'ゼニガメ', image_url: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/7.png', sprite_url: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/7.png', types: [{ name: 'water' }] },
-      { id: 1, name: 'フシギダネ', image_url: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/1.png', sprite_url: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/1.png', types: [{ name: 'grass' }] },
-    ],
-  };
+  return { options: PET_STARTER_OPTIONS };
 };
 
 export const saveChildProfile = async (payload) => {
@@ -586,7 +704,7 @@ export const saveChildProfile = async (payload) => {
   const existing = getLocalChildren().find((child) => child.id === payload.id);
   const child = existing
     ? updateChild(existing.id, { name: payload.name, grade: payload.grade, targetLevel: payload.target_level })
-    : addChild({ name: payload.name, grade: payload.grade, targetLevel: payload.target_level, partnerMonsterId: 'bulbasaur' });
+    : addChild({ name: payload.name, grade: payload.grade, targetLevel: payload.target_level, partnerMonsterId: String(payload.starter_pokemon_id || 1) });
   setCurrentChildId(child.id);
   return { child };
 };

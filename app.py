@@ -11,17 +11,26 @@ import urllib.parse
 import urllib.request
 import uuid
 
-from pokeapi_service import PokeApiError, getPokemonById
+from pokeapi_service import PokeApiError
+
+try:
+    from flask_cors import CORS
+except ImportError:
+    def CORS(*args, **kwargs):
+        return None
 
 app = Flask(__name__)
 
 DB_FILENAME = 'practice_data.db'
-VOCAB_FILENAME = os.path.join('data', 'eiken_vocab_database_with_synonyms_utf8_bom.csv')
-EIKEN_PRE2_BANK_FILENAME = os.path.join('data', 'eiken_pre2_web_ready_db', 'eiken_pre2_web_ready.sqlite')
+VOCAB_FILENAME = os.path.join('data', 'eiken', 'eiken_pre2', 'eiken_pre2_web_ready_db', 'eiken_vocab_database_with_synonyms_utf8_bom.csv')
+EIKEN_PRE2_BANK_FILENAME = os.path.join('data', 'eiken', 'eiken_pre2', 'eiken_pre2_web_ready_db', 'eiken_pre2_web_ready.sqlite')
+EIKEN_REAL_EXAM_DIR = os.path.join('data', 'eiken', 'eiken real exam', 'Listening', 'www.cloudsemi.com', 'member', 'eiken', 'eikenj2')
+GRAMMAR_LESSON_DB_FILENAME = os.path.join('data', 'eiken', 'eiken_pre2', 'eiken_pre2 grammar', 'eiken_pre2_grammar_lessons.db')
+GRAMMAR_FORM_TEST_DB_FILENAME = os.path.join('data', 'eiken', 'eiken_pre2', 'eiken_pre2 grammar', 'eiken_pre2_grammar_form_test_sample_17.db')
 OPENAI_RESPONSES_URL = 'https://api.openai.com/v1/responses'
 AI_QUESTION_TYPES = ['Vocabulary', 'Grammar', 'Conversation', 'Reading Cloze']
 AI_AUTO_QUESTION_TYPES = ['multiple_choice', 'fill_blank', 'en_to_ja', 'ja_to_en', 'sentence', 'reading', 'writing']
-STARTER_POKEMON_IDS = [4, 7, 1]
+STARTER_POKEMON_IDS = [1, 10, 19]
 POKEMON_NAME_FALLBACKS = {
     1: 'フシギダネ',
     4: 'ヒトカゲ',
@@ -75,6 +84,26 @@ def load_local_env():
 load_local_env()
 
 
+def get_cors_origins():
+    configured = ','.join(
+        value
+        for value in [os.getenv('FRONTEND_ORIGIN', ''), os.getenv('FRONTEND_URL', '')]
+        if value
+    )
+    origins = [
+        'http://localhost:5173',
+        'http://127.0.0.1:5173',
+        'http://localhost:5000',
+        'http://127.0.0.1:5000',
+        r'https://.*\.vercel\.app',
+    ]
+    origins.extend(origin.strip() for origin in configured.split(',') if origin.strip())
+    return origins
+
+
+CORS(app, resources={r'/api/*': {'origins': get_cors_origins()}, r'/health': {'origins': get_cors_origins()}})
+
+
 def get_openai_api_key():
     return os.getenv('OPENAI_API_KEY', '').strip()
 
@@ -96,6 +125,12 @@ def get_openai_reasoning_effort(model):
 
 def data_path(filename):
     return os.path.join(app.root_path, filename)
+
+
+def ensure_parent_dir(path):
+    parent = os.path.dirname(os.path.abspath(path))
+    if parent:
+        os.makedirs(parent, exist_ok=True)
 
 
 def _read_csv_with_fallback(filename):
@@ -256,33 +291,69 @@ def get_vocab_expansion_entries(entries=None):
     ]
 
 
-def build_vocab_expansion_question(mode=None):
-    candidates = get_vocab_expansion_entries()
+def build_example_cloze_question(sentence, word):
+    sentence = _clean_csv_value(sentence)
+    word = _clean_csv_value(word)
+    if not sentence or not word:
+        return ''
+    escaped = re.escape(word)
+    question = re.sub(rf'\b{escaped}\b', '____', sentence, count=1, flags=re.IGNORECASE)
+    if question != sentence:
+        return question
+    return re.sub(escaped, '____', sentence, count=1, flags=re.IGNORECASE)
+
+
+def build_vocab_expansion_question(mode=None, child_id=None):
+    learned_entries = get_child_mastered_vocab_entries(child_id)
+    learned_words = {
+        entry.get('English', '').strip().lower()
+        for entry in learned_entries
+        if entry.get('English', '').strip()
+    }
+    candidates = get_vocab_expansion_entries(learned_entries)
     if not candidates:
-        raise LookupError('No vocabulary expansion data is available')
+        raise LookupError('まだ練習できる単語がありません。まず単語カードで覚えましょう。')
 
     requested_mode = _clean_csv_value(mode).lower()
     if requested_mode not in ['synonym', 'antonym']:
         requested_mode = random.choice(['synonym', 'antonym'])
 
     mode_key = 'Synonyms' if requested_mode == 'synonym' else 'Antonyms'
-    available = [entry for entry in candidates if split_related_vocab_terms(entry.get(mode_key))]
+    available = [
+        entry for entry in candidates
+        if any(term.lower() in learned_words for term in split_related_vocab_terms(entry.get(mode_key)))
+    ]
     if not available:
         fallback_mode = 'antonym' if requested_mode == 'synonym' else 'synonym'
         mode_key = 'Synonyms' if fallback_mode == 'synonym' else 'Antonyms'
-        available = [entry for entry in candidates if split_related_vocab_terms(entry.get(mode_key))]
+        available = [
+            entry for entry in candidates
+            if any(term.lower() in learned_words for term in split_related_vocab_terms(entry.get(mode_key)))
+        ]
         requested_mode = fallback_mode
     if not available:
-        raise LookupError('No vocabulary expansion data is available')
+        raise LookupError('まだ練習できる単語がありません。まず単語カードで覚えましょう。')
 
     entry = random.choice(available)
-    correct = random.choice(split_related_vocab_terms(entry.get(mode_key)))
+    correct_terms = [
+        term for term in split_related_vocab_terms(entry.get(mode_key))
+        if term.lower() in learned_words
+    ]
+    if not correct_terms:
+        raise LookupError('まだ練習できる単語がありません。まず単語カードで覚えましょう。')
+    correct = random.choice(correct_terms)
     distractor_pool = []
     for other in candidates:
         if get_vocab_key(other) == get_vocab_key(entry):
             continue
-        distractor_pool.extend(split_related_vocab_terms(other.get('Synonyms')))
-        distractor_pool.extend(split_related_vocab_terms(other.get('Antonyms')))
+        distractor_pool.extend(
+            term for term in split_related_vocab_terms(other.get('Synonyms'))
+            if term.lower() in learned_words
+        )
+        distractor_pool.extend(
+            term for term in split_related_vocab_terms(other.get('Antonyms'))
+            if term.lower() in learned_words
+        )
 
     seen = {correct.lower(), entry.get('English', '').strip().lower()}
     distractors = []
@@ -355,6 +426,7 @@ def load_json_file(filename, default_value):
 
 def save_json_file(filename, data):
     path = data_path(filename)
+    ensure_parent_dir(path)
     with open(path, 'w', encoding='utf-8') as f:
         json.dump(data, f, ensure_ascii=False, indent=2)
 
@@ -463,20 +535,7 @@ def get_pet_pokemon_id(pet_type):
 
 
 def get_random_pokemon_id(conn=None):
-    close_conn = False
-    if conn is None:
-        conn = get_db_connection()
-        close_conn = True
-    try:
-        row = conn.execute(
-            'SELECT pokemon_id FROM pokemon_catalog WHERE pokemon_id BETWEEN 1 AND 151 ORDER BY RANDOM() LIMIT 1'
-        ).fetchone()
-        if row:
-            return int(row['pokemon_id'])
-        return random.randint(1, 151)
-    finally:
-        if close_conn:
-            conn.close()
+    return random.randint(1, CUSTOM_PET_TOTAL)
 
 
 def _pokemon_to_cache_record(pokemon):
@@ -503,26 +562,14 @@ def _pokemon_to_cache_record(pokemon):
 
 
 def get_pokemon_fallback_image_urls(pokemon_id):
-    try:
-        normalized_id = int(pokemon_id)
-    except (TypeError, ValueError):
-        normalized_id = None
-    if not normalized_id or normalized_id <= 0:
-        return None, None
-    return (
-        f'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/{normalized_id}.png',
-        f'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/{normalized_id}.png',
-    )
+    pet = get_custom_pet_by_id(pokemon_id)
+    image_url = pet.get('image_url') if pet else None
+    return image_url, image_url
 
 
 def get_pokemon_fallback_name(pokemon_id):
-    try:
-        normalized_id = int(pokemon_id)
-    except (TypeError, ValueError):
-        normalized_id = None
-    if not normalized_id or normalized_id <= 0:
-        return None
-    return POKEMON_NAME_FALLBACKS.get(normalized_id)
+    pet = get_custom_pet_by_id(pokemon_id)
+    return pet.get('nameJa') if pet else None
 
 
 def _row_to_pokemon_record(row):
@@ -571,10 +618,10 @@ def _child_collection_row_to_state(row, pokemon=None, pokemon_error=None, collec
         return None
 
     pokemon_id = int(row['pokemon_id'])
-    pokemon = pokemon or None
+    pokemon = pokemon or get_custom_pet_by_id(pokemon_id)
     pokemon_error = pokemon_error or None
-    pet_type = get_pokemon_primary_type(pokemon)
-    pet_emoji = {'fire': '・滓ｨ奇ｽｫ・ｨ', 'water': '・滓ｨ雁ｦ', 'grass': '・滓ｫ・ｽｫ・ｺ', 'electric': '髫ｨ讖ｸ・ｽ・｡'}.get(pet_type, '髫ｨ・ｨ繝ｻ・ｨ')
+    pet_type = (pokemon or {}).get('element') or get_pokemon_primary_type(pokemon)
+    pet_emoji = 'PET'
     max_level = int(row['max_level'] or 10)
     level = int(row['level'] or 1)
     max_exp = get_pet_exp_required(level)
@@ -583,7 +630,7 @@ def _child_collection_row_to_state(row, pokemon=None, pokemon_error=None, collec
 
     progress_percent = None
     if collection_count is not None:
-        progress_percent = round((collection_count / 151) * 100, 1)
+        progress_percent = round((collection_count / max(1, CUSTOM_PET_TOTAL)) * 100, 1)
 
     state = {
         'child_id': row['child_id'],
@@ -595,6 +642,10 @@ def _child_collection_row_to_state(row, pokemon=None, pokemon_error=None, collec
         'pokemon_id': pokemon_id,
         'pokemon': pokemon,
         'pokemon_error': pokemon_error,
+        'pet_id': (pokemon or {}).get('id'),
+        'nameJa': (pokemon or {}).get('nameJa'),
+        'image_url': (pokemon or {}).get('image_url'),
+        'sprite_url': (pokemon or {}).get('sprite_url'),
         'level': level,
         'exp': int(row['exp'] or 0),
         'total_exp': int(row['total_exp'] or 0),
@@ -606,7 +657,7 @@ def _child_collection_row_to_state(row, pokemon=None, pokemon_error=None, collec
     }
     if collection_count is not None:
         state['collection_owned'] = int(collection_count)
-        state['collection_total'] = 151
+        state['collection_total'] = CUSTOM_PET_TOTAL
         state['collection_progress'] = progress_percent
     return state
 
@@ -630,6 +681,11 @@ def get_cached_pokemon_by_id(pokemon_id):
 
     if normalized_id <= 0:
         raise PokeApiError('pokemon_id must be positive')
+
+    pet = get_custom_pet_by_id(normalized_id)
+    if pet:
+        return pet
+    raise PokeApiError('pet not found')
 
     conn = get_db_connection()
     try:
@@ -658,7 +714,7 @@ def get_cached_pokemon_by_id(pokemon_id):
         conn.close()
 
     try:
-        pokemon = getPokemonById(normalized_id)
+        pokemon = {}
         cache_record = _pokemon_to_cache_record(pokemon)
     except PokeApiError:
         if cached_has_payload:
@@ -797,18 +853,14 @@ def get_child_pet_state(child_id):
         return None
 
     pokemon_id = int(row['pokemon_id'])
-    pokemon = None
+    pokemon = get_custom_pet_by_id(pokemon_id)
     pokemon_error = None
-    try:
-        pokemon = get_cached_pokemon_by_id(pokemon_id)
-    except PokeApiError as exc:
-        pokemon_error = str(exc)
     collection_count = None
     conn = get_db_connection()
     try:
         collection_count = conn.execute(
-            'SELECT COUNT(*) AS count FROM child_pokemon_collection WHERE child_id = ?',
-            (child_id,),
+            'SELECT COUNT(*) AS count FROM child_pokemon_collection WHERE child_id = ? AND pokemon_id BETWEEN 1 AND ?',
+            (child_id, CUSTOM_PET_TOTAL),
         ).fetchone()
     finally:
         conn.close()
@@ -822,13 +874,14 @@ def get_child_pet_state(child_id):
 
 def get_child_pokedex_collection(child_id=None):
     def clean_pokemon_name(row, pokemon_id):
-        fallback_name = get_pokemon_fallback_name(pokemon_id)
+        custom_pet = get_custom_pet_by_id(pokemon_id)
+        fallback_name = custom_pet.get('nameJa') if custom_pet else None
         raw_name = _row_value(row, 'catalog_name') or _row_value(row, 'pokemon_name')
         if _is_japanese_text(raw_name):
             return raw_name
         if isinstance(raw_name, str) and re.fullmatch(r"[A-Za-z0-9 .'-]+", raw_name.strip()):
             return raw_name.strip()
-        return fallback_name or 'Pokemon'
+        return fallback_name or 'ペット'
 
     def exp_to_master(level, exp, max_level):
         level = int(level or 1)
@@ -878,10 +931,10 @@ def get_child_pokedex_collection(child_id=None):
                 p.sprite_url
             FROM child_pokemon_collection AS c
             LEFT JOIN pokemon_catalog AS p ON p.pokemon_id = c.pokemon_id
-            WHERE c.child_id = ?
+            WHERE c.child_id = ? AND c.pokemon_id BETWEEN 1 AND ?
             ORDER BY c.pokemon_id ASC
             ''',
-            (resolved_child_id,),
+            (resolved_child_id, CUSTOM_PET_TOTAL),
         ).fetchall()
 
         owned_by_id = {int(row['pokemon_id']): row for row in rows}
@@ -904,11 +957,13 @@ def get_child_pokedex_collection(child_id=None):
             current_row['max_level'],
         ) if current_row else None
         pets = []
-        for pokemon_id in range(1, 152):
+        for pokemon_id in range(1, CUSTOM_PET_TOTAL + 1):
+            custom_pet = get_custom_pet_by_id(pokemon_id)
             row = owned_by_id.get(pokemon_id)
             if not row:
                 pets.append({
                     'pokemon_id': pokemon_id,
+                    'pet_id': custom_pet.get('id') if custom_pet else None,
                     'unlocked': False,
                     'name': '???',
                     'level': None,
@@ -928,9 +983,9 @@ def get_child_pokedex_collection(child_id=None):
             is_master = level >= max_level
             status = 'master' if is_master else 'ready' if exp >= max_exp else 'growing'
             display_name = clean_pokemon_name(row, pokemon_id)
-            fallback_image_url, fallback_sprite_url = get_pokemon_fallback_image_urls(pokemon_id)
             pets.append({
                 'pokemon_id': pokemon_id,
+                'pet_id': custom_pet.get('id') if custom_pet else None,
                 'unlocked': True,
                 'name': display_name,
                 'nickname': _row_value(row, 'nickname') or _row_value(row, 'pet_name') or display_name,
@@ -940,8 +995,8 @@ def get_child_pokedex_collection(child_id=None):
                 'max_exp': max_exp,
                 'max_level': max_level,
                 'exp_progress': 100 if is_master else min(100, round((exp / max(1, max_exp)) * 100)),
-                'image_url': _row_value(row, 'image_url') or fallback_image_url,
-                'sprite_url': _row_value(row, 'sprite_url') or fallback_sprite_url,
+                'image_url': (custom_pet or {}).get('image_url') or _row_value(row, 'image_url'),
+                'sprite_url': (custom_pet or {}).get('sprite_url') or _row_value(row, 'sprite_url'),
                 'is_active': bool(int(row['is_active'] or 0)),
                 'is_current': current_row is not None and int(current_row['pokemon_id']) == pokemon_id,
                 'is_master': is_master,
@@ -954,14 +1009,14 @@ def get_child_pokedex_collection(child_id=None):
         return {
             'child': {'id': resolved_child_id, 'name': child_row['name']},
             'owned_count': len(rows),
-            'total_count': 151,
+            'total_count': CUSTOM_PET_TOTAL,
             'current_pet': current_pet,
             'reward_status': {
                 'today_progress': studied_count,
                 'today_target': daily_target,
                 'today_progress_percent': min(100, round((studied_count / max(1, daily_target)) * 100)),
                 'next_unlock_exp': next_unlock_exp,
-                'has_locked_pokemon': len(rows) < 151,
+                'has_locked_pokemon': len(rows) < CUSTOM_PET_TOTAL,
             },
             'pets': pets,
         }
@@ -984,11 +1039,11 @@ def ensure_child_pokemon_collection(conn, child_id):
         SELECT
             id, child_id, pokemon_id, nickname, pet_name, level, exp, total_exp, max_level, is_active, unlocked_at, created_at, updated_at
         FROM child_pokemon_collection
-        WHERE child_id = ?
+        WHERE child_id = ? AND pokemon_id BETWEEN 1 AND ?
         ORDER BY is_active DESC, id ASC
         LIMIT 1
         ''',
-        (child_id,),
+        (child_id, CUSTOM_PET_TOTAL),
     ).fetchone()
     if row:
         active_row = conn.execute(
@@ -1035,7 +1090,7 @@ def ensure_child_pokemon_collection(conn, child_id):
     ).fetchone()
 
 
-def unlockRandomPokemon(childId):
+def unlockRandomPet(childId):
     if childId is None:
         raise ValueError('childId is required')
 
@@ -1048,27 +1103,18 @@ def unlockRandomPokemon(childId):
         owned_ids = {
             int(row[0])
             for row in conn.execute(
-                'SELECT pokemon_id FROM child_pokemon_collection WHERE child_id = ?',
-                (childId,),
+                'SELECT pokemon_id FROM child_pokemon_collection WHERE child_id = ? AND pokemon_id BETWEEN 1 AND ?',
+                (childId, CUSTOM_PET_TOTAL),
             ).fetchall()
         }
-        available_ids = [pokemon_id for pokemon_id in range(1, 152) if pokemon_id not in owned_ids]
+        available_ids = [pokemon_id for pokemon_id in range(1, CUSTOM_PET_TOTAL + 1) if pokemon_id not in owned_ids]
         if not available_ids:
             return None
 
         pokemon_id = random.choice(available_ids)
-        try:
-            pokemon = get_cached_pokemon_by_id(pokemon_id)
-        except PokeApiError:
-            pokemon = None
+        pokemon = get_custom_pet_by_id(pokemon_id)
 
-        pet_name = (
-            pokemon.get('name_jp')
-            if pokemon and pokemon.get('name_jp')
-            else pokemon.get('name')
-            if pokemon and pokemon.get('name')
-            else 'ポケモン'
-        )
+        pet_name = pokemon.get('nameJa') if pokemon else 'ペット'
         conn.execute(
             '''
             INSERT INTO child_pokemon_collection (
@@ -1102,8 +1148,8 @@ def unlockRandomPokemon(childId):
             (childId, pokemon_id),
         ).fetchone()
         collection_count = conn.execute(
-            'SELECT COUNT(*) AS count FROM child_pokemon_collection WHERE child_id = ?',
-            (childId,),
+            'SELECT COUNT(*) AS count FROM child_pokemon_collection WHERE child_id = ? AND pokemon_id BETWEEN 1 AND ?',
+            (childId, CUSTOM_PET_TOTAL),
         ).fetchone()
         return _child_collection_row_to_state(
             row,
@@ -1114,7 +1160,7 @@ def unlockRandomPokemon(childId):
         conn.close()
 
 
-def setActivePokemon(childId, pokemonId):
+def setActivePet(childId, pokemonId):
     if childId is None or pokemonId is None:
         raise ValueError('childId and pokemonId are required')
     try:
@@ -1150,7 +1196,7 @@ def setActivePokemon(childId, pokemonId):
         conn.close()
 
 
-def addPokemonExp(childId, expAmount):
+def addPetExp(childId, expAmount):
     if childId is None:
         raise ValueError('childId is required')
     try:
@@ -1193,7 +1239,7 @@ def addPokemonExp(childId, expAmount):
 
         if leveled_to_max:
             try:
-                unlockRandomPokemon(childId)
+                unlockRandomPet(childId)
             except Exception:
                 pass
 
@@ -1230,15 +1276,12 @@ def addPokemonExp(childId, expAmount):
         conn.close()
 
 
-def addPetExp(childId, expAmount):
-    return addPokemonExp(childId, expAmount)
-
-
 def get_db_path():
     return data_path(DB_FILENAME)
 
 
 def get_db_connection():
+    ensure_parent_dir(get_db_path())
     conn = sqlite3.connect(get_db_path(), timeout=10)
     conn.row_factory = sqlite3.Row
     conn.execute('PRAGMA foreign_keys = ON')
@@ -1582,6 +1625,74 @@ def init_db():
         )
         conn.execute(
             '''
+            CREATE TABLE IF NOT EXISTS child_grammar_progress (
+                child_id INTEGER NOT NULL,
+                lesson_id TEXT NOT NULL,
+                status TEXT NOT NULL DEFAULT 'not_started',
+                view_count INTEGER NOT NULL DEFAULT 0,
+                correct_count INTEGER NOT NULL DEFAULT 0,
+                wrong_count INTEGER NOT NULL DEFAULT 0,
+                last_score INTEGER NOT NULL DEFAULT 0,
+                mastered_at TEXT,
+                last_studied_at TEXT,
+                next_review_at TEXT,
+                created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                PRIMARY KEY (child_id, lesson_id),
+                FOREIGN KEY (child_id) REFERENCES children (id) ON UPDATE CASCADE ON DELETE CASCADE
+            )
+            '''
+        )
+        conn.execute(
+            '''
+            CREATE TABLE IF NOT EXISTS child_grammar_quiz_attempts (
+                attempt_id INTEGER PRIMARY KEY AUTOINCREMENT,
+                child_id INTEGER NOT NULL,
+                lesson_id TEXT NOT NULL,
+                quiz_id TEXT NOT NULL,
+                selected_index INTEGER NOT NULL,
+                is_correct INTEGER NOT NULL,
+                attempted_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (child_id) REFERENCES children (id) ON UPDATE CASCADE ON DELETE CASCADE
+            )
+            '''
+        )
+        conn.execute(
+            '''
+            CREATE TABLE IF NOT EXISTS child_grammar_form_test_progress (
+                child_id INTEGER NOT NULL,
+                test_id TEXT NOT NULL,
+                lesson_id TEXT NOT NULL,
+                attempt_count INTEGER NOT NULL DEFAULT 0,
+                correct_count INTEGER NOT NULL DEFAULT 0,
+                wrong_count INTEGER NOT NULL DEFAULT 0,
+                last_selected_index INTEGER,
+                last_is_correct INTEGER,
+                last_attempted_at TEXT,
+                mastered INTEGER NOT NULL DEFAULT 0,
+                created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                PRIMARY KEY (child_id, test_id),
+                FOREIGN KEY (child_id) REFERENCES children (id) ON UPDATE CASCADE ON DELETE CASCADE
+            )
+            '''
+        )
+        conn.execute(
+            '''
+            CREATE TABLE IF NOT EXISTS child_grammar_form_test_attempts (
+                attempt_id INTEGER PRIMARY KEY AUTOINCREMENT,
+                child_id INTEGER NOT NULL,
+                test_id TEXT NOT NULL,
+                lesson_id TEXT NOT NULL,
+                selected_index INTEGER NOT NULL,
+                is_correct INTEGER NOT NULL,
+                attempted_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (child_id) REFERENCES children (id) ON UPDATE CASCADE ON DELETE CASCADE
+            )
+            '''
+        )
+        conn.execute(
+            '''
             CREATE TABLE IF NOT EXISTS eiken_pre2_attempts (
                 attempt_id TEXT PRIMARY KEY,
                 child_id INTEGER NOT NULL,
@@ -1731,7 +1842,8 @@ def init_db():
         migrate_pokemon_catalog(conn)
         migrate_child_pokemon_collection(conn)
         migrate_children_profile_fields(conn)
-        seed_demo_children(conn)
+        if should_seed_demo_children():
+            seed_demo_children(conn)
         seed_grammar_battle_data(conn)
         migrate_vocabulary_word_columns(conn)
         migrate_vocabulary_ids(conn)
@@ -1753,6 +1865,11 @@ def seed_demo_children(conn):
             ('Mio', '6', 'B1'),
         ],
     )
+
+
+def should_seed_demo_children():
+    value = os.environ.get('SEED_DEMO_CHILDREN', '')
+    return value.strip().lower() in {'1', 'true', 'yes', 'on'}
 
 
 def seed_grammar_battle_data(conn):
@@ -1783,11 +1900,11 @@ def seed_grammar_battle_data(conn):
     )
 
     monsters = [
-        ('infinitive_pup', 'トゥードッグ', 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/133.png', 'infinitive', 100, 'normal', 0.7, '不定詞のポイント：want to do / decide to do / It is important to do を見つけよう。'),
-        ('gerund_fox', 'イングフォックス', 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/37.png', 'gerund', 100, 'normal', 0.7, '動名詞のポイント：enjoy / finish / 前置詞の後ろは ing 形になりやすいよ。'),
-        ('comparison_cat', 'くらべキャット', 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/300.png', 'comparison', 100, 'rare', 0.65, '比較のポイント：than は比較級、the と範囲があると最上級、as ... as は原級だよ。'),
-        ('relative_owl', 'つなぐフクロウ', 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/163.png', 'relative_pronoun', 100, 'normal', 0.7, '関係代名詞のポイント：人は who、物は which、場所は where をまず考えよう。'),
-        ('perfect_squirrel', 'かんりょうリス', 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/417.png', 'present_perfect', 100, 'rare', 0.65, '現在完了のポイント：ever / already / since / for がヒントになるよ。'),
+        ('infinitive_pup', 'トゥードッグ', '/assets/pets/air/AIR_RABBIT1.png', 'infinitive', 100, 'normal', 0.7, '不定詞のポイント：want to do / decide to do / It is important to do を見つけよう。'),
+        ('gerund_fox', 'イングフォックス', '/assets/pets/fire/FIRE_FOX1.png', 'gerund', 100, 'normal', 0.7, '動名詞のポイント：enjoy / finish / 前置詞の後ろは ing 形になりやすいよ。'),
+        ('comparison_cat', 'くらべキャット', '/assets/pets/elec/ELEC_CAT1.png', 'comparison', 100, 'rare', 0.65, '比較のポイント：than は比較級、the と範囲があると最上級、as ... as は原級だよ。'),
+        ('relative_owl', 'つなぐフクロウ', '/assets/pets/wood/WOOD_DEER1.png', 'relative_pronoun', 100, 'normal', 0.7, '関係代名詞のポイント：人は who、物は which、場所は where をまず考えよう。'),
+        ('perfect_squirrel', 'かんりょうリス', '/assets/pets/star/STAR_CAT1.png', 'present_perfect', 100, 'rare', 0.65, '現在完了のポイント：ever / already / since / for がヒントになるよ。'),
     ]
     conn.executemany(
         '''
@@ -2274,6 +2391,7 @@ def get_child_review_list(child_id):
             'id': vocab.get('ID', '') if vocab else vocab_id,
             'word': vocab['English'] if vocab else vocab_id,
             'japanese': vocab['Japanese'] if vocab else '',
+            'example': vocab.get('Example_English', '').strip() if vocab else '',
             'example_japanese': vocab.get('Example_Japanese', '').strip() if vocab else '',
             'sentence_jp': sentence_jp,
             'error_count': int(row['wrong_count'] or 0),
@@ -2347,37 +2465,18 @@ def get_child_starter_options(count=3):
     options = []
 
     for pokemon_id in starter_ids:
-        conn = get_db_connection()
-        try:
-            row = conn.execute(
-                '''
-                SELECT pokemon_id, name, pokemon_name, image_url, sprite_url, type1, type2, generation, types
-                FROM pokemon_catalog
-                WHERE pokemon_id = ?
-                ''',
-                (pokemon_id,),
-            ).fetchone()
-        finally:
-            conn.close()
-
-        raw_name = _row_value(row, 'name') or _row_value(row, 'pokemon_name')
-        display_name = raw_name if row and _is_japanese_text(raw_name) else (get_pokemon_fallback_name(pokemon_id) or 'ポケモン')
+        pet = get_custom_pet_by_id(pokemon_id)
+        if not pet:
+            continue
         option = {
             'id': int(pokemon_id),
-            'name': display_name,
-            'image_url': _row_value(row, 'image_url'),
-            'sprite_url': _row_value(row, 'sprite_url'),
-            'types': [],
+            'pet_id': pet.get('id'),
+            'name': pet.get('nameJa') or 'ペット',
+            'image_url': pet.get('image_url'),
+            'sprite_url': pet.get('sprite_url'),
+            'types': pet.get('types') or [],
+            'tagsJa': pet.get('tagsJa') or [],
         }
-        if row and _row_value(row, 'types'):
-            try:
-                option['types'] = json.loads(_row_value(row, 'types'))
-            except (TypeError, json.JSONDecodeError):
-                option['types'] = []
-        if not option['image_url'] or not option['sprite_url']:
-            fallback_image_url, fallback_sprite_url = get_pokemon_fallback_image_urls(pokemon_id)
-            option['image_url'] = option['image_url'] or fallback_image_url
-            option['sprite_url'] = option['sprite_url'] or fallback_sprite_url
         options.append(option)
 
     return options
@@ -2411,12 +2510,9 @@ def upsert_child_profile(data):
             starter_pokemon_id = int(starter_pokemon_id)
         except (TypeError, ValueError):
             raise ValueError('starter_pokemon_id must be an integer')
-        if starter_pokemon_id < 1 or starter_pokemon_id > 151:
-            raise ValueError('starter_pokemon_id must be between 1 and 151')
-        try:
-            starter_row = get_cached_pokemon_by_id(starter_pokemon_id)
-        except Exception:
-            starter_row = None
+        if starter_pokemon_id < 1 or starter_pokemon_id > CUSTOM_PET_TOTAL:
+            raise ValueError(f'starter_pokemon_id must be between 1 and {CUSTOM_PET_TOTAL}')
+        starter_row = get_custom_pet_by_id(starter_pokemon_id)
     else:
         starter_pokemon_id = None
 
@@ -2456,8 +2552,8 @@ def upsert_child_profile(data):
                 (
                     target_child_id,
                     starter_pokemon_id,
-                    starter_row.get('name') if starter_row else (get_pokemon_fallback_name(starter_pokemon_id) or 'ポケモン'),
-                    starter_row.get('name') if starter_row else (get_pokemon_fallback_name(starter_pokemon_id) or 'ポケモン'),
+                    starter_row.get('nameJa') if starter_row else 'ペット',
+                    starter_row.get('nameJa') if starter_row else 'ペット',
                     1,
                     0,
                     0,
@@ -2578,7 +2674,7 @@ def recordStudyResult(child_id, vocab_id, isCorrect):
 
         pet_result = None
         try:
-            pet_result = addPokemonExp(child_id, pet_exp)
+            pet_result = addPetExp(child_id, pet_exp)
         except Exception:
             pet_result = None
 
@@ -2722,7 +2818,7 @@ def get_child_learned_words(child_id=None):
             SELECT vocab_id, correct_count, wrong_count, review_count, mastery, last_studied_at
             FROM child_vocab_progress
             WHERE child_id = ? AND mastered = 1
-            ORDER BY last_studied_at DESC, id DESC
+            ORDER BY created_at ASC, id ASC
             ''',
             (child_row['id'],),
         ).fetchall()
@@ -2743,9 +2839,15 @@ def get_child_learned_words(child_id=None):
             'example_short': vocab.get('Example_English_Short', ''),
             'example_jp': vocab.get('Example_Japanese', ''),
             'example_cn': vocab.get('Example_Chinese', ''),
+            'phrase': vocab.get('Phrase', ''),
+            'synonyms': vocab.get('Synonyms', ''),
+            'synonyms_japanese': vocab.get('Synonyms_Japanese', ''),
+            'antonyms': vocab.get('Antonyms', ''),
+            'antonyms_japanese': vocab.get('Antonyms_Japanese', ''),
             'importance': vocab.get('Importance', ''),
             'mastery': int(row['mastery'] or 0),
             'correct_count': int(row['correct_count'] or 0),
+            'wrong_count': int(row['wrong_count'] or 0),
             'review_count': int(row['review_count'] or 0),
             'last_studied_at': row['last_studied_at'],
         })
@@ -4008,6 +4110,606 @@ def master_battle_wrong_question(wrong_id):
         conn.close()
 
 
+def get_grammar_lesson_db_connection():
+    path = data_path(GRAMMAR_LESSON_DB_FILENAME)
+    if not os.path.exists(path):
+        raise FileNotFoundError('grammar lesson database not found')
+    conn = sqlite3.connect(path)
+    conn.row_factory = sqlite3.Row
+    return conn
+
+
+def get_grammar_form_test_db_connection():
+    path = data_path(GRAMMAR_FORM_TEST_DB_FILENAME)
+    if not os.path.exists(path):
+        raise FileNotFoundError('grammar form test database not found')
+    conn = sqlite3.connect(path)
+    conn.row_factory = sqlite3.Row
+    return conn
+
+
+def require_child_id(value):
+    if value in [None, '', 'null']:
+        raise ValueError('child_id is required')
+    try:
+        child_id = int(value)
+    except (TypeError, ValueError):
+        raise ValueError('child_id must be an integer')
+    conn = get_db_connection()
+    try:
+        row = conn.execute('SELECT id FROM children WHERE id = ?', (child_id,)).fetchone()
+    finally:
+        conn.close()
+    if not row:
+        raise LookupError('child not found')
+    return child_id
+
+
+def _grammar_form_test_payload(row, include_answer=False, progress=None):
+    choices = [row['choice_a'], row['choice_b'], row['choice_c'], row['choice_d']]
+    payload = {
+        'testId': row['test_id'],
+        'lessonId': row['lesson_id'],
+        'category': row['category'],
+        'title': row['title'],
+        'targetGrammar': row['target_grammar'],
+        'baseWord': row['base_word'],
+        'questionJp': row['question_jp'],
+        'promptEn': row['prompt_en'],
+        'choices': choices,
+        'skillFocus': row['skill_focus'],
+        'difficulty': int(row['difficulty'] or 2),
+    }
+    if include_answer:
+        answer_index = int(row['answer_index'])
+        explanations = [
+            row['choice_a_explanation_jp'],
+            row['choice_b_explanation_jp'],
+            row['choice_c_explanation_jp'],
+            row['choice_d_explanation_jp'],
+        ]
+        payload.update({
+            'answerIndex': answer_index,
+            'correctAnswer': choices[answer_index],
+            'fullAnswer': row['full_answer'],
+            'correctReasonJp': row['correct_reason_jp'],
+            'choiceExplanations': explanations,
+        })
+    if progress:
+        payload['progress'] = {
+            'attemptCount': int(progress['attempt_count'] or 0),
+            'correctCount': int(progress['correct_count'] or 0),
+            'wrongCount': int(progress['wrong_count'] or 0),
+            'mastered': bool(progress['mastered']),
+            'lastAttemptedAt': progress['last_attempted_at'],
+        }
+    return payload
+
+
+def get_child_learned_grammar_lesson_ids(child_id):
+    child_id = require_child_id(child_id)
+    conn = get_db_connection()
+    try:
+        rows = conn.execute(
+            '''
+            SELECT lesson_id
+            FROM child_grammar_progress
+            WHERE child_id = ?
+              AND view_count > 0
+              AND status IN ('learning', 'mastered')
+            ORDER BY last_studied_at ASC, lesson_id ASC
+            ''',
+            (child_id,),
+        ).fetchall()
+    finally:
+        conn.close()
+    return [row['lesson_id'] for row in rows]
+
+
+def get_grammar_form_practice(child_id, limit=5):
+    child_id = require_child_id(child_id)
+    learned_lesson_ids = get_child_learned_grammar_lesson_ids(child_id)
+    if not learned_lesson_ids:
+        raise LookupError('まず文法レッスンを学習しましょう。')
+    try:
+        limit = max(1, min(5, int(limit or 5)))
+    except (TypeError, ValueError):
+        limit = 5
+
+    form_conn = get_grammar_form_test_db_connection()
+    try:
+        placeholders = ','.join('?' for _ in learned_lesson_ids)
+        rows = form_conn.execute(
+            f'''
+            SELECT *
+            FROM grammar_form_test_items
+            WHERE is_active = 1 AND lesson_id IN ({placeholders})
+            ''',
+            learned_lesson_ids,
+        ).fetchall()
+    finally:
+        form_conn.close()
+    if not rows:
+        raise LookupError('学習済みの文法から出せる練習問題がまだありません。')
+    selected_rows = random.sample(rows, min(limit, len(rows)))
+    return {
+        'childId': child_id,
+        'learnedLessonCount': len(learned_lesson_ids),
+        'questions': [_grammar_form_test_payload(row) for row in selected_rows],
+    }
+
+
+def submit_grammar_form_practice_answer(child_id, test_id, selected_index):
+    child_id = require_child_id(child_id)
+    try:
+        selected_index = int(selected_index)
+    except (TypeError, ValueError):
+        raise ValueError('selected_index must be an integer')
+
+    form_conn = get_grammar_form_test_db_connection()
+    try:
+        row = form_conn.execute(
+            'SELECT * FROM grammar_form_test_items WHERE test_id = ? AND is_active = 1',
+            (test_id,),
+        ).fetchone()
+    finally:
+        form_conn.close()
+    if not row:
+        raise LookupError('grammar form test not found')
+    learned_lesson_ids = set(get_child_learned_grammar_lesson_ids(child_id))
+    if row['lesson_id'] not in learned_lesson_ids:
+        raise ValueError('この文法はまだ学習していません。')
+
+    correct_index = int(row['answer_index'])
+    is_correct = selected_index == correct_index
+    now = get_now_iso()
+    conn = get_db_connection()
+    try:
+        conn.execute(
+            '''
+            INSERT INTO child_grammar_form_test_attempts (child_id, test_id, lesson_id, selected_index, is_correct, attempted_at)
+            VALUES (?, ?, ?, ?, ?, ?)
+            ''',
+            (child_id, test_id, row['lesson_id'], selected_index, 1 if is_correct else 0, now),
+        )
+        conn.execute(
+            '''
+            INSERT INTO child_grammar_form_test_progress (
+                child_id, test_id, lesson_id, attempt_count, correct_count, wrong_count,
+                last_selected_index, last_is_correct, last_attempted_at, mastered, created_at, updated_at
+            )
+            VALUES (?, ?, ?, 1, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+            ON CONFLICT(child_id, test_id) DO UPDATE SET
+                attempt_count = child_grammar_form_test_progress.attempt_count + 1,
+                correct_count = child_grammar_form_test_progress.correct_count + excluded.correct_count,
+                wrong_count = child_grammar_form_test_progress.wrong_count + excluded.wrong_count,
+                last_selected_index = excluded.last_selected_index,
+                last_is_correct = excluded.last_is_correct,
+                last_attempted_at = excluded.last_attempted_at,
+                mastered = CASE WHEN excluded.mastered = 1 THEN 1 ELSE child_grammar_form_test_progress.mastered END,
+                updated_at = CURRENT_TIMESTAMP
+            ''',
+            (
+                child_id,
+                test_id,
+                row['lesson_id'],
+                1 if is_correct else 0,
+                0 if is_correct else 1,
+                selected_index,
+                1 if is_correct else 0,
+                now,
+                1 if is_correct else 0,
+            ),
+        )
+        conn.commit()
+    finally:
+        conn.close()
+
+    choices = [row['choice_a'], row['choice_b'], row['choice_c'], row['choice_d']]
+    explanations = [
+        row['choice_a_explanation_jp'],
+        row['choice_b_explanation_jp'],
+        row['choice_c_explanation_jp'],
+        row['choice_d_explanation_jp'],
+    ]
+    return {
+        'childId': child_id,
+        'testId': test_id,
+        'lessonId': row['lesson_id'],
+        'isCorrect': is_correct,
+        'selectedIndex': selected_index,
+        'correctIndex': correct_index,
+        'selectedAnswer': choices[selected_index] if 0 <= selected_index < len(choices) else '',
+        'correctAnswer': choices[correct_index],
+        'fullAnswer': row['full_answer'],
+        'correctReasonJp': row['correct_reason_jp'],
+        'selectedExplanationJp': explanations[selected_index] if 0 <= selected_index < len(explanations) else '',
+        'choiceExplanations': explanations,
+    }
+
+
+def get_grammar_form_wrong_questions(child_id):
+    child_id = require_child_id(child_id)
+    conn = get_db_connection()
+    try:
+        progress_rows = conn.execute(
+            '''
+            SELECT test_id, lesson_id, attempt_count, correct_count, wrong_count, mastered, last_attempted_at
+            FROM child_grammar_form_test_progress
+            WHERE child_id = ? AND wrong_count > 0 AND mastered = 0
+            ORDER BY wrong_count DESC, last_attempted_at DESC
+            LIMIT 50
+            ''',
+            (child_id,),
+        ).fetchall()
+    finally:
+        conn.close()
+    if not progress_rows:
+        return {'childId': child_id, 'wrongQuestions': []}
+
+    progress_by_id = {row['test_id']: row for row in progress_rows}
+    form_conn = get_grammar_form_test_db_connection()
+    try:
+        placeholders = ','.join('?' for _ in progress_by_id)
+        rows = form_conn.execute(
+            f'SELECT * FROM grammar_form_test_items WHERE test_id IN ({placeholders})',
+            list(progress_by_id.keys()),
+        ).fetchall()
+    finally:
+        form_conn.close()
+    items = [
+        _grammar_form_test_payload(row, include_answer=True, progress=progress_by_id.get(row['test_id']))
+        for row in rows
+    ]
+    items.sort(key=lambda item: (-(item.get('progress', {}).get('wrongCount') or 0), item['testId']))
+    return {'childId': child_id, 'wrongQuestions': items}
+
+
+def master_grammar_form_wrong_question(child_id, test_id):
+    child_id = require_child_id(child_id)
+    conn = get_db_connection()
+    try:
+        row = conn.execute(
+            'SELECT test_id FROM child_grammar_form_test_progress WHERE child_id = ? AND test_id = ?',
+            (child_id, test_id),
+        ).fetchone()
+        if not row:
+            raise LookupError('grammar form wrong question not found')
+        conn.execute(
+            '''
+            UPDATE child_grammar_form_test_progress
+            SET mastered = 1, updated_at = CURRENT_TIMESTAMP
+            WHERE child_id = ? AND test_id = ?
+            ''',
+            (child_id, test_id),
+        )
+        conn.commit()
+    finally:
+        conn.close()
+    return {'childId': child_id, 'testId': test_id, 'mastered': True}
+
+
+def _grammar_progress_map(child_id):
+    conn = get_db_connection()
+    try:
+        rows = conn.execute(
+            '''
+            SELECT lesson_id, status, view_count, correct_count, wrong_count, last_score, mastered_at, last_studied_at
+            FROM child_grammar_progress
+            WHERE child_id = ?
+            ''',
+            (child_id,),
+        ).fetchall()
+    finally:
+        conn.close()
+    return {row['lesson_id']: row for row in rows}
+
+
+def _grammar_progress_payload(row=None):
+    if not row:
+        return {
+            'status': 'not_started',
+            'viewCount': 0,
+            'correctCount': 0,
+            'wrongCount': 0,
+            'lastScore': 0,
+            'masteredAt': None,
+            'lastStudiedAt': None,
+        }
+    return {
+        'status': row['status'] or 'not_started',
+        'viewCount': int(row['view_count'] or 0),
+        'correctCount': int(row['correct_count'] or 0),
+        'wrongCount': int(row['wrong_count'] or 0),
+        'lastScore': int(row['last_score'] or 0),
+        'masteredAt': row['mastered_at'],
+        'lastStudiedAt': row['last_studied_at'],
+    }
+
+
+def _grammar_progress_for_lesson(progress=None, quiz_count=0, correct_quiz_count=0):
+    payload = _grammar_progress_payload(progress)
+    total = int(quiz_count or 0)
+    solved = int(correct_quiz_count or 0)
+    if total > 0:
+        payload['lastScore'] = round((solved / total) * 100)
+        payload['correctQuizCount'] = solved
+        payload['totalQuizCount'] = total
+        if solved >= total:
+            payload['status'] = 'mastered'
+        elif payload['status'] == 'mastered':
+            payload['status'] = 'learning'
+    else:
+        payload['correctQuizCount'] = solved
+        payload['totalQuizCount'] = total
+    return payload
+
+
+def _grammar_lesson_payload(row, progress=None, quiz_count=0, correct_quiz_count=0):
+    return {
+        'lessonId': row['lesson_id'],
+        'level': row['level'],
+        'category': row['category'],
+        'title': row['title'],
+        'grammarPoint': row['grammar_point'],
+        'jpExplanation': row['jp_explanation'],
+        'jpExample': row['jp_example'],
+        'enExample': row['en_example'],
+        'learningGoal': row['learning_goal'] or '',
+        'displayOrder': int(row['display_order'] or 0),
+        'quizCount': int(quiz_count or 0),
+        'progress': _grammar_progress_for_lesson(progress, quiz_count, correct_quiz_count),
+    }
+
+
+def _sqlite_table_columns(conn, table_name):
+    return {row['name'] for row in conn.execute(f'PRAGMA table_info({table_name})').fetchall()}
+
+
+def _grammar_quiz_order_sql(conn):
+    columns = _sqlite_table_columns(conn, 'grammar_quizzes')
+    return 'quiz_order ASC, quiz_id ASC' if 'quiz_order' in columns else 'quiz_id ASC'
+
+
+def _grammar_correct_quiz_count_map(child_id):
+    conn = get_db_connection()
+    try:
+        rows = conn.execute(
+            '''
+            SELECT lesson_id, COUNT(DISTINCT quiz_id) AS count
+            FROM child_grammar_quiz_attempts
+            WHERE child_id = ? AND is_correct = 1
+            GROUP BY lesson_id
+            ''',
+            (child_id,),
+        ).fetchall()
+    finally:
+        conn.close()
+    return {row['lesson_id']: int(row['count'] or 0) for row in rows}
+
+
+def get_grammar_lessons_for_child(child_id):
+    child_id = require_child_id(child_id)
+    progress_by_lesson = _grammar_progress_map(child_id)
+    correct_counts = _grammar_correct_quiz_count_map(child_id)
+    lesson_conn = get_grammar_lesson_db_connection()
+    try:
+        rows = lesson_conn.execute(
+            '''
+            SELECT l.*,
+                   (SELECT COUNT(*) FROM grammar_quizzes q WHERE q.lesson_id = l.lesson_id) AS quiz_count
+            FROM grammar_lessons l
+            WHERE l.is_active = 1
+            ORDER BY l.display_order ASC, l.lesson_id ASC
+            '''
+        ).fetchall()
+    finally:
+        lesson_conn.close()
+
+    lessons = [
+        _grammar_lesson_payload(
+            row,
+            progress_by_lesson.get(row['lesson_id']),
+            row['quiz_count'],
+            correct_counts.get(row['lesson_id'], 0),
+        )
+        for row in rows
+    ]
+    mastered_count = sum(1 for lesson in lessons if lesson['progress']['status'] == 'mastered')
+    learning_count = sum(1 for lesson in lessons if lesson['progress']['status'] == 'learning')
+    today_lesson = next(
+        (lesson for lesson in lessons if lesson['progress']['status'] != 'mastered'),
+        lessons[0] if lessons else None,
+    )
+    return {
+        'childId': child_id,
+        'lessons': lessons,
+        'todayLesson': today_lesson,
+        'stats': {
+            'total': len(lessons),
+            'mastered': mastered_count,
+            'learning': learning_count,
+            'remaining': max(0, len(lessons) - mastered_count),
+            'dailyTarget': 1,
+        },
+    }
+
+
+def get_grammar_lesson_detail(child_id, lesson_id):
+    child_id = require_child_id(child_id)
+    progress_by_lesson = _grammar_progress_map(child_id)
+    correct_counts = _grammar_correct_quiz_count_map(child_id)
+    lesson_conn = get_grammar_lesson_db_connection()
+    try:
+        row = lesson_conn.execute(
+            '''
+            SELECT l.*,
+                   (SELECT COUNT(*) FROM grammar_quizzes q WHERE q.lesson_id = l.lesson_id) AS quiz_count
+            FROM grammar_lessons l
+            WHERE l.lesson_id = ? AND l.is_active = 1
+            ''',
+            (lesson_id,),
+        ).fetchone()
+        if not row:
+            raise LookupError('grammar lesson not found')
+        quiz_order_sql = _grammar_quiz_order_sql(lesson_conn)
+        quiz_rows = lesson_conn.execute(
+            '''
+            SELECT quiz_id, lesson_id, question_jp, choice_a, choice_b, choice_c, choice_d, difficulty
+            FROM grammar_quizzes
+            WHERE lesson_id = ?
+            ORDER BY ''' + quiz_order_sql,
+            (lesson_id,),
+        ).fetchall()
+    finally:
+        lesson_conn.close()
+    lesson = _grammar_lesson_payload(
+        row,
+        progress_by_lesson.get(row['lesson_id']),
+        row['quiz_count'],
+        correct_counts.get(row['lesson_id'], 0),
+    )
+    lesson['quizzes'] = [
+        {
+            'quizId': quiz['quiz_id'],
+            'lessonId': quiz['lesson_id'],
+            'questionJp': quiz['question_jp'],
+            'choices': [quiz['choice_a'], quiz['choice_b'], quiz['choice_c'], quiz['choice_d']],
+            'difficulty': int(quiz['difficulty'] or 2),
+        }
+        for quiz in quiz_rows
+    ]
+    return {'childId': child_id, 'lesson': lesson}
+
+
+def mark_grammar_lesson_viewed(child_id, lesson_id):
+    child_id = require_child_id(child_id)
+    now = get_now_iso()
+    conn = get_db_connection()
+    try:
+        conn.execute(
+            '''
+            INSERT INTO child_grammar_progress (
+                child_id, lesson_id, status, view_count, last_studied_at, created_at, updated_at
+            )
+            VALUES (?, ?, 'learning', 1, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+            ON CONFLICT(child_id, lesson_id) DO UPDATE SET
+                status = CASE
+                    WHEN child_grammar_progress.status = 'mastered' THEN 'mastered'
+                    ELSE 'learning'
+                END,
+                view_count = child_grammar_progress.view_count + 1,
+                last_studied_at = excluded.last_studied_at,
+                updated_at = CURRENT_TIMESTAMP
+            ''',
+            (child_id, lesson_id, now),
+        )
+        conn.commit()
+    finally:
+        conn.close()
+    return get_grammar_lesson_detail(child_id, lesson_id)
+
+
+def submit_grammar_quiz_answer(child_id, quiz_id, selected_index):
+    child_id = require_child_id(child_id)
+    try:
+        selected_index = int(selected_index)
+    except (TypeError, ValueError):
+        raise ValueError('selected_index must be an integer')
+    lesson_conn = get_grammar_lesson_db_connection()
+    try:
+        quiz = lesson_conn.execute(
+            '''
+            SELECT quiz_id, lesson_id, answer_index, explanation_jp
+            FROM grammar_quizzes
+            WHERE quiz_id = ?
+            ''',
+            (quiz_id,),
+        ).fetchone()
+        if not quiz:
+            raise LookupError('grammar quiz not found')
+        total_quizzes = int(lesson_conn.execute(
+            'SELECT COUNT(*) AS count FROM grammar_quizzes WHERE lesson_id = ?',
+            (quiz['lesson_id'],),
+        ).fetchone()['count'] or 0)
+    finally:
+        lesson_conn.close()
+
+    correct_index = int(quiz['answer_index'])
+    is_correct = selected_index == correct_index
+    now = get_now_iso()
+    correct_quiz_count = 0
+    conn = get_db_connection()
+    try:
+        conn.execute(
+            '''
+            INSERT INTO child_grammar_quiz_attempts (child_id, lesson_id, quiz_id, selected_index, is_correct, attempted_at)
+            VALUES (?, ?, ?, ?, ?, ?)
+            ''',
+            (child_id, quiz['lesson_id'], quiz_id, selected_index, 1 if is_correct else 0, now),
+        )
+        correct_quiz_row = conn.execute(
+            '''
+            SELECT COUNT(DISTINCT quiz_id) AS count
+            FROM child_grammar_quiz_attempts
+            WHERE child_id = ? AND lesson_id = ? AND is_correct = 1
+            ''',
+            (child_id, quiz['lesson_id']),
+        ).fetchone()
+        correct_quiz_count = int(correct_quiz_row['count'] or 0) if correct_quiz_row else 0
+        last_score = round((correct_quiz_count / max(1, total_quizzes)) * 100)
+        status = 'mastered' if total_quizzes and correct_quiz_count >= total_quizzes else 'learning'
+        conn.execute(
+            '''
+            INSERT INTO child_grammar_progress (
+                child_id, lesson_id, status, view_count, correct_count, wrong_count, last_score,
+                mastered_at, last_studied_at, created_at, updated_at
+            )
+            VALUES (?, ?, ?, 1, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+            ON CONFLICT(child_id, lesson_id) DO UPDATE SET
+                status = CASE
+                    WHEN excluded.status = 'mastered' THEN 'mastered'
+                    WHEN child_grammar_progress.status = 'mastered' THEN 'mastered'
+                    ELSE 'learning'
+                END,
+                correct_count = child_grammar_progress.correct_count + excluded.correct_count,
+                wrong_count = child_grammar_progress.wrong_count + excluded.wrong_count,
+                last_score = excluded.last_score,
+                mastered_at = CASE
+                    WHEN excluded.mastered_at IS NOT NULL THEN excluded.mastered_at
+                    ELSE child_grammar_progress.mastered_at
+                END,
+                last_studied_at = excluded.last_studied_at,
+                updated_at = CURRENT_TIMESTAMP
+            ''',
+            (
+                child_id,
+                quiz['lesson_id'],
+                status,
+                1 if is_correct else 0,
+                0 if is_correct else 1,
+                last_score,
+                now if status == 'mastered' else None,
+                now,
+            ),
+        )
+        conn.commit()
+    finally:
+        conn.close()
+    return {
+        'childId': child_id,
+        'quizId': quiz_id,
+        'lessonId': quiz['lesson_id'],
+        'isCorrect': is_correct,
+        'correctIndex': correct_index,
+        'selectedIndex': selected_index,
+        'explanationJp': quiz['explanation_jp'],
+        'correctQuizCount': correct_quiz_count,
+        'totalQuizCount': total_quizzes,
+        'lesson': get_grammar_lesson_detail(child_id, quiz['lesson_id'])['lesson'],
+    }
+
+
 def get_child_recent_accuracy(child_id, limit=20):
     conn = get_db_connection()
     try:
@@ -4313,13 +5015,13 @@ def submit_ai_practice_answer(child_id, question_id, selected_answer):
         mastery_after = int(progress.get('mastery') or 0) if progress else 0
     elif is_correct:
         try:
-            study_result = {'pet': addPokemonExp(child_id, xp_awarded), 'pet_exp_awarded': xp_awarded}
+            study_result = {'pet': addPetExp(child_id, xp_awarded), 'pet_exp_awarded': xp_awarded}
         except Exception:
             study_result = None
 
     if study_result and is_correct and xp_awarded > int(study_result.get('pet_exp_awarded') or 0):
         try:
-            study_result['pet'] = addPokemonExp(child_id, xp_awarded - int(study_result.get('pet_exp_awarded') or 0))
+            study_result['pet'] = addPetExp(child_id, xp_awarded - int(study_result.get('pet_exp_awarded') or 0))
             study_result['pet_exp_awarded'] = xp_awarded
         except Exception:
             pass
@@ -5181,6 +5883,135 @@ def get_eiken_pre2_wrong_questions(child_id, latest_only=False, question_type=No
     }
 
 
+def get_eiken_real_exam_part_meta(part_id):
+    match = re.fullmatch(r'(\d{4})-(\d)(h?)_(\d)', str(part_id or ''))
+    if not match:
+        return None
+    year, round_no, written_flag, part_no = match.groups()
+    mode = 'written' if written_flag else 'listening'
+    return {
+        'part_id': f'{year}-{round_no}{written_flag}_{part_no}',
+        'exam_id': f'{year}-{round_no}',
+        'year': int(year),
+        'round': int(round_no),
+        'mode': mode,
+        'mode_label': '筆記' if mode == 'written' else 'リスニング',
+        'part_number': int(part_no),
+        'label': f'第{part_no}部',
+    }
+
+
+def list_eiken_real_exams():
+    if not os.path.isdir(EIKEN_REAL_EXAM_DIR):
+        return []
+
+    exams = {}
+    for filename in os.listdir(EIKEN_REAL_EXAM_DIR):
+        if not filename.endswith('.html') or filename == 'eikenj2.html':
+            continue
+        meta = get_eiken_real_exam_part_meta(filename[:-5])
+        if not meta:
+            continue
+        exam = exams.setdefault(
+            meta['exam_id'],
+            {
+                'exam_id': meta['exam_id'],
+                'year': meta['year'],
+                'round': meta['round'],
+                'label': f'{meta["year"]}年度 第{meta["round"]}回',
+                'listening_parts': [],
+                'written_parts': [],
+            },
+        )
+        part = {
+            'part_id': meta['part_id'],
+            'label': meta['label'],
+            'mode': meta['mode'],
+            'part_number': meta['part_number'],
+        }
+        part_key = 'written_parts' if meta['mode'] == 'written' else 'listening_parts'
+        exam[part_key].append(part)
+
+    for exam in exams.values():
+        exam['listening_parts'].sort(key=lambda item: item['part_number'])
+        exam['written_parts'].sort(key=lambda item: item['part_number'])
+        exam['part_count'] = len(exam['listening_parts']) + len(exam['written_parts'])
+
+    return sorted(exams.values(), key=lambda item: (item['year'], item['round']), reverse=True)
+
+
+def sanitize_eiken_real_exam_html(part_id):
+    meta = get_eiken_real_exam_part_meta(part_id)
+    if not meta:
+        raise LookupError('exam part not found')
+
+    path = os.path.join(EIKEN_REAL_EXAM_DIR, f'{meta["part_id"]}.html')
+    if not os.path.isfile(path):
+        raise LookupError('exam part not found')
+
+    with open(path, 'r', encoding='utf-8', errors='ignore') as handle:
+        html = handle.read()
+
+    title_match = re.search(r'<font[^>]*style="font-size\s*:\s*150%;?"[^>]*>(.*?)</font>', html, flags=re.I | re.S)
+    title = re.sub(r'<[^>]+>', '', title_match.group(1)).strip() if title_match else f'英検準2級 {meta["label"]}'
+
+    body_match = re.search(r'<body[^>]*>(.*?)</body>', html, flags=re.I | re.S)
+    content = body_match.group(1) if body_match else html
+    content = re.sub(r'<script\b[^>]*>.*?</script>', '', content, flags=re.I | re.S)
+    content = re.sub(r'<!-- timer -->.*?<!-- /timer -->', '', content, flags=re.I | re.S)
+    content = re.sub(r'<input\b[^>]*type=["\']hidden["\'][^>]*>', '', content, flags=re.I)
+    content = re.sub(r'<input\b[^>]*type=["\']text["\'][^>]*>', '', content, flags=re.I)
+    content = re.sub(r'<input\b[^>]*type=["\']button["\'][^>]*>', '', content, flags=re.I)
+    content = re.sub(r'</?form\b[^>]*>', '', content, flags=re.I)
+    content = re.sub(r'on\w+=["\'][^"\']*["\']', '', content, flags=re.I)
+    content = re.sub(r'<a\b[^>]*href=["\'][^"\']*["\'][^>]*>(.*?)</a>', r'\1', content, flags=re.I | re.S)
+
+    asset_paths = []
+
+    def rewrite_asset(match):
+        attr = match.group(1)
+        quote = match.group(2)
+        value = match.group(3).strip()
+        if re.match(r'^(https?:|data:|#)', value, flags=re.I):
+            return match.group(0)
+        normalized = value.replace('\\', '/').lstrip('./')
+        asset_paths.append(normalized)
+        return f'{attr}={quote}/api/eiken-real-exams/assets/{normalized}{quote}'
+
+    content = re.sub(r'\b(src)=(["\'])([^"\']+)\2', rewrite_asset, content, flags=re.I)
+    audio_paths = [path for path in asset_paths if path.lower().endswith(('.mp3', '.wav', '.m4a'))]
+    image_paths = [path for path in asset_paths if path.lower().endswith(('.png', '.gif', '.jpg', '.jpeg'))]
+    question_numbers = sorted({int(number) for number in re.findall(r'問\s*(\d+)', content)})
+
+    return {
+        **meta,
+        'title': title,
+        'html': content,
+        'audio_paths': [f'/api/eiken-real-exams/assets/{path}' for path in audio_paths],
+        'image_paths': [f'/api/eiken-real-exams/assets/{path}' for path in image_paths],
+        'question_count': len(question_numbers),
+        'question_numbers': question_numbers,
+    }
+
+
+@app.route('/api/eiken-real-exams')
+def api_eiken_real_exams():
+    return jsonify({'exams': list_eiken_real_exams()})
+
+
+@app.route('/api/eiken-real-exams/parts/<part_id>')
+def api_eiken_real_exam_part(part_id):
+    try:
+        return jsonify(sanitize_eiken_real_exam_html(part_id))
+    except LookupError as exc:
+        abort(404, str(exc))
+
+
+@app.route('/api/eiken-real-exams/assets/<path:asset_path>')
+def api_eiken_real_exam_asset(asset_path):
+    return send_from_directory(data_path(EIKEN_REAL_EXAM_DIR), asset_path)
+
+
 @app.route('/api/tts')
 def tts():
     text = request.args.get('text', '').strip()
@@ -5196,6 +6027,11 @@ def tts():
     return Response(audio, mimetype='audio/mpeg')
 
 
+@app.route('/health')
+def health():
+    return jsonify(status='ok')
+
+
 @app.route('/')
 def home():
     return redirect('/app/')
@@ -5209,6 +6045,12 @@ def serve_react_app(path):
     if path and os.path.exists(os.path.join(dist_dir, path)):
         return send_from_directory(dist_dir, path)
     return send_from_directory(dist_dir, 'index.html')
+
+
+@app.route('/assets/<path:path>')
+def serve_react_assets(path):
+    dist_assets_dir = os.path.join(app.root_path, 'frontend', 'dist', 'assets')
+    return send_from_directory(dist_assets_dir, path)
 
 
 @app.route('/api/home')
@@ -5275,8 +6117,8 @@ def api_home():
     )
 
 
-@app.route('/api/pokemon-exp', methods=['POST'])
-def api_pokemon_exp():
+@app.route('/api/pet-exp', methods=['POST'])
+def api_pet_exp():
     data = request.get_json(silent=True) or {}
     child_id = data.get('child_id')
     exp_amount = data.get('exp_amount')
@@ -5291,7 +6133,7 @@ def api_pokemon_exp():
     except (TypeError, ValueError):
         abort(400, 'exp_amount must be an integer')
 
-    pet = addPokemonExp(child_id, exp_amount)
+    pet = addPetExp(child_id, exp_amount)
     return jsonify(pet=pet, pet_exp_awarded=exp_amount)
 
 
@@ -5365,6 +6207,37 @@ DAILY_PART_OF_SPEECH_ORDER = [
 ]
 
 
+def load_pet_master():
+    path = os.path.join(app.root_path, 'frontend', 'src', 'pet_master_ja.json')
+    try:
+        with open(path, 'r', encoding='utf-8') as file:
+            pets = json.load(file)
+    except (OSError, json.JSONDecodeError):
+        pets = []
+    catalog = []
+    for index, pet in enumerate(pets, start=1):
+        item = dict(pet)
+        item['catalog_id'] = index
+        item['image_url'] = item.get('image')
+        item['sprite_url'] = item.get('image')
+        item['types'] = [{'name': item.get('element') or 'pet'}]
+        catalog.append(item)
+    return catalog
+
+
+CUSTOM_PET_MASTER = load_pet_master()
+CUSTOM_PET_BY_CATALOG_ID = {pet['catalog_id']: pet for pet in CUSTOM_PET_MASTER}
+CUSTOM_PET_TOTAL = len(CUSTOM_PET_MASTER) or 24
+
+
+def get_custom_pet_by_id(pet_id):
+    try:
+        normalized_id = int(pet_id)
+    except (TypeError, ValueError):
+        normalized_id = 1
+    return CUSTOM_PET_BY_CATALOG_ID.get(normalized_id) or (CUSTOM_PET_MASTER[0] if CUSTOM_PET_MASTER else None)
+
+
 def get_daily_importance_rank(vocab):
     importance = str(vocab.get('Importance') or '').strip().upper()
     return DAILY_IMPORTANCE_ORDER.get(importance, 9)
@@ -5394,6 +6267,17 @@ def get_child_mastered_vocab_keys(child_id):
     finally:
         conn.close()
     return {str(row['vocab_id']).strip().lower() for row in rows if str(row['vocab_id']).strip()}
+
+
+def get_child_mastered_vocab_entries(child_id, entries=None):
+    mastered_keys = get_child_mastered_vocab_keys(child_id)
+    if not mastered_keys:
+        return []
+    source_entries = entries or vocab_list
+    return [
+        entry for entry in source_entries
+        if get_vocab_key(entry) and get_vocab_key(entry).lower() in mastered_keys
+    ]
 
 
 def select_daily_vocab_entries(limit, child_id=None):
@@ -5564,16 +6448,22 @@ def api_quiz():
     requested_word = request.args.get('word', '').strip()
     importance = request.args.get('importance', '').strip()
     frequency = request.args.get('frequency', '').strip()
-    progress = load_progress()
-    mastered_words = [w.strip() for w in progress.get('mastered_words', []) if w.strip()]
-    mastered_set = {word.lower() for word in mastered_words}
+    child_id = request.args.get('child_id') or request.args.get('childId')
+    if child_id in [None, '', 'null']:
+        abort(400, 'child_id is required')
+    try:
+        child_id = int(child_id)
+    except (TypeError, ValueError):
+        abort(400, 'child_id must be an integer')
     entries = filter_vocab_entries(vocab_list, importance=importance, frequency=frequency)
     if not entries:
         entries = vocab_list
 
-    mastered_entries = [
-        entry for entry in entries
-        if entry.get('English', '').strip().lower() in mastered_set
+    mastered_entries = get_child_mastered_vocab_entries(child_id, entries)
+    mastered_words = [entry.get('English', '').strip() for entry in mastered_entries if entry.get('English', '').strip()]
+    quiz_candidates = [
+        entry for entry in mastered_entries
+        if _clean_csv_value(entry.get('Example_English'))
     ]
 
     if not requested_word and not mastered_entries:
@@ -5587,15 +6477,44 @@ def api_quiz():
             error_count=0,
             review_mode='mastered_words',
         )
+    if len(mastered_entries) < 4:
+        return jsonify(
+            question='4択クイズには、覚えた単語が4つ以上必要です。まず単語カードで覚えましょう。',
+            choices=[],
+            correct='',
+            word='',
+            id='',
+            mastered_count=len(mastered_words),
+            error_count=0,
+            review_mode='mastered_words',
+        )
+    if not requested_word and not quiz_candidates:
+        return jsonify(
+            question='例文つきで復習できる単語がまだありません。まず単語カードで覚えましょう。',
+            choices=[],
+            correct='',
+            word='',
+            id='',
+            mastered_count=len(mastered_words),
+            error_count=0,
+            review_mode='mastered_words',
+        )
 
-    error_counts = {}
     conn = get_db_connection()
     try:
-        rows = conn.execute('SELECT word_id, error_count FROM error_log').fetchall()
+        rows = conn.execute(
+            '''
+            SELECT vocab_id, wrong_count
+            FROM child_vocab_progress
+            WHERE child_id = ?
+            ''',
+            (child_id,),
+        ).fetchall()
     finally:
         conn.close()
+    error_counts = {}
     for row in rows:
-        error_counts[str(row['word_id']).strip().lower()] = int(row['error_count'] or 0)
+        error_counts[str(row['vocab_id']).strip().lower()] = int(row['wrong_count'] or 0)
 
     def get_entry_error_count(entry):
         keys = [
@@ -5606,23 +6525,48 @@ def api_quiz():
 
     if requested_word:
         correct_vocab = resolve_vocab_entry(requested_word, entries) or resolve_vocab_entry(requested_word, vocab_list)
+        if not correct_vocab or get_vocab_key(correct_vocab).lower() not in {
+            get_vocab_key(entry).lower() for entry in mastered_entries if get_vocab_key(entry)
+        }:
+            return jsonify(
+                question='まだ復習できる単語がありません。まず単語カードで覚えましょう。',
+                choices=[],
+                correct='',
+                word='',
+                id='',
+                mastered_count=len(mastered_words),
+                error_count=0,
+                review_mode='mastered_words',
+            )
     else:
         weighted_candidates = []
-        for entry in mastered_entries:
+        for entry in quiz_candidates:
             weight = 1 + min(8, get_entry_error_count(entry) * 2)
             weighted_candidates.extend([entry] * weight)
-        correct_vocab = random.choice(weighted_candidates) if weighted_candidates else random.choice(mastered_entries)
+        correct_vocab = random.choice(weighted_candidates) if weighted_candidates else random.choice(quiz_candidates)
 
     if correct_vocab is None:
         abort(404, 'Word not found')
 
-    question = f'「{correct_vocab["Japanese"]}」は英語でどれ？'
     correct_answer = correct_vocab['English']
-    distractor_pool = mastered_entries if len(mastered_entries) >= 4 else entries
-    if len(distractor_pool) < 4:
-        distractor_pool = vocab_list
+    example_sentence = _clean_csv_value(correct_vocab.get('Example_English'))
+    question = build_example_cloze_question(example_sentence, correct_answer)
+    if not question:
+        question = f'Choose the word that fits: ____'
+    distractor_pool = mastered_entries
     other_vocabs = [v for v in distractor_pool if v['English'] != correct_answer]
-    wrong_choices = random.sample(other_vocabs, min(3, len(other_vocabs)))
+    if len(other_vocabs) < 3:
+        return jsonify(
+            question='4択クイズには、覚えた単語が4つ以上必要です。まず単語カードで覚えましょう。',
+            choices=[],
+            correct='',
+            word='',
+            id='',
+            mastered_count=len(mastered_words),
+            error_count=0,
+            review_mode='mastered_words',
+        )
+    wrong_choices = random.sample(other_vocabs, 3)
     choices = [correct_answer] + [v['English'] for v in wrong_choices]
     random.shuffle(choices)
     sentence_jp = get_context_sentence(correct_answer)
@@ -5638,13 +6582,21 @@ def api_quiz():
         mastered_count=len(mastered_words),
         error_count=get_entry_error_count(correct_vocab),
         review_mode='mastered_words',
+        question_type='example_cloze',
     )
 
 
 @app.route('/api/vocab-expansion')
 def api_vocab_expansion():
+    child_id = request.args.get('child_id') or request.args.get('childId')
+    if child_id in [None, '', 'null']:
+        abort(400, 'child_id is required')
     try:
-        question = build_vocab_expansion_question(request.args.get('mode'))
+        child_id = int(child_id)
+    except (TypeError, ValueError):
+        abort(400, 'child_id must be an integer')
+    try:
+        question = build_vocab_expansion_question(request.args.get('mode'), child_id)
     except LookupError as exc:
         abort(404, str(exc))
     return jsonify(question)
@@ -5795,6 +6747,125 @@ def api_battle_wrong_questions():
 def api_battle_wrong_question_master(wrong_id):
     try:
         result = master_battle_wrong_question(wrong_id)
+    except LookupError as exc:
+        abort(404, str(exc))
+    return jsonify(result)
+
+
+@app.route('/api/grammar/lessons')
+def api_grammar_lessons():
+    child_id = request.args.get('child_id') or request.args.get('childId')
+    try:
+        result = get_grammar_lessons_for_child(child_id)
+    except ValueError as exc:
+        abort(400, str(exc))
+    except LookupError as exc:
+        abort(404, str(exc))
+    except FileNotFoundError as exc:
+        abort(500, str(exc))
+    return jsonify(result)
+
+
+@app.route('/api/grammar/lessons/<lesson_id>')
+def api_grammar_lesson_detail(lesson_id):
+    child_id = request.args.get('child_id') or request.args.get('childId')
+    try:
+        result = get_grammar_lesson_detail(child_id, lesson_id)
+    except ValueError as exc:
+        abort(400, str(exc))
+    except LookupError as exc:
+        abort(404, str(exc))
+    except FileNotFoundError as exc:
+        abort(500, str(exc))
+    return jsonify(result)
+
+
+@app.route('/api/grammar/lessons/<lesson_id>/view', methods=['POST'])
+def api_grammar_lesson_view(lesson_id):
+    data = request.get_json(silent=True) or {}
+    try:
+        result = mark_grammar_lesson_viewed(data.get('child_id') or data.get('childId'), lesson_id)
+    except ValueError as exc:
+        abort(400, str(exc))
+    except LookupError as exc:
+        abort(404, str(exc))
+    except FileNotFoundError as exc:
+        abort(500, str(exc))
+    return jsonify(result)
+
+
+@app.route('/api/grammar/quizzes/<quiz_id>/answer', methods=['POST'])
+def api_grammar_quiz_answer(quiz_id):
+    data = request.get_json(silent=True) or {}
+    try:
+        result = submit_grammar_quiz_answer(
+            data.get('child_id') or data.get('childId'),
+            quiz_id,
+            data.get('selected_index') if 'selected_index' in data else data.get('selectedIndex'),
+        )
+    except ValueError as exc:
+        abort(400, str(exc))
+    except LookupError as exc:
+        abort(404, str(exc))
+    except FileNotFoundError as exc:
+        abort(500, str(exc))
+    return jsonify(result)
+
+
+@app.route('/api/grammar/form-practice')
+def api_grammar_form_practice():
+    child_id = request.args.get('child_id') or request.args.get('childId')
+    try:
+        result = get_grammar_form_practice(child_id, request.args.get('limit') or 5)
+    except ValueError as exc:
+        abort(400, str(exc))
+    except LookupError as exc:
+        abort(404, str(exc))
+    except FileNotFoundError as exc:
+        abort(500, str(exc))
+    return jsonify(result)
+
+
+@app.route('/api/grammar/form-practice/<test_id>/answer', methods=['POST'])
+def api_grammar_form_practice_answer(test_id):
+    data = request.get_json(silent=True) or {}
+    try:
+        result = submit_grammar_form_practice_answer(
+            data.get('child_id') or data.get('childId'),
+            test_id,
+            data.get('selected_index') if 'selected_index' in data else data.get('selectedIndex'),
+        )
+    except ValueError as exc:
+        abort(400, str(exc))
+    except LookupError as exc:
+        abort(404, str(exc))
+    except FileNotFoundError as exc:
+        abort(500, str(exc))
+    return jsonify(result)
+
+
+@app.route('/api/grammar/form-practice/wrong-questions')
+def api_grammar_form_wrong_questions():
+    child_id = request.args.get('child_id') or request.args.get('childId')
+    try:
+        result = get_grammar_form_wrong_questions(child_id)
+    except ValueError as exc:
+        abort(400, str(exc))
+    except LookupError as exc:
+        abort(404, str(exc))
+    except FileNotFoundError as exc:
+        abort(500, str(exc))
+    return jsonify(result)
+
+
+@app.route('/api/grammar/form-practice/wrong-questions/<test_id>/master', methods=['POST'])
+def api_grammar_form_wrong_question_master(test_id):
+    data = request.get_json(silent=True) or {}
+    child_id = data.get('child_id') or data.get('childId') or request.args.get('child_id') or request.args.get('childId')
+    try:
+        result = master_grammar_form_wrong_question(child_id, test_id)
+    except ValueError as exc:
+        abort(400, str(exc))
     except LookupError as exc:
         abort(404, str(exc))
     return jsonify(result)
@@ -6217,6 +7288,11 @@ def battle_redirect():
 @app.route('/eiken-pre2')
 def eiken_pre2_redirect():
     return redirect('/app/eiken-pre2')
+
+
+@app.route('/eiken-real')
+def eiken_real_redirect():
+    return redirect('/app/eiken-real')
 
 
 @app.route('/eiken-pre2/result/<path:attempt_id>')

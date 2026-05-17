@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import HeaderBar from '../components/HeaderBar';
 import PetDisplay from '../components/PetDisplay';
+import TtsButton from '../components/TtsButton';
 import { getAiPracticeQuestion, submitAiPracticeAnswer } from '../api';
 
 const typeLabels = {
@@ -115,6 +116,11 @@ export default function AiPracticePage() {
               <p className="whitespace-pre-line text-2xl font-black leading-10 text-[#2f3d69]">
                 {displayQuestion}
               </p>
+              {displayQuestion && (
+                <div className="mt-4">
+                  <TtsButton text={displayQuestion} label="Question" />
+                </div>
+              )}
             </div>
 
             {needsTextAnswer ? (
@@ -171,6 +177,11 @@ export default function AiPracticePage() {
                 <p className="mt-2 text-lg font-bold leading-8 text-[#5f6f9a]">
                   Answer: {correctAnswer}
                 </p>
+                {correctAnswer && (
+                  <div className="mt-3">
+                    <TtsButton text={correctAnswer} label="Answer" />
+                  </div>
+                )}
                 {pet && (
                   <div className="mt-4">
                     <PetDisplay pet={pet} earnedExp={result.xp_awarded} compact />
@@ -184,7 +195,8 @@ export default function AiPracticePage() {
                 Next
               </button>
               <div className="rounded-full bg-white/78 px-5 py-4 text-center text-sm font-black text-[#6f7da8]">
-                {question.word} / {question.meaning}
+                <span>{question.word} / {question.meaning}</span>
+                {question.word && <TtsButton text={question.word} label="Word" className="ml-3" />}
               </div>
             </div>
           </>

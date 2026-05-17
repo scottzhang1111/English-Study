@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import HeaderBar from '../components/HeaderBar';
+import TtsButton from '../components/TtsButton';
 import { getProgressData } from '../api';
 
 const CHILD_STORAGE_KEY = 'selected_child_id';
@@ -63,7 +64,10 @@ function WordRow({ word }) {
     <div className="rounded-[24px] bg-white/76 px-5 py-4 shadow-[0_10px_24px_rgba(145,177,209,0.10)]">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <p className="display-font text-2xl font-extrabold text-[#354172]">{word.word}</p>
+          <div className="flex flex-wrap items-center gap-2">
+            <p className="display-font text-2xl font-extrabold text-[#354172]">{word.word}</p>
+            <TtsButton text={word.word} label="単語" />
+          </div>
           <p className="mt-1 text-sm font-bold text-[#6f7da8]">{word.japanese || '意味を確認中'}</p>
         </div>
         <div className="flex gap-2 text-xs font-black">
@@ -73,7 +77,12 @@ function WordRow({ word }) {
         </div>
       </div>
       {word.example ? (
-        <p className="mt-3 text-sm font-semibold leading-6 text-[#5f6f94]">{word.example}</p>
+        <div className="mt-3 rounded-[18px] bg-[#f8fbff] px-4 py-3">
+          <div className="flex flex-wrap items-start justify-between gap-2">
+            <p className="text-sm font-semibold leading-6 text-[#5f6f94]">{word.example}</p>
+            <TtsButton text={word.example} label="例文" />
+          </div>
+        </div>
       ) : null}
     </div>
   );

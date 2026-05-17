@@ -9,13 +9,13 @@ export default function CaptureAnimation({ monster, phase = 'idle', result = nul
       <motion.div
         animate={{ scale: monsterHidden ? 0 : 1, opacity: monsterHidden ? 0 : 1 }}
         transition={{ duration: 0.28, ease: 'easeOut' }}
-        className="absolute top-8 flex h-36 w-36 items-center justify-center"
+        className="absolute top-2 flex h-[250px] w-[250px] max-w-full items-center justify-center"
       >
         {monster?.imageUrl ? (
           <img
             src={monster.imageUrl}
             alt={monster.nameJa || 'monster'}
-            className="h-full w-full object-contain drop-shadow-[0_14px_18px_rgba(74,98,135,0.22)]"
+            className="h-[250px] w-[250px] max-w-full object-contain drop-shadow-[0_14px_18px_rgba(74,98,135,0.22)]"
           />
         ) : (
           <span className="text-5xl font-black text-[#9aa8c7]">?</span>

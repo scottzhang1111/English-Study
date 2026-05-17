@@ -1,36 +1,9 @@
+import { getPetMasterByAnyId } from '../lib/petMaster';
+
 const CHILDREN_KEY = 'children';
 const CURRENT_CHILD_ID_KEY = 'selected_child_id';
 
-export const DEFAULT_PARTNER_ID = 'bulbasaur';
-
-export const PARTNERS = {
-  bulbasaur: {
-    id: 'bulbasaur',
-    name: 'フシギダネ',
-    imageUrl: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/1.png',
-  },
-  charmander: {
-    id: 'charmander',
-    name: 'ヒトカゲ',
-    imageUrl: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/4.png',
-  },
-  squirtle: {
-    id: 'squirtle',
-    name: 'ゼニガメ',
-    imageUrl: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/7.png',
-  },
-};
-
-/**
- * @typedef {Object} ChildProfile
- * @property {string} id
- * @property {string} name
- * @property {string} grade
- * @property {string} targetLevel
- * @property {string} partnerMonsterId
- * @property {string} createdAt
- * @property {string} updatedAt
- */
+export const DEFAULT_PARTNER_ID = '1';
 
 function readJson(key, fallback) {
   try {
@@ -61,7 +34,7 @@ function normalizeChild(child) {
     name,
     grade: String(child.grade || '小学2年生'),
     targetLevel: String(child.targetLevel || child.target_level || '準2級'),
-    partnerMonsterId: String(child.partnerMonsterId || child.partner_monster_id || DEFAULT_PARTNER_ID),
+    partnerMonsterId: String(child.partnerMonsterId || child.partner_monster_id || child.starter_pokemon_id || DEFAULT_PARTNER_ID),
     createdAt: String(child.createdAt || new Date().toISOString()),
     updatedAt: String(child.updatedAt || child.createdAt || new Date().toISOString()),
   };
@@ -155,5 +128,11 @@ export function clearInvalidChildData() {
 }
 
 export function getPartner(partnerMonsterId) {
-  return PARTNERS[partnerMonsterId] || PARTNERS[DEFAULT_PARTNER_ID];
+  const pet = getPetMasterByAnyId(partnerMonsterId || DEFAULT_PARTNER_ID);
+  return {
+    id: String(pet.catalogId || partnerMonsterId || DEFAULT_PARTNER_ID),
+    petId: pet.id,
+    name: pet.nameJa,
+    imageUrl: pet.image,
+  };
 }

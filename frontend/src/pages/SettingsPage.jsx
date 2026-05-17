@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+﻿import { useEffect, useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
 import HeaderBar from '../components/HeaderBar';
 import {
@@ -7,6 +7,7 @@ import {
   getChildren,
   saveChildProfile,
 } from '../api';
+import { PET_STARTER_OPTIONS } from '../lib/petMaster';
 
 const DEFAULT_FORM = {
   name: '',
@@ -18,40 +19,28 @@ const DEFAULT_FORM = {
 const GRADE_OPTIONS = ['1', '2', '3', '4', '5', '6'];
 const CHILD_STORAGE_KEY = 'selected_child_id';
 
-const pokemonArtwork = (id) =>
-  `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${id}.png`;
-const pokemonSprite = (id) =>
-  `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${id}.png`;
-
-const DEFAULT_STARTER_OPTIONS = [
-  { id: 4, name: 'ヒトカゲ', image_url: pokemonArtwork(4), sprite_url: pokemonSprite(4), types: [{ name: 'fire' }] },
-  { id: 7, name: 'ゼニガメ', image_url: pokemonArtwork(7), sprite_url: pokemonSprite(7), types: [{ name: 'water' }] },
-  { id: 1, name: 'フシギダネ', image_url: pokemonArtwork(1), sprite_url: pokemonSprite(1), types: [{ name: 'grass' }] },
-];
-
-const POKEMON_FALLBACKS = {
-  1: { name: 'フシギダネ', description: 'こつこつ学習を支えてくれる、やさしい草タイプ。' },
-  4: { name: 'ヒトカゲ', description: 'やる気を明るくしてくれる、元気な炎タイプ。' },
-  7: { name: 'ゼニガメ', description: '落ち着いて復習を進められる、頼れる水タイプ。' },
-};
-
 const TYPE_LABELS = {
+  air: 'そら',
+  dark_elec: 'やみでんき',
+  elec: 'でんき',
   fire: 'ほのお',
+  rock: 'いわ',
+  star: 'ほし',
   water: 'みず',
-  grass: 'くさ',
+  wood: 'もり',
 };
 
-function getPokemonImage(option) {
+function getPetImage(option) {
   return option?.image_url || option?.sprite_url || '';
 }
 
-function getPokemonName(option) {
-  const fallback = POKEMON_FALLBACKS[Number(option?.id)];
-  return fallback?.name || option?.name || 'パートナー';
+function getPetName(option) {
+  return option?.name || 'ペット';
 }
 
-function getPokemonDescription(option) {
-  return POKEMON_FALLBACKS[Number(option?.id)]?.description || 'いっしょに英語学習を進める最初のパートナーです。';
+function getPetDescription(option) {
+  const tags = option?.tagsJa || [];
+  return tags.length ? `${tags.join('・')} が得意な学習パートナーです。` : 'いっしょに英語学習を進めるパートナーです。';
 }
 
 function getTypeNames(option) {
@@ -85,6 +74,8 @@ export default function SettingsPage() {
   const [form, setForm] = useState(DEFAULT_FORM);
   const [profileError, setProfileError] = useState('');
   const [profileMessage, setProfileMessage] = useState('');
+  const [deleteTargetChild, setDeleteTargetChild] = useState(null);
+  const [isDeletingChild, setIsDeletingChild] = useState(false);
 
   const selectedStarter = useMemo(
     () => starterOptions.find((option) => String(option.id) === String(selectedStarterId)) || null,
@@ -111,17 +102,17 @@ export default function SettingsPage() {
         getChildStarterOptions(),
         new Promise((_, reject) => window.setTimeout(() => reject(new Error('starter options timeout')), 4000)),
       ]);
-      const options = payload.options?.length ? payload.options : DEFAULT_STARTER_OPTIONS;
+      const options = payload.options?.length ? payload.options : PET_STARTER_OPTIONS;
       setStarterOptions(options);
       setSelectedStarterId((prev) => {
         if (prev && options.some((option) => String(option.id) === String(prev))) return prev;
         return options[0] ? String(options[0].id) : '';
       });
     } catch (err) {
-      setStarterOptions(DEFAULT_STARTER_OPTIONS);
+      setStarterOptions(PET_STARTER_OPTIONS);
       setSelectedStarterId((prev) => {
-        if (prev && DEFAULT_STARTER_OPTIONS.some((option) => String(option.id) === String(prev))) return prev;
-        return String(DEFAULT_STARTER_OPTIONS[0].id);
+        if (prev && PET_STARTER_OPTIONS.some((option) => String(option.id) === String(prev))) return prev;
+        return String(PET_STARTER_OPTIONS[0].id);
       });
     } finally {
       setLoadingOptions(false);
@@ -211,13 +202,24 @@ export default function SettingsPage() {
     }
   };
 
-  const handleDeleteChild = async (childId) => {
-    const child = children.find((item) => String(item.id) === String(childId));
-    if (!child) return;
-    if (!window.confirm(`${child.name} を削除しますか？`)) return;
+  const openDeleteConfirm = (child) => {
+    setProfileMessage('');
+    setProfileError('');
+    setDeleteTargetChild(child);
+  };
+
+  const closeDeleteConfirm = () => {
+    if (isDeletingChild) return;
+    setDeleteTargetChild(null);
+  };
+
+  const confirmDeleteChild = async () => {
+    if (!deleteTargetChild) return;
+    const childId = deleteTargetChild.id;
 
     setProfileMessage('');
     setProfileError('');
+    setIsDeletingChild(true);
     try {
       await deleteChildProfile(childId);
       const nextChildren = await refreshChildren();
@@ -238,9 +240,12 @@ export default function SettingsPage() {
       if (String(editingChildId) === String(childId)) {
         closeForm();
       }
+      setDeleteTargetChild(null);
       setProfileMessage('子どもの設定を削除しました。');
     } catch (err) {
       setProfileError(err.message);
+    } finally {
+      setIsDeletingChild(false);
     }
   };
 
@@ -285,7 +290,7 @@ export default function SettingsPage() {
               {children.map((child) => {
                 const isSelected = String(selectedChildId) === String(child.id);
                 const petOption = starterById.get(String(child.starter_pokemon_id || child.partnerMonsterId));
-                const partnerName = petOption ? getPokemonName(petOption) : child.partner_name || child.pet?.name || '';
+                const partnerName = petOption ? getPetName(petOption) : child.partner_name || child.pet?.name || '';
                 const partnerLevel = child.partner_level || child.pet?.level;
                 return (
                   <article
@@ -333,7 +338,7 @@ export default function SettingsPage() {
                         </button>
                         <button
                           type="button"
-                          onClick={() => handleDeleteChild(child.id)}
+                          onClick={() => openDeleteConfirm(child)}
                           className="rounded-full border border-rose-100 bg-white px-4 py-2 text-xs font-black text-rose-700 transition hover:-translate-y-0.5"
                         >
                           削除
@@ -370,7 +375,7 @@ export default function SettingsPage() {
             <div className="mt-7 grid gap-7">
               <div className="rounded-[30px] border border-white/80 bg-white/84 p-5">
                 <h2 className="text-xl font-extrabold text-[#354172]">基本情報</h2>
-                <div className="mt-5 grid gap-4 sm:grid-cols-3">
+                <div className="mt-5 grid gap-5 lg:grid-cols-3">
                   <label className="text-sm font-bold text-[#354172]">
                     名前
                     <input
@@ -419,38 +424,42 @@ export default function SettingsPage() {
                     </div>
                   ) : (
                     starterOptions.map((option) => {
-                      const imageUrl = getPokemonImage(option);
+                      const imageUrl = getPetImage(option);
                       const active = String(selectedStarterId) === String(option.id);
                       return (
                         <button
                           key={option.id}
                           type="button"
                           onClick={() => setSelectedStarterId(String(option.id))}
-                          className={`rounded-[28px] border p-4 text-left transition ${
+                          className={`flex min-h-[430px] flex-col rounded-[28px] border p-4 text-center transition ${
                             active
                               ? 'border-[#f0c24f] bg-[#fff7d6] shadow-[0_18px_38px_rgba(240,194,79,0.18)]'
                               : 'border-[#e7eef8] bg-white/92 shadow-[0_12px_26px_rgba(145,177,209,0.10)] hover:-translate-y-0.5'
                           }`}
                         >
-                          <div className="flex items-start gap-4">
-                            <div className={`flex h-24 w-24 shrink-0 items-center justify-center rounded-[24px] ${active ? 'bg-white/90' : 'bg-[#eef8ff]'}`}>
-                              {imageUrl ? (
-                                <img src={imageUrl} alt={getPokemonName(option)} className="h-full w-full object-contain p-2" />
-                              ) : (
-                                <span className="text-2xl font-black text-[#354172]">{getPokemonName(option).slice(0, 1)}</span>
-                              )}
+                          <div
+                            className={`mx-auto flex h-[250px] w-[250px] max-w-full shrink-0 items-center justify-center rounded-[26px] ${
+                              active
+                                ? 'bg-[radial-gradient(circle_at_50%_42%,rgba(255,255,255,0.88)_0%,rgba(255,249,220,0.68)_52%,rgba(255,239,170,0.42)_100%)]'
+                                : 'bg-[radial-gradient(circle_at_50%_42%,rgba(255,255,255,0.86)_0%,rgba(238,248,255,0.72)_58%,rgba(217,238,255,0.42)_100%)]'
+                            }`}
+                          >
+                            {imageUrl ? (
+                              <img src={imageUrl} alt={getPetName(option)} className="h-[250px] w-[250px] max-w-full bg-transparent object-contain" />
+                            ) : (
+                              <span className="text-2xl font-black text-[#354172]">{getPetName(option).slice(0, 1)}</span>
+                            )}
+                          </div>
+                          <div className="mt-4 flex min-w-0 flex-1 flex-col items-center">
+                            <p className="w-full truncate text-lg font-black text-[#354172]">{getPetName(option)}</p>
+                            <div className="mt-2 flex flex-wrap justify-center gap-1.5">
+                              {getTypeNames(option).map((type) => (
+                                <span key={`${option.id}-${type}`} className="rounded-full bg-white/80 px-2.5 py-1 text-[11px] font-bold text-[#6f7da8]">
+                                  {type}
+                                </span>
+                              ))}
                             </div>
-                            <div className="min-w-0">
-                              <p className="truncate text-lg font-black text-[#354172]">{getPokemonName(option)}</p>
-                              <div className="mt-2 flex flex-wrap gap-1.5">
-                                {getTypeNames(option).map((type) => (
-                                  <span key={`${option.id}-${type}`} className="rounded-full bg-white/80 px-2.5 py-1 text-[11px] font-bold text-[#6f7da8]">
-                                    {type}
-                                  </span>
-                                ))}
-                              </div>
-                              <p className="mt-3 text-xs font-bold leading-5 text-[#6f7da8]">{getPokemonDescription(option)}</p>
-                            </div>
+                            <p className="mt-3 text-xs font-bold leading-6 text-[#6f7da8]">{getPetDescription(option)}</p>
                           </div>
                         </button>
                       );
@@ -481,6 +490,53 @@ export default function SettingsPage() {
           <div className="rounded-[28px] bg-rose-50 p-4 text-sm font-bold text-rose-700">{profileError}</div>
         )}
       </div>
+
+      {deleteTargetChild && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-[#dff2ff]/75 px-4 py-8 backdrop-blur-sm"
+          onClick={closeDeleteConfirm}
+        >
+          <motion.div
+            initial={{ opacity: 0, y: 18, scale: 0.98 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            className="w-full max-w-md rounded-[32px] border border-white/90 bg-white p-7 text-center shadow-[0_24px_70px_rgba(103,148,191,0.22)]"
+            onClick={(event) => event.stopPropagation()}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="delete-child-title"
+          >
+            <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-rose-50 text-3xl">
+              🗑️
+            </div>
+            <h2 id="delete-child-title" className="mt-5 text-2xl font-extrabold text-[#354172]">
+              {deleteTargetChild.name} を削除しますか？
+            </h2>
+            <p className="mt-4 text-sm font-bold leading-7 text-[#6f7da8]">
+              この子どもの学習データも削除されます。あとから元に戻せません。
+            </p>
+            <div className="mt-7 grid grid-cols-2 gap-3">
+              <button
+                type="button"
+                onClick={closeDeleteConfirm}
+                disabled={isDeletingChild}
+                className="rounded-full border border-[#d9e8f8] bg-white px-5 py-3 text-sm font-black text-[#61759e] shadow-[0_8px_20px_rgba(103,148,191,0.10)] transition hover:-translate-y-0.5 disabled:opacity-60"
+              >
+                キャンセル
+              </button>
+              <button
+                type="button"
+                onClick={confirmDeleteChild}
+                disabled={isDeletingChild}
+                className="rounded-full border border-rose-200 bg-gradient-to-b from-rose-300 to-rose-500 px-5 py-3 text-sm font-black text-white shadow-[0_12px_24px_rgba(244,63,94,0.24)] transition hover:-translate-y-0.5 disabled:opacity-60"
+              >
+                {isDeletingChild ? '削除中...' : '削除する'}
+              </button>
+            </div>
+          </motion.div>
+        </div>
+      )}
     </div>
   );
 }
+
+
