@@ -1,10 +1,10 @@
 ﻿import { useEffect, useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
 import HeaderBar from '../components/HeaderBar';
+import { useChildren } from '../ChildrenContext';
 import {
   deleteChildProfile,
   getChildStarterOptions,
-  getChildren,
   saveChildProfile,
 } from '../api';
 import { PET_STARTER_OPTIONS } from '../lib/petMaster';
@@ -64,7 +64,6 @@ function clearSelectedChildId() {
 }
 
 export default function SettingsPage() {
-  const [children, setChildren] = useState([]);
   const [starterOptions, setStarterOptions] = useState([]);
   const [loadingOptions, setLoadingOptions] = useState(true);
   const [showForm, setShowForm] = useState(false);
@@ -76,6 +75,7 @@ export default function SettingsPage() {
   const [profileMessage, setProfileMessage] = useState('');
   const [deleteTargetChild, setDeleteTargetChild] = useState(null);
   const [isDeletingChild, setIsDeletingChild] = useState(false);
+  const { children, childrenError, refreshChildren } = useChildren();
 
   const selectedStarter = useMemo(
     () => starterOptions.find((option) => String(option.id) === String(selectedStarterId)) || null,
@@ -87,13 +87,6 @@ export default function SettingsPage() {
     starterOptions.forEach((option) => map.set(String(option.id), option));
     return map;
   }, [starterOptions]);
-
-  const refreshChildren = async () => {
-    const payload = await getChildren();
-    const list = payload.children || [];
-    setChildren(list);
-    return list;
-  };
 
   const refreshStarterOptions = async () => {
     setLoadingOptions(true);
@@ -120,7 +113,6 @@ export default function SettingsPage() {
   };
 
   useEffect(() => {
-    refreshChildren().catch((err) => setProfileError(err.message));
     refreshStarterOptions().catch((err) => setProfileError(err.message));
   }, []);
 
@@ -235,7 +227,6 @@ export default function SettingsPage() {
       if (nextChildren.length === 0) {
         clearSelectedChildId();
         setSelectedChildId('');
-        setChildren([]);
       }
       if (String(editingChildId) === String(childId)) {
         closeForm();
@@ -250,6 +241,7 @@ export default function SettingsPage() {
   };
 
   const hasChildren = children.length > 0;
+  const visibleProfileError = profileError || childrenError;
 
   return (
     <div className="mx-auto max-w-5xl px-4 pb-32 pt-6 sm:px-6">
@@ -479,15 +471,15 @@ export default function SettingsPage() {
             </div>
 
             {profileMessage && <div className="mt-5 rounded-[28px] bg-[#eef8ff] p-4 text-sm font-bold text-[#4f6897]">{profileMessage}</div>}
-            {profileError && <div className="mt-5 rounded-[28px] bg-rose-50 p-4 text-sm font-bold text-rose-700">{profileError}</div>}
+            {visibleProfileError && <div className="mt-5 rounded-[28px] bg-rose-50 p-4 text-sm font-bold text-rose-700">{visibleProfileError}</div>}
           </motion.section>
         )}
 
         {!showForm && profileMessage && (
           <div className="rounded-[28px] bg-[#eef8ff] p-4 text-sm font-bold text-[#4f6897]">{profileMessage}</div>
         )}
-        {!showForm && profileError && (
-          <div className="rounded-[28px] bg-rose-50 p-4 text-sm font-bold text-rose-700">{profileError}</div>
+        {!showForm && visibleProfileError && (
+          <div className="rounded-[28px] bg-rose-50 p-4 text-sm font-bold text-rose-700">{visibleProfileError}</div>
         )}
       </div>
 

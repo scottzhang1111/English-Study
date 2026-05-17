@@ -3,14 +3,14 @@ import { motion } from 'framer-motion';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import HeaderBar from '../components/HeaderBar';
 import WrongQuestionCard from '../components/WrongQuestionCard';
-import { getChildren, getEikenPre2WrongQuestions, submitEikenPre2Attempt } from '../api';
+import { useChildren } from '../ChildrenContext';
+import { getEikenPre2WrongQuestions, submitEikenPre2Attempt } from '../api';
 
 const CHILD_STORAGE_KEY = 'selected_child_id';
 export default function EikenPre2WrongReviewPage() {
   const location = useLocation();
   const navigate = useNavigate();
   const params = new URLSearchParams(location.search);
-  const [children, setChildren] = useState([]);
   const [selectedChildId, setSelectedChildId] = useState(params.get('student_id') || localStorage.getItem(CHILD_STORAGE_KEY) || '');
   const [questionType, setQuestionType] = useState('');
   const [weakPointTag, setWeakPointTag] = useState('');
@@ -23,6 +23,7 @@ export default function EikenPre2WrongReviewPage() {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState(null);
   const didInitialLoad = useRef(false);
+  const { children, childrenLoading, childrenError } = useChildren();
 
   const setIds = useMemo(() => [...new Set(wrongQuestions.map((item) => item.set_id))], [wrongQuestions]);
   const weakPointTags = useMemo(
@@ -60,13 +61,13 @@ export default function EikenPre2WrongReviewPage() {
   };
 
   useEffect(() => {
+    if (childrenLoading) return undefined;
     let active = true;
-    getChildren()
-      .then((payload) => {
+    Promise.resolve()
+      .then(() => {
         if (!active) return;
-        const childList = payload.children || [];
-        setChildren(childList);
-        const initialId = selectedChildId || (childList[0]?.id ? String(childList[0].id) : '');
+        if (childrenError) throw new Error(childrenError);
+        const initialId = selectedChildId || (children[0]?.id ? String(children[0].id) : '');
         setSelectedChildId(initialId);
         if (initialId) {
           localStorage.setItem(CHILD_STORAGE_KEY, initialId);
@@ -83,7 +84,7 @@ export default function EikenPre2WrongReviewPage() {
     return () => {
       active = false;
     };
-  }, []);
+  }, [children, childrenError, childrenLoading]);
 
   useEffect(() => {
     if (!selectedChildId) return;

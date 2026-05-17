@@ -1,6 +1,6 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getChildren } from '../api';
+import { useChildren } from '../ChildrenContext';
 import { getPartner } from '../utils/childStorage';
 
 const CHILD_STORAGE_KEY = 'selected_child_id';
@@ -12,15 +12,8 @@ function getPartnerForChild(child) {
 
 export default function ChildSelectPage() {
   const navigate = useNavigate();
-  const [children, setChildren] = useState([]);
   const [currentChildId, setCurrentChildId] = useState(localStorage.getItem(CHILD_STORAGE_KEY) || '');
-  const [error, setError] = useState('');
-
-  useEffect(() => {
-    getChildren()
-      .then((payload) => setChildren(payload.children || []))
-      .catch((err) => setError(err.message || '読み込みに失敗しました。'));
-  }, []);
+  const { children, childrenLoading, childrenError, refreshChildren } = useChildren();
 
   const handleSelect = (childId) => {
     localStorage.setItem(CHILD_STORAGE_KEY, String(childId));
@@ -48,7 +41,15 @@ export default function ChildSelectPage() {
           </button>
         </div>
 
-        {error && <div className="mt-5 rounded-[24px] bg-rose-50 px-5 py-4 text-sm font-bold text-rose-700">{error}</div>}
+        {childrenLoading && <div className="mt-5 rounded-[24px] bg-[#f8fbff] px-5 py-4 text-sm font-bold text-[#6f7da8]">Loading...</div>}
+        {childrenError && (
+          <div className="mt-5 rounded-[24px] bg-rose-50 px-5 py-4 text-sm font-bold text-rose-700">
+            <p>{childrenError}</p>
+            <button type="button" onClick={refreshChildren} className="pill-button mt-4 px-5 py-3 text-sm">
+              Retry
+            </button>
+          </div>
+        )}
 
         <div className="mt-7 grid gap-4 md:grid-cols-2">
           {children.map((child) => {
@@ -67,8 +68,8 @@ export default function ChildSelectPage() {
                   </div>
                   <div className="min-w-0">
                     <h2 className="truncate text-2xl font-black text-[#354172]">{child.name}</h2>
-                    <p className="mt-1 text-sm font-bold text-[#6f7da8]">学年：{child.grade}</p>
-                    <p className="mt-1 text-sm font-bold text-[#6f7da8]">目標：{child.targetLevel}</p>
+                    <p className="mt-1 text-sm font-bold text-[#6f7da8]">学年: {child.grade}</p>
+                    <p className="mt-1 text-sm font-bold text-[#6f7da8]">目標: {child.targetLevel}</p>
                     <p className="mt-1 text-xs font-black text-[#8fa0c2]">{partner.name} Lv.1</p>
                   </div>
                 </div>
@@ -80,7 +81,7 @@ export default function ChildSelectPage() {
           })}
         </div>
 
-        {children.length === 0 && (
+        {!childrenLoading && !childrenError && children.length === 0 && (
           <div className="mt-7 rounded-[28px] bg-[#f8fbff] p-6 text-center">
             <p className="text-sm font-bold text-[#6f7da8]">まだ子どもが登録されていません。</p>
             <button type="button" onClick={() => navigate('/settings/add-child')} className="pill-button mt-4 px-5 py-3">

@@ -3,7 +3,8 @@ import { motion } from 'framer-motion';
 import { Link, Navigate, useNavigate } from 'react-router-dom';
 import HeaderBar from '../components/HeaderBar';
 import PetDisplay from '../components/PetDisplay';
-import { getChildren, getGrammarLessons, getHomeData } from '../api';
+import { getGrammarLessons, getHomeData } from '../api';
+import { useChildren } from '../ChildrenContext';
 import { getPartner } from '../utils/childStorage';
 
 const DEFAULT_DAILY_WORD_TARGET = 20;
@@ -52,8 +53,8 @@ export default function HomePage() {
   const [partnerLineIndex, setPartnerLineIndex] = useState(0);
   const [selectedChild, setSelectedChild] = useState(null);
   const [selectedChildId, setSelectedChildId] = useState(() => localStorage.getItem(CHILD_STORAGE_KEY) || '');
-  const [childrenLoaded, setChildrenLoaded] = useState(false);
   const [hasNoChildren, setHasNoChildren] = useState(false);
+  const { children, childrenLoading, childrenError, refreshChildren } = useChildren();
   const navigate = useNavigate();
   const todayTarget = Number(data?.target || selectedChild?.daily_target || DEFAULT_DAILY_WORD_TARGET);
   const todayStudied = Number(data?.progress ?? 0);
@@ -115,42 +116,29 @@ export default function HomePage() {
   ];
 
   useEffect(() => {
-    let cancelled = false;
-    getChildren()
-      .then((payload) => {
-        if (cancelled) return;
-        const childList = payload.children || [];
-        setChildrenLoaded(true);
-        if (childList.length === 0) {
-          clearSelectedChildId();
-          setSelectedChildId('');
-          setSelectedChild(null);
-          setHasNoChildren(true);
-          setData(null);
-          return;
-        }
-        setHasNoChildren(false);
-        if (!selectedChildId) {
-          navigate('/settings/children', { replace: true });
-          return;
-        }
-        const child = childList.find((item) => String(item.id) === String(selectedChildId));
-        if (!child) {
-          clearSelectedChildId();
-          setSelectedChildId('');
-          navigate('/settings/children', { replace: true });
-          return;
-        }
-        setSelectedChild(child);
-      })
-      .catch((err) => {
-        setChildrenLoaded(true);
-        setError(err.message);
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, [navigate, selectedChildId]);
+    if (childrenLoading) return;
+    if (children.length === 0) {
+      clearSelectedChildId();
+      setSelectedChildId('');
+      setSelectedChild(null);
+      setHasNoChildren(true);
+      setData(null);
+      return;
+    }
+    setHasNoChildren(false);
+    if (!selectedChildId) {
+      navigate('/settings/children', { replace: true });
+      return;
+    }
+    const child = children.find((item) => String(item.id) === String(selectedChildId));
+    if (!child) {
+      clearSelectedChildId();
+      setSelectedChildId('');
+      navigate('/settings/children', { replace: true });
+      return;
+    }
+    setSelectedChild(child);
+  }, [children, childrenLoading, navigate, selectedChildId]);
 
   useEffect(() => {
     if (!selectedChildId || hasNoChildren) return;
@@ -181,8 +169,23 @@ export default function HomePage() {
     : '0%';
   const partner = selectedChild ? getPartner(selectedChild.partnerMonsterId) : null;
 
-  if (!childrenLoaded) {
+  if (childrenLoading) {
     return null;
+  }
+
+  if (childrenError) {
+    return (
+      <div className="mx-auto max-w-5xl px-4 pb-24 pt-6 sm:px-6">
+        <HeaderBar subtitle="キミと見つける、英語のちから！" />
+        <section className="panel px-6 py-10 text-center sm:px-10">
+          <h1 className="display-font text-3xl font-extrabold text-[#354172]">読み込みに失敗しました</h1>
+          <p className="mt-3 text-sm font-bold text-rose-700">{childrenError}</p>
+          <button type="button" onClick={refreshChildren} className="pill-button mt-7 px-7 py-4 text-base">
+            Retry
+          </button>
+        </section>
+      </div>
+    );
   }
 
   if (hasNoChildren) {

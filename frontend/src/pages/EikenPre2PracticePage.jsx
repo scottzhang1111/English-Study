@@ -3,9 +3,9 @@ import { motion } from 'framer-motion';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import HeaderBar from '../components/HeaderBar';
 import WrongQuestionCard from '../components/WrongQuestionCard';
+import { useChildren } from '../ChildrenContext';
 import {
   completeEikenPre2Attempt,
-  getChildren,
   getEikenPre2Set,
   getEikenPre2Sets,
   startEikenPre2Attempt,
@@ -38,7 +38,6 @@ export default function EikenPre2PracticePage() {
   const params = new URLSearchParams(location.search);
   const sourceAttemptId = params.get('source_attempt_id') || '';
 
-  const [children, setChildren] = useState([]);
   const [sets, setSets] = useState([]);
   const [selectedChildId, setSelectedChildId] = useState(localStorage.getItem(CHILD_STORAGE_KEY) || '');
   const [selectedSetId, setSelectedSetId] = useState('');
@@ -54,6 +53,7 @@ export default function EikenPre2PracticePage() {
   const [questionSetLoading, setQuestionSetLoading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState(null);
+  const { children, childrenLoading, childrenError } = useChildren();
 
   const questions = useMemo(() => flattenQuestions(questionSet, activeQuestionIds), [questionSet, activeQuestionIds]);
   const currentQuestion = questions[currentIndex] || null;
@@ -62,19 +62,23 @@ export default function EikenPre2PracticePage() {
   const selectedChild = children.find((child) => String(child.id) === String(selectedChildId));
 
   useEffect(() => {
+    if (childrenLoading) return undefined;
     let active = true;
-    Promise.all([getChildren(), getEikenPre2Sets()])
-      .then(([childrenPayload, setsPayload]) => {
+    if (childrenError) {
+      setError(childrenError);
+      setLoading(false);
+      return undefined;
+    }
+    getEikenPre2Sets()
+      .then((setsPayload) => {
         if (!active) return;
-        const childList = childrenPayload.children || [];
         const setList = setsPayload.sets || [];
-        setChildren(childList);
         setSets(setList);
         const stored = localStorage.getItem(CHILD_STORAGE_KEY);
-        const childId = stored && childList.some((child) => String(child.id) === stored)
+        const childId = stored && children.some((child) => String(child.id) === stored)
           ? stored
-          : childList[0]?.id
-            ? String(childList[0].id)
+          : children[0]?.id
+            ? String(children[0].id)
             : '';
         setSelectedChildId(childId);
         setSelectedSetId(setList[0]?.set_id || '');
@@ -84,7 +88,7 @@ export default function EikenPre2PracticePage() {
     return () => {
       active = false;
     };
-  }, []);
+  }, [children, childrenError, childrenLoading]);
 
   useEffect(() => {
     if (!selectedChildId) return;

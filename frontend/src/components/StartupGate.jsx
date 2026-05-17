@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { Navigate } from 'react-router-dom';
 import HomePage from '../pages/HomePage';
 import ChildSelectPage from '../pages/ChildSelectPage';
-import { getChildren } from '../api';
+import { useChildren } from '../ChildrenContext';
 
 const CHILD_STORAGE_KEY = 'selected_child_id';
 
@@ -16,29 +16,29 @@ function clearSelectedChildId() {
 }
 
 export default function StartupGate() {
-  const [children, setChildren] = useState(null);
+  const { children, childrenLoading, childrenError, refreshChildren } = useChildren();
   const [selectedChildId, setSelectedChildId] = useState(localStorage.getItem(CHILD_STORAGE_KEY) || '');
 
   useEffect(() => {
-    let cancelled = false;
-    getChildren()
-      .then((payload) => {
-        if (cancelled) return;
-        const childList = payload.children || [];
-        setChildren(childList);
-        if (selectedChildId && !childList.some((child) => String(child.id) === String(selectedChildId))) {
-          clearSelectedChildId();
-          setSelectedChildId('');
-        }
-      })
-      .catch(() => setChildren([]));
-    return () => {
-      cancelled = true;
-    };
-  }, [selectedChildId]);
+    if (!childrenLoading && selectedChildId && !children.some((child) => String(child.id) === String(selectedChildId))) {
+      clearSelectedChildId();
+      setSelectedChildId('');
+    }
+  }, [children, childrenLoading, selectedChildId]);
 
-  if (children === null) {
+  if (childrenLoading) {
     return <div className="mx-auto max-w-5xl px-4 py-8 text-center text-sm font-bold text-[#6f7da8]">Loading...</div>;
+  }
+
+  if (childrenError) {
+    return (
+      <div className="mx-auto max-w-5xl px-4 py-8 text-center text-sm font-bold text-rose-700">
+        <p>{childrenError}</p>
+        <button type="button" onClick={refreshChildren} className="pill-button mt-4 px-5 py-3 text-sm">
+          Retry
+        </button>
+      </div>
+    );
   }
 
   if (children.length === 0) {
@@ -59,39 +59,30 @@ export default function StartupGate() {
 }
 
 export function RequireCurrentChild({ children }) {
-  const [allowed, setAllowed] = useState(null);
+  const { children: childList, childrenLoading, childrenError, refreshChildren } = useChildren();
+  const selectedChildId = localStorage.getItem(CHILD_STORAGE_KEY) || '';
+  const selectedExists = childList.some((child) => String(child.id) === String(selectedChildId));
 
   useEffect(() => {
-    let cancelled = false;
-    const selectedChildId = localStorage.getItem(CHILD_STORAGE_KEY) || '';
-    if (!selectedChildId) {
+    if (!childrenLoading && (!selectedChildId || !selectedExists)) {
       clearSelectedChildId();
-      setAllowed(false);
-      return undefined;
     }
+  }, [childrenLoading, selectedChildId, selectedExists]);
 
-    getChildren()
-      .then((payload) => {
-        if (cancelled) return;
-        const childList = payload.children || [];
-        const selectedExists = childList.some((child) => String(child.id) === String(selectedChildId));
-        if (!selectedExists) {
-          clearSelectedChildId();
-        }
-        setAllowed(childList.length > 0 && selectedExists);
-      })
-      .catch(() => {
-        if (!cancelled) setAllowed(false);
-      });
-
-    return () => {
-      cancelled = true;
-    };
-  }, []);
-
-  if (allowed === null) {
+  if (childrenLoading) {
     return <div className="mx-auto max-w-5xl px-4 py-8 text-center text-sm font-bold text-[#6f7da8]">Loading...</div>;
   }
 
-  return allowed ? children : <Navigate replace to="/settings/children" />;
+  if (childrenError) {
+    return (
+      <div className="mx-auto max-w-5xl px-4 py-8 text-center text-sm font-bold text-rose-700">
+        <p>{childrenError}</p>
+        <button type="button" onClick={refreshChildren} className="pill-button mt-4 px-5 py-3 text-sm">
+          Retry
+        </button>
+      </div>
+    );
+  }
+
+  return childList.length > 0 && selectedExists ? children : <Navigate replace to="/settings/children" />;
 }

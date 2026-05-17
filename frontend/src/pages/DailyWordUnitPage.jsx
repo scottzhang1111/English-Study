@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { addPetExp, getChildren, getDailyWords, getHomeData, markMastered, submitPracticeAnswer } from '../api';
+import { addPetExp, getDailyWords, getHomeData, markMastered, submitPracticeAnswer } from '../api';
+import { useChildren } from '../ChildrenContext';
 import { getPartner } from '../utils/childStorage';
 
 const DEFAULT_DAILY_WORD_TARGET = 20;
@@ -138,17 +139,20 @@ export default function DailyWordUnitPage() {
   const [partnerExp, setPartnerExp] = useState(0);
   const [dailyTarget, setDailyTarget] = useState(DEFAULT_DAILY_WORD_TARGET);
   const [error, setError] = useState('');
+  const { children, childrenLoading, childrenError } = useChildren();
 
   useEffect(() => {
+    if (childrenLoading) return undefined;
     if (!selectedChildId) {
       navigate('/select-child', { replace: true });
       return;
     }
 
     let cancelled = false;
-    getChildren()
-      .then((payload) => {
-        const selected = (payload.children || []).find((item) => String(item.id) === String(selectedChildId));
+    Promise.resolve()
+      .then(() => {
+        if (childrenError) throw new Error(childrenError);
+        const selected = children.find((item) => String(item.id) === String(selectedChildId));
         if (!selected) {
           navigate('/select-child', { replace: true });
           return null;
@@ -177,7 +181,7 @@ export default function DailyWordUnitPage() {
     return () => {
       cancelled = true;
     };
-  }, [navigate, selectedChildId]);
+  }, [children, childrenError, childrenLoading, navigate, selectedChildId]);
 
   const todayWords = useMemo(() => getUnitWords(allWords, unitIndex, dailyTarget), [allWords, unitIndex, dailyTarget]);
   const currentWord = todayWords[studyIndex] || null;

@@ -6,6 +6,7 @@ import os
 import random
 import re
 import sqlite3
+import time
 import urllib.error
 import urllib.parse
 import urllib.request
@@ -27,6 +28,7 @@ except ImportError:
         return None
 
 app = Flask(__name__)
+_DB_INITIALIZED = False
 
 DB_FILENAME = 'practice_data.db'
 VOCAB_FILENAME = os.path.join('data', 'eiken', 'eiken_pre2', 'eiken_pre2_web_ready_db', 'eiken_vocab_database_with_synonyms_utf8_bom.csv')
@@ -1474,7 +1476,12 @@ def ensure_eiken_pre2_bank_runtime_columns(conn):
     conn.commit()
 
 
-def init_db():
+def init_db(force=False):
+    global _DB_INITIALIZED
+    if _DB_INITIALIZED and not force:
+        return
+
+    started_at = time.perf_counter()
     conn = get_db_connection()
     try:
         conn.execute(
@@ -2006,6 +2013,10 @@ def init_db():
         migrate_vocabulary_ids(conn)
         migrate_child_vocab_progress(conn)
         conn.commit()
+        _DB_INITIALIZED = True
+        elapsed_ms = int((time.perf_counter() - started_at) * 1000)
+        if elapsed_ms > 500:
+            app.logger.info('init_db completed in %sms', elapsed_ms)
     finally:
         conn.close()
 
@@ -7388,14 +7399,18 @@ def api_learned_words():
 
 @app.route('/api/children', methods=['GET', 'POST'])
 def api_children():
+    started_at = time.perf_counter()
     if request.method == 'POST':
         data = request.get_json(silent=True) or {}
         try:
             child = upsert_child_profile(data)
         except ValueError as exc:
             abort(400, str(exc))
+        app.logger.info('/api/children POST completed in %sms', int((time.perf_counter() - started_at) * 1000))
         return jsonify(child=child)
-    return jsonify(children=get_children_list())
+    children = get_children_list()
+    app.logger.info('/api/children GET completed in %sms count=%s', int((time.perf_counter() - started_at) * 1000), len(children))
+    return jsonify(children=children)
 
 
 @app.route('/api/children/<int:child_id>', methods=['DELETE'])
