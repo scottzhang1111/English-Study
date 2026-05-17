@@ -45,15 +45,15 @@ export default function BottomNav() {
   ];
 
   return (
-    <nav className="bottom-nav fixed bottom-[max(0.75rem,env(safe-area-inset-bottom))] left-1/2 z-20 flex w-[calc(100%-1rem)] max-w-md -translate-x-1/2 items-stretch justify-between gap-1 rounded-[28px] border border-white/70 bg-white/92 px-2 py-2 shadow-[0_14px_34px_rgba(129,164,199,0.20)] backdrop-blur sm:w-auto">
+    <nav className="bottom-nav fixed bottom-[max(0.75rem,env(safe-area-inset-bottom))] left-1/2 z-20 flex w-[calc(100%-1rem)] max-w-md -translate-x-1/2 items-stretch justify-between gap-1 rounded-[28px] border border-white/70 bg-white/92 px-2 py-2 shadow-[0_14px_34px_rgba(129,164,199,0.20)] backdrop-blur max-md:bottom-[max(0.5rem,env(safe-area-inset-bottom))] max-md:left-4 max-md:right-4 max-md:min-h-[68px] max-md:w-auto max-md:max-w-none max-md:translate-x-0 max-md:rounded-[22px] max-md:px-1.5 max-md:py-1 sm:w-auto">
       {items.map((item) => (
         <NavLink
           key={item.path}
           to={item.path}
           className={({ isActive }) =>
-            `flex min-w-0 flex-1 flex-col items-center justify-center rounded-[22px] px-2 py-3 text-center transition-all duration-200 hover:-translate-y-0.5 hover:bg-[#f5fbff] active:translate-y-0 active:scale-[0.99] ${
+            `flex min-w-0 flex-1 flex-col items-center justify-center rounded-[22px] px-2 py-3 text-center transition-all duration-200 hover:-translate-y-0.5 hover:bg-[#f5fbff] active:translate-y-0 active:scale-[0.99] max-md:min-h-[58px] max-md:rounded-[16px] max-md:px-1 max-md:py-1 ${
               isActive
-                ? 'translate-y-[-3px] bg-[linear-gradient(180deg,#fffdf0_0%,#ffe984_55%,#ffd84f_100%)] text-[#5f4a00] shadow-[0_14px_26px_rgba(255,191,31,0.30),inset_0_0_0_1px_rgba(255,255,255,0.72)]'
+                ? 'translate-y-[-3px] bg-[linear-gradient(180deg,#fffdf0_0%,#ffe984_55%,#ffd84f_100%)] text-[#5f4a00] shadow-[0_14px_26px_rgba(255,191,31,0.30),inset_0_0_0_1px_rgba(255,255,255,0.72)] max-md:translate-y-0 max-md:shadow-[0_8px_16px_rgba(255,191,31,0.20),inset_0_0_0_1px_rgba(255,255,255,0.72)]'
                 : 'text-[#7581a7]'
             }`
           }
@@ -62,7 +62,7 @@ export default function BottomNav() {
           {({ isActive }) => (
             <>
               <span
-                className={`flex h-10 w-10 items-center justify-center rounded-[14px] transition-all duration-200 ${
+                className={`flex h-10 w-10 items-center justify-center rounded-[14px] transition-all duration-200 max-md:h-8 max-md:w-8 max-md:rounded-[11px] ${
                   isActive ? 'bg-white/96 shadow-[0_10px_18px_rgba(255,255,255,0.72)]' : 'bg-[#f2f7ff]'
                 }`}
               >
@@ -70,7 +70,7 @@ export default function BottomNav() {
                   <NavIcon name={item.icon} active={isActive} />
                 </span>
               </span>
-              <span className={`mt-1 text-[12px] font-bold leading-none ${isActive ? 'font-black' : ''}`}>
+              <span className={`mt-1 text-[12px] font-bold leading-none max-md:text-[10px] ${isActive ? 'font-black' : ''}`}>
                 {item.label}
               </span>
             </>

@@ -197,21 +197,21 @@ export default function HomePage() {
   }
 
   return (
-    <div className="mx-auto max-w-7xl overflow-x-hidden px-3 pb-28 pt-2 sm:px-6 md:pb-10">
+    <div className="mx-auto max-w-7xl overflow-x-hidden px-3 pb-28 pt-2 max-md:pb-36 sm:px-6 md:pb-10">
       <HeaderBar subtitle="キミと見つける、英語のちから！" />
 
         <motion.section
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          className="panel hero-panel relative overflow-hidden px-4 py-4 shadow-[0_18px_42px_rgba(112,158,203,0.14)] md:px-6 md:py-5"
+          className="panel hero-panel relative overflow-hidden px-4 py-4 shadow-[0_18px_42px_rgba(112,158,203,0.14)] max-md:px-3 max-md:py-3 md:px-6 md:py-5"
         >
-          <div className="grid items-start gap-5 xl:grid-cols-[minmax(0,1.28fr)_minmax(300px,0.72fr)]">
-            <div className="space-y-4">
-              <div className="inline-flex rounded-full bg-white/75 px-4 py-2 text-sm font-bold text-[#566a90]">
+          <div className="grid items-start gap-5 max-md:gap-3 xl:grid-cols-[minmax(0,1.28fr)_minmax(300px,0.72fr)]">
+            <div className="space-y-4 max-md:space-y-3">
+              <div className="inline-flex rounded-full bg-white/75 px-4 py-2 text-sm font-bold text-[#566a90] max-md:px-3 max-md:py-1.5 max-md:text-xs">
                 今日の学習
               </div>
 
-              <div className="rounded-[24px] bg-white/80 p-4 shadow-[0_10px_24px_rgba(145,177,209,0.08)]">
+              <div className="rounded-[24px] bg-white/80 p-4 shadow-[0_10px_24px_rgba(145,177,209,0.08)] max-md:p-3">
                 <div className="flex flex-wrap items-center gap-2">
                   <p className="text-lg font-extrabold text-[#354172]">
                     {selectedChild.name} さん
@@ -233,16 +233,16 @@ export default function HomePage() {
                 {partner && <p className="mt-2 text-xs font-bold text-[#6f7da8]">パートナー：{partner.name} Lv.1</p>}
               </div>
 
-              <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_300px] xl:items-start">
+              <div className="grid gap-4 max-md:gap-3 xl:grid-cols-[minmax(0,1fr)_300px] xl:items-start">
                 <div className="min-w-0">
-                  <h1 className="display-font mb-3 text-2xl font-extrabold text-[#354172] md:text-3xl">
+                  <h1 className="display-font mb-3 text-2xl font-extrabold text-[#354172] max-md:mb-2 max-md:text-xl md:text-3xl">
                     {dailyTitle}
                   </h1>
-                  <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+                  <div className="flex flex-col gap-3 max-md:gap-2 sm:flex-row sm:items-center">
                   <button
                     type="button"
                     onClick={() => navigate('/daily-words')}
-                    className="pill-button w-full px-5 py-4 text-lg font-black text-[#4f3900] shadow-[0_8px_0_rgba(170,120,0,0.92),0_14px_24px_rgba(255,191,31,0.24)] transition-all duration-200 active:translate-y-0 active:scale-[0.98] sm:w-auto md:px-8 md:text-[2rem] md:shadow-[0_12px_0_rgba(170,120,0,0.92),0_18px_30px_rgba(255,191,31,0.30)] md:hover:-translate-y-0.5 md:hover:brightness-105"
+                    className="pill-button w-full px-5 py-4 text-lg font-black text-[#4f3900] shadow-[0_8px_0_rgba(170,120,0,0.92),0_14px_24px_rgba(255,191,31,0.24)] transition-all duration-200 active:translate-y-0 active:scale-[0.98] max-md:h-14 max-md:py-3 max-md:text-base sm:w-auto md:px-8 md:text-[2rem] md:shadow-[0_12px_0_rgba(170,120,0,0.92),0_18px_30px_rgba(255,191,31,0.30)] md:hover:-translate-y-0.5 md:hover:brightness-105"
                   >
                     {dailyButtonText}
                   </button>
@@ -250,13 +250,13 @@ export default function HomePage() {
                     <button
                       type="button"
                       onClick={() => navigate('/petroom')}
-                      className="w-full rounded-full border border-[#d9e8f8] bg-white/90 px-6 py-3 text-sm font-black text-[#435987] shadow-[0_10px_22px_rgba(103,148,191,0.10)] transition hover:-translate-y-0.5 hover:bg-[#f8fcff] sm:w-auto"
+                      className="w-full rounded-full border border-[#d9e8f8] bg-white/90 px-6 py-3 text-sm font-black text-[#435987] shadow-[0_10px_22px_rgba(103,148,191,0.10)] transition hover:-translate-y-0.5 hover:bg-[#f8fcff] max-md:h-10 max-md:px-4 max-md:py-2 max-md:text-xs sm:w-auto"
                     >
                       ペットを見る
                     </button>
                   )}
                   </div>
-                  <p className="mt-3 text-[0.98rem] leading-6 text-[#44556f] sm:text-base">
+                  <p className="mt-3 text-[0.98rem] leading-6 text-[#44556f] max-md:mt-2 max-md:text-sm max-md:leading-5 sm:text-base">
                     {dailyMessage}
                   </p>
                   {isDailyOverComplete && (
@@ -264,16 +264,16 @@ export default function HomePage() {
                   )}
                 </div>
 
-                <div className="grid grid-cols-3 gap-2">
-                  <div className="rounded-[18px] bg-white/78 px-2 py-2 text-center shadow-[0_10px_20px_rgba(145,177,209,0.08)] md:px-3 md:py-3">
+                <div className="grid grid-cols-3 gap-2 max-md:gap-1.5">
+                  <div className="rounded-[18px] bg-white/78 px-2 py-2 text-center shadow-[0_10px_20px_rgba(145,177,209,0.08)] max-md:rounded-2xl max-md:py-1.5 md:px-3 md:py-3">
                     <div className="text-lg font-bold text-[#354172] md:text-2xl">{data?.total_words ?? '-'}</div>
                     <div className="text-xs font-semibold text-[#5c6d92]">総単語数</div>
                   </div>
-                  <div className="rounded-[18px] bg-white/78 px-2 py-2 text-center shadow-[0_10px_20px_rgba(145,177,209,0.08)] md:px-3 md:py-3">
+                  <div className="rounded-[18px] bg-white/78 px-2 py-2 text-center shadow-[0_10px_20px_rgba(145,177,209,0.08)] max-md:rounded-2xl max-md:py-1.5 md:px-3 md:py-3">
                     <div className="text-lg font-bold text-[#354172] md:text-2xl">{data?.mastered_words ?? '-'}</div>
                     <div className="text-xs font-semibold text-[#5c6d92]">習得単語</div>
                   </div>
-                  <div className="rounded-[18px] bg-white/78 px-2 py-2 text-center shadow-[0_10px_20px_rgba(145,177,209,0.08)] md:px-3 md:py-3">
+                  <div className="rounded-[18px] bg-white/78 px-2 py-2 text-center shadow-[0_10px_20px_rgba(145,177,209,0.08)] max-md:rounded-2xl max-md:py-1.5 md:px-3 md:py-3">
                     <div className="text-lg font-bold text-[#354172] md:text-2xl">{data?.study_days ?? '-'}</div>
                     <div className="text-xs font-semibold text-[#5c6d92]">学習日数</div>
                   </div>
@@ -281,23 +281,44 @@ export default function HomePage() {
               </div>
 
               {data && (
-                <div className="rounded-[24px] bg-white/80 p-4 shadow-[0_10px_24px_rgba(145,177,209,0.08)]">
-                  <div className="flex items-center justify-between gap-4 text-sm font-bold text-[#5e7093]">
+                <div className="rounded-[24px] bg-white/80 p-4 shadow-[0_10px_24px_rgba(145,177,209,0.08)] max-md:p-3">
+                  <div className="flex items-center justify-between gap-4 text-sm font-bold text-[#5e7093] max-md:text-xs">
                     <span>今日の進み具合</span>
                     <span>{dailyStatusText}</span>
                   </div>
-                  <div className="mt-3 h-3.5 overflow-hidden rounded-full bg-[#edf1f7] shadow-[inset_0_1px_3px_rgba(96,110,140,0.10)]">
+                  <div className="mt-3 h-3.5 overflow-hidden rounded-full bg-[#edf1f7] shadow-[inset_0_1px_3px_rgba(96,110,140,0.10)] max-md:mt-2 max-md:h-2.5">
                     <div
                       className="h-full rounded-full bg-[linear-gradient(90deg,#ffe65a,#ffb81f)] shadow-[0_0_12px_rgba(255,183,31,0.3)] transition-all duration-300"
                       style={{ width: progressWidth }}
                     />
                   </div>
-                  <p className="mt-2.5 text-sm font-semibold text-[#4f627f]">
+                  <p className="mt-2.5 text-sm font-semibold text-[#4f627f] max-md:mt-2 max-md:text-xs">
                     {dailyDetailText}
                   </p>
                   {isDailyOverComplete && (
                     <p className="mt-1.5 text-xs font-black text-[#b07a00]">目標クリア</p>
                   )}
+                </div>
+              )}
+
+              {data?.pet && (
+                <div className="flex items-center gap-3 rounded-[22px] border border-white/80 bg-white/82 p-3 shadow-[0_10px_24px_rgba(145,177,209,0.10)] md:hidden">
+                  <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-[#f8fcff]">
+                    {(data.pet.image_url || data.pet.sprite_url || data.pet.imageUrl) ? (
+                      <img
+                        src={data.pet.image_url || data.pet.sprite_url || data.pet.imageUrl}
+                        alt={data.pet.name || 'ペット'}
+                        className="h-14 w-14 object-contain"
+                        loading="lazy"
+                      />
+                    ) : (
+                      <span className="text-lg font-black text-[#354172]">P</span>
+                    )}
+                  </div>
+                  <div className="min-w-0">
+                    <p className="truncate text-sm font-black text-[#354172]">{data.pet.name || 'ペット'}</p>
+                    <p className="mt-1 line-clamp-2 text-xs font-bold leading-5 text-[#60709d]">{petBubbleText}</p>
+                  </div>
                 </div>
               )}
 
@@ -337,7 +358,7 @@ export default function HomePage() {
               )}
             </div>
 
-            <div className="relative mx-auto flex w-full max-w-[260px] justify-center md:max-w-[300px] xl:max-w-[340px] xl:pt-1">
+            <div className="relative mx-auto hidden w-full max-w-[260px] justify-center md:flex md:max-w-[300px] xl:max-w-[340px] xl:pt-1">
               <PetDisplay
                 pet={data?.pet}
                 className="relative z-10 w-full"
@@ -349,8 +370,8 @@ export default function HomePage() {
           </div>
         </motion.section>
 
-      <section className="mt-5">
-        <div className="relative overflow-hidden rounded-[26px] border border-white/90 bg-[linear-gradient(180deg,rgba(233,247,255,0.98)_0%,rgba(242,250,255,0.92)_100%)] px-4 py-5 shadow-[0_18px_46px_rgba(145,177,209,0.16)] md:rounded-[30px] md:px-7 md:py-8">
+      <section className="mt-5 max-md:mt-3">
+        <div className="relative overflow-hidden rounded-[26px] border border-white/90 bg-[linear-gradient(180deg,rgba(233,247,255,0.98)_0%,rgba(242,250,255,0.92)_100%)] px-4 py-5 shadow-[0_18px_46px_rgba(145,177,209,0.16)] max-md:px-3 max-md:py-4 md:rounded-[30px] md:px-7 md:py-8">
           <div className="pointer-events-none absolute inset-x-6 top-0 h-px bg-white/90" />
           <div className="pointer-events-none absolute -right-4 bottom-6 text-4xl text-white/55">✦</div>
 
@@ -359,23 +380,23 @@ export default function HomePage() {
             <h2 className="display-font mt-1 text-2xl font-extrabold text-[#1f315f]">学習メニュー</h2>
           </div>
 
-          <div className="mt-5 grid grid-cols-2 gap-3 md:mt-8 md:grid-cols-3 md:gap-4">
+          <div className="mt-5 grid grid-cols-2 gap-3 max-md:mt-4 max-md:gap-2.5 md:mt-8 md:grid-cols-3 md:gap-4">
             {dailyTrainingItems.map((item, index) => (
               <Link
                 key={item.to}
                 to={item.to}
-              className={`group flex min-h-[132px] flex-col items-start gap-2.5 rounded-2xl border border-white/90 bg-white/78 p-3.5 text-[#1f315f] shadow-[0_12px_30px_rgba(145,177,209,0.10)] transition-all duration-200 active:scale-[0.98] md:min-h-[118px] md:rounded-3xl md:p-4 md:hover:-translate-y-1 md:hover:bg-white/92 md:hover:shadow-lg ${
+              className={`group flex min-h-[132px] flex-col items-start gap-2.5 rounded-2xl border border-white/90 bg-white/78 p-3.5 text-[#1f315f] shadow-[0_12px_30px_rgba(145,177,209,0.10)] transition-all duration-200 active:scale-[0.98] max-md:min-h-[108px] max-md:gap-2 max-md:p-3 md:min-h-[118px] md:rounded-3xl md:p-4 md:hover:-translate-y-1 md:hover:bg-white/92 md:hover:shadow-lg ${
                   index === 6 ? 'col-span-2 md:col-span-1' : ''
                 }`}
               >
-                <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-[15px] border border-[#dfeefa] bg-[#f8fcff] text-xl font-black shadow-[inset_0_0_0_1px_rgba(132,173,222,0.10)] md:h-14 md:w-14 md:rounded-[20px] md:text-2xl">
+                <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-[15px] border border-[#dfeefa] bg-[#f8fcff] text-xl font-black shadow-[inset_0_0_0_1px_rgba(132,173,222,0.10)] max-md:h-10 max-md:w-10 max-md:rounded-[13px] max-md:text-lg md:h-14 md:w-14 md:rounded-[20px] md:text-2xl">
                   {MENU_ICONS[index] || item.icon}
                 </span>
                 <span className="min-w-0 flex-1">
-                  <span className="display-font block text-sm font-extrabold leading-snug md:text-base">{item.label}</span>
-                  <span className="mt-1.5 block text-[12px] font-bold leading-5 text-[#536685] md:text-sm">{item.subtitle}</span>
+                  <span className="display-font block text-sm font-extrabold leading-snug max-md:text-[15px] md:text-base">{item.label}</span>
+                  <span className="mt-1.5 block text-[12px] font-bold leading-5 text-[#536685] max-md:mt-1 max-md:leading-4 md:text-sm">{item.subtitle}</span>
                 </span>
-                <span className="mt-auto shrink-0 rounded-full bg-[#eef8ff] px-2.5 py-1 text-[11px] font-black text-[#3b4864] md:text-xs">
+                <span className="mt-auto shrink-0 rounded-full bg-[#eef8ff] px-2.5 py-1 text-[11px] font-black text-[#3b4864] max-md:px-2 max-md:py-0.5 max-md:text-[10px] md:text-xs">
                   {item.status}
                 </span>
               </Link>
