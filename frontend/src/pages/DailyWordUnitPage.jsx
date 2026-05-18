@@ -321,7 +321,7 @@ export default function DailyWordUnitPage() {
               PT
             </div>
             <div className="min-w-0">
-              <p className="text-[11px] font-black uppercase tracking-[0.28em] text-[#8b9cc4]">Poke-Tan</p>
+              <p className="text-[11px] font-black uppercase tracking-[0.28em] text-[#8b9cc4]">英楽語</p>
               <h1 className="display-font mt-1 text-3xl font-black leading-tight text-[#31406f] sm:text-4xl">今日の単語ユニット</h1>
               <p className="mt-1 text-sm font-bold text-[#51658a]">いっしょに英単語を覚えよう</p>
             </div>

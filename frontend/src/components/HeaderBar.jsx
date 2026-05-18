@@ -19,17 +19,17 @@ export default function HeaderBar({ subtitle }) {
       <div className="relative flex max-w-full items-center gap-2 overflow-hidden rounded-[20px] bg-[linear-gradient(135deg,#fffef8_0%,#eef7ff_52%,#f8fbff_100%)] p-2.5 shadow-[inset_0_0_0_1px_rgba(255,255,255,0.72)] md:justify-between md:gap-4 md:rounded-[34px] md:p-6 lg:px-7 lg:py-5">
         <div className="flex min-w-0 flex-1 items-center gap-2.5 sm:gap-4">
           <div className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-[16px] bg-white text-sm font-black text-[#5d4700] shadow-[0_12px_22px_rgba(255,193,31,0.24),inset_0_-8px_12px_rgba(255,255,255,0.38)] md:h-20 md:w-20 md:rounded-[24px] md:text-[1.55rem]">
-            <img src="/assets/homepage-icon.png" alt="Poke-Tan" className="h-full w-full object-cover" />
+            <img src="/assets/homepage-icon.png" alt="英楽語" className="h-full w-full object-cover" />
           </div>
           <div className="min-w-0 flex-1">
             <p className="truncate text-[9px] font-black uppercase tracking-[0.16em] text-[#8b9cc4] md:text-[11px] md:tracking-[0.3em]">
-              ポケ単・Poke-Tan
+              英楽語
             </p>
             <h1 className="display-font mt-0.5 truncate text-base font-black leading-tight text-[#31406f] md:mt-1 md:text-2xl lg:text-[2.25rem] lg:leading-tight">
               {subtitle}
             </h1>
             <p className="mt-1.5 hidden max-w-[52rem] text-[0.92rem] font-medium leading-6 text-[#51658a] md:block md:text-[0.98rem]">
-              いっしょに集めよう！英語の宝物。
+              学ぶほど、仲間がふえる。
             </p>
           </div>
         </div>

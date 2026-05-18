@@ -168,7 +168,7 @@ export default function HomePage() {
   if (childrenError) {
     return (
       <div className="mx-auto max-w-5xl px-4 pb-24 pt-6 sm:px-6">
-        <HeaderBar subtitle="キミと見つける、英語のちから！" />
+        <HeaderBar subtitle="英語を楽しく、毎日の習慣に。" />
         <section className="panel px-6 py-10 text-center sm:px-10">
           <h1 className="display-font text-3xl font-extrabold text-[#354172]">読み込みに失敗しました</h1>
           <p className="mt-3 text-sm font-bold text-rose-700">{childrenError}</p>
@@ -183,7 +183,7 @@ export default function HomePage() {
   if (hasNoChildren) {
     return (
       <div className="mx-auto max-w-5xl px-4 pb-24 pt-6 sm:px-6">
-        <HeaderBar subtitle="キミと見つける、英語のちから！" />
+        <HeaderBar subtitle="英語を楽しく、毎日の習慣に。" />
         <section className="panel px-6 py-10 text-center sm:px-10">
           <h1 className="display-font text-3xl font-extrabold text-[#354172]">子どもが登録されていません</h1>
           <p className="mt-3 text-sm font-bold text-[#6f7da8]">今日の学習を始めるには、子どもを追加してください。</p>
@@ -201,7 +201,7 @@ export default function HomePage() {
 
   return (
     <div className="mx-auto max-w-7xl overflow-x-hidden px-3 pb-28 pt-2 max-md:pb-36 sm:px-6 md:pb-10">
-      <HeaderBar subtitle="キミと見つける、英語のちから！" />
+      <HeaderBar subtitle="英語を楽しく、毎日の習慣に。" />
 
         <motion.section
           initial={{ opacity: 0, y: 10 }}
