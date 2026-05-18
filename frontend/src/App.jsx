@@ -85,6 +85,7 @@ function App() {
   const location = useLocation();
   const hideBottomNav = isStudyRoute(location.pathname);
   const hideBottomNavOnMobile = location.pathname === '/grammar';
+  const pageOwnsMobileStudyChrome = location.pathname === '/eiken-real';
 
   return (
     <LanguageProvider>
@@ -128,7 +129,7 @@ function App() {
             </Routes>
           </AnimatePresence>
           {hideBottomNav ? (
-            <StudyReturnControl />
+            pageOwnsMobileStudyChrome ? null : <StudyReturnControl />
           ) : hideBottomNavOnMobile ? (
             <div className="max-md:hidden">
               <BottomNav />

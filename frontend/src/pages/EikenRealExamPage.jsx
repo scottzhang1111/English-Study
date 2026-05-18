@@ -84,6 +84,7 @@ export default function EikenRealExamPage() {
   const [selectedExamId, setSelectedExamId] = useState('');
   const [mode, setMode] = useState('listening');
   const [selectedPartId, setSelectedPartId] = useState('');
+  const [practiceStarted, setPracticeStarted] = useState(false);
   const [currentQuestion, setCurrentQuestion] = useState(1);
   const [questionNumbers, setQuestionNumbers] = useState([]);
   const [expandedExplanations, setExpandedExplanations] = useState({});
@@ -149,6 +150,7 @@ export default function EikenRealExamPage() {
     setAnsweredCount(0);
     setAnswers({});
     setResult(null);
+    setPracticeStarted(false);
     setCurrentQuestion(1);
     setExpandedExplanations({});
     setStartedAt(new Date().toISOString());
@@ -271,6 +273,7 @@ export default function EikenRealExamPage() {
     setAnsweredCount(0);
     setAnswers({});
     setResult(null);
+    setPracticeStarted(false);
     setCurrentQuestion(1);
     setExpandedExplanations({});
   };
@@ -278,6 +281,11 @@ export default function EikenRealExamPage() {
   const goToQuestion = (questionNumber) => {
     setCurrentQuestion(questionNumber);
     contentRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  };
+
+  const startPractice = () => {
+    setPracticeStarted(true);
+    setCurrentQuestion(visibleQuestionNumbers[0] || 1);
   };
 
   const goToPreviousQuestion = () => {
@@ -340,8 +348,8 @@ export default function EikenRealExamPage() {
   const modeLabel = mode === 'listening' ? 'リスニング' : '筆記';
 
   return (
-    <div className="eiken-exam-page mx-auto max-w-[1440px] px-4 pb-32 pt-4 text-[#26376d] lg:px-6 lg:py-6">
-      <header className="mb-4 rounded-[24px] border border-white/80 bg-white/88 px-4 py-3 shadow-[0_14px_34px_rgba(129,164,199,0.14)] backdrop-blur lg:mb-6 lg:flex lg:min-h-[68px] lg:items-center lg:justify-between lg:px-5">
+    <div className={`eiken-exam-page mx-auto max-w-[1440px] px-4 pb-32 pt-4 text-[#26376d] lg:px-6 lg:py-6 ${practiceStarted && !result ? 'max-md:pb-36' : ''}`}>
+      <header className="mb-4 rounded-[24px] border border-white/80 bg-white/88 px-4 py-3 shadow-[0_14px_34px_rgba(129,164,199,0.14)] backdrop-blur lg:mb-6 lg:flex lg:min-h-[68px] lg:items-center lg:justify-between lg:px-5 max-md:hidden">
         <Link to="/app" className="text-sm font-bold text-[#52668c] transition hover:text-[#26376d]">
           ← ホームに戻る
         </Link>
@@ -358,6 +366,21 @@ export default function EikenRealExamPage() {
 
       {error && <div className="mb-4 rounded-[18px] bg-rose-50 p-4 text-sm font-bold text-rose-700">{error}</div>}
 
+      {(practiceStarted || result) && (
+        <div className="sticky top-0 z-30 -mx-4 border-b border-[#dce9f6] bg-white/90 px-4 py-3 shadow-[0_10px_24px_rgba(129,164,199,0.12)] backdrop-blur md:hidden">
+          <div className="flex items-center justify-between gap-3">
+            <Link to="/app" className="shrink-0 text-sm font-bold text-[#52668c]">← ホーム</Link>
+            <div className="min-w-0 text-center">
+              <p className="truncate text-sm font-bold text-[#26376d]">{result ? '採点結果' : `英検準2級 ${modeLabel}`}</p>
+              <p className="text-xs font-bold text-[#7d8db5]">問 {currentQuestion} / {questionCount || visibleQuestionNumbers.length || '-'}</p>
+            </div>
+            <span className={`shrink-0 rounded-full px-3 py-1 text-xs font-bold ${currentAnswer ? 'bg-[#eaf7ff] text-[#2f6f9f]' : 'bg-[#f4f7fb] text-[#7d8db5]'}`}>
+              {currentStatus}
+            </span>
+          </div>
+        </div>
+      )}
+
       {loading || partLoading ? (
         <div className="mt-5 rounded-[24px] bg-white/80 p-8 text-center font-bold text-[#6f7da8]">問題を読み込み中...</div>
       ) : !partData ? (
@@ -368,7 +391,75 @@ export default function EikenRealExamPage() {
           animate={{ opacity: 1, y: 0 }}
           className="gap-6 lg:grid lg:grid-cols-[220px_minmax(0,1fr)_300px]"
         >
-          <aside className="eiken-exam-sidebar rounded-[24px] border border-white/80 bg-white/86 p-4 shadow-[0_14px_34px_rgba(129,164,199,0.13)] lg:sticky lg:top-6 lg:self-start">
+          {!practiceStarted && !result && (
+            <section className="rounded-[24px] border border-white/80 bg-white/90 p-4 shadow-[0_14px_34px_rgba(129,164,199,0.13)] md:hidden">
+              <Link to="/app" className="text-sm font-bold text-[#52668c]">← ホームに戻る</Link>
+              <div className="mt-3">
+                <p className="text-xs font-bold text-[#7d8db5]">英検準2級 / {examLabel}</p>
+                <h1 className="mt-1 text-2xl font-bold text-[#26376d]">英検練習</h1>
+              </div>
+
+              <div className="mt-4 grid grid-cols-2 gap-2 rounded-[16px] bg-[#eef7ff] p-1">
+                <button
+                  type="button"
+                  onClick={() => setMode('listening')}
+                  className={`rounded-[13px] px-2 py-2 text-sm font-bold transition ${mode === 'listening' ? 'bg-[#26376d] text-white shadow-sm' : 'text-[#52668c]'}`}
+                >
+                  リスニング
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setMode('written')}
+                  className={`rounded-[13px] px-2 py-2 text-sm font-bold transition ${mode === 'written' ? 'bg-[#26376d] text-white shadow-sm' : 'text-[#52668c]'}`}
+                >
+                  筆記
+                </button>
+              </div>
+
+              <div className="mt-4 grid gap-3">
+                <label className="block text-xs font-bold text-[#52668c]">
+                  年度・回
+                  <select
+                    value={selectedExamId}
+                    onChange={(event) => setSelectedExamId(event.target.value)}
+                    className="mt-1 w-full rounded-[14px] border border-[#d5e5f6] bg-white px-3 py-2 text-sm font-bold text-[#26376d]"
+                  >
+                    {exams.map((exam) => (
+                      <option key={exam.exam_id} value={exam.exam_id}>
+                        {exam.label}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+                <label className="block text-xs font-bold text-[#52668c]">
+                  Part
+                  <select
+                    value={selectedPartId}
+                    onChange={(event) => setSelectedPartId(event.target.value)}
+                    className="mt-1 w-full rounded-[14px] border border-[#d5e5f6] bg-white px-3 py-2 text-sm font-bold text-[#26376d]"
+                  >
+                    {parts.map((part) => (
+                      <option key={part.part_id} value={part.part_id}>
+                        {part.label}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+              </div>
+
+              <div className="mt-4 flex flex-wrap gap-2 text-xs font-bold text-[#5d70a1]">
+                <span className="rounded-full bg-[#eef8ff] px-3 py-2">問題 {questionCount || '-'}問</span>
+                <span className="rounded-full bg-[#fff7d6] px-3 py-2">回答 {answeredCount} / {questionCount || '-'}</span>
+                {audioSources.length > 0 && <span className="rounded-full bg-[#eaf9ee] px-3 py-2">音声あり</span>}
+              </div>
+
+              <button type="button" onClick={startPractice} className="mt-5 min-h-12 w-full rounded-full bg-[#ffe680] px-5 py-3 text-base font-bold text-[#26376d] shadow-sm">
+                この問題を始める
+              </button>
+            </section>
+          )}
+
+          <aside className="eiken-exam-sidebar rounded-[24px] border border-white/80 bg-white/86 p-4 shadow-[0_14px_34px_rgba(129,164,199,0.13)] lg:sticky lg:top-6 lg:self-start max-md:hidden">
             <div>
               <p className="text-xs font-bold text-[#7d8db5]">英検準2級</p>
               <h2 className="mt-1 text-lg font-bold leading-tight text-[#26376d]">{examLabel}</h2>
@@ -458,10 +549,25 @@ export default function EikenRealExamPage() {
             </button>
           </aside>
 
-          <main className="mt-4 min-w-0 lg:mt-0 lg:max-w-[900px]">
+          <main className={`mt-4 min-w-0 lg:mt-0 lg:max-w-[900px] ${!practiceStarted && !result ? 'max-md:hidden' : ''}`}>
+            {(practiceStarted || result) && (
+              <div className="sticky top-[57px] z-20 -mx-4 mb-3 flex gap-2 overflow-x-auto border-b border-[#dce9f6] bg-[#f8fcff]/95 px-4 py-3 backdrop-blur md:hidden">
+                {visibleQuestionNumbers.map((questionNumber) => (
+                  <button
+                    key={questionNumber}
+                    type="button"
+                    onClick={() => goToQuestion(questionNumber)}
+                    className={`${getQuestionChipClass(questionNumber)} shrink-0`}
+                    aria-current={questionNumber === currentQuestion ? 'true' : undefined}
+                  >
+                    {questionNumber}
+                  </button>
+                ))}
+              </div>
+            )}
             {!result ? (
               <section className="rounded-[28px] border border-white/80 bg-white/90 p-4 shadow-[0_18px_42px_rgba(129,164,199,0.14)] lg:p-6">
-                <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+                <div className="mb-4 flex flex-wrap items-center justify-between gap-3 max-md:hidden">
                   <div>
                     <p className="text-sm font-bold text-[#6f7da8]">{modeLabel}</p>
                     <h2 className="text-xl font-bold text-[#26376d] lg:text-2xl">問{currentQuestion} / {questionCount || visibleQuestionNumbers.length || '-'}</h2>
@@ -486,7 +592,7 @@ export default function EikenRealExamPage() {
 
                 <div ref={contentRef} className="eiken-real-content" dangerouslySetInnerHTML={{ __html: normalizedHtml }} />
 
-                <div className="mt-6 flex items-center justify-between gap-3">
+                <div className="mt-6 flex items-center justify-between gap-3 max-md:hidden">
                   <button type="button" onClick={goToPreviousQuestion} disabled={currentQuestion === visibleQuestionNumbers[0]} className="rounded-full bg-white px-5 py-3 text-sm font-bold text-[#52668c] shadow-sm ring-1 ring-[#dce9f6] transition hover:bg-[#f8fcff] disabled:opacity-45">
                     前へ
                   </button>
@@ -561,6 +667,39 @@ export default function EikenRealExamPage() {
               </section>
             )}
           </main>
+
+          {practiceStarted && !result && (
+            <div className="fixed bottom-0 left-0 right-0 z-40 border-t border-[#dce9f6] bg-white/88 px-4 py-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))] shadow-[0_-12px_28px_rgba(129,164,199,0.14)] backdrop-blur md:hidden">
+              <div className="mx-auto flex max-w-md items-center justify-between gap-3">
+                <button
+                  type="button"
+                  onClick={goToPreviousQuestion}
+                  disabled={currentQuestion === visibleQuestionNumbers[0]}
+                  className="min-h-12 flex-1 rounded-full bg-white px-4 py-3 text-sm font-bold text-[#52668c] shadow-sm ring-1 ring-[#dce9f6] disabled:opacity-45"
+                >
+                  前へ
+                </button>
+                {isLastQuestion ? (
+                  <button
+                    type="button"
+                    onClick={submitAnswers}
+                    disabled={submitting || answeredCount === 0}
+                    className="min-h-12 flex-1 rounded-full bg-[#26376d] px-4 py-3 text-sm font-bold text-white shadow-sm disabled:opacity-45"
+                  >
+                    {submitting ? '採点中...' : '採点する'}
+                  </button>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={goToNextQuestion}
+                    className="min-h-12 flex-1 rounded-full bg-[#ffe680] px-4 py-3 text-sm font-bold text-[#26376d] shadow-sm"
+                  >
+                    次へ
+                  </button>
+                )}
+              </div>
+            </div>
+          )}
 
           <aside className="hidden rounded-[24px] border border-white/80 bg-white/86 p-4 shadow-[0_14px_34px_rgba(129,164,199,0.13)] lg:sticky lg:top-6 lg:block lg:self-start">
             {!result ? (
