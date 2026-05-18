@@ -18,8 +18,8 @@ export default function HeaderBar({ subtitle }) {
     <header className="panel mb-3 max-w-full overflow-hidden px-1.5 py-1.5 md:px-6 md:py-3">
       <div className="relative flex max-w-full items-center gap-2 overflow-hidden rounded-[20px] bg-[linear-gradient(135deg,#fffef8_0%,#eef7ff_52%,#f8fbff_100%)] p-2.5 shadow-[inset_0_0_0_1px_rgba(255,255,255,0.72)] md:justify-between md:gap-4 md:rounded-[34px] md:p-6 lg:px-7 lg:py-5">
         <div className="flex min-w-0 flex-1 items-center gap-2.5 sm:gap-4">
-          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[16px] bg-[linear-gradient(180deg,#fff7be_0%,#ffd94d_100%)] text-sm font-black text-[#5d4700] shadow-[0_12px_22px_rgba(255,193,31,0.24),inset_0_-8px_12px_rgba(255,255,255,0.38)] md:h-20 md:w-20 md:rounded-[24px] md:text-[1.55rem]">
-            PT
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-[16px] bg-white text-sm font-black text-[#5d4700] shadow-[0_12px_22px_rgba(255,193,31,0.24),inset_0_-8px_12px_rgba(255,255,255,0.38)] md:h-20 md:w-20 md:rounded-[24px] md:text-[1.55rem]">
+            <img src="/assets/homepage-icon.png" alt="Poke-Tan" className="h-full w-full object-cover" />
           </div>
           <div className="min-w-0 flex-1">
             <p className="truncate text-[9px] font-black uppercase tracking-[0.16em] text-[#8b9cc4] md:text-[11px] md:tracking-[0.3em]">

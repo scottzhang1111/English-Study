@@ -156,6 +156,9 @@ export default function HomePage() {
   const progressWidth = data
     ? `${Math.min(100, (todayStudied / safeTodayTarget) * 100)}%`
     : '0%';
+  const grammarDailyDone = isGrammarComplete ? 1 : 0;
+  const grammarProgressWidth = `${grammarDailyDone * 100}%`;
+  const grammarLessonTitle = todayGrammarLesson?.title || '今日の文法';
   const partner = selectedChild ? getPartner(selectedChild.partnerMonsterId) : null;
 
   if (childrenLoading) {
@@ -233,7 +236,44 @@ export default function HomePage() {
                 {partner && <p className="mt-2 text-xs font-bold text-[#6f7da8]">パートナー：{partner.name} Lv.1</p>}
               </div>
 
-              <div className="grid gap-4 max-md:gap-3 xl:grid-cols-[minmax(0,1fr)_300px] xl:items-start">
+              <div className="grid gap-3 md:grid-cols-2">
+                <button
+                  type="button"
+                  onClick={() => navigate('/daily-words')}
+                  className="rounded-[24px] border border-[#f3d36a] bg-[linear-gradient(180deg,#fff6bd_0%,#ffd84f_100%)] p-4 text-left text-[#4f3900] shadow-[0_10px_0_rgba(170,120,0,0.78),0_16px_28px_rgba(255,191,31,0.22)] transition active:translate-y-0.5 active:shadow-[0_6px_0_rgba(170,120,0,0.78),0_10px_18px_rgba(255,191,31,0.18)] max-md:p-3"
+                >
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="min-w-0">
+                      <p className="display-font text-2xl font-black leading-tight max-md:text-xl">単語を学ぶ</p>
+                      <p className="mt-1 text-sm font-black text-[#6b5a2d]">今日 {safeTodayTarget}語</p>
+                    </div>
+                    <span className="rounded-full bg-white/82 px-3 py-1 text-xs font-black">{todayStudied} / {safeTodayTarget}</span>
+                  </div>
+                  <div className="mt-4 h-2.5 overflow-hidden rounded-full bg-white/70 max-md:mt-3">
+                    <div className="h-full rounded-full bg-[#ffb81f]" style={{ width: progressWidth }} />
+                  </div>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => navigate('/grammar')}
+                  className="rounded-[24px] border border-[#dcecff] bg-white/86 p-4 text-left text-[#354172] shadow-[0_12px_26px_rgba(145,177,209,0.12)] transition hover:-translate-y-0.5 hover:bg-[#f8fcff] active:translate-y-0 max-md:p-3"
+                >
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="min-w-0">
+                      <p className="display-font text-2xl font-black leading-tight max-md:text-xl">文法を学ぶ</p>
+                      <p className="mt-1 truncate text-sm font-black text-[#60709d]">{grammarLessonTitle}</p>
+                      <p className="mt-0.5 text-xs font-bold text-[#8fa0c2]">今日 1レッスン</p>
+                    </div>
+                    <span className="rounded-full bg-[#eef8ff] px-3 py-1 text-xs font-black text-[#51688f]">{grammarDailyDone} / 1</span>
+                  </div>
+                  <div className="mt-4 h-2.5 overflow-hidden rounded-full bg-[#edf1f7] max-md:mt-3">
+                    <div className="h-full rounded-full bg-[linear-gradient(90deg,#bdefff,#83d7ff)]" style={{ width: grammarProgressWidth }} />
+                  </div>
+                </button>
+              </div>
+
+              <div className="hidden grid gap-4 max-md:gap-3 xl:grid-cols-[minmax(0,1fr)_300px] xl:items-start">
                 <div className="min-w-0">
                   <h1 className="display-font mb-3 text-2xl font-extrabold text-[#354172] max-md:mb-2 max-md:text-xl md:text-3xl">
                     {dailyTitle}
@@ -281,25 +321,43 @@ export default function HomePage() {
               </div>
 
               {data && (
-                <div className="rounded-[24px] bg-white/80 p-4 shadow-[0_10px_24px_rgba(145,177,209,0.08)] max-md:p-3">
-                  <div className="flex items-center justify-between gap-4 text-sm font-bold text-[#5e7093] max-md:text-xs">
-                    <span>今日の進み具合</span>
-                    <span>{dailyStatusText}</span>
+                <div className="grid gap-3 md:grid-cols-2">
+                  <div className="rounded-[24px] bg-white/80 p-4 shadow-[0_10px_24px_rgba(145,177,209,0.08)] max-md:p-3">
+                    <div className="flex items-center justify-between gap-4 text-sm font-bold text-[#5e7093] max-md:text-xs">
+                      <span>今日の単語</span>
+                      <span>{todayStudied} / {safeTodayTarget}</span>
+                    </div>
+                    <div className="mt-3 h-3 overflow-hidden rounded-full bg-[#edf1f7] max-md:mt-2 max-md:h-2.5">
+                      <div className="h-full rounded-full bg-[linear-gradient(90deg,#ffe65a,#ffb81f)] transition-all duration-300" style={{ width: progressWidth }} />
+                    </div>
                   </div>
-                  <div className="mt-3 h-3.5 overflow-hidden rounded-full bg-[#edf1f7] shadow-[inset_0_1px_3px_rgba(96,110,140,0.10)] max-md:mt-2 max-md:h-2.5">
-                    <div
-                      className="h-full rounded-full bg-[linear-gradient(90deg,#ffe65a,#ffb81f)] shadow-[0_0_12px_rgba(255,183,31,0.3)] transition-all duration-300"
-                      style={{ width: progressWidth }}
-                    />
+
+                  <div className="rounded-[24px] bg-white/80 p-4 shadow-[0_10px_24px_rgba(145,177,209,0.08)] max-md:p-3">
+                    <div className="flex items-center justify-between gap-4 text-sm font-bold text-[#5e7093] max-md:text-xs">
+                      <span>今日の文法</span>
+                      <span>{grammarDailyDone} / 1</span>
+                    </div>
+                    <div className="mt-3 h-3 overflow-hidden rounded-full bg-[#edf1f7] max-md:mt-2 max-md:h-2.5">
+                      <div className="h-full rounded-full bg-[linear-gradient(90deg,#bdefff,#83d7ff)] transition-all duration-300" style={{ width: grammarProgressWidth }} />
+                    </div>
                   </div>
-                  <p className="mt-2.5 text-sm font-semibold text-[#4f627f] max-md:mt-2 max-md:text-xs">
-                    {dailyDetailText}
-                  </p>
-                  {isDailyOverComplete && (
-                    <p className="mt-1.5 text-xs font-black text-[#b07a00]">目標クリア</p>
-                  )}
                 </div>
               )}
+
+              <div className="grid grid-cols-3 gap-2 rounded-[22px] bg-white/54 p-2">
+                <div className="rounded-2xl bg-white/68 px-2 py-2 text-center">
+                  <div className="text-sm font-black text-[#354172] md:text-base">{data?.total_words ?? '-'}</div>
+                  <div className="text-[10px] font-bold text-[#6f7da8]">総単語数</div>
+                </div>
+                <div className="rounded-2xl bg-white/68 px-2 py-2 text-center">
+                  <div className="text-sm font-black text-[#354172] md:text-base">{data?.mastered_words ?? '-'}</div>
+                  <div className="text-[10px] font-bold text-[#6f7da8]">習得単語</div>
+                </div>
+                <div className="rounded-2xl bg-white/68 px-2 py-2 text-center">
+                  <div className="text-sm font-black text-[#354172] md:text-base">{data?.study_days ?? '-'}</div>
+                  <div className="text-[10px] font-bold text-[#6f7da8]">学習日数</div>
+                </div>
+              </div>
 
               {data?.pet && (
                 <div className="flex items-center gap-3 rounded-[22px] border border-white/80 bg-white/82 p-3 shadow-[0_10px_24px_rgba(145,177,209,0.10)] md:hidden">
@@ -322,7 +380,7 @@ export default function HomePage() {
                 </div>
               )}
 
-              {todayGrammarLesson && (
+              {false && todayGrammarLesson && (
                 <div className="rounded-[24px] border border-[#dcecff] bg-white/82 p-4 shadow-[0_10px_24px_rgba(145,177,209,0.08)]">
                   <div className="flex flex-wrap items-start justify-between gap-3">
                     <div className="min-w-0">

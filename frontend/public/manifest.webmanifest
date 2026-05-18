@@ -1,0 +1,15 @@
+{
+  "name": "Poke-Tan English Study",
+  "short_name": "Poke-Tan",
+  "icons": [
+    {
+      "src": "/assets/homepage-icon.png",
+      "sizes": "1254x1254",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "theme_color": "#eef7ff",
+  "background_color": "#eef7ff",
+  "display": "standalone"
+}
