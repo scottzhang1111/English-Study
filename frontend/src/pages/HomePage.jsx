@@ -209,32 +209,32 @@ export default function HomePage() {
           className="panel hero-panel relative overflow-hidden px-4 py-4 shadow-[0_18px_42px_rgba(112,158,203,0.14)] max-md:px-3 max-md:py-3 md:px-6 md:py-5"
         >
           <div className="grid items-start gap-5 max-md:gap-3 xl:grid-cols-[minmax(0,1.28fr)_minmax(300px,0.72fr)]">
-            <div className="space-y-4 max-md:space-y-3">
-              <div className="inline-flex rounded-full bg-white/75 px-4 py-2 text-sm font-bold text-[#566a90] max-md:px-3 max-md:py-1.5 max-md:text-xs">
+            <div className="space-y-4 max-md:space-y-4">
+              <div className="inline-flex rounded-full bg-white/75 px-4 py-2 text-sm font-bold text-[#566a90] max-md:px-3 max-md:py-1.5 max-md:text-sm">
                 今日の学習
               </div>
 
               <div className="rounded-[24px] bg-white/80 p-4 shadow-[0_10px_24px_rgba(145,177,209,0.08)] max-md:flex max-md:items-center max-md:justify-between max-md:gap-3 max-md:p-3">
                 <div className="min-w-0 flex-1">
                   <div className="flex flex-wrap items-center gap-2">
-                    <p className="text-lg font-extrabold text-[#354172]">
+                    <p className="truncate text-lg font-extrabold text-[#354172] max-md:text-2xl max-md:font-bold">
                       {selectedChild.name} さん
                     </p>
-                    <span className="rounded-full bg-white px-3 py-1 text-xs font-bold text-[#61759e]">
+                    <span className="rounded-full bg-white px-3 py-1 text-xs font-bold text-[#61759e] max-md:text-sm max-md:font-semibold">
                       学年：{selectedChild.grade}
                     </span>
-                    <span className="rounded-full bg-white px-3 py-1 text-xs font-bold text-[#61759e]">
+                    <span className="rounded-full bg-white px-3 py-1 text-xs font-bold text-[#61759e] max-md:text-sm max-md:font-semibold">
                       目標：{selectedChild.targetLevel}
                     </span>
                     <button
                       type="button"
                       onClick={() => navigate('/select-child')}
-                      className="rounded-full bg-[#fff7d6] px-3 py-1 text-xs font-black text-[#6b5a2d]"
+                      className="rounded-full bg-[#fff7d6] px-3 py-1 text-xs font-black text-[#6b5a2d] max-md:font-semibold"
                     >
                       切り替え
                     </button>
                   </div>
-                  {partner && <p className="mt-2 text-xs font-bold text-[#6f7da8]">パートナー：{partner.name} Lv.1</p>}
+                  {partner && <p className="mt-2 text-xs font-bold text-[#6f7da8] max-md:text-sm max-md:font-medium">パートナー：{partner.name} Lv.1</p>}
                 </div>
                 {data?.pet && (
                   <div className="hidden shrink-0 text-center max-md:block">
@@ -246,7 +246,7 @@ export default function HomePage() {
                         loading="lazy"
                       />
                     )}
-                    <p className="mt-1 max-w-[4.5rem] truncate text-xs font-black text-[#354172]">{data.pet.name || partner?.name || 'ペット'}</p>
+                    <p className="mt-1 max-w-[4.5rem] truncate text-xs font-black text-[#354172] max-md:font-semibold">{data.pet.name || partner?.name || 'ペット'}</p>
                   </div>
                 )}
               </div>
@@ -259,10 +259,10 @@ export default function HomePage() {
                 >
                   <div className="flex items-start justify-between gap-2">
                     <div className="min-w-0">
-                      <p className="display-font text-2xl font-black leading-tight max-md:text-lg">単語を学ぶ</p>
-                      <p className="mt-1 text-sm font-black text-[#6b5a2d] max-md:text-xs">今日 {safeTodayTarget}語</p>
+                      <p className="display-font text-2xl font-black leading-tight max-md:text-xl max-md:font-bold">単語を学ぶ</p>
+                      <p className="mt-1 text-sm font-black text-[#6b5a2d] max-md:text-sm max-md:font-semibold">今日 {safeTodayTarget}語</p>
                     </div>
-                    <span className="shrink-0 rounded-full bg-white/82 px-3 py-1 text-xs font-black max-md:px-2 max-md:py-0.5 max-md:text-[11px]">{todayStudied} / {safeTodayTarget}</span>
+                    <span className="shrink-0 rounded-full bg-white/82 px-3 py-1 text-xs font-black max-md:px-1.5 max-md:py-0.5 max-md:text-sm max-md:font-bold max-md:leading-none">{todayStudied} / {safeTodayTarget}</span>
                   </div>
                   <div className="mt-4 h-2.5 overflow-hidden rounded-full bg-white/70 max-md:mt-3 max-md:h-1.5">
                     <div className="h-full rounded-full bg-[#ffb81f]" style={{ width: progressWidth }} />
@@ -276,11 +276,11 @@ export default function HomePage() {
                 >
                   <div className="flex items-start justify-between gap-2">
                     <div className="min-w-0">
-                      <p className="display-font text-2xl font-black leading-tight max-md:text-lg">文法を学ぶ</p>
-                      <p className="mt-1 truncate text-sm font-black text-[#60709d] max-md:text-xs">{grammarLessonTitle}</p>
-                      <p className="mt-0.5 text-xs font-bold text-[#8fa0c2] max-md:text-[11px]">今日 1レッスン</p>
+                      <p className="display-font text-2xl font-black leading-tight max-md:text-xl max-md:font-bold">文法を学ぶ</p>
+                      <p className="mt-1 truncate text-sm font-black text-[#60709d] max-md:text-sm max-md:font-semibold">{grammarLessonTitle}</p>
+                      <p className="mt-0.5 text-xs font-bold text-[#8fa0c2] max-md:text-xs max-md:font-medium">今日 1レッスン</p>
                     </div>
-                    <span className="shrink-0 rounded-full bg-[#eef8ff] px-3 py-1 text-xs font-black text-[#51688f] max-md:px-2 max-md:py-0.5 max-md:text-[11px]">{grammarDailyDone} / 1</span>
+                    <span className="shrink-0 rounded-full bg-[#eef8ff] px-3 py-1 text-xs font-black text-[#51688f] max-md:px-1.5 max-md:py-0.5 max-md:text-sm max-md:font-bold max-md:leading-none">{grammarDailyDone} / 1</span>
                   </div>
                   <div className="mt-4 h-2.5 overflow-hidden rounded-full bg-[#edf1f7] max-md:mt-3 max-md:h-1.5">
                     <div className="h-full rounded-full bg-[linear-gradient(90deg,#bdefff,#83d7ff)]" style={{ width: grammarProgressWidth }} />
@@ -361,16 +361,16 @@ export default function HomePage() {
 
               <div className="grid grid-cols-3 gap-2 rounded-[22px] bg-white/54 p-2">
                 <div className="rounded-2xl bg-white/68 px-2 py-2 text-center">
-                  <div className="text-sm font-black text-[#354172] md:text-base">{data?.total_words ?? '-'}</div>
-                  <div className="text-[10px] font-bold text-[#6f7da8]">総単語数</div>
+                  <div className="text-sm font-black text-[#354172] max-md:text-xl max-md:font-bold md:text-base">{data?.total_words ?? '-'}</div>
+                  <div className="text-[10px] font-bold text-[#6f7da8] max-md:text-xs max-md:font-semibold">総単語数</div>
                 </div>
                 <div className="rounded-2xl bg-white/68 px-2 py-2 text-center">
-                  <div className="text-sm font-black text-[#354172] md:text-base">{data?.mastered_words ?? '-'}</div>
-                  <div className="text-[10px] font-bold text-[#6f7da8]">習得単語</div>
+                  <div className="text-sm font-black text-[#354172] max-md:text-xl max-md:font-bold md:text-base">{data?.mastered_words ?? '-'}</div>
+                  <div className="text-[10px] font-bold text-[#6f7da8] max-md:text-xs max-md:font-semibold">習得単語</div>
                 </div>
                 <div className="rounded-2xl bg-white/68 px-2 py-2 text-center">
-                  <div className="text-sm font-black text-[#354172] md:text-base">{data?.study_days ?? '-'}</div>
-                  <div className="text-[10px] font-bold text-[#6f7da8]">学習日数</div>
+                  <div className="text-sm font-black text-[#354172] max-md:text-xl max-md:font-bold md:text-base">{data?.study_days ?? '-'}</div>
+                  <div className="text-[10px] font-bold text-[#6f7da8] max-md:text-xs max-md:font-semibold">学習日数</div>
                 </div>
               </div>
 
@@ -449,8 +449,8 @@ export default function HomePage() {
           <div className="pointer-events-none absolute -right-4 bottom-6 text-4xl text-white/55">✦</div>
 
           <div>
-            <p className="text-xs font-black text-[#8fa0c2]">拡張</p>
-            <h2 className="display-font mt-1 text-2xl font-extrabold text-[#1f315f]">学習メニュー</h2>
+            <p className="text-xs font-black text-[#8fa0c2] max-md:font-semibold">拡張</p>
+            <h2 className="display-font mt-1 text-2xl font-extrabold text-[#1f315f] max-md:text-2xl max-md:font-bold">学習メニュー</h2>
           </div>
 
           <div className="mt-5 grid grid-cols-2 gap-3 max-md:mt-4 max-md:gap-2.5 md:mt-8 md:grid-cols-3 md:gap-4">
@@ -466,10 +466,10 @@ export default function HomePage() {
                   {MENU_ICONS[index] || item.icon}
                 </span>
                 <span className="min-w-0 flex-1">
-                  <span className="display-font block text-sm font-extrabold leading-snug max-md:text-[15px] md:text-base">{item.label}</span>
-                  <span className="mt-1.5 block text-[12px] font-bold leading-5 text-[#536685] max-md:mt-1 max-md:leading-4 md:text-sm">{item.subtitle}</span>
+                  <span className="display-font block text-sm font-extrabold leading-snug max-md:text-base max-md:font-bold md:text-base">{item.label}</span>
+                  <span className="mt-1.5 block text-[12px] font-bold leading-5 text-[#536685] max-md:mt-1 max-md:text-xs max-md:font-medium max-md:leading-4 md:text-sm">{item.subtitle}</span>
                 </span>
-                <span className="mt-auto shrink-0 rounded-full bg-[#eef8ff] px-2.5 py-1 text-[11px] font-black text-[#3b4864] max-md:px-2 max-md:py-0.5 max-md:text-[10px] md:text-xs">
+                <span className="mt-auto shrink-0 rounded-full bg-[#eef8ff] px-2.5 py-1 text-[11px] font-black text-[#3b4864] max-md:px-2 max-md:py-0.5 max-md:text-[10px] max-md:font-semibold md:text-xs">
                   {item.status}
                 </span>
               </Link>

@@ -46,12 +46,27 @@ export function decoratePet(rawPet = {}, fallbackId) {
   };
 }
 
+function isRawPetCollected(pet = {}) {
+  if (pet.unlocked === false || pet.isUnlocked === false || pet.owned === false || pet.collected === false) {
+    return false;
+  }
+  if (pet.unlocked || pet.isUnlocked || pet.owned || pet.collected || pet.acquired || pet.acquiredAt || pet.unlocked_at) {
+    return true;
+  }
+  const level = Number(pet.level);
+  return Number.isFinite(level) && level > 0;
+}
+
 export function buildStaticPetCollection(ownedPets = []) {
-  const ownedById = new Map((ownedPets || []).map((pet) => [String(pet.pokemon_id || pet.catalog_id || pet.id), pet]));
+  const ownedById = new Map(
+    (ownedPets || [])
+      .filter(isRawPetCollected)
+      .map((pet) => [String(pet.pokemon_id || pet.catalog_id || pet.id), pet]),
+  );
   return PET_MASTER.map((master) => {
     const owned = ownedById.get(String(master.catalogId));
     if (!owned) {
-      return decoratePet({
+      const lockedPet = decoratePet({
         pokemon_id: master.catalogId,
         unlocked: false,
         name: '???',
@@ -62,8 +77,12 @@ export function buildStaticPetCollection(ownedPets = []) {
         total_exp: 0,
         status: 'locked',
       });
+      return {
+        ...lockedPet,
+        name: '???',
+        nameJa: '???',
+      };
     }
     return decoratePet({ ...owned, unlocked: true }, master.catalogId);
   });
 }
-

@@ -144,7 +144,7 @@ export default function PokedexPage() {
             <div className="rounded-[24px] bg-white/88 p-4 shadow-[0_10px_24px_rgba(145,177,209,0.12)]">
               <p className="text-xs font-black text-[#8fa0c2]">持っている数</p>
               <p className="mt-1 text-xl font-extrabold text-[#354172]">
-                {ownedCount} / {totalCount}
+                {collectedPets.length} / {pets.length || totalCount}
               </p>
             </div>
             <div className="rounded-[24px] bg-white/88 p-4 shadow-[0_10px_24px_rgba(145,177,209,0.12)]">

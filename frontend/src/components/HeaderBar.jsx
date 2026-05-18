@@ -22,12 +22,14 @@ export default function HeaderBar({ subtitle }) {
             <img src="/assets/homepage-icon.png" alt="英楽語" className="h-full w-full object-cover" />
           </div>
           <div className="min-w-0 flex-1">
-            <p className="truncate text-[9px] font-black uppercase tracking-[0.16em] text-[#8b9cc4] md:text-[11px] md:tracking-[0.3em]">
+            <p className="truncate text-[10px] font-bold uppercase tracking-wide text-[#8b9cc4] md:text-[11px] md:font-black md:tracking-[0.3em]">
               英楽語
             </p>
-            <h1 className="display-font mt-0.5 truncate text-base font-black leading-tight text-[#31406f] md:mt-1 md:text-2xl lg:text-[2.25rem] lg:leading-tight">
-              {subtitle}
+            <h1 className="display-font mt-0.5 truncate text-xl font-bold leading-tight text-[#31406f] md:mt-1 md:text-2xl md:font-black lg:text-[2.25rem] lg:leading-tight">
+              <span className="md:hidden">英楽語</span>
+              <span className="hidden md:inline">{subtitle}</span>
             </h1>
+            <p className="mt-0.5 truncate text-xs font-medium text-[#51658a] md:hidden">楽しく続ける英語学習</p>
             <p className="mt-1.5 hidden max-w-[52rem] text-[0.92rem] font-medium leading-6 text-[#51658a] md:block md:text-[0.98rem]">
               学ぶほど、仲間がふえる。
             </p>
