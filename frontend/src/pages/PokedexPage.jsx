@@ -16,8 +16,17 @@ function getPetImage(pet) {
   return pet?.image_url || pet?.sprite_url || pet?.imageUrl || '';
 }
 
+function isPetCollected(pet) {
+  return Boolean(pet?.unlocked || pet?.isUnlocked || pet?.owned || pet?.collected || pet?.acquiredAt);
+}
+
+function getSafeLevel(pet) {
+  const level = Number(pet?.level);
+  return Number.isFinite(level) && level > 0 ? level : 1;
+}
+
 function getStatusLabel(pet) {
-  if (!pet?.unlocked) return '未解放';
+  if (!isPetCollected(pet)) return '未解放';
   if (pet.is_master || pet.status === 'master') return '成長完了';
   if (pet.status === 'ready') return '進化まち';
   return '成長中';
@@ -57,13 +66,13 @@ export default function PokedexPage() {
     getPetsData(childId)
       .then((data) => {
         const nextPets = data.pets || [];
-        const firstUnlocked = nextPets.find((pet) => pet.unlocked) || null;
+        const firstUnlocked = nextPets.find(isPetCollected) || null;
         setPets(nextPets);
         setChild(data.child || null);
         setRewardStatus(data.reward_status || null);
         setCurrentPet(data.current_pet || firstUnlocked);
-        setOwnedCount(data.owned_count || nextPets.filter((pet) => pet.unlocked).length);
-        setTotalCount(data.total_count || nextPets.length || 24);
+        setOwnedCount(data.owned_count ?? nextPets.filter(isPetCollected).length);
+        setTotalCount(data.total_count ?? (nextPets.length || 24));
       })
       .catch((err) => {
         setError(err.message);
@@ -92,6 +101,8 @@ export default function PokedexPage() {
   const todayPercent = rewardStatus?.today_progress_percent || 0;
   const nextUnlockExp = rewardStatus?.next_unlock_exp;
   const currentImage = getPetImage(currentPet);
+  const collectedPets = pets.filter(isPetCollected);
+  const uncollectedPets = pets.filter((pet) => !isPetCollected(pet));
 
   const handlePoke = () => {
     if (petTimerRef.current) {
@@ -109,45 +120,6 @@ export default function PokedexPage() {
       <HeaderBar subtitle="ペットコレクション" />
       {error && <div className="mb-4 rounded-[24px] bg-rose-50 px-5 py-4 text-sm font-bold text-rose-700">{error}</div>}
 
-      <section className="mb-5 rounded-[36px] border border-white/80 bg-[linear-gradient(180deg,#eef8ff_0%,#fffdf7_100%)] px-5 py-5 shadow-[0_18px_44px_rgba(145,177,209,0.14)]">
-        <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
-          <div>
-            <p className="text-xs font-black text-[#8fa0c2]">文法バトル</p>
-            <h2 className="display-font mt-1 text-2xl font-extrabold text-[#354172]">文法で出会った仲間</h2>
-          </div>
-          <p className="text-sm font-bold text-[#6f7da8]">
-            {battleMonsters.filter((monster) => monster.captured).length} / {battleMonsters.length} つかまえた
-          </p>
-        </div>
-        <div className="mt-4 grid grid-cols-2 gap-3 md:grid-cols-3 xl:grid-cols-5">
-          {battleMonsters.map((monster) => (
-            <button
-              key={monster.id}
-              type="button"
-              onClick={() => monster.captured && setBattleDetail(monster)}
-              className={`rounded-[24px] border p-3 text-center shadow-[0_10px_24px_rgba(145,177,209,0.10)] transition hover:-translate-y-0.5 ${
-                monster.captured ? 'border-white/80 bg-white/92' : 'border-[#dce5f1] bg-[#f0f3f8]'
-              }`}
-            >
-              <div className={`mx-auto flex h-[250px] w-[250px] max-w-full items-center justify-center rounded-[20px] ${monster.captured ? 'bg-[#fff8d9]' : 'bg-[#dfe5ee]'}`}>
-                {monster.imageUrl ? (
-                  <img
-                    src={monster.imageUrl}
-                    alt={monster.nameJa}
-                    className={`h-[250px] w-[250px] max-w-full object-contain ${monster.captured ? '' : 'grayscale opacity-35'}`}
-                    loading="lazy"
-                  />
-                ) : (
-                  <span className="text-3xl font-black text-[#9aa8c7]">?</span>
-                )}
-              </div>
-              <p className="mt-2 truncate text-sm font-black text-[#354172]">{monster.captured ? monster.nameJa : '???'}</p>
-              <p className="mt-1 text-xs font-bold text-[#6f7da8]">{monster.grammarCategory}</p>
-            </button>
-          ))}
-        </div>
-      </section>
-
       <section className="rounded-[36px] border border-white/80 bg-[linear-gradient(180deg,#fffdf7_0%,#eef8ff_100%)] px-5 py-5 shadow-[0_18px_44px_rgba(145,177,209,0.16)]">
         <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
           <div>
@@ -155,8 +127,9 @@ export default function PokedexPage() {
               学習するとペットが育つよ
             </div>
             <h2 className="display-font mt-3 text-2xl font-extrabold text-[#354172]">
-              {child ? `${child.name} のペット` : 'ペット'}
+              ペット図鑑
             </h2>
+            <p className="mt-2 text-sm font-bold text-[#6f7da8]">{child ? `${child.name} の仲間を見てみよう` : '集めた仲間を見てみよう'}</p>
           </div>
           <div className="grid gap-3 sm:grid-cols-3 lg:min-w-[520px]">
             <div className="rounded-[24px] bg-white/88 p-4 shadow-[0_10px_24px_rgba(145,177,209,0.12)]">
@@ -202,7 +175,7 @@ export default function PokedexPage() {
             </p>
             <div className="mt-2 flex flex-wrap items-center justify-center gap-2">
               <span className="rounded-full bg-[#eef8ff] px-3 py-1.5 text-xs font-black text-[#51688f]">
-                Lv. {currentPet?.level ?? 1}
+                Lv. {getSafeLevel(currentPet)}
               </span>
               <span className="rounded-full bg-[#fff7d6] px-3 py-1.5 text-xs font-black text-[#6b5a2d]">
                 {getStatusLabel(currentPet)}
@@ -222,39 +195,74 @@ export default function PokedexPage() {
             </div>
           </article>
 
-          <div>
-            <div className="mb-3 flex items-center justify-between gap-3">
-              <h3 className="display-font text-xl font-extrabold text-[#354172]">ペットコレクション</h3>
+          <div className="space-y-6">
+            <div>
+              <div className="mb-3 flex items-center justify-between gap-3">
+                <h3 className="display-font text-xl font-extrabold text-[#354172]">持っているペット</h3>
+              </div>
+              {collectedPets.length === 0 && (
+                <div className="rounded-[24px] bg-white/82 px-4 py-5 text-sm font-bold text-[#6f7da8]">
+                  まだペットはいません。学習すると仲間に出会えるよ！
+                </div>
+              )}
+              <div className="grid grid-cols-2 gap-3 md:grid-cols-4 xl:grid-cols-5">
+                {collectedPets.map((pet) => {
+                  const imageUrl = getPetImage(pet);
+                  return (
+                    <button
+                      key={pet.pet_id || pet.pokemon_id}
+                      type="button"
+                      onClick={() => setDetailPet(pet)}
+                      className="min-w-0 rounded-[22px] border border-white/80 bg-white/92 p-3 text-center shadow-[0_10px_24px_rgba(145,177,209,0.10)] transition duration-200 hover:-translate-y-0.5"
+                    >
+                      <div className="relative mx-auto flex h-28 w-full items-center justify-center rounded-[18px] bg-[#eef8ff] md:h-32">
+                        {imageUrl ? (
+                          <img src={imageUrl} alt={pet.name} className="h-24 w-24 object-contain md:h-28 md:w-28" loading="lazy" />
+                        ) : (
+                          <span className="text-2xl font-black text-[#9aa8c7]">?</span>
+                        )}
+                      </div>
+                      <p className="mt-2 truncate text-sm font-black text-[#354172]">{pet.name}</p>
+                      <p className="mt-1 truncate text-xs font-bold text-[#6f7da8]">Lv. {getSafeLevel(pet)}</p>
+                    </button>
+                  );
+                })}
+              </div>
             </div>
-            <div className="grid grid-cols-3 gap-2.5 md:grid-cols-4 xl:grid-cols-5">
-              {pets.map((pet) => {
+
+            <div>
+              <div className="mb-3 flex items-center justify-between gap-3">
+                <h3 className="display-font text-xl font-extrabold text-[#354172]">まだ見つけていない仲間</h3>
+              </div>
+              <div className="grid grid-cols-2 gap-3 md:grid-cols-4 xl:grid-cols-5">
+              {uncollectedPets.map((pet) => {
                 const imageUrl = getPetImage(pet);
                 return (
                   <button
                     key={pet.pet_id || pet.pokemon_id}
                     type="button"
                     onClick={() => setDetailPet(pet)}
-                    className={`min-w-0 rounded-[22px] border p-2.5 text-center shadow-[0_10px_24px_rgba(145,177,209,0.10)] transition duration-200 hover:-translate-y-0.5 ${
-                      pet.unlocked ? 'border-white/80 bg-white/92' : 'border-[#dce5f1] bg-[#f0f3f8]'
-                    }`}
+                    className="min-w-0 rounded-[22px] border border-[#dce5f1] bg-[#f0f3f8] p-3 text-center shadow-[0_10px_24px_rgba(145,177,209,0.10)] transition duration-200 hover:-translate-y-0.5"
                   >
-                    <div className={`relative mx-auto flex h-[250px] w-[250px] max-w-full items-center justify-center rounded-[18px] ${pet.unlocked ? 'bg-[#eef8ff]' : 'bg-[#dfe5ee]'}`}>
-                      {pet.unlocked && imageUrl ? (
+                    <div className="relative mx-auto flex h-28 w-full items-center justify-center rounded-[18px] bg-[#dfe5ee] md:h-32">
+                      {imageUrl ? (
                         <img
                           src={imageUrl}
-                          alt={pet.name}
-                          className="h-[250px] w-[250px] max-w-full object-contain"
+                          alt=""
+                          className="h-24 w-24 object-contain grayscale brightness-0 opacity-30 md:h-28 md:w-28"
                           loading="lazy"
                         />
                       ) : (
-                        <span className="text-2xl font-black text-[#9aa8c7]">???</span>
+                        <span className="text-3xl font-black text-[#9aa8c7]">?</span>
                       )}
+                      <span className="absolute right-2 top-2 rounded-full bg-white/82 px-2 py-1 text-xs font-black text-[#8fa0c2]">?</span>
                     </div>
-                    <p className="mt-2 truncate text-xs font-black text-[#354172]">{pet.unlocked ? pet.name : '???'}</p>
-                    <p className="mt-1 truncate text-[11px] font-bold text-[#6f7da8]">{pet.unlocked ? `Lv. ${pet.level}` : getUnlockText(pet, nextUnlockExp)}</p>
+                    <p className="mt-2 truncate text-sm font-black text-[#354172]">???</p>
+                    <p className="mt-1 truncate text-xs font-bold text-[#6f7da8]">まだ見つけていない</p>
                   </button>
                 );
               })}
+              </div>
             </div>
           </div>
         </div>
@@ -269,19 +277,21 @@ export default function PokedexPage() {
               </button>
             </div>
             <div className="mt-5 flex h-[280px] w-full items-center justify-center rounded-[30px] bg-[radial-gradient(circle_at_50%_40%,#fff7d6_0%,#e9f8ff_62%,#dcefff_100%)]">
-              {detailPet.unlocked && getPetImage(detailPet) ? (
+              {isPetCollected(detailPet) && getPetImage(detailPet) ? (
                 <img src={getPetImage(detailPet)} alt={detailPet.name} className="h-[250px] w-[250px] max-w-full object-contain" />
+              ) : getPetImage(detailPet) ? (
+                <img src={getPetImage(detailPet)} alt="" className="h-[250px] w-[250px] max-w-full object-contain grayscale brightness-0 opacity-30" />
               ) : (
                 <span className="text-4xl font-black text-[#9aa8c7]">???</span>
               )}
             </div>
             <div className="mt-5 text-center">
-              <p className="display-font truncate text-2xl font-extrabold text-[#354172]">{detailPet.unlocked ? detailPet.name : '???'}</p>
+              <p className="display-font truncate text-2xl font-extrabold text-[#354172]">{isPetCollected(detailPet) ? detailPet.name : '???'}</p>
               <p className="mt-2 text-sm font-black text-[#6f7da8]">
-                {detailPet.unlocked ? `Lv. ${detailPet.level}` : getUnlockText(detailPet, nextUnlockExp)}
+                {isPetCollected(detailPet) ? `Lv. ${getSafeLevel(detailPet)}` : 'まだ見つけていない'}
               </p>
             </div>
-            {detailPet.unlocked && (
+            {isPetCollected(detailPet) && (
               <div className="mt-5">
                 <div className="mb-2 flex items-center justify-between text-xs font-black text-[#6f7da8]">
                   <span>EXP</span>
