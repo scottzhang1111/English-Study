@@ -1,6 +1,7 @@
 ﻿from flask import Flask, abort, request, Response, jsonify, redirect, send_from_directory
 import csv
 import datetime
+import html
 import json
 import os
 import random
@@ -34,6 +35,7 @@ DB_FILENAME = 'practice_data.db'
 VOCAB_FILENAME = os.path.join('data', 'eiken', 'eiken_pre2', 'eiken_pre2_web_ready_db', 'eiken_vocab_database_with_synonyms_utf8_bom.csv')
 EIKEN_PRE2_BANK_FILENAME = os.path.join('data', 'eiken', 'eiken_pre2', 'eiken_pre2_web_ready_db', 'eiken_pre2_web_ready.sqlite')
 EIKEN_REAL_EXAM_DIR = os.path.join('data', 'eiken', 'eiken real exam', 'Listening', 'www.cloudsemi.com', 'member', 'eiken', 'eikenj2')
+EIKEN_REAL_EXAM_ANSWER_DIR = os.path.join(EIKEN_REAL_EXAM_DIR, 'cloudsemi_eikenj2_answers')
 EIKEN_REAL_EXAM_ANSWER_KEY_FILENAME = os.path.join('data', 'eiken', 'eiken_real_exam_answer_key.json')
 GRAMMAR_LESSON_DB_FILENAME = os.path.join('data', 'eiken', 'eiken_pre2', 'eiken_pre2 grammar', 'eiken_pre2_grammar_lessons.db')
 GRAMMAR_FORM_TEST_DB_FILENAME = os.path.join('data', 'eiken', 'eiken_pre2', 'eiken_pre2 grammar', 'eiken_pre2_grammar_form_test_sample_17.db')
@@ -57,6 +59,37 @@ PET_CATALOG = [
     {'name': 'Cloud Frog', 'emoji': 'CF', 'unlock_at': 100},
     {'name': 'Lion Buddy', 'emoji': 'LB', 'unlock_at': 100},
 ]
+
+
+def load_pet_master():
+    path = os.path.join(app.root_path, 'frontend', 'src', 'pet_master_ja.json')
+    try:
+        with open(path, 'r', encoding='utf-8') as file:
+            pets = json.load(file)
+    except (OSError, json.JSONDecodeError):
+        pets = []
+    catalog = []
+    for index, pet in enumerate(pets, start=1):
+        item = dict(pet)
+        item['catalog_id'] = index
+        item['image_url'] = item.get('image')
+        item['sprite_url'] = item.get('image')
+        item['types'] = [{'name': item.get('element') or 'pet'}]
+        catalog.append(item)
+    return catalog
+
+
+CUSTOM_PET_MASTER = load_pet_master()
+CUSTOM_PET_BY_CATALOG_ID = {pet['catalog_id']: pet for pet in CUSTOM_PET_MASTER}
+CUSTOM_PET_TOTAL = len(CUSTOM_PET_MASTER) or 24
+
+
+def get_custom_pet_by_id(pet_id):
+    try:
+        normalized_id = int(pet_id)
+    except (TypeError, ValueError):
+        normalized_id = 1
+    return CUSTOM_PET_BY_CATALOG_ID.get(normalized_id) or (CUSTOM_PET_MASTER[0] if CUSTOM_PET_MASTER else None)
 
 
 def load_env_file(path):
@@ -6213,6 +6246,84 @@ def normalize_eiken_answer(value):
     return f'({match.group(0)})' if match else text
 
 
+def sanitize_eiken_answer_explanation_html(fragment):
+    content = str(fragment or '')
+    content = re.sub(r'<script\b[^>]*>.*?</script>', '', content, flags=re.I | re.S)
+    content = re.sub(r'</?form\b[^>]*>', '', content, flags=re.I)
+    content = re.sub(r'<input\b[^>]*>', '', content, flags=re.I)
+    content = re.sub(r'<button\b[^>]*>.*?</button>', '', content, flags=re.I | re.S)
+    content = re.sub(r'on\w+=["\'][^"\']*["\']', '', content, flags=re.I)
+    content = re.sub(r'<a\b[^>]*href=["\'][^"\']*["\'][^>]*>(.*?)</a>', r'\1', content, flags=re.I | re.S)
+
+    def rewrite_asset(match):
+        attr = match.group(1)
+        quote = match.group(2)
+        value = match.group(3).strip()
+        if re.match(r'^(https?:|data:|#)', value, flags=re.I):
+            return match.group(0)
+        normalized = value.replace('\\', '/').lstrip('./')
+        return f'{attr}={quote}/api/eiken-real-exams/assets/{normalized}{quote}'
+
+    content = re.sub(r'\b(src)=(["\'])([^"\']+)\2', rewrite_asset, content, flags=re.I)
+    return content.strip()
+
+
+def strip_eiken_answer_text(fragment):
+    text = re.sub(r'<br\s*/?>', '\n', str(fragment or ''), flags=re.I)
+    text = re.sub(r'<[^>]+>', '', text)
+    text = html.unescape(text)
+    return re.sub(r'[ \t\r\f\v]+', ' ', text).strip()
+
+
+def parse_eiken_real_exam_answer_page(part_id, question_numbers=None):
+    meta = get_eiken_real_exam_part_meta(part_id)
+    if not meta:
+        return {'answer_key': {}, 'explanations': []}
+
+    answer_path = os.path.join(EIKEN_REAL_EXAM_ANSWER_DIR, f'ans{meta["part_id"]}.html')
+    if not os.path.isfile(answer_path):
+        return {'answer_key': {}, 'explanations': []}
+
+    try:
+        with open(answer_path, 'r', encoding='utf-8', errors='ignore') as handle:
+            html_content = handle.read()
+    except OSError:
+        return {'answer_key': {}, 'explanations': []}
+
+    # Each answer page stores one question's choices, translation, answer, and explanation
+    # in the table cell that contains "答え：".
+    answer_blocks = []
+    for match in re.finditer(r'<th\b[^>]*>(.*?)</th>', html_content, flags=re.I | re.S):
+        inner_html = match.group(1)
+        if '答え' in strip_eiken_answer_text(inner_html):
+            answer_blocks.append(inner_html)
+
+    resolved_question_numbers = list(question_numbers or [])
+    if not resolved_question_numbers:
+        resolved_question_numbers = list(range(1, len(answer_blocks) + 1))
+
+    answer_key = {}
+    explanations = []
+    for index, block_html in enumerate(answer_blocks):
+        if index >= len(resolved_question_numbers):
+            break
+        question_number = int(resolved_question_numbers[index])
+        block_text = strip_eiken_answer_text(block_html)
+        answer_match = re.search(r'答え\s*[:：]?\s*\(?\s*([1-4])\s*\)?', block_text)
+        if not answer_match:
+            continue
+        correct_answer = normalize_eiken_answer(answer_match.group(1))
+        answer_key[question_number] = correct_answer
+        explanations.append({
+            'question_number': question_number,
+            'correct_answer': correct_answer,
+            'html': sanitize_eiken_answer_explanation_html(block_html),
+            'text': block_text,
+        })
+
+    return {'answer_key': answer_key, 'explanations': explanations}
+
+
 def load_eiken_real_exam_answer_key():
     if not os.path.exists(EIKEN_REAL_EXAM_ANSWER_KEY_FILENAME):
         return {}
@@ -6227,16 +6338,18 @@ def load_eiken_real_exam_answer_key():
 def get_eiken_real_exam_answer_key(part_id):
     all_keys = load_eiken_real_exam_answer_key()
     raw_key = all_keys.get(part_id) or {}
+    parsed_key = parse_eiken_real_exam_answer_page(part_id).get('answer_key') or {}
     if isinstance(raw_key, list):
-        return {index + 1: normalize_eiken_answer(value) for index, value in enumerate(raw_key)}
+        parsed_key.update({index + 1: normalize_eiken_answer(value) for index, value in enumerate(raw_key)})
+        return parsed_key
     if isinstance(raw_key, dict):
-        normalized = {}
+        normalized = dict(parsed_key)
         for key, value in raw_key.items():
             match = re.search(r'\d+', str(key))
             if match:
                 normalized[int(match.group(0))] = normalize_eiken_answer(value)
         return normalized
-    return {}
+    return parsed_key
 
 
 def submit_eiken_real_exam_attempt(child_id, part_id, answers, started_at=None):
@@ -6245,7 +6358,13 @@ def submit_eiken_real_exam_attempt(child_id, part_id, answers, started_at=None):
         raise LookupError('exam part not found')
     part_data = sanitize_eiken_real_exam_html(part_id)
     question_numbers = part_data.get('question_numbers') or []
-    answer_key = get_eiken_real_exam_answer_key(meta['part_id'])
+    parsed_answers = parse_eiken_real_exam_answer_page(meta['part_id'], question_numbers)
+    answer_key = parsed_answers.get('answer_key') or get_eiken_real_exam_answer_key(meta['part_id'])
+    explanations_by_number = {
+        int(item['question_number']): item
+        for item in parsed_answers.get('explanations', [])
+        if item.get('question_number') is not None
+    }
     key_available = bool(answer_key)
     now = get_now_iso()
     attempt_id = uuid.uuid4().hex
@@ -6275,6 +6394,7 @@ def submit_eiken_real_exam_attempt(child_id, part_id, answers, started_at=None):
                     'question_number': question_number,
                     'student_answer': student_answer,
                     'correct_answer': correct_answer,
+                    'explanation': explanations_by_number.get(question_number),
                 })
         rows.append((question_number, student_answer, correct_answer, is_correct))
 
@@ -6345,6 +6465,7 @@ def submit_eiken_real_exam_attempt(child_id, part_id, answers, started_at=None):
         'score_percent': score_percent,
         'answer_key_available': key_available,
         'correct_answers': {f'問{number}': answer for number, answer in sorted(answer_key.items())},
+        'explanations': [explanations_by_number[number] for number in question_numbers if number in explanations_by_number],
         'wrong_questions': wrong_questions,
     }
 
@@ -6598,37 +6719,6 @@ DAILY_PART_OF_SPEECH_ORDER = [
     ('\u5f62\u5bb9\u8a5e', '\u5f62\u5bb9\u8bcd', 'adjective', 'adj.'),
     ('\u540d\u8a5e', '\u540d\u8bcd', 'noun', 'n.'),
 ]
-
-
-def load_pet_master():
-    path = os.path.join(app.root_path, 'frontend', 'src', 'pet_master_ja.json')
-    try:
-        with open(path, 'r', encoding='utf-8') as file:
-            pets = json.load(file)
-    except (OSError, json.JSONDecodeError):
-        pets = []
-    catalog = []
-    for index, pet in enumerate(pets, start=1):
-        item = dict(pet)
-        item['catalog_id'] = index
-        item['image_url'] = item.get('image')
-        item['sprite_url'] = item.get('image')
-        item['types'] = [{'name': item.get('element') or 'pet'}]
-        catalog.append(item)
-    return catalog
-
-
-CUSTOM_PET_MASTER = load_pet_master()
-CUSTOM_PET_BY_CATALOG_ID = {pet['catalog_id']: pet for pet in CUSTOM_PET_MASTER}
-CUSTOM_PET_TOTAL = len(CUSTOM_PET_MASTER) or 24
-
-
-def get_custom_pet_by_id(pet_id):
-    try:
-        normalized_id = int(pet_id)
-    except (TypeError, ValueError):
-        normalized_id = 1
-    return CUSTOM_PET_BY_CATALOG_ID.get(normalized_id) or (CUSTOM_PET_MASTER[0] if CUSTOM_PET_MASTER else None)
 
 
 def get_daily_importance_rank(vocab):

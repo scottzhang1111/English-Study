@@ -58,6 +58,10 @@ function normalizeEikenMediaHtml(html = '') {
   });
 }
 
+function getQuestionAnswer(answers, questionNumber) {
+  return answers[`問${questionNumber}`] || answers[`問 ${questionNumber}`] || '';
+}
+
 export default function EikenRealExamPage() {
   const contentRef = useRef(null);
   const [exams, setExams] = useState([]);
@@ -85,6 +89,7 @@ export default function EikenRealExamPage() {
     () => (partData?.audio_paths || []).map(getEikenAudioSrc).filter(Boolean),
     [partData?.audio_paths],
   );
+  const explanations = result?.explanations || [];
 
   useEffect(() => {
     let active = true;
@@ -373,6 +378,35 @@ export default function EikenRealExamPage() {
                             問{item.question_number}: 正解 {item.correct_answer || '-'}
                           </span>
                         ))}
+                      </div>
+                    )}
+                    {explanations.length > 0 && (
+                      <div className="mt-5 grid gap-3">
+                        {explanations.map((item) => {
+                          const studentAnswer = getQuestionAnswer(answers, item.question_number);
+                          const isCorrect = studentAnswer && studentAnswer === item.correct_answer;
+                          return (
+                            <article
+                              key={item.question_number}
+                              className={`rounded-[18px] border p-3 ${
+                                isCorrect
+                                  ? 'border-emerald-100 bg-emerald-50/70'
+                                  : 'border-rose-100 bg-rose-50/70'
+                              }`}
+                            >
+                              <div className="mb-2 flex flex-wrap items-center gap-2 text-xs font-black">
+                                <span className="rounded-full bg-white px-3 py-1 text-[#26376d]">問{item.question_number}</span>
+                                <span className={isCorrect ? 'text-emerald-700' : 'text-rose-700'}>
+                                  あなた: {studentAnswer || '-'} / 正解: {item.correct_answer}
+                                </span>
+                              </div>
+                              <div
+                                className="eiken-answer-explanation rounded-[14px] bg-white/82 px-3 py-3 text-xs leading-6 text-[#42557f]"
+                                dangerouslySetInnerHTML={{ __html: normalizeEikenMediaHtml(item.html || '') }}
+                              />
+                            </article>
+                          );
+                        })}
                       </div>
                     )}
                   </div>

@@ -453,6 +453,24 @@ button {
   border-radius: 12px;
 }
 
+.eiken-answer-explanation table {
+  width: 100% !important;
+  border-collapse: collapse !important;
+}
+
+.eiken-answer-explanation td,
+.eiken-answer-explanation th {
+  border: 1px solid #d8e8f8 !important;
+  padding: 7px 8px !important;
+  text-align: left !important;
+  vertical-align: top;
+}
+
+.eiken-answer-explanation span[style*='cc00cc'] {
+  color: #a72fb2 !important;
+  font-weight: 900;
+}
+
 @media (max-width: 1023px) {
   .eiken-exam-sidebar {
     border-right: 0;
