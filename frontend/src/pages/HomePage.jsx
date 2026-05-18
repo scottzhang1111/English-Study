@@ -214,26 +214,41 @@ export default function HomePage() {
                 今日の学習
               </div>
 
-              <div className="rounded-[24px] bg-white/80 p-4 shadow-[0_10px_24px_rgba(145,177,209,0.08)] max-md:p-3">
-                <div className="flex flex-wrap items-center gap-2">
-                  <p className="text-lg font-extrabold text-[#354172]">
-                    {selectedChild.name} さん
-                  </p>
-                  <span className="rounded-full bg-white px-3 py-1 text-xs font-bold text-[#61759e]">
-                    学年：{selectedChild.grade}
-                  </span>
-                  <span className="rounded-full bg-white px-3 py-1 text-xs font-bold text-[#61759e]">
-                    目標：{selectedChild.targetLevel}
-                  </span>
-                  <button
-                    type="button"
-                    onClick={() => navigate('/select-child')}
-                    className="rounded-full bg-[#fff7d6] px-3 py-1 text-xs font-black text-[#6b5a2d]"
-                  >
-                    切り替え
-                  </button>
+              <div className="rounded-[24px] bg-white/80 p-4 shadow-[0_10px_24px_rgba(145,177,209,0.08)] max-md:flex max-md:items-center max-md:justify-between max-md:gap-3 max-md:p-3">
+                <div className="min-w-0 flex-1">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <p className="text-lg font-extrabold text-[#354172]">
+                      {selectedChild.name} さん
+                    </p>
+                    <span className="rounded-full bg-white px-3 py-1 text-xs font-bold text-[#61759e]">
+                      学年：{selectedChild.grade}
+                    </span>
+                    <span className="rounded-full bg-white px-3 py-1 text-xs font-bold text-[#61759e]">
+                      目標：{selectedChild.targetLevel}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => navigate('/select-child')}
+                      className="rounded-full bg-[#fff7d6] px-3 py-1 text-xs font-black text-[#6b5a2d]"
+                    >
+                      切り替え
+                    </button>
+                  </div>
+                  {partner && <p className="mt-2 text-xs font-bold text-[#6f7da8]">パートナー：{partner.name} Lv.1</p>}
                 </div>
-                {partner && <p className="mt-2 text-xs font-bold text-[#6f7da8]">パートナー：{partner.name} Lv.1</p>}
+                {data?.pet && (
+                  <div className="hidden shrink-0 text-center max-md:block">
+                    {(data.pet.image_url || data.pet.sprite_url || data.pet.imageUrl) && (
+                      <img
+                        src={data.pet.image_url || data.pet.sprite_url || data.pet.imageUrl}
+                        alt={data.pet.name || 'ペット'}
+                        className="mx-auto h-14 w-14 object-contain"
+                        loading="lazy"
+                      />
+                    )}
+                    <p className="mt-1 max-w-[4.5rem] truncate text-xs font-black text-[#354172]">{data.pet.name || partner?.name || 'ペット'}</p>
+                  </div>
+                )}
               </div>
 
               <div className="grid gap-3 md:grid-cols-2">
@@ -359,7 +374,7 @@ export default function HomePage() {
                 </div>
               </div>
 
-              {data?.pet && (
+              {false && data?.pet && (
                 <div className="flex items-center gap-3 rounded-[22px] border border-white/80 bg-white/82 p-3 shadow-[0_10px_24px_rgba(145,177,209,0.10)] md:hidden">
                   <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-[#f8fcff]">
                     {(data.pet.image_url || data.pet.sprite_url || data.pet.imageUrl) ? (
