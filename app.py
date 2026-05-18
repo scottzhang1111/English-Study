@@ -35,7 +35,9 @@ DB_FILENAME = 'practice_data.db'
 VOCAB_FILENAME = os.path.join('data', 'eiken', 'eiken_pre2', 'eiken_pre2_web_ready_db', 'eiken_vocab_database_with_synonyms_utf8_bom.csv')
 EIKEN_PRE2_BANK_FILENAME = os.path.join('data', 'eiken', 'eiken_pre2', 'eiken_pre2_web_ready_db', 'eiken_pre2_web_ready.sqlite')
 EIKEN_REAL_EXAM_DIR = os.path.join('data', 'eiken', 'eiken real exam', 'Listening', 'www.cloudsemi.com', 'member', 'eiken', 'eikenj2')
-EIKEN_REAL_EXAM_ANSWER_DIR = os.path.join(EIKEN_REAL_EXAM_DIR, 'cloudsemi_eikenj2_answers')
+EIKEN_REAL_EXAM_LISTENING_ANSWER_DIR = os.path.join(EIKEN_REAL_EXAM_DIR, 'listening_answers')
+EIKEN_REAL_EXAM_WRITTEN_ANSWER_DIR = os.path.join(EIKEN_REAL_EXAM_DIR, 'written_answers')
+EIKEN_REAL_EXAM_LEGACY_ANSWER_DIR = os.path.join(EIKEN_REAL_EXAM_DIR, 'cloudsemi_eikenj2_answers')
 EIKEN_REAL_EXAM_ANSWER_KEY_FILENAME = os.path.join('data', 'eiken', 'eiken_real_exam_answer_key.json')
 GRAMMAR_LESSON_DB_FILENAME = os.path.join('data', 'eiken', 'eiken_pre2', 'eiken_pre2 grammar', 'eiken_pre2_grammar_lessons.db')
 GRAMMAR_FORM_TEST_DB_FILENAME = os.path.join('data', 'eiken', 'eiken_pre2', 'eiken_pre2 grammar', 'eiken_pre2_grammar_form_test_sample_17.db')
@@ -6147,6 +6149,19 @@ def get_eiken_real_exam_part_meta(part_id):
     }
 
 
+def resolve_eiken_real_exam_answer_path(part_id):
+    meta = get_eiken_real_exam_part_meta(part_id)
+    if not meta:
+        return ''
+    filename = f'ans{meta["part_id"]}.html'
+    primary_dir = EIKEN_REAL_EXAM_WRITTEN_ANSWER_DIR if meta['mode'] == 'written' else EIKEN_REAL_EXAM_LISTENING_ANSWER_DIR
+    for directory in (primary_dir, EIKEN_REAL_EXAM_LEGACY_ANSWER_DIR):
+        answer_path = os.path.join(directory, filename)
+        if os.path.isfile(answer_path):
+            return answer_path
+    return os.path.join(primary_dir, filename)
+
+
 def list_eiken_real_exams():
     if not os.path.isdir(EIKEN_REAL_EXAM_DIR):
         return []
@@ -6280,7 +6295,7 @@ def parse_eiken_real_exam_answer_page(part_id, question_numbers=None):
     if not meta:
         return {'answer_key': {}, 'explanations': []}
 
-    answer_path = os.path.join(EIKEN_REAL_EXAM_ANSWER_DIR, f'ans{meta["part_id"]}.html')
+    answer_path = resolve_eiken_real_exam_answer_path(meta['part_id'])
     if not os.path.isfile(answer_path):
         return {'answer_key': {}, 'explanations': []}
 

@@ -74,7 +74,7 @@ function StudyReturnControl() {
   return (
     <Link
       to="/"
-      className="fixed left-3 top-3 z-30 rounded-full border border-white/80 bg-white/95 px-4 py-2 text-sm font-black text-[#435987] shadow-[0_12px_28px_rgba(103,148,191,0.16)] backdrop-blur transition hover:-translate-y-0.5 hover:bg-[#f8fcff]"
+      className="fixed left-3 top-3 z-30 rounded-full border border-white/80 bg-white/95 px-4 py-2 text-sm font-black text-[#435987] shadow-[0_12px_28px_rgba(103,148,191,0.16)] backdrop-blur transition hover:-translate-y-0.5 hover:bg-[#f8fcff] lg:hidden"
     >
       ← ホームに戻る
     </Link>
