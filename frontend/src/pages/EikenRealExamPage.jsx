@@ -11,6 +11,34 @@ function getPartList(exam, mode) {
   return mode === 'written' ? exam?.written_parts || [] : exam?.listening_parts || [];
 }
 
+function getBaseUrl() {
+  return import.meta.env.BASE_URL.endsWith('/') ? import.meta.env.BASE_URL : `${import.meta.env.BASE_URL}/`;
+}
+
+function getEikenImageSrc(imagePath) {
+  if (!imagePath) return null;
+  const value = imagePath.trim();
+  if (/^(https?:|data:|blob:)/i.test(value)) return value;
+  const cleanPath = value
+    .split(/[?#]/)[0]
+    .replace(/\\/g, '/')
+    .replace(/^\.?\//, '')
+    .replace(/^public\//, '')
+    .replace(/^app\//, '')
+    .replace(/^api\/eiken-real-exams\/assets\//, '')
+    .replace(/^eiken\/images\//, '')
+    .replace(/^png\//, '');
+  const fileName = cleanPath.split('/').filter(Boolean).pop();
+  return fileName ? `${getBaseUrl()}eiken/images/${encodeURIComponent(fileName)}` : null;
+}
+
+function normalizeEikenImageHtml(html = '') {
+  return html.replace(/\b(src)=(["'])([^"']+\.(?:png|gif|jpg|jpeg))(?:[?#][^"']*)?\2/gi, (match, attr, quote, value) => {
+    const imageSrc = getEikenImageSrc(value);
+    return imageSrc ? `${attr}=${quote}${imageSrc}${quote}` : match;
+  });
+}
+
 export default function EikenRealExamPage() {
   const contentRef = useRef(null);
   const [exams, setExams] = useState([]);
@@ -29,6 +57,7 @@ export default function EikenRealExamPage() {
   );
   const parts = useMemo(() => getPartList(selectedExam, mode), [selectedExam, mode]);
   const questionCount = partData?.question_count || 0;
+  const normalizedHtml = useMemo(() => normalizeEikenImageHtml(partData?.html || ''), [partData?.html]);
 
   useEffect(() => {
     let active = true;
@@ -94,6 +123,31 @@ export default function EikenRealExamPage() {
     element.addEventListener('change', updateAnsweredCount);
     return () => element.removeEventListener('change', updateAnsweredCount);
   }, [partData?.part_id]);
+
+  useEffect(() => {
+    const element = contentRef.current;
+    if (!element) return undefined;
+    const cleanups = Array.from(element.querySelectorAll('img')).map((image) => {
+      image.alt = image.alt || '問題画像';
+      const handleError = () => {
+        const failedSrc = image.getAttribute('src') || '';
+        console.warn('Failed to load Eiken image:', failedSrc);
+        image.style.display = 'none';
+        if (image.nextElementSibling?.dataset?.eikenImageFallback === 'true') return;
+        const fallback = document.createElement('div');
+        fallback.dataset.eikenImageFallback = 'true';
+        fallback.className = 'rounded-[18px] bg-[#f8fbff] px-4 py-5 text-center text-sm font-bold text-[#6f7da8]';
+        fallback.textContent = '画像を読み込めませんでした';
+        image.insertAdjacentElement('afterend', fallback);
+      };
+      image.addEventListener('error', handleError);
+      if (image.complete && image.naturalWidth === 0) {
+        handleError();
+      }
+      return () => image.removeEventListener('error', handleError);
+    });
+    return () => cleanups.forEach((cleanup) => cleanup());
+  }, [normalizedHtml]);
 
   const resetAnswers = () => {
     const element = contentRef.current;
@@ -185,7 +239,7 @@ export default function EikenRealExamPage() {
           </aside>
 
           <main className="min-w-0 px-3 py-3 sm:px-4">
-            <div ref={contentRef} className="eiken-real-content" dangerouslySetInnerHTML={{ __html: partData.html }} />
+            <div ref={contentRef} className="eiken-real-content" dangerouslySetInnerHTML={{ __html: normalizedHtml }} />
           </main>
         </motion.div>
       )}
