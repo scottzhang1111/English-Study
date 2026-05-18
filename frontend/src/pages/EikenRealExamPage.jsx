@@ -77,6 +77,128 @@ function buildQuestionNumbers(count, fallback = []) {
   return fallback;
 }
 
+function cleanPreviewText(value = '') {
+  return String(value)
+    .replace(/\u00a0/g, ' ')
+    .replace(/[ \t\r\f\v]+/g, ' ')
+    .replace(/\n\s*/g, '\n')
+    .trim();
+}
+
+function shortenPreview(value = '', maxLength = 260) {
+  const text = cleanPreviewText(value);
+  return text.length > maxLength ? `${text.slice(0, maxLength).trim()}...` : text;
+}
+
+function extractEikenQuestionPreviews(html = '', mode = 'listening') {
+  if (!html || typeof DOMParser === 'undefined') return {};
+  const doc = new DOMParser().parseFromString(html, 'text/html');
+  const previews = {};
+
+  doc.querySelectorAll('table.form > tbody > tr').forEach((row) => {
+    const inputs = Array.from(row.querySelectorAll('input[type="radio"]'));
+    const questionNumber = getQuestionNumberFromName(inputs[0]?.name || '');
+    if (!questionNumber) return;
+
+    const choices = inputs.map((input) => {
+      const rawText = cleanPreviewText(input.closest('td, th, label')?.textContent || input.value || '');
+      const value = cleanPreviewText(input.value || '');
+      return rawText.includes(value) ? rawText : `${value} ${rawText}`.trim();
+    }).filter(Boolean);
+
+    const clone = row.cloneNode(true);
+    clone.querySelectorAll('script, style, input, button, audio').forEach((node) => node.remove());
+    clone.querySelectorAll('.hpb-cnt-tb1').forEach((table) => {
+      if (table.querySelector('input[type="radio"]')) table.remove();
+    });
+    clone.querySelectorAll('table').forEach((table) => {
+      if (table.textContent && choices.some((choice) => cleanPreviewText(table.textContent).includes(choice))) table.remove();
+    });
+
+    const image = row.querySelector('img');
+    const imageSrc = image?.getAttribute('src') || '';
+    previews[questionNumber] = {
+      questionNumber,
+      mode,
+      isListening: mode === 'listening' || Boolean(row.querySelector('audio')),
+      summary: shortenPreview(clone.textContent || ''),
+      choices: Array.from(new Set(choices)).slice(0, 4),
+      imageSrc,
+      hasImage: Boolean(imageSrc),
+    };
+  });
+
+  return previews;
+}
+
+function EikenResultQuestionPreview({ preview, studentAnswer, correctAnswer, expanded }) {
+  const [imageFailed, setImageFailed] = useState(false);
+  const safeStudentAnswer = studentAnswer || '未回答';
+  const safeCorrectAnswer = correctAnswer || '正解情報なし';
+  const hasPreview = preview?.summary || preview?.choices?.length || preview?.hasImage;
+
+  if (!hasPreview) {
+    return (
+      <div className="mt-3 rounded-[16px] bg-white/72 p-3 text-sm font-bold text-[#60709d]">
+        問題内容を表示できません
+      </div>
+    );
+  }
+
+  return (
+    <div className="mt-3 rounded-[16px] bg-white/72 p-3 text-sm leading-6 text-[#42557f]">
+      <p className="text-xs font-bold text-[#7d8db5]">問題</p>
+      {preview.isListening && (
+        <p className="mt-1 rounded-full bg-[#eef8ff] px-3 py-1 text-xs font-bold text-[#52668c]">
+          リスニング問題
+        </p>
+      )}
+      {preview.hasImage && (
+        <div className="mt-2">
+          <p className="text-xs font-bold text-[#52668c]">画像問題</p>
+          {!imageFailed ? (
+            <img
+              src={preview.imageSrc}
+              alt="問題画像"
+              onError={() => setImageFailed(true)}
+              className="mt-2 max-h-40 w-full rounded-[14px] object-contain bg-[#f8fcff]"
+            />
+          ) : (
+            <div className="mt-2 rounded-[14px] bg-[#f8fcff] px-3 py-4 text-center text-xs font-bold text-[#6f7da8]">
+              画像を読み込めませんでした
+            </div>
+          )}
+        </div>
+      )}
+      {preview.summary && <p className={`mt-2 whitespace-pre-line font-bold ${expanded ? '' : 'max-h-16 overflow-hidden'}`}>{preview.summary}</p>}
+      {preview.choices?.length > 0 && (
+        <div className="mt-3 grid gap-2">
+          {preview.choices.map((choice) => {
+            const isStudent = studentAnswer && choice.includes(studentAnswer);
+            const isCorrect = correctAnswer && choice.includes(correctAnswer);
+            const tone = isCorrect
+              ? 'border-emerald-100 bg-emerald-50/80 text-emerald-800'
+              : isStudent
+                ? 'border-rose-100 bg-rose-50/80 text-rose-800'
+                : 'border-[#e4eef8] bg-white/82 text-[#42557f]';
+            return (
+              <div key={choice} className={`rounded-[12px] border px-3 py-2 text-xs font-bold ${tone}`}>
+                {choice}
+              </div>
+            );
+          })}
+        </div>
+      )}
+      <div className="mt-3 flex flex-wrap gap-2 text-xs font-bold">
+        <span className={studentAnswer && studentAnswer !== correctAnswer ? 'rounded-full bg-rose-50 px-3 py-1 text-rose-700' : 'rounded-full bg-emerald-50 px-3 py-1 text-emerald-700'}>
+          あなた: {safeStudentAnswer}
+        </span>
+        <span className="rounded-full bg-emerald-50 px-3 py-1 text-emerald-700">正解: {safeCorrectAnswer}</span>
+      </div>
+    </div>
+  );
+}
+
 export default function EikenRealExamPage() {
   const contentRef = useRef(null);
   const { children, selectedChildId } = useChildren();
@@ -110,6 +232,7 @@ export default function EikenRealExamPage() {
   const questionCount = partData?.question_count || 0;
   const visibleQuestionNumbers = questionNumbers.length > 0 ? questionNumbers : buildQuestionNumbers(questionCount);
   const normalizedHtml = useMemo(() => normalizeEikenMediaHtml(partData?.html || ''), [partData?.html]);
+  const questionPreviews = useMemo(() => extractEikenQuestionPreviews(normalizedHtml, mode), [normalizedHtml, mode]);
   const audioSources = useMemo(
     () => (partData?.audio_paths || []).map(getEikenAudioSrc).filter(Boolean),
     [partData?.audio_paths],
@@ -629,6 +752,7 @@ export default function EikenRealExamPage() {
                       const studentAnswer = getQuestionAnswer(answers, item.question_number);
                       const isCorrect = studentAnswer && studentAnswer === item.correct_answer;
                       const isExpanded = expandedExplanations[item.question_number];
+                      const preview = questionPreviews[item.question_number];
                       return (
                         <article
                           key={item.question_number}
@@ -649,6 +773,12 @@ export default function EikenRealExamPage() {
                               {isExpanded ? '閉じる' : '解説を見る'}
                             </button>
                           </div>
+                          <EikenResultQuestionPreview
+                            preview={preview}
+                            studentAnswer={studentAnswer}
+                            correctAnswer={item.correct_answer}
+                            expanded={isExpanded}
+                          />
                           {isExpanded && (
                             <div
                               className="eiken-answer-explanation mt-3 rounded-[16px] bg-white/88 px-3 py-3 text-sm leading-7 text-[#42557f]"

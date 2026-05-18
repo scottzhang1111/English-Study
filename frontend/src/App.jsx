@@ -86,6 +86,7 @@ function App() {
   const hideBottomNav = isStudyRoute(location.pathname);
   const hideBottomNavOnMobile = location.pathname === '/grammar';
   const pageOwnsMobileStudyChrome = location.pathname === '/eiken-real';
+  const isDashboardRoute = location.pathname === '/' || location.pathname === '/app';
 
   return (
     <LanguageProvider>
@@ -132,6 +133,10 @@ function App() {
             pageOwnsMobileStudyChrome ? null : <StudyReturnControl />
           ) : hideBottomNavOnMobile ? (
             <div className="max-md:hidden">
+              <BottomNav />
+            </div>
+          ) : isDashboardRoute ? (
+            <div className="lg:hidden">
               <BottomNav />
             </div>
           ) : (

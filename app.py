@@ -489,7 +489,8 @@ def build_example_cloze_question(sentence, word):
     question = re.sub(rf'\b{escaped}\b', '____', sentence, count=1, flags=re.IGNORECASE)
     if question != sentence:
         return question
-    return re.sub(escaped, '____', sentence, count=1, flags=re.IGNORECASE)
+    question = re.sub(escaped, '____', sentence, count=1, flags=re.IGNORECASE)
+    return question if question != sentence else ''
 
 
 def build_vocab_expansion_question(mode=None, child_id=None):
@@ -6961,7 +6962,7 @@ def api_quiz():
     mastered_words = [entry.get('English', '').strip() for entry in mastered_entries if entry.get('English', '').strip()]
     quiz_candidates = [
         entry for entry in mastered_entries
-        if _clean_csv_value(entry.get('Example_English'))
+        if build_example_cloze_question(_clean_csv_value(entry.get('Example_English')), entry.get('English'))
     ]
 
     if not requested_word and not mastered_entries:

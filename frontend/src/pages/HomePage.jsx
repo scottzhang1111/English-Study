@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
-import { Link, Navigate, useNavigate } from 'react-router-dom';
+import { Link, Navigate, NavLink, useNavigate } from 'react-router-dom';
 import HeaderBar from '../components/HeaderBar';
 import PetDisplay from '../components/PetDisplay';
 import { getGrammarLessons, getHomeData } from '../api';
@@ -36,6 +36,45 @@ const PARTNER_LINES = [
 ];
 
 const MENU_ICONS = ['📖', '📝', '🔗', '❌', '✍️', '🏆', '🎧'];
+
+const DESKTOP_NAV_ITEMS = [
+  { label: 'ホーム', path: '/', icon: '⌂' },
+  { label: 'ペット図鑑', path: '/pokedex', icon: '★' },
+  { label: 'ぼうけんの記録', path: '/progress', icon: '↗' },
+  { label: '設定', path: '/settings', icon: '⚙' },
+];
+
+function DesktopDashboardNav() {
+  return (
+    <aside className="hidden lg:block">
+      <nav className="sticky top-6 rounded-[30px] border border-white/80 bg-white/86 p-3 shadow-[0_16px_36px_rgba(129,164,199,0.14)] backdrop-blur">
+        <div className="px-3 py-3">
+          <p className="text-xs font-black uppercase tracking-[0.22em] text-[#9aa7c4]">英楽語</p>
+          <p className="mt-1 text-sm font-bold text-[#52668c]">学習ダッシュボード</p>
+        </div>
+        <div className="mt-2 grid gap-2">
+          {DESKTOP_NAV_ITEMS.map((item) => (
+            <NavLink
+              key={item.path}
+              to={item.path}
+              end={item.path === '/'}
+              className={({ isActive }) =>
+                `flex items-center gap-2 rounded-[18px] px-3 py-3 text-sm font-bold transition ${
+                  isActive
+                    ? 'bg-[#fff2a8] text-[#5f4a00] shadow-[inset_0_0_0_1px_rgba(255,255,255,0.72)]'
+                    : 'text-[#65779f] hover:bg-[#f6fbff]'
+                }`
+              }
+            >
+              <span className="flex h-8 w-8 items-center justify-center rounded-[12px] bg-white/80 text-sm">{item.icon}</span>
+              <span>{item.label}</span>
+            </NavLink>
+          ))}
+        </div>
+      </nav>
+    </aside>
+  );
+}
 
 export default function HomePage() {
   const [data, setData] = useState(null);
@@ -200,8 +239,28 @@ export default function HomePage() {
   }
 
   return (
-    <div className="mx-auto max-w-7xl overflow-x-hidden px-3 pb-28 pt-2 max-md:pb-36 sm:px-6 md:pb-10">
-      <HeaderBar subtitle="英語を楽しく、毎日の習慣に。" />
+    <div className="mx-auto max-w-[1400px] overflow-x-hidden px-3 pb-28 pt-2 max-md:pb-36 sm:px-6 md:pb-10 lg:px-6 lg:pt-6">
+      <div className="lg:hidden">
+        <HeaderBar subtitle="英語を楽しく、毎日の習慣に。" />
+      </div>
+
+      <div className="hidden lg:mb-6 lg:flex lg:min-h-[78px] lg:items-center lg:justify-between lg:rounded-[30px] lg:border lg:border-white/80 lg:bg-white/86 lg:px-6 lg:py-4 lg:shadow-[0_16px_36px_rgba(129,164,199,0.13)] lg:backdrop-blur">
+        <div className="flex items-center gap-4">
+          <img src="/assets/homepage-icon.png" alt="英楽語" className="h-14 w-14 rounded-[18px] object-cover shadow-[0_10px_20px_rgba(255,193,31,0.20)]" />
+          <div>
+            <h1 className="display-font text-2xl font-black text-[#31406f]">英楽語</h1>
+            <p className="text-sm font-bold text-[#60709d]">英語を楽しく、毎日の習慣に。</p>
+          </div>
+        </div>
+        <div className="text-right">
+          <p className="text-sm font-black text-[#31406f]">{selectedChild.name} さん</p>
+          <p className="text-xs font-bold text-[#7d8db5]">{new Intl.DateTimeFormat('ja-JP', { month: 'numeric', day: 'numeric', weekday: 'long' }).format(new Date())}</p>
+        </div>
+      </div>
+
+      <div className="lg:grid lg:grid-cols-[180px_minmax(0,1fr)_300px] lg:items-start lg:gap-6">
+        <DesktopDashboardNav />
+        <main className="min-w-0">
 
         <motion.section
           initial={{ opacity: 0, y: 10 }}
@@ -255,7 +314,7 @@ export default function HomePage() {
                 <button
                   type="button"
                   onClick={() => navigate('/daily-words')}
-                  className="rounded-[24px] border border-[#f3d36a] bg-[linear-gradient(180deg,#fff6bd_0%,#ffd84f_100%)] p-4 text-left text-[#4f3900] shadow-[0_10px_0_rgba(170,120,0,0.78),0_16px_28px_rgba(255,191,31,0.22)] transition active:translate-y-0.5 active:shadow-[0_6px_0_rgba(170,120,0,0.78),0_10px_18px_rgba(255,191,31,0.18)] max-md:min-h-[116px] max-md:rounded-2xl max-md:p-3 max-md:shadow-[0_6px_0_rgba(170,120,0,0.72),0_10px_18px_rgba(255,191,31,0.18)]"
+                  className="rounded-[24px] border border-[#f3d36a] bg-[linear-gradient(180deg,#fff6bd_0%,#ffd84f_100%)] p-4 text-left text-[#4f3900] shadow-[0_10px_0_rgba(170,120,0,0.78),0_16px_28px_rgba(255,191,31,0.22)] transition active:translate-y-0.5 active:shadow-[0_6px_0_rgba(170,120,0,0.78),0_10px_18px_rgba(255,191,31,0.18)] max-md:min-h-[116px] max-md:rounded-2xl max-md:p-3 max-md:shadow-[0_6px_0_rgba(170,120,0,0.72),0_10px_18px_rgba(255,191,31,0.18)] md:min-h-[140px] md:p-5"
                 >
                   <div className="flex items-start justify-between gap-2">
                     <div className="min-w-0">
@@ -272,7 +331,7 @@ export default function HomePage() {
                 <button
                   type="button"
                   onClick={() => navigate('/grammar')}
-                  className="rounded-[24px] border border-[#dcecff] bg-white/86 p-4 text-left text-[#354172] shadow-[0_12px_26px_rgba(145,177,209,0.12)] transition hover:-translate-y-0.5 hover:bg-[#f8fcff] active:translate-y-0 max-md:min-h-[116px] max-md:rounded-2xl max-md:border-[#d8dcff] max-md:bg-[#f4f2ff] max-md:p-3"
+                  className="rounded-[24px] border border-[#dcecff] bg-white/86 p-4 text-left text-[#354172] shadow-[0_12px_26px_rgba(145,177,209,0.12)] transition hover:-translate-y-0.5 hover:bg-[#f8fcff] active:translate-y-0 max-md:min-h-[116px] max-md:rounded-2xl max-md:border-[#d8dcff] max-md:bg-[#f4f2ff] max-md:p-3 md:min-h-[140px] md:p-5"
                 >
                   <div className="flex items-start justify-between gap-2">
                     <div className="min-w-0">
@@ -336,7 +395,7 @@ export default function HomePage() {
               </div>
 
               {data && (
-                <div className="grid gap-3 max-md:hidden md:grid-cols-2">
+                <div className="hidden">
                   <div className="rounded-[24px] bg-white/80 p-4 shadow-[0_10px_24px_rgba(145,177,209,0.08)] max-md:p-3">
                     <div className="flex items-center justify-between gap-4 text-sm font-bold text-[#5e7093] max-md:text-xs">
                       <span>今日の単語</span>
@@ -359,7 +418,7 @@ export default function HomePage() {
                 </div>
               )}
 
-              <div className="grid grid-cols-3 gap-2 rounded-[22px] bg-white/54 p-2">
+              <div className="grid grid-cols-3 gap-2 rounded-[22px] bg-white/54 p-2 md:max-w-md">
                 <div className="rounded-2xl bg-white/68 px-2 py-2 text-center">
                   <div className="text-sm font-black text-[#354172] max-md:text-xl max-md:font-bold md:text-base">{data?.total_words ?? '-'}</div>
                   <div className="text-[10px] font-bold text-[#6f7da8] max-md:text-xs max-md:font-semibold">総単語数</div>
@@ -431,7 +490,7 @@ export default function HomePage() {
               )}
             </div>
 
-            <div className="relative mx-auto hidden w-full max-w-[260px] justify-center md:flex md:max-w-[300px] xl:max-w-[340px] xl:pt-1">
+            <div className="relative mx-auto hidden w-full max-w-[260px] justify-center md:flex md:max-w-[300px] lg:hidden xl:max-w-[340px] xl:pt-1">
               <PetDisplay
                 pet={data?.pet}
                 className="relative z-10 w-full"
@@ -443,8 +502,8 @@ export default function HomePage() {
           </div>
         </motion.section>
 
-      <section className="mt-5 max-md:mt-3">
-        <div className="relative overflow-hidden rounded-[26px] border border-white/90 bg-[linear-gradient(180deg,rgba(233,247,255,0.98)_0%,rgba(242,250,255,0.92)_100%)] px-4 py-5 shadow-[0_18px_46px_rgba(145,177,209,0.16)] max-md:px-3 max-md:py-4 md:rounded-[30px] md:px-7 md:py-8">
+      <section className="mt-5 max-md:mt-3 lg:mt-6">
+        <div className="relative overflow-hidden rounded-[26px] border border-white/90 bg-[linear-gradient(180deg,rgba(233,247,255,0.98)_0%,rgba(242,250,255,0.92)_100%)] px-4 py-5 shadow-[0_18px_46px_rgba(145,177,209,0.16)] max-md:px-3 max-md:py-4 md:rounded-[30px] md:px-7 md:py-8 lg:px-5 lg:py-5">
           <div className="pointer-events-none absolute inset-x-6 top-0 h-px bg-white/90" />
           <div className="pointer-events-none absolute -right-4 bottom-6 text-4xl text-white/55">✦</div>
 
@@ -453,16 +512,16 @@ export default function HomePage() {
             <h2 className="display-font mt-1 text-2xl font-extrabold text-[#1f315f] max-md:text-2xl max-md:font-bold">学習メニュー</h2>
           </div>
 
-          <div className="mt-5 grid grid-cols-2 gap-3 max-md:mt-4 max-md:gap-2.5 md:mt-8 md:grid-cols-3 md:gap-4">
+          <div className="mt-5 grid grid-cols-2 gap-3 max-md:mt-4 max-md:gap-2.5 md:mt-8 md:grid-cols-3 md:gap-4 lg:mt-5">
             {dailyTrainingItems.map((item, index) => (
               <Link
                 key={item.to}
                 to={item.to}
-              className={`group flex min-h-[132px] flex-col items-start gap-2.5 rounded-2xl border border-white/90 bg-white/78 p-3.5 text-[#1f315f] shadow-[0_12px_30px_rgba(145,177,209,0.10)] transition-all duration-200 active:scale-[0.98] max-md:min-h-[108px] max-md:gap-2 max-md:p-3 md:min-h-[118px] md:rounded-3xl md:p-4 md:hover:-translate-y-1 md:hover:bg-white/92 md:hover:shadow-lg ${
+              className={`group flex min-h-[132px] flex-col items-start gap-2.5 rounded-2xl border border-white/90 bg-white/78 p-3.5 text-[#1f315f] shadow-[0_12px_30px_rgba(145,177,209,0.10)] transition-all duration-200 active:scale-[0.98] max-md:min-h-[108px] max-md:gap-2 max-md:p-3 md:min-h-[118px] md:rounded-3xl md:p-4 md:hover:-translate-y-1 md:hover:bg-white/92 md:hover:shadow-lg lg:min-h-[112px] ${
                   index === 6 ? 'col-span-2 md:col-span-1' : ''
                 }`}
               >
-                <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-[15px] border border-[#dfeefa] bg-[#f8fcff] text-xl font-black shadow-[inset_0_0_0_1px_rgba(132,173,222,0.10)] max-md:h-10 max-md:w-10 max-md:rounded-[13px] max-md:text-lg md:h-14 md:w-14 md:rounded-[20px] md:text-2xl">
+                <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-[15px] border border-[#dfeefa] bg-[#f8fcff] text-xl font-black shadow-[inset_0_0_0_1px_rgba(132,173,222,0.10)] max-md:h-10 max-md:w-10 max-md:rounded-[13px] max-md:text-lg md:h-14 md:w-14 md:rounded-[20px] md:text-2xl lg:h-10 lg:w-10 lg:rounded-[16px] lg:text-xl">
                   {MENU_ICONS[index] || item.icon}
                 </span>
                 <span className="min-w-0 flex-1">
@@ -477,6 +536,42 @@ export default function HomePage() {
           </div>
         </div>
       </section>
+        </main>
+
+        <aside className="hidden lg:block">
+          <div className="sticky top-6 rounded-[30px] border border-white/80 bg-white/86 p-5 shadow-[0_16px_36px_rgba(129,164,199,0.14)] backdrop-blur">
+            <p className="text-xs font-black text-[#8fa0c2]">今日の相棒</p>
+            <div className="mt-3 rounded-[24px] bg-[#f8fcff] p-4 text-center">
+              <PetDisplay
+                pet={data?.pet}
+                className="mx-auto max-w-[220px]"
+                showDetails={false}
+                enableEffects
+              />
+            </div>
+            <h2 className="mt-4 text-xl font-black text-[#31406f]">{data?.pet?.name || partner?.name || 'ペット'}</h2>
+            <p className="mt-1 text-sm font-bold text-[#60709d]">Lv.{data?.pet?.level || 1}</p>
+            <div className="mt-4 rounded-[20px] bg-white/72 p-3">
+              <div className="flex items-center justify-between text-xs font-black text-[#61759e]">
+                <span>EXP</span>
+                <span>{data?.pet?.exp ?? 0} / {data?.pet?.max_exp ?? 100}</span>
+              </div>
+              <div className="mt-2 h-2.5 overflow-hidden rounded-full bg-[#edf1f7]">
+                <div
+                  className="h-full rounded-full bg-[linear-gradient(90deg,#bdefff,#ffd45a)]"
+                  style={{
+                    width: `${Math.min(100, (Number(data?.pet?.exp || 0) / Math.max(1, Number(data?.pet?.max_exp || 100))) * 100)}%`,
+                  }}
+                />
+              </div>
+            </div>
+            <p className="mt-4 rounded-[20px] bg-[#fff8d9] p-3 text-sm font-bold leading-6 text-[#6b5a2d]">{petBubbleText}</p>
+            {(isDailyComplete || isDailyOverComplete) && (
+              <div className="mt-3 rounded-full bg-[#eefbf1] px-3 py-2 text-center text-xs font-black text-[#2f6b42]">今日の目標クリア</div>
+            )}
+          </div>
+        </aside>
+      </div>
     </div>
   );
 }
