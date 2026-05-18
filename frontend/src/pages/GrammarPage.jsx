@@ -144,21 +144,67 @@ export default function GrammarPage() {
 
   if (loading) {
     return (
-      <div className="mx-auto max-w-6xl px-4 pb-32 pt-6 sm:px-6">
-        <HeaderBar subtitle="文法練習" />
+      <div className="mx-auto max-w-6xl px-4 pb-32 pt-6 sm:px-6 max-md:pt-3">
+        <div className="max-md:hidden">
+          <HeaderBar subtitle="文法練習" />
+        </div>
+        <div className="mb-4 rounded-[22px] border border-white/80 bg-white/90 px-4 py-3 shadow-[0_12px_28px_rgba(145,177,209,0.14)] md:hidden">
+          <button type="button" onClick={() => navigate('/app')} className="text-sm font-black text-[#52668c]">
+            ← ホームに戻る
+          </button>
+          <h1 className="mt-2 text-xl font-black text-[#31406f]">文法練習</h1>
+          <p className="text-sm font-bold text-[#7d8db5]">今日の文法を準備中...</p>
+        </div>
         <div className="panel p-6 text-center font-bold text-[#6f7da8]">文法レッスンを準備しています...</div>
       </div>
     );
   }
 
   return (
-    <div className="mx-auto max-w-6xl px-4 pb-32 pt-6 sm:px-6">
-      <HeaderBar subtitle="文法練習" />
+    <div className="mx-auto max-w-6xl px-4 pb-32 pt-6 sm:px-6 max-md:pb-32 max-md:pt-3">
+      <div className="max-md:hidden">
+        <HeaderBar subtitle="文法練習" />
+      </div>
+      <div className="mb-4 rounded-[22px] border border-white/80 bg-white/90 px-4 py-3 shadow-[0_12px_28px_rgba(145,177,209,0.14)] md:hidden">
+        <button type="button" onClick={() => navigate('/app')} className="text-sm font-black text-[#52668c]">
+          ← ホームに戻る
+        </button>
+        <h1 className="mt-2 text-xl font-black text-[#31406f]">文法練習</h1>
+        <p className="text-sm font-bold text-[#7d8db5]">今日の文法：{lesson?.title || 'レッスン'}</p>
+      </div>
       {error && <div className="panel mb-4 p-5 text-sm font-bold text-rose-700">{error}</div>}
 
-      <section className="overflow-hidden rounded-[34px] border border-white/90 bg-[linear-gradient(180deg,#eef8ff_0%,#fffdf7_100%)] p-5 shadow-[0_18px_44px_rgba(145,177,209,0.16)] sm:p-7">
+      <div className="mb-4 flex gap-2 overflow-x-auto pb-2 md:hidden">
+        {lessons.map((item) => {
+          const isMastered = item.progress?.status === 'mastered';
+          const isAvailable = item.lessonId === availableLessonId;
+          const canOpen = isMastered || isAvailable;
+          const isActive = activeLessonId === item.lessonId;
+          return (
+            <button
+              key={item.lessonId}
+              type="button"
+              disabled={!canOpen}
+              onClick={() => {
+                if (canOpen) setActiveLessonId(item.lessonId);
+              }}
+              className={`shrink-0 rounded-full border px-4 py-2 text-sm font-black shadow-sm transition ${
+                isActive
+                  ? 'border-[#ffd45a] bg-[#fff7d6] text-[#31406f]'
+                  : canOpen
+                    ? 'border-white/80 bg-white/82 text-[#51688f]'
+                    : 'border-white/60 bg-white/50 text-[#9ca8bc] opacity-70'
+              }`}
+            >
+              {item.title}{canOpen ? '' : ' 🔒'}
+            </button>
+          );
+        })}
+      </div>
+
+      <section className="overflow-hidden rounded-[34px] border border-white/90 bg-[linear-gradient(180deg,#eef8ff_0%,#fffdf7_100%)] p-5 shadow-[0_18px_44px_rgba(145,177,209,0.16)] sm:p-7 max-md:rounded-[24px] max-md:p-3">
         <div className="grid gap-5 lg:grid-cols-[320px_minmax(0,1fr)]">
-          <aside className="space-y-4">
+          <aside className="space-y-4 max-md:hidden">
             <div className="rounded-[28px] bg-white/82 p-5 shadow-[0_12px_26px_rgba(145,177,209,0.10)]">
               <p className="text-xs font-black text-[#8fa0c2]">今日の文法</p>
               <h1 className="display-font mt-1 text-3xl font-black text-[#31406f]">1日1レッスン</h1>
@@ -217,64 +263,65 @@ export default function GrammarPage() {
             </div>
           </aside>
 
-          <main className="min-h-[620px] rounded-[30px] bg-white/82 p-5 shadow-[0_12px_30px_rgba(145,177,209,0.10)] sm:p-7">
+          <main className="min-h-[620px] rounded-[30px] bg-white/82 p-5 shadow-[0_12px_30px_rgba(145,177,209,0.10)] sm:p-7 max-md:min-h-0 max-md:rounded-[22px] max-md:p-4">
             {detailLoading || !lesson ? (
               <div className="flex min-h-[420px] items-center justify-center text-sm font-bold text-[#6f7da8]">
                 レッスンを読み込んでいます...
               </div>
             ) : (
-              <div className="space-y-5">
-                <div className="flex flex-wrap items-start justify-between gap-3">
+              <div className="space-y-5 max-md:space-y-4">
+                <div className="flex flex-wrap items-start justify-between gap-3 max-md:rounded-[20px] max-md:bg-white/72 max-md:p-4">
                   <div>
                     <p className="text-sm font-black text-[#8fa0c2]">{lesson.category}</p>
-                    <h2 className="display-font mt-1 text-3xl font-black leading-tight text-[#31406f]">{lesson.title}</h2>
+                    <h2 className="display-font mt-1 text-3xl font-black leading-tight text-[#31406f] max-md:text-2xl">{lesson.title}</h2>
+                    <p className="mt-2 hidden text-lg font-semibold leading-7 text-[#354172] max-md:block">{lesson.grammarPoint}</p>
                   </div>
                   <span className={`rounded-full px-4 py-2 text-sm font-black ${statusClass(lesson.progress?.status)}`}>
                     {statusLabel(lesson.progress?.status)}
                   </span>
                 </div>
 
-                <div className="rounded-[26px] bg-[#f8fbff] p-5">
+                <div className="rounded-[26px] bg-[#f8fbff] p-5 max-md:hidden">
                   <p className="text-xs font-black text-[#8fa0c2]">文法ポイント</p>
                   <p className="mt-2 text-2xl font-black leading-9 text-[#354172]">{lesson.grammarPoint}</p>
                 </div>
 
                 <div className="grid gap-4 md:grid-cols-2">
-                  <article className="rounded-[26px] bg-[#fff8d9] p-5 text-[#665220]">
-                    <h3 className="font-black">どういう意味？</h3>
-                    <p className="mt-3 text-sm font-bold leading-7">{lesson.jpExplanation}</p>
+                  <article className="rounded-[26px] bg-[#fff8d9] p-5 text-[#665220] max-md:rounded-[20px] max-md:p-4">
+                    <h3 className="text-base font-black">どういう意味？</h3>
+                    <p className="mt-3 text-sm font-bold leading-7 max-md:text-base">{lesson.jpExplanation}</p>
                   </article>
-                  <article className="rounded-[26px] bg-[#eef8ff] p-5 text-[#354172]">
-                    <h3 className="font-black">今日できるようになること</h3>
-                    <p className="mt-3 text-sm font-bold leading-7">{lesson.learningGoal}</p>
+                  <article className="rounded-[26px] bg-[#eef8ff] p-5 text-[#354172] max-md:rounded-[20px] max-md:p-4">
+                    <h3 className="text-base font-black">今日できるようになること</h3>
+                    <p className="mt-3 text-sm font-bold leading-7 max-md:text-base">{lesson.learningGoal}</p>
                   </article>
                 </div>
 
-                <div className="rounded-[26px] bg-white p-5 shadow-[inset_0_0_0_1px_rgba(132,173,222,0.16)]">
+                <div className="rounded-[26px] bg-white p-5 shadow-[inset_0_0_0_1px_rgba(132,173,222,0.16)] max-md:rounded-[20px] max-md:p-4">
                   <div className="flex flex-wrap items-center justify-between gap-3">
-                    <h3 className="font-black text-[#354172]">例文</h3>
+                    <h3 className="text-base font-black text-[#354172]">例文</h3>
                     <button
                       type="button"
                       onClick={() => speak(lesson.enExample)}
-                      className="ghost-button px-4 py-2 text-sm"
+                      className="ghost-button px-4 py-2 text-sm max-md:px-3 max-md:py-2"
                     >
                       例文を聞く
                     </button>
                   </div>
-                  <p className="mt-3 text-xl font-black leading-8 text-[#31406f]">{lesson.enExample}</p>
+                  <p className="mt-3 text-xl font-black leading-8 text-[#31406f] max-md:text-lg">{lesson.enExample}</p>
                   <p className="mt-2 text-sm font-bold leading-6 text-[#60709d]">{lesson.jpExample}</p>
                 </div>
 
                 {mode === 'learn' && (
-                  <div className="rounded-[28px] bg-[#f8fbff] p-5">
+                  <div className="rounded-[28px] bg-[#f8fbff] p-5 max-md:rounded-[20px] max-md:p-4">
                     <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                       <div>
-                        <h3 className="display-font text-2xl font-black text-[#31406f]">まずはここまで</h3>
+                        <h3 className="display-font text-2xl font-black text-[#31406f] max-md:text-xl">まずはここまで</h3>
                         <p className="mt-2 text-sm font-bold leading-6 text-[#60709d]">
                           文法ポイントと例文を読めたら、確認クイズに進みましょう。
                         </p>
                       </div>
-                      <button type="button" onClick={handleStartLesson} className="pill-button px-6 py-3 text-sm">
+                      <button type="button" onClick={handleStartLesson} className="pill-button px-6 py-3 text-sm max-md:min-h-12 max-md:w-full max-md:text-base">
                         練習へ進む
                       </button>
                     </div>

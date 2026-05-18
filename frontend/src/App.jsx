@@ -84,6 +84,7 @@ function StudyReturnControl() {
 function App() {
   const location = useLocation();
   const hideBottomNav = isStudyRoute(location.pathname);
+  const hideBottomNavOnMobile = location.pathname === '/grammar';
 
   return (
     <LanguageProvider>
@@ -126,7 +127,15 @@ function App() {
             <Route path="*" element={<Navigate replace to="/" />} />
             </Routes>
           </AnimatePresence>
-          {hideBottomNav ? <StudyReturnControl /> : <BottomNav />}
+          {hideBottomNav ? (
+            <StudyReturnControl />
+          ) : hideBottomNavOnMobile ? (
+            <div className="max-md:hidden">
+              <BottomNav />
+            </div>
+          ) : (
+            <BottomNav />
+          )}
         </div>
       </ChildrenProvider>
     </LanguageProvider>
