@@ -556,6 +556,21 @@ export const getEikenRealExamPart = async (partId) => {
   return { part_id: partId, html: '', audio_paths: [], question_count: 0 };
 };
 
+export const submitEikenRealExamAttempt = async ({ childId, partId, answers, startedAt } = {}) => {
+  if (DATA_MODE !== 'static') {
+    return fetchJson('/api/eiken-real-exams/attempts', {
+      method: 'POST',
+      body: {
+        child_id: childId,
+        part_id: partId,
+        answers,
+        started_at: startedAt,
+      },
+    });
+  }
+  return { answer_key_available: false, answered_count: Object.keys(answers || {}).length, total_questions: 0 };
+};
+
 export const submitPracticeAnswer = async ({ id, word, selected, correct, childId }) => {
   if (DATA_MODE !== 'static') {
     return fetchJson('/api/practice-answer', {

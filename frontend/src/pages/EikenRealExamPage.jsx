@@ -1,6 +1,8 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
-import { getEikenRealExamPart, getEikenRealExams } from '../api';
+import { getEikenRealExamPart, getEikenRealExams, submitEikenRealExamAttempt } from '../api';
+
+const CHILD_STORAGE_KEY = 'selected_child_id';
 
 function getDefaultPart(exam, mode) {
   const parts = mode === 'written' ? exam?.written_parts : exam?.listening_parts;
@@ -64,6 +66,10 @@ export default function EikenRealExamPage() {
   const [selectedPartId, setSelectedPartId] = useState('');
   const [partData, setPartData] = useState(null);
   const [answeredCount, setAnsweredCount] = useState(0);
+  const [answers, setAnswers] = useState({});
+  const [result, setResult] = useState(null);
+  const [startedAt, setStartedAt] = useState(() => new Date().toISOString());
+  const [submitting, setSubmitting] = useState(false);
   const [loading, setLoading] = useState(true);
   const [partLoading, setPartLoading] = useState(false);
   const [error, setError] = useState('');
@@ -112,6 +118,9 @@ export default function EikenRealExamPage() {
     setPartLoading(true);
     setError('');
     setAnsweredCount(0);
+    setAnswers({});
+    setResult(null);
+    setStartedAt(new Date().toISOString());
     getEikenRealExamPart(selectedPartId)
       .then((payload) => {
         if (!active) return;
@@ -138,12 +147,40 @@ export default function EikenRealExamPage() {
           .map((input) => input.name)
           .filter(Boolean),
       );
+      const nextAnswers = {};
+      element.querySelectorAll('input[type="radio"]:checked').forEach((input) => {
+        nextAnswers[input.name] = input.value;
+      });
       setAnsweredCount(Math.min(checkedNames.size, names.size));
+      setAnswers(nextAnswers);
     };
     updateAnsweredCount();
     element.addEventListener('change', updateAnsweredCount);
     return () => element.removeEventListener('change', updateAnsweredCount);
   }, [partData?.part_id]);
+
+  useEffect(() => {
+    const element = contentRef.current;
+    if (!element || !result?.answer_key_available) return;
+    const correctAnswers = result.correct_answers || {};
+    element.querySelectorAll('td').forEach((cell) => {
+      cell.classList.remove('eiken-answer-correct', 'eiken-answer-wrong', 'eiken-answer-right-key');
+    });
+    element.querySelectorAll('input[type="radio"]').forEach((input) => {
+      const cell = input.closest('td');
+      if (!cell) return;
+      const correctAnswer = correctAnswers[input.name];
+      if (input.value === correctAnswer) {
+        cell.classList.add('eiken-answer-right-key');
+      }
+      if (input.checked && input.value === correctAnswer) {
+        cell.classList.add('eiken-answer-correct');
+      }
+      if (input.checked && input.value !== correctAnswer) {
+        cell.classList.add('eiken-answer-wrong');
+      }
+    });
+  }, [result]);
 
   useEffect(() => {
     const element = contentRef.current;
@@ -177,6 +214,32 @@ export default function EikenRealExamPage() {
       input.checked = false;
     });
     setAnsweredCount(0);
+    setAnswers({});
+    setResult(null);
+  };
+
+  const submitAnswers = async () => {
+    if (!partData?.part_id) return;
+    const childId = localStorage.getItem(CHILD_STORAGE_KEY) || '';
+    if (!childId) {
+      setError('子どもを選んでから提出してください。');
+      return;
+    }
+    setSubmitting(true);
+    setError('');
+    try {
+      const payload = await submitEikenRealExamAttempt({
+        childId,
+        partId: partData.part_id,
+        answers,
+        startedAt,
+      });
+      setResult(payload);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -201,6 +264,9 @@ export default function EikenRealExamPage() {
               <span className="rounded-full bg-[#eef8ff] px-3 py-2">問題 {questionCount || '-'} 問</span>
               <span className="rounded-full bg-[#fff7d6] px-3 py-2">回答 {answeredCount} / {questionCount || '-'}</span>
               {audioSources.length > 0 && <span className="rounded-full bg-[#eaf9ee] px-3 py-2">音声あり</span>}
+              {result?.answer_key_available && (
+                <span className="rounded-full bg-[#f0fbf2] px-3 py-2">正解 {result.correct_count} / {result.total_questions}</span>
+              )}
             </div>
 
             {audioSources.length > 0 && (
@@ -208,7 +274,7 @@ export default function EikenRealExamPage() {
                 <p className="mb-2 text-[11px] font-black text-[#52668c]">音声プレーヤー</p>
                 <div className="space-y-2">
                   {audioSources.map((src, index) => (
-                    <audio key={`${src}-${index}`} controls preload="metadata" className="w-full">
+                    <audio key={`${src}-${index}`} controls preload="metadata" src={src} className="w-full">
                       <source src={src} type="audio/mpeg" />
                     </audio>
                   ))}
@@ -267,12 +333,57 @@ export default function EikenRealExamPage() {
               選択をリセット
             </button>
 
-            <p className="mt-6 rounded-[18px] bg-white/78 p-3 text-[10px] font-bold leading-5 text-[#6f7da8]">
-              採点ボタンはこの画面では使いません。答えを選んでから、先生や解答表と一緒に確認してください。
-            </p>
+            <button
+              type="button"
+              onClick={submitAnswers}
+              disabled={submitting || answeredCount === 0}
+              className="mt-3 w-full rounded-[14px] bg-[#26376d] px-3 py-3 text-xs font-black text-white shadow-sm disabled:opacity-45"
+            >
+              {submitting ? '提出中...' : '答えを提出'}
+            </button>
+
+            {result && (
+              <div className="mt-4 rounded-[18px] bg-white/86 p-3 text-[11px] font-bold leading-5 text-[#52668c] shadow-sm">
+                {result.answer_key_available ? (
+                  <>
+                    <p className="text-sm font-black text-[#26376d]">{result.correct_count} / {result.total_questions} 問正解</p>
+                    <p className="mt-1">スコア {result.score_percent}%</p>
+                  </>
+                ) : (
+                  <>
+                    <p className="text-sm font-black text-[#26376d]">作答を保存しました</p>
+                    <p className="mt-1">このパートの解答表は未登録です。解答表を登録すると自動採点できます。</p>
+                  </>
+                )}
+              </div>
+            )}
           </aside>
 
           <main className="min-w-0 px-3 py-3 sm:px-4">
+            {result && (
+              <section className="mb-4 rounded-[20px] bg-white/88 p-4 text-sm font-bold text-[#52668c] shadow-[0_8px_18px_rgba(145,177,209,0.10)]">
+                {result.answer_key_available ? (
+                  <div>
+                    <h2 className="text-lg font-black text-[#26376d]">採点結果</h2>
+                    <p className="mt-1">正解 {result.correct_count} / {result.total_questions} ・ {result.score_percent}%</p>
+                    {result.wrong_questions?.length > 0 && (
+                      <div className="mt-3 flex flex-wrap gap-2">
+                        {result.wrong_questions.map((item) => (
+                          <span key={item.question_number} className="rounded-full bg-rose-50 px-3 py-1 text-xs font-black text-rose-700">
+                            問{item.question_number}: 正解 {item.correct_answer || '-'}
+                          </span>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                ) : (
+                  <div>
+                    <h2 className="text-lg font-black text-[#26376d]">提出を保存しました</h2>
+                    <p className="mt-1">子どもの作答データは保存済みです。正解表示には解答表の登録が必要です。</p>
+                  </div>
+                )}
+              </section>
+            )}
             <div ref={contentRef} className="eiken-real-content" dangerouslySetInnerHTML={{ __html: normalizedHtml }} />
           </main>
         </motion.div>

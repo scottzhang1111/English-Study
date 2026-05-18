@@ -34,6 +34,7 @@ DB_FILENAME = 'practice_data.db'
 VOCAB_FILENAME = os.path.join('data', 'eiken', 'eiken_pre2', 'eiken_pre2_web_ready_db', 'eiken_vocab_database_with_synonyms_utf8_bom.csv')
 EIKEN_PRE2_BANK_FILENAME = os.path.join('data', 'eiken', 'eiken_pre2', 'eiken_pre2_web_ready_db', 'eiken_pre2_web_ready.sqlite')
 EIKEN_REAL_EXAM_DIR = os.path.join('data', 'eiken', 'eiken real exam', 'Listening', 'www.cloudsemi.com', 'member', 'eiken', 'eikenj2')
+EIKEN_REAL_EXAM_ANSWER_KEY_FILENAME = os.path.join('data', 'eiken', 'eiken_real_exam_answer_key.json')
 GRAMMAR_LESSON_DB_FILENAME = os.path.join('data', 'eiken', 'eiken_pre2', 'eiken_pre2 grammar', 'eiken_pre2_grammar_lessons.db')
 GRAMMAR_FORM_TEST_DB_FILENAME = os.path.join('data', 'eiken', 'eiken_pre2', 'eiken_pre2 grammar', 'eiken_pre2_grammar_form_test_sample_17.db')
 OPENAI_RESPONSES_URL = 'https://api.openai.com/v1/responses'
@@ -1900,6 +1901,50 @@ def init_db(force=False):
             '''
             CREATE INDEX IF NOT EXISTS idx_eiken_pre2_answers_question
             ON eiken_pre2_student_answers (question_id, child_id, answered_at)
+            '''
+        )
+        conn.execute(
+            '''
+            CREATE TABLE IF NOT EXISTS eiken_real_exam_attempts (
+                attempt_id TEXT PRIMARY KEY,
+                child_id INTEGER NOT NULL,
+                part_id TEXT NOT NULL,
+                exam_id TEXT NOT NULL,
+                mode TEXT NOT NULL,
+                started_at TEXT,
+                submitted_at TEXT NOT NULL,
+                total_questions INTEGER NOT NULL,
+                answered_count INTEGER NOT NULL,
+                correct_count INTEGER,
+                score_percent REAL,
+                answer_key_available INTEGER NOT NULL DEFAULT 0,
+                created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (child_id) REFERENCES children (id) ON UPDATE CASCADE ON DELETE CASCADE
+            )
+            '''
+        )
+        conn.execute(
+            '''
+            CREATE TABLE IF NOT EXISTS eiken_real_exam_student_answers (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                attempt_id TEXT NOT NULL,
+                child_id INTEGER NOT NULL,
+                part_id TEXT NOT NULL,
+                question_number INTEGER NOT NULL,
+                student_answer TEXT,
+                correct_answer TEXT,
+                is_correct INTEGER,
+                answered_at TEXT NOT NULL,
+                FOREIGN KEY (attempt_id) REFERENCES eiken_real_exam_attempts (attempt_id) ON UPDATE CASCADE ON DELETE CASCADE,
+                FOREIGN KEY (child_id) REFERENCES children (id) ON UPDATE CASCADE ON DELETE CASCADE,
+                UNIQUE (attempt_id, question_number)
+            )
+            '''
+        )
+        conn.execute(
+            '''
+            CREATE INDEX IF NOT EXISTS idx_eiken_real_answers_child_wrong
+            ON eiken_real_exam_student_answers (child_id, is_correct, answered_at)
             '''
         )
         conn.execute(
@@ -6162,6 +6207,148 @@ def sanitize_eiken_real_exam_html(part_id):
     }
 
 
+def normalize_eiken_answer(value):
+    text = str(value or '').strip()
+    match = re.search(r'[1-4]', text)
+    return f'({match.group(0)})' if match else text
+
+
+def load_eiken_real_exam_answer_key():
+    if not os.path.exists(EIKEN_REAL_EXAM_ANSWER_KEY_FILENAME):
+        return {}
+    try:
+        with open(EIKEN_REAL_EXAM_ANSWER_KEY_FILENAME, 'r', encoding='utf-8') as handle:
+            data = json.load(handle)
+    except (OSError, json.JSONDecodeError):
+        return {}
+    return data if isinstance(data, dict) else {}
+
+
+def get_eiken_real_exam_answer_key(part_id):
+    all_keys = load_eiken_real_exam_answer_key()
+    raw_key = all_keys.get(part_id) or {}
+    if isinstance(raw_key, list):
+        return {index + 1: normalize_eiken_answer(value) for index, value in enumerate(raw_key)}
+    if isinstance(raw_key, dict):
+        normalized = {}
+        for key, value in raw_key.items():
+            match = re.search(r'\d+', str(key))
+            if match:
+                normalized[int(match.group(0))] = normalize_eiken_answer(value)
+        return normalized
+    return {}
+
+
+def submit_eiken_real_exam_attempt(child_id, part_id, answers, started_at=None):
+    meta = get_eiken_real_exam_part_meta(part_id)
+    if not meta:
+        raise LookupError('exam part not found')
+    part_data = sanitize_eiken_real_exam_html(part_id)
+    question_numbers = part_data.get('question_numbers') or []
+    answer_key = get_eiken_real_exam_answer_key(meta['part_id'])
+    key_available = bool(answer_key)
+    now = get_now_iso()
+    attempt_id = uuid.uuid4().hex
+
+    normalized_answers = {}
+    for key, value in (answers or {}).items():
+        match = re.search(r'\d+', str(key))
+        if match:
+            normalized_answers[int(match.group(0))] = normalize_eiken_answer(value)
+
+    rows = []
+    correct_count = 0
+    answered_count = 0
+    wrong_questions = []
+    for question_number in question_numbers:
+        student_answer = normalized_answers.get(question_number, '')
+        correct_answer = answer_key.get(question_number, '') if key_available else ''
+        is_correct = None
+        if student_answer:
+            answered_count += 1
+        if key_available:
+            is_correct = bool(student_answer and student_answer == correct_answer)
+            if is_correct:
+                correct_count += 1
+            else:
+                wrong_questions.append({
+                    'question_number': question_number,
+                    'student_answer': student_answer,
+                    'correct_answer': correct_answer,
+                })
+        rows.append((question_number, student_answer, correct_answer, is_correct))
+
+    total_questions = len(question_numbers)
+    score_percent = round((correct_count / total_questions) * 100, 1) if key_available and total_questions else None
+
+    init_db()
+    conn = get_db_connection()
+    try:
+        child_row = conn.execute('SELECT id FROM children WHERE id = ?', (child_id,)).fetchone()
+        if not child_row:
+            raise LookupError('child not found')
+        conn.execute(
+            '''
+            INSERT INTO eiken_real_exam_attempts (
+                attempt_id, child_id, part_id, exam_id, mode, started_at, submitted_at,
+                total_questions, answered_count, correct_count, score_percent, answer_key_available
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            ''',
+            (
+                attempt_id,
+                child_id,
+                meta['part_id'],
+                meta['exam_id'],
+                meta['mode'],
+                started_at,
+                now,
+                total_questions,
+                answered_count,
+                correct_count if key_available else None,
+                score_percent,
+                1 if key_available else 0,
+            ),
+        )
+        for question_number, student_answer, correct_answer, is_correct in rows:
+            conn.execute(
+                '''
+                INSERT INTO eiken_real_exam_student_answers (
+                    attempt_id, child_id, part_id, question_number, student_answer,
+                    correct_answer, is_correct, answered_at
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                ''',
+                (
+                    attempt_id,
+                    child_id,
+                    meta['part_id'],
+                    question_number,
+                    student_answer,
+                    correct_answer,
+                    None if is_correct is None else (1 if is_correct else 0),
+                    now,
+                ),
+            )
+        conn.commit()
+    finally:
+        conn.close()
+
+    return {
+        'attempt_id': attempt_id,
+        'child_id': child_id,
+        'part_id': meta['part_id'],
+        'exam_id': meta['exam_id'],
+        'mode': meta['mode'],
+        'submitted_at': now,
+        'total_questions': total_questions,
+        'answered_count': answered_count,
+        'correct_count': correct_count if key_available else None,
+        'score_percent': score_percent,
+        'answer_key_available': key_available,
+        'correct_answers': {f'問{number}': answer for number, answer in sorted(answer_key.items())},
+        'wrong_questions': wrong_questions,
+    }
+
+
 @app.route('/api/eiken-real-exams')
 def api_eiken_real_exams():
     return jsonify({'exams': list_eiken_real_exams()})
@@ -6173,6 +6360,26 @@ def api_eiken_real_exam_part(part_id):
         return jsonify(sanitize_eiken_real_exam_html(part_id))
     except LookupError as exc:
         abort(404, str(exc))
+
+
+@app.route('/api/eiken-real-exams/attempts', methods=['POST'])
+def api_eiken_real_exam_attempts():
+    data = request.get_json(silent=True) or {}
+    child_id = data.get('child_id') or data.get('childId')
+    part_id = data.get('part_id') or data.get('partId')
+    answers = data.get('answers') or {}
+    if child_id in [None, '', 'null']:
+        abort(400, 'child_id is required')
+    if not part_id:
+        abort(400, 'part_id is required')
+    try:
+        child_id = int(child_id)
+        result = submit_eiken_real_exam_attempt(child_id, part_id, answers, data.get('started_at') or data.get('startedAt'))
+    except LookupError as exc:
+        abort(404, str(exc))
+    except ValueError as exc:
+        abort(400, str(exc))
+    return jsonify(result)
 
 
 @app.route('/api/eiken-real-exams/assets/<path:asset_path>')
@@ -6219,6 +6426,24 @@ def serve_react_app(path):
 def serve_react_assets(path):
     dist_assets_dir = os.path.join(app.root_path, 'frontend', 'dist', 'assets')
     return send_from_directory(dist_assets_dir, path)
+
+
+@app.route('/eiken/audio/<path:filename>')
+def serve_eiken_audio(filename):
+    dist_audio_dir = os.path.join(app.root_path, 'frontend', 'dist', 'eiken', 'audio')
+    public_audio_dir = os.path.join(app.root_path, 'frontend', 'public', 'eiken', 'audio')
+    if os.path.exists(os.path.join(dist_audio_dir, filename)):
+        return send_from_directory(dist_audio_dir, filename)
+    return send_from_directory(public_audio_dir, filename)
+
+
+@app.route('/eiken/images/<path:filename>')
+def serve_eiken_images(filename):
+    dist_images_dir = os.path.join(app.root_path, 'frontend', 'dist', 'eiken', 'images')
+    public_images_dir = os.path.join(app.root_path, 'frontend', 'public', 'eiken', 'images')
+    if os.path.exists(os.path.join(dist_images_dir, filename)):
+        return send_from_directory(dist_images_dir, filename)
+    return send_from_directory(public_images_dir, filename)
 
 
 @app.route('/api/home')

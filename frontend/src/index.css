@@ -415,6 +415,24 @@ button {
   color: #24386d;
 }
 
+.eiken-real-content .hpb-cnt-tb1 td.eiken-answer-right-key {
+  border-color: #8fd59d !important;
+  background: #f0fbf2 !important;
+  color: #2f6445 !important;
+}
+
+.eiken-real-content .hpb-cnt-tb1 td.eiken-answer-correct {
+  border-color: #58bd71 !important;
+  background: #dff8e6 !important;
+  color: #22553a !important;
+}
+
+.eiken-real-content .hpb-cnt-tb1 td.eiken-answer-wrong {
+  border-color: #f2b0bd !important;
+  background: #fff1f4 !important;
+  color: #aa3854 !important;
+}
+
 .eiken-real-content .hpb-cnt-tb1 td:first-child {
   width: 128px !important;
   white-space: nowrap;
