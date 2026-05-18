@@ -32,10 +32,27 @@ function getEikenImageSrc(imagePath) {
   return fileName ? `${getBaseUrl()}eiken/images/${encodeURIComponent(fileName)}` : null;
 }
 
-function normalizeEikenImageHtml(html = '') {
-  return html.replace(/\b(src)=(["'])([^"']+\.(?:png|gif|jpg|jpeg))(?:[?#][^"']*)?\2/gi, (match, attr, quote, value) => {
-    const imageSrc = getEikenImageSrc(value);
-    return imageSrc ? `${attr}=${quote}${imageSrc}${quote}` : match;
+function getEikenAudioSrc(audioPath) {
+  if (!audioPath) return null;
+  const value = audioPath.trim();
+  if (/^(data:|blob:)/i.test(value)) return value;
+  const cleanPath = value
+    .split(/[?#]/)[0]
+    .replace(/\\/g, '/')
+    .replace(/^\.?\//, '')
+    .replace(/^public\//, '')
+    .replace(/^app\//, '')
+    .replace(/^api\/eiken-real-exams\/assets\//, '')
+    .replace(/^eiken\/audio\//, '')
+    .replace(/^mp3\//, '');
+  const fileName = cleanPath.split('/').filter(Boolean).pop();
+  return fileName ? `${getBaseUrl()}eiken/audio/${encodeURIComponent(fileName)}` : null;
+}
+
+function normalizeEikenMediaHtml(html = '') {
+  return html.replace(/\b(src)=(["'])([^"']+\.(?:png|gif|jpg|jpeg|mp3|wav|m4a))(?:[?#][^"']*)?\2/gi, (match, attr, quote, value) => {
+    const mediaSrc = /\.(?:mp3|wav|m4a)$/i.test(value) ? getEikenAudioSrc(value) : getEikenImageSrc(value);
+    return mediaSrc ? `${attr}=${quote}${mediaSrc}${quote}` : match;
   });
 }
 
@@ -57,7 +74,11 @@ export default function EikenRealExamPage() {
   );
   const parts = useMemo(() => getPartList(selectedExam, mode), [selectedExam, mode]);
   const questionCount = partData?.question_count || 0;
-  const normalizedHtml = useMemo(() => normalizeEikenImageHtml(partData?.html || ''), [partData?.html]);
+  const normalizedHtml = useMemo(() => normalizeEikenMediaHtml(partData?.html || ''), [partData?.html]);
+  const audioSources = useMemo(
+    () => (partData?.audio_paths || []).map(getEikenAudioSrc).filter(Boolean),
+    [partData?.audio_paths],
+  );
 
   useEffect(() => {
     let active = true;
@@ -179,8 +200,21 @@ export default function EikenRealExamPage() {
             <div className="mt-5 grid gap-2 text-[11px] font-black text-[#5d70a1]">
               <span className="rounded-full bg-[#eef8ff] px-3 py-2">問題 {questionCount || '-'} 問</span>
               <span className="rounded-full bg-[#fff7d6] px-3 py-2">回答 {answeredCount} / {questionCount || '-'}</span>
-              {partData.audio_paths?.length > 0 && <span className="rounded-full bg-[#eaf9ee] px-3 py-2">音声あり</span>}
+              {audioSources.length > 0 && <span className="rounded-full bg-[#eaf9ee] px-3 py-2">音声あり</span>}
             </div>
+
+            {audioSources.length > 0 && (
+              <div className="mt-5 rounded-[18px] bg-white/78 p-3 shadow-sm">
+                <p className="mb-2 text-[11px] font-black text-[#52668c]">音声プレーヤー</p>
+                <div className="space-y-2">
+                  {audioSources.map((src, index) => (
+                    <audio key={`${src}-${index}`} controls preload="metadata" className="w-full">
+                      <source src={src} type="audio/mpeg" />
+                    </audio>
+                  ))}
+                </div>
+              </div>
+            )}
 
             <div className="mt-8 space-y-3">
               <label className="block text-[11px] font-black text-[#52668c]">
