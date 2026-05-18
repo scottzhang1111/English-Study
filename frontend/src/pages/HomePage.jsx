@@ -251,20 +251,20 @@ export default function HomePage() {
                 )}
               </div>
 
-              <div className="grid gap-3 md:grid-cols-2">
+              <div className="grid gap-3 max-md:grid-cols-2 max-md:gap-2 md:grid-cols-2">
                 <button
                   type="button"
                   onClick={() => navigate('/daily-words')}
-                  className="rounded-[24px] border border-[#f3d36a] bg-[linear-gradient(180deg,#fff6bd_0%,#ffd84f_100%)] p-4 text-left text-[#4f3900] shadow-[0_10px_0_rgba(170,120,0,0.78),0_16px_28px_rgba(255,191,31,0.22)] transition active:translate-y-0.5 active:shadow-[0_6px_0_rgba(170,120,0,0.78),0_10px_18px_rgba(255,191,31,0.18)] max-md:p-3"
+                  className="rounded-[24px] border border-[#f3d36a] bg-[linear-gradient(180deg,#fff6bd_0%,#ffd84f_100%)] p-4 text-left text-[#4f3900] shadow-[0_10px_0_rgba(170,120,0,0.78),0_16px_28px_rgba(255,191,31,0.22)] transition active:translate-y-0.5 active:shadow-[0_6px_0_rgba(170,120,0,0.78),0_10px_18px_rgba(255,191,31,0.18)] max-md:min-h-[116px] max-md:rounded-2xl max-md:p-3 max-md:shadow-[0_6px_0_rgba(170,120,0,0.72),0_10px_18px_rgba(255,191,31,0.18)]"
                 >
-                  <div className="flex items-start justify-between gap-3">
+                  <div className="flex items-start justify-between gap-2">
                     <div className="min-w-0">
-                      <p className="display-font text-2xl font-black leading-tight max-md:text-xl">単語を学ぶ</p>
-                      <p className="mt-1 text-sm font-black text-[#6b5a2d]">今日 {safeTodayTarget}語</p>
+                      <p className="display-font text-2xl font-black leading-tight max-md:text-lg">単語を学ぶ</p>
+                      <p className="mt-1 text-sm font-black text-[#6b5a2d] max-md:text-xs">今日 {safeTodayTarget}語</p>
                     </div>
-                    <span className="rounded-full bg-white/82 px-3 py-1 text-xs font-black">{todayStudied} / {safeTodayTarget}</span>
+                    <span className="shrink-0 rounded-full bg-white/82 px-3 py-1 text-xs font-black max-md:px-2 max-md:py-0.5 max-md:text-[11px]">{todayStudied} / {safeTodayTarget}</span>
                   </div>
-                  <div className="mt-4 h-2.5 overflow-hidden rounded-full bg-white/70 max-md:mt-3">
+                  <div className="mt-4 h-2.5 overflow-hidden rounded-full bg-white/70 max-md:mt-3 max-md:h-1.5">
                     <div className="h-full rounded-full bg-[#ffb81f]" style={{ width: progressWidth }} />
                   </div>
                 </button>
@@ -272,17 +272,17 @@ export default function HomePage() {
                 <button
                   type="button"
                   onClick={() => navigate('/grammar')}
-                  className="rounded-[24px] border border-[#dcecff] bg-white/86 p-4 text-left text-[#354172] shadow-[0_12px_26px_rgba(145,177,209,0.12)] transition hover:-translate-y-0.5 hover:bg-[#f8fcff] active:translate-y-0 max-md:p-3"
+                  className="rounded-[24px] border border-[#dcecff] bg-white/86 p-4 text-left text-[#354172] shadow-[0_12px_26px_rgba(145,177,209,0.12)] transition hover:-translate-y-0.5 hover:bg-[#f8fcff] active:translate-y-0 max-md:min-h-[116px] max-md:rounded-2xl max-md:border-[#d8dcff] max-md:bg-[#f4f2ff] max-md:p-3"
                 >
-                  <div className="flex items-start justify-between gap-3">
+                  <div className="flex items-start justify-between gap-2">
                     <div className="min-w-0">
-                      <p className="display-font text-2xl font-black leading-tight max-md:text-xl">文法を学ぶ</p>
-                      <p className="mt-1 truncate text-sm font-black text-[#60709d]">{grammarLessonTitle}</p>
-                      <p className="mt-0.5 text-xs font-bold text-[#8fa0c2]">今日 1レッスン</p>
+                      <p className="display-font text-2xl font-black leading-tight max-md:text-lg">文法を学ぶ</p>
+                      <p className="mt-1 truncate text-sm font-black text-[#60709d] max-md:text-xs">{grammarLessonTitle}</p>
+                      <p className="mt-0.5 text-xs font-bold text-[#8fa0c2] max-md:text-[11px]">今日 1レッスン</p>
                     </div>
-                    <span className="rounded-full bg-[#eef8ff] px-3 py-1 text-xs font-black text-[#51688f]">{grammarDailyDone} / 1</span>
+                    <span className="shrink-0 rounded-full bg-[#eef8ff] px-3 py-1 text-xs font-black text-[#51688f] max-md:px-2 max-md:py-0.5 max-md:text-[11px]">{grammarDailyDone} / 1</span>
                   </div>
-                  <div className="mt-4 h-2.5 overflow-hidden rounded-full bg-[#edf1f7] max-md:mt-3">
+                  <div className="mt-4 h-2.5 overflow-hidden rounded-full bg-[#edf1f7] max-md:mt-3 max-md:h-1.5">
                     <div className="h-full rounded-full bg-[linear-gradient(90deg,#bdefff,#83d7ff)]" style={{ width: grammarProgressWidth }} />
                   </div>
                 </button>
@@ -336,7 +336,7 @@ export default function HomePage() {
               </div>
 
               {data && (
-                <div className="grid gap-3 md:grid-cols-2">
+                <div className="grid gap-3 max-md:hidden md:grid-cols-2">
                   <div className="rounded-[24px] bg-white/80 p-4 shadow-[0_10px_24px_rgba(145,177,209,0.08)] max-md:p-3">
                     <div className="flex items-center justify-between gap-4 text-sm font-bold text-[#5e7093] max-md:text-xs">
                       <span>今日の単語</span>
