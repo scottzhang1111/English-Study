@@ -353,6 +353,12 @@ button {
   box-shadow: 0 10px 22px rgba(145, 177, 209, 0.1);
 }
 
+@media (min-width: 1024px) {
+  .web-learning-content > header.panel {
+    display: none;
+  }
+}
+
 @keyframes air-rabbit-float-breathe {
   0%,
   100% {

@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import HeaderBar from '../components/HeaderBar';
+import WebLearningLayout from '../components/WebLearningLayout';
 import {
   getGrammarLesson,
   getGrammarLessons,
@@ -144,7 +145,7 @@ export default function GrammarPage() {
 
   if (loading) {
     return (
-      <div className="mx-auto max-w-6xl px-4 pb-32 pt-6 sm:px-6 max-md:pt-3">
+      <WebLearningLayout title="文法練習" subtitle="1日1レッスン" mobileTight>
         <div className="max-md:hidden">
           <HeaderBar subtitle="文法練習" />
         </div>
@@ -156,12 +157,12 @@ export default function GrammarPage() {
           <p className="text-sm font-bold text-[#7d8db5]">今日の文法を準備中...</p>
         </div>
         <div className="panel p-6 text-center font-bold text-[#6f7da8]">文法レッスンを準備しています...</div>
-      </div>
+      </WebLearningLayout>
     );
   }
 
   return (
-    <div className="mx-auto max-w-6xl px-4 pb-32 pt-6 sm:px-6 max-md:pb-32 max-md:pt-3">
+    <WebLearningLayout title="文法練習" subtitle="1日1レッスン" mobileTight>
       <div className="max-md:hidden">
         <HeaderBar subtitle="文法練習" />
       </div>
@@ -408,6 +409,6 @@ export default function GrammarPage() {
           </main>
         </div>
       </section>
-    </div>
+    </WebLearningLayout>
   );
 }

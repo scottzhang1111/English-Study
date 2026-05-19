@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import HeaderBar from '../components/HeaderBar';
+import WebLearningLayout from '../components/WebLearningLayout';
 import { addPetExp, getFlashcardData, getHomeData, getLearnedWords, getTodayReviewQuiz, markMastered } from '../api';
 
 const DAILY_TARGET = 20;
@@ -313,26 +314,44 @@ export default function FlashcardPage() {
     : mode === 'review-complete' || progressValue >= DAILY_TARGET
       ? '100%'
       : progressPercent;
+  const rightPanel = (
+    <div className="rounded-3xl border border-white/80 bg-white/86 p-5 shadow-[0_16px_36px_rgba(129,164,199,0.14)] backdrop-blur">
+      <p className="text-xs font-bold text-[#8fa0c2]">今日の単語</p>
+      <h2 className="mt-2 text-2xl font-bold text-[#31406f]">{progressValue} / {DAILY_TARGET}</h2>
+      <div className="mt-4 h-2.5 overflow-hidden rounded-full bg-[#edf1f7]">
+        <div className="h-full rounded-full bg-[linear-gradient(90deg,#ffe65a,#ffb81f)]" style={{ width: progressPercent }} />
+      </div>
+      <div className="mt-5 grid gap-3 text-sm font-bold text-[#60709d]">
+        <div className="rounded-2xl bg-[#f8fcff] p-3">表示中: {progressText}</div>
+        <div className="rounded-2xl bg-[#fff8d9] p-3">復習スコア: {reviewScore}</div>
+        <div className="rounded-2xl bg-[#f8fcff] p-3">単語一覧: {studyWords.length}</div>
+      </div>
+      <div className="mt-5 grid gap-3">
+        <button type="button" onClick={() => loadLearnedStudyWords()} className="pill-button px-4 py-3 text-sm">単語一覧</button>
+        <button type="button" onClick={() => navigate('/quiz')} className="ghost-button px-4 py-3 text-sm">クイズに進む</button>
+      </div>
+    </div>
+  );
   if (studyError) {
     return (
-      <div className="mx-auto max-w-5xl px-4 pb-32 pt-6 sm:px-6">
+      <WebLearningLayout title="単語カード" subtitle="覚えた単語を広く確認" rightPanel={rightPanel}>
         <HeaderBar subtitle="単語カード" />
         <div className="panel px-5 py-5 text-sm text-rose-700">{studyError}</div>
-      </div>
+      </WebLearningLayout>
     );
   }
 
   if (reviewError && mode === 'review') {
     return (
-      <div className="mx-auto max-w-5xl px-4 pb-32 pt-6 sm:px-6">
+      <WebLearningLayout title="単語カード" subtitle="復習クイズ" rightPanel={rightPanel}>
         <HeaderBar subtitle="単語カード" />
         <div className="panel px-5 py-5 text-sm text-rose-700">{reviewError}</div>
-      </div>
+      </WebLearningLayout>
     );
   }
 
   return (
-    <div className="mx-auto max-w-5xl px-4 pb-32 pt-6 sm:px-6">
+    <WebLearningLayout title="単語カード" subtitle="単語リストとカード学習" rightPanel={rightPanel}>
       <HeaderBar subtitle="単語カード" />
 
       <motion.section
@@ -770,6 +789,6 @@ export default function FlashcardPage() {
             )}
         </div>
       </motion.section>
-    </div>
+    </WebLearningLayout>
   );
 }

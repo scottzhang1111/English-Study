@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import HeaderBar from '../components/HeaderBar';
 import TtsButton from '../components/TtsButton';
+import WebLearningLayout from '../components/WebLearningLayout';
 import { getProgressData } from '../api';
 
 const CHILD_STORAGE_KEY = 'selected_child_id';
@@ -113,15 +114,15 @@ export default function ProgressPage() {
 
   if (error) {
     return (
-      <div className="mx-auto max-w-5xl px-4 pb-32 pt-6 sm:px-6">
+      <WebLearningLayout title="学習レポート" subtitle="日ごとの記録">
         <HeaderBar subtitle="学習レポート" />
         <div className="panel px-5 py-5 text-sm font-bold text-rose-700">{error}</div>
-      </div>
+      </WebLearningLayout>
     );
   }
 
   return (
-    <div className="mx-auto max-w-5xl px-4 pb-32 pt-6 sm:px-6">
+    <WebLearningLayout title="学習レポート" subtitle="日ごとの記録">
       <HeaderBar subtitle="学習レポート" />
 
       <section className="grid gap-5">
@@ -211,6 +212,6 @@ export default function ProgressPage() {
           </article>
         </div>
       </section>
-    </div>
+    </WebLearningLayout>
   );
 }

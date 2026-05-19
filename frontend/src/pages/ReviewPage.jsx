@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import HeaderBar from '../components/HeaderBar';
 import TtsButton from '../components/TtsButton';
+import WebLearningLayout from '../components/WebLearningLayout';
 import WrongQuestionCard from '../components/WrongQuestionCard';
 import {
   getBattleWrongQuestions,
@@ -29,6 +30,19 @@ export default function ReviewPage() {
   const [quizResult, setQuizResult] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const totalReviewCount = reviewList.length + battleWrongList.length + grammarFormWrongList.length + eikenWrongList.length;
+  const rightPanel = (
+    <div className="rounded-3xl border border-white/80 bg-white/86 p-5 shadow-[0_16px_36px_rgba(129,164,199,0.14)] backdrop-blur">
+      <p className="text-xs font-bold text-[#8fa0c2]">復習ステータス</p>
+      <h2 className="mt-2 text-2xl font-bold text-[#31406f]">{totalReviewCount} 件</h2>
+      <div className="mt-5 grid gap-3 text-sm font-bold text-[#60709d]">
+        <div className="rounded-2xl bg-[#f8fcff] p-3">単語: {reviewList.length}</div>
+        <div className="rounded-2xl bg-[#fff8d9] p-3">文法: {grammarFormWrongList.length}</div>
+        <div className="rounded-2xl bg-[#f8fcff] p-3">英検: {eikenWrongList.length}</div>
+      </div>
+      <Link to="/flashcard" className="pill-button mt-5 block px-4 py-3 text-center text-sm">単語を学ぶ</Link>
+    </div>
+  );
 
   useEffect(() => {
     const childId = localStorage.getItem(CHILD_STORAGE_KEY) || '';
@@ -123,7 +137,7 @@ export default function ReviewPage() {
   };
 
   return (
-    <div className="mx-auto max-w-4xl px-4 pb-32 pt-6 sm:px-6">
+    <WebLearningLayout title="復習リスト" subtitle="まちがえた問題を確認" rightPanel={rightPanel}>
       <HeaderBar subtitle="復習リスト" />
       <motion.section initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="panel px-6 py-6 sm:px-8">
         <div className="rounded-[28px] bg-[linear-gradient(180deg,#eef8ff_0%,#e3f3ff_100%)] p-6">
@@ -131,11 +145,22 @@ export default function ReviewPage() {
           <p className="mt-3 text-sm leading-6 text-[#6f7da8]">文法バトルと単語練習のまちがいを、やさしく復習できます。</p>
         </div>
 
+        {!loading && !error && totalReviewCount === 0 && (
+          <div className="mt-5 rounded-[28px] bg-white/76 p-8 text-center text-[#6f7da8]">
+            <h3 className="text-2xl font-bold text-[#31406f]">まだ復習する問題はありません。</h3>
+            <p className="mt-2 text-base font-bold">よくできました！</p>
+            <div className="mt-6 flex flex-wrap justify-center gap-3">
+              <Link to="/" className="ghost-button px-5 py-3">ホームに戻る</Link>
+              <Link to="/flashcard" className="pill-button px-5 py-3">単語を学ぶ</Link>
+            </div>
+          </div>
+        )}
+
         {loading ? (
           <div className="mt-5 rounded-[24px] bg-white/70 p-6 text-center text-[#6f7da8]">復習リストを読み込み中...</div>
         ) : error ? (
           <div className="mt-5 rounded-[24px] bg-rose-50 p-6 text-sm text-rose-700">{error}</div>
-        ) : reviewList.length === 0 && battleWrongList.length === 0 && grammarFormWrongList.length === 0 && eikenWrongList.length === 0 ? (
+        ) : totalReviewCount === 0 && false ? (
           <div className="mt-5 rounded-[24px] bg-white/70 p-6 text-center text-[#6f7da8]">まだ復習する問題はありません。</div>
         ) : stage === 'detail' && selectedWord ? (
           <div className="mt-5 rounded-[28px] bg-white/82 p-5 shadow-[0_16px_36px_rgba(145,177,209,0.12)]">
@@ -317,6 +342,6 @@ export default function ReviewPage() {
           </div>
         )}
       </motion.section>
-    </div>
+    </WebLearningLayout>
   );
 }

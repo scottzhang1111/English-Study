@@ -45,7 +45,7 @@ export default function BottomNav() {
   ];
 
   return (
-    <nav className="bottom-nav fixed bottom-[max(0.75rem,env(safe-area-inset-bottom))] left-1/2 z-20 flex w-[calc(100%-1rem)] max-w-md -translate-x-1/2 items-stretch justify-between gap-1 rounded-[28px] border border-white/70 bg-white/92 px-2 py-2 shadow-[0_14px_34px_rgba(129,164,199,0.20)] backdrop-blur max-md:bottom-[max(0.5rem,env(safe-area-inset-bottom))] max-md:left-4 max-md:right-4 max-md:min-h-[68px] max-md:w-auto max-md:max-w-none max-md:translate-x-0 max-md:rounded-[22px] max-md:px-1.5 max-md:py-1 sm:w-auto">
+    <nav className="bottom-nav fixed bottom-[max(0.75rem,env(safe-area-inset-bottom))] left-1/2 z-20 flex w-[calc(100%-1rem)] max-w-md -translate-x-1/2 items-stretch justify-between gap-1 rounded-[28px] border border-white/70 bg-white/92 px-2 py-2 shadow-[0_14px_34px_rgba(129,164,199,0.20)] backdrop-blur max-md:bottom-[max(0.5rem,env(safe-area-inset-bottom))] max-md:left-4 max-md:right-4 max-md:min-h-[68px] max-md:w-auto max-md:max-w-none max-md:translate-x-0 max-md:rounded-[22px] max-md:px-1.5 max-md:py-1 sm:w-auto lg:hidden">
       {items.map((item) => (
         <NavLink
           key={item.path}

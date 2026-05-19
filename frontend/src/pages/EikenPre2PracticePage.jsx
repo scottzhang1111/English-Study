@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import HeaderBar from '../components/HeaderBar';
+import WebLearningLayout from '../components/WebLearningLayout';
 import WrongQuestionCard from '../components/WrongQuestionCard';
 import { useChildren } from '../ChildrenContext';
 import {
@@ -60,6 +61,23 @@ export default function EikenPre2PracticePage() {
   const currentAnswer = currentQuestion ? answers[currentQuestion.question_id] || '' : '';
   const currentResult = currentQuestion ? answerResults[currentQuestion.question_id] : null;
   const selectedChild = children.find((child) => String(child.id) === String(selectedChildId));
+  const selectedSet = sets.find((item) => item.set_id === selectedSetId);
+  const answeredCount = Object.keys(answerResults).length;
+  const mistakeCount = Object.values(answerResults).filter((item) => item && item.is_correct === false).length;
+  const rightPanel = (
+    <div className="rounded-3xl border border-white/80 bg-white/86 p-5 shadow-[0_16px_36px_rgba(129,164,199,0.14)] backdrop-blur">
+      <p className="text-xs font-bold text-[#8fa0c2]">今日の特訓</p>
+      <h2 className="mt-2 text-2xl font-bold text-[#31406f]">{selectedSetId || 'SET'}</h2>
+      <div className="mt-5 grid gap-3 text-sm font-bold text-[#60709d]">
+        <div className="rounded-2xl bg-[#f8fcff] p-3">SET01 30問: {selectedSet?.question_count || '-'}</div>
+        <div className="rounded-2xl bg-[#fff8d9] p-3">回答済み: {answeredCount}</div>
+        <div className="rounded-2xl bg-[#f8fcff] p-3">ミス: {mistakeCount}</div>
+      </div>
+      <p className="mt-5 rounded-2xl bg-[#fff8d9] p-3 text-sm font-bold leading-6 text-[#6b5a2d]">
+        45秒チャレンジです。あわてず、1問ずつ確認しましょう。
+      </p>
+    </div>
+  );
 
   useEffect(() => {
     if (childrenLoading) return undefined;
@@ -206,7 +224,7 @@ export default function EikenPre2PracticePage() {
     : currentQuestion;
 
   return (
-    <div className="mx-auto max-w-5xl px-4 pb-32 pt-6 sm:px-6">
+    <WebLearningLayout title="英検準2級 A特訓" subtitle="45秒チャレンジ" rightPanel={rightPanel}>
       <HeaderBar subtitle="英検準2級 AI特訓" />
 
       <motion.section initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} className="panel px-5 py-5 sm:px-7">
@@ -313,6 +331,6 @@ export default function EikenPre2PracticePage() {
           </div>
         ) : null}
       </motion.section>
-    </div>
+    </WebLearningLayout>
   );
 }
