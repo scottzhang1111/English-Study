@@ -1550,6 +1550,7 @@ def init_db(force=False):
                 grade TEXT NOT NULL,
                 target_level TEXT NOT NULL,
                 daily_target INTEGER NOT NULL DEFAULT 20,
+                study_mode TEXT NOT NULL DEFAULT 'normal',
                 starter_pokemon_id INTEGER,
                 created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
                 updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -1648,6 +1649,10 @@ def init_db(force=False):
                 updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
                 correct_streak INTEGER NOT NULL DEFAULT 0,
                 mastery INTEGER NOT NULL DEFAULT 0,
+                status TEXT NOT NULL DEFAULT 'new',
+                mastered_at TEXT,
+                last_reviewed_at TEXT,
+                is_parent_marked_mastered INTEGER NOT NULL DEFAULT 0,
                 FOREIGN KEY (child_id) REFERENCES children (id) ON UPDATE CASCADE ON DELETE CASCADE,
                 FOREIGN KEY (vocab_id) REFERENCES vocabulary (id) ON UPDATE CASCADE ON DELETE CASCADE,
                 UNIQUE (child_id, vocab_id)
@@ -2382,13 +2387,15 @@ def migrate_children_profile_fields(conn):
         conn.execute('ALTER TABLE children ADD COLUMN daily_target INTEGER NOT NULL DEFAULT 20')
     if 'starter_pokemon_id' not in columns:
         conn.execute('ALTER TABLE children ADD COLUMN starter_pokemon_id INTEGER')
+    if 'study_mode' not in columns:
+        conn.execute("ALTER TABLE children ADD COLUMN study_mode TEXT NOT NULL DEFAULT 'normal'")
 
     child_rows = conn.execute(
         '''
         SELECT c.id
         FROM children AS c
         LEFT JOIN child_pokemon_collection AS p ON p.child_id = c.id
-        WHERE c.daily_target IS NULL OR c.daily_target <= 0 OR c.starter_pokemon_id IS NULL
+        WHERE c.daily_target IS NULL OR c.daily_target <= 0 OR c.starter_pokemon_id IS NULL OR c.study_mode IS NULL OR c.study_mode = ''
         GROUP BY c.id
         '''
     ).fetchall()
@@ -2417,7 +2424,7 @@ def migrate_children_profile_fields(conn):
             ).fetchone()
         starter_id = int(starter_row['pokemon_id']) if starter_row and starter_row['pokemon_id'] else get_random_pokemon_id(conn)
         conn.execute(
-            'UPDATE children SET daily_target = COALESCE(daily_target, 20), starter_pokemon_id = ? WHERE id = ?',
+            "UPDATE children SET daily_target = COALESCE(daily_target, 20), starter_pokemon_id = ?, study_mode = COALESCE(NULLIF(study_mode, ''), 'normal') WHERE id = ?",
             (starter_id, child_id),
         )
     conn.commit()
@@ -2511,6 +2518,38 @@ def migrate_child_vocab_progress(conn):
         conn.execute(
             'ALTER TABLE child_vocab_progress ADD COLUMN mastery INTEGER NOT NULL DEFAULT 0'
         )
+    if 'status' not in columns:
+        conn.execute("ALTER TABLE child_vocab_progress ADD COLUMN status TEXT NOT NULL DEFAULT 'new'")
+        conn.execute(
+            '''
+            UPDATE child_vocab_progress
+            SET status = CASE
+                WHEN mastered = 1 OR mastery >= 100 THEN 'mastered'
+                WHEN wrong_count > 0 THEN 'review'
+                ELSE 'learning'
+            END
+            '''
+        )
+    if 'mastered_at' not in columns:
+        conn.execute('ALTER TABLE child_vocab_progress ADD COLUMN mastered_at TEXT')
+        conn.execute(
+            '''
+            UPDATE child_vocab_progress
+            SET mastered_at = COALESCE(last_studied_at, updated_at)
+            WHERE (mastered = 1 OR mastery >= 100) AND mastered_at IS NULL
+            '''
+        )
+    if 'last_reviewed_at' not in columns:
+        conn.execute('ALTER TABLE child_vocab_progress ADD COLUMN last_reviewed_at TEXT')
+        conn.execute(
+            '''
+            UPDATE child_vocab_progress
+            SET last_reviewed_at = last_studied_at
+            WHERE last_studied_at IS NOT NULL AND last_reviewed_at IS NULL
+            '''
+        )
+    if 'is_parent_marked_mastered' not in columns:
+        conn.execute('ALTER TABLE child_vocab_progress ADD COLUMN is_parent_marked_mastered INTEGER NOT NULL DEFAULT 0')
 
 
 def migrate_vocabulary_word_columns(conn):
@@ -2689,7 +2728,7 @@ def get_children_list():
     conn = get_db_connection()
     try:
         rows = conn.execute(
-            'SELECT id, name, grade, target_level, daily_target, starter_pokemon_id, created_at, updated_at FROM children ORDER BY id ASC'
+            'SELECT id, name, grade, target_level, daily_target, study_mode, starter_pokemon_id, created_at, updated_at FROM children ORDER BY id ASC'
         ).fetchall()
     finally:
         conn.close()
@@ -2701,6 +2740,7 @@ def get_children_list():
             'grade': row['grade'],
             'target_level': row['target_level'],
             'daily_target': row['daily_target'],
+            'study_mode': row['study_mode'] or 'normal',
             'starter_pokemon_id': row['starter_pokemon_id'],
             'created_at': row['created_at'],
             'updated_at': row['updated_at'],
@@ -2734,6 +2774,7 @@ def upsert_child_profile(data):
     grade = (data.get('grade') or '').strip()
     target_level = (data.get('target_level') or '').strip()
     daily_target = data.get('daily_target', 20)
+    study_mode = (data.get('study_mode') or 'normal').strip()
     starter_pokemon_id = data.get('starter_pokemon_id')
     child_id = data.get('id')
 
@@ -2752,6 +2793,8 @@ def upsert_child_profile(data):
         raise ValueError('daily_target must be an integer')
     if daily_target < 1:
         raise ValueError('daily_target must be at least 1')
+    if study_mode not in {'normal', 'full_review', 'exam_mode'}:
+        study_mode = 'normal'
 
     starter_row = None
     if starter_pokemon_id not in [None, '', 'null']:
@@ -2775,19 +2818,19 @@ def upsert_child_profile(data):
             conn.execute(
                 '''
                 UPDATE children
-                SET name = ?, grade = ?, target_level = ?, daily_target = ?, starter_pokemon_id = ?
+                SET name = ?, grade = ?, target_level = ?, daily_target = ?, study_mode = ?, starter_pokemon_id = ?
                 WHERE id = ?
                 ''',
-                (name, grade, target_level, daily_target, starter_pokemon_id, child_id),
+                (name, grade, target_level, daily_target, study_mode, starter_pokemon_id, child_id),
             )
             target_child_id = child_id
         else:
             cur = conn.execute(
                 '''
-                INSERT INTO children (name, grade, target_level, daily_target, starter_pokemon_id)
-                VALUES (?, ?, ?, ?, ?)
+                INSERT INTO children (name, grade, target_level, daily_target, study_mode, starter_pokemon_id)
+                VALUES (?, ?, ?, ?, ?, ?)
                 ''',
-                (name, grade, target_level, daily_target, starter_pokemon_id),
+                (name, grade, target_level, daily_target, study_mode, starter_pokemon_id),
             )
             target_child_id = cur.lastrowid
 
@@ -2823,7 +2866,7 @@ def upsert_child_profile(data):
         conn.commit()
         child_row = conn.execute(
             '''
-            SELECT id, name, grade, target_level, daily_target, starter_pokemon_id, created_at, updated_at
+            SELECT id, name, grade, target_level, daily_target, study_mode, starter_pokemon_id, created_at, updated_at
             FROM children
             WHERE id = ?
             ''',
@@ -2849,7 +2892,7 @@ def recordStudyResult(child_id, vocab_id, isCorrect):
             (vocab_id,),
         )
         existing_progress = conn.execute(
-            'SELECT id, correct_streak, mastery FROM child_vocab_progress WHERE child_id = ? AND vocab_id = ?',
+            'SELECT id, correct_streak, mastery, status FROM child_vocab_progress WHERE child_id = ? AND vocab_id = ?',
             (child_id, vocab_id),
         ).fetchone()
         is_new_word = existing_progress is None
@@ -2857,6 +2900,8 @@ def recordStudyResult(child_id, vocab_id, isCorrect):
         next_streak = previous_streak + 1 if is_correct else 0
         previous_mastery = int(existing_progress['mastery'] or 0) if existing_progress else 0
         next_mastery = max(0, min(100, previous_mastery + (8 + min(next_streak, 5) if is_correct else -10)))
+        next_status = 'mastered' if next_mastery >= 100 else ('learning' if is_correct else 'review')
+        mastered_at = now if next_status == 'mastered' else None
 
         pet_exp = 10 if is_correct else 2
         if is_new_word:
@@ -2869,15 +2914,19 @@ def recordStudyResult(child_id, vocab_id, isCorrect):
             INSERT INTO child_vocab_progress (
                 child_id, vocab_id, correct_count, wrong_count, review_count,
                 memory_level, last_studied_at, mastered, created_at, updated_at, correct_streak, mastery
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                , status, mastered_at, last_reviewed_at
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             ON CONFLICT(child_id, vocab_id) DO UPDATE SET
                 correct_count = child_vocab_progress.correct_count + excluded.correct_count,
                 wrong_count = child_vocab_progress.wrong_count + excluded.wrong_count,
                 review_count = child_vocab_progress.review_count + 1,
                 last_studied_at = excluded.last_studied_at,
+                last_reviewed_at = excluded.last_reviewed_at,
                 correct_streak = excluded.correct_streak,
                 mastery = excluded.mastery,
                 mastered = CASE WHEN excluded.mastery >= 100 THEN 1 ELSE child_vocab_progress.mastered END,
+                mastered_at = CASE WHEN excluded.mastery >= 100 THEN COALESCE(child_vocab_progress.mastered_at, excluded.mastered_at) ELSE child_vocab_progress.mastered_at END,
+                status = CASE WHEN excluded.mastery >= 100 THEN 'mastered' ELSE excluded.status END,
                 updated_at = excluded.updated_at
             ''',
             (
@@ -2893,6 +2942,9 @@ def recordStudyResult(child_id, vocab_id, isCorrect):
                 now,
                 next_streak,
                 next_mastery,
+                next_status,
+                mastered_at,
+                now,
             ),
         )
 
@@ -6765,13 +6817,108 @@ def get_child_mastered_vocab_keys(child_id):
             '''
             SELECT vocab_id
             FROM child_vocab_progress
-            WHERE child_id = ? AND (mastered = 1 OR mastery >= 100)
+            WHERE child_id = ? AND status = 'mastered'
             ''',
             (child_id,),
         ).fetchall()
     finally:
         conn.close()
     return {str(row['vocab_id']).strip().lower() for row in rows if str(row['vocab_id']).strip()}
+
+
+WORD_STATUS_VALUES = {'new', 'learning', 'mastered', 'review', 'priority'}
+STUDY_MODE_VALUES = {'normal', 'full_review', 'exam_mode'}
+
+
+def normalize_word_status(status):
+    normalized = str(status or '').strip().lower()
+    return normalized if normalized in WORD_STATUS_VALUES else 'learning'
+
+
+def normalize_study_mode(study_mode):
+    normalized = str(study_mode or '').strip().lower()
+    return normalized if normalized in STUDY_MODE_VALUES else 'normal'
+
+
+def default_word_status_for_progress(row):
+    if not row:
+        return 'new'
+    explicit_status = str(row['status'] or '').strip().lower() if 'status' in row.keys() else ''
+    if explicit_status in WORD_STATUS_VALUES and explicit_status != 'new':
+        return explicit_status
+    if int(row['mastered'] or 0) == 1 or int(row['mastery'] or 0) >= 100:
+        return 'mastered'
+    if int(row['wrong_count'] or 0) > 0:
+        return 'review'
+    return 'learning'
+
+
+def get_child_word_progress_map(child_id):
+    if child_id is None:
+        return {}
+    conn = get_db_connection()
+    try:
+        rows = conn.execute(
+            '''
+            SELECT vocab_id, status, mastered_at, last_reviewed_at, wrong_count, correct_count,
+                   mastered, mastery, is_parent_marked_mastered, last_studied_at
+            FROM child_vocab_progress
+            WHERE child_id = ?
+            ''',
+            (child_id,),
+        ).fetchall()
+    finally:
+        conn.close()
+    return {str(row['vocab_id']): row for row in rows}
+
+
+def get_child_study_mode(child_id):
+    if child_id is None:
+        return 'normal'
+    conn = get_db_connection()
+    try:
+        row = conn.execute('SELECT study_mode FROM children WHERE id = ?', (child_id,)).fetchone()
+    finally:
+        conn.close()
+    return normalize_study_mode(row['study_mode'] if row else 'normal')
+
+
+def get_entry_eiken_level(entry):
+    return _clean_csv_value(entry.get('Level') or entry.get('level') or entry.get('Eiken_Level') or '準2級')
+
+
+def build_word_status_payload(child_id, level=None, search=None):
+    progress_map = get_child_word_progress_map(child_id)
+    level = _clean_csv_value(level)
+    search = _clean_csv_value(search).lower()
+    words = []
+    for entry in vocab_list:
+        vocab_id = str(entry.get('ID') or '').strip()
+        if not vocab_id:
+            continue
+        eiken_level = get_entry_eiken_level(entry)
+        word = entry.get('English', '')
+        meaning = entry.get('Japanese', '')
+        if level and level != 'ALL' and eiken_level != level:
+            continue
+        if search and search not in word.lower() and search not in meaning.lower():
+            continue
+        progress = progress_map.get(vocab_id)
+        status = default_word_status_for_progress(progress)
+        words.append({
+            'id': int(vocab_id) if vocab_id.isdigit() else vocab_id,
+            'word': word,
+            'japanese': meaning,
+            'meaningJa': meaning,
+            'level': eiken_level,
+            'status': status,
+            'mastered_at': progress['mastered_at'] if progress else None,
+            'last_reviewed_at': progress['last_reviewed_at'] if progress else None,
+            'wrong_count': int(progress['wrong_count'] or 0) if progress else 0,
+            'correct_count': int(progress['correct_count'] or 0) if progress else 0,
+            'is_parent_marked_mastered': bool(progress['is_parent_marked_mastered']) if progress else False,
+        })
+    return words
 
 
 def get_child_mastered_vocab_entries(child_id, entries=None):
@@ -6785,32 +6932,50 @@ def get_child_mastered_vocab_entries(child_id, entries=None):
     ]
 
 
-def select_daily_vocab_entries(limit, child_id=None):
-    mastered_keys = get_child_mastered_vocab_keys(child_id)
+def select_daily_vocab_entries(limit, child_id=None, study_mode=None):
+    progress_map = get_child_word_progress_map(child_id)
+    study_mode = normalize_study_mode(study_mode or get_child_study_mode(child_id))
+    status_order = {'priority': 0, 'review': 1, 'learning': 2, 'new': 3, 'mastered': 4}
     candidates = []
     for index, vocab in enumerate(vocab_list):
-        vocab_key = get_vocab_key(vocab)
-        if vocab_key and vocab_key in mastered_keys:
+        progress = progress_map.get(str(vocab.get('ID') or '').strip())
+        status = default_word_status_for_progress(progress)
+        if status == 'mastered' and study_mode == 'normal':
             continue
-        candidates.append((index, vocab))
+        candidates.append((index, vocab, status, progress))
 
     candidates.sort(
         key=lambda item: (
+            status_order.get(item[2], 9),
+            -int(item[3]['wrong_count'] or 0) if item[3] and study_mode == 'exam_mode' else 0,
             get_daily_importance_rank(item[1]),
             get_daily_part_of_speech_rank(item[1]),
             item[0],
         )
     )
-    return [vocab for _, vocab in candidates[:limit]]
+    if study_mode == 'full_review':
+        regular = [item for item in candidates if item[2] != 'mastered']
+        mastered = [item for item in candidates if item[2] == 'mastered']
+        review_slots = max(1, limit // 10) if mastered else 0
+        candidates = regular[:max(0, limit - review_slots)] + mastered[:review_slots]
+    elif study_mode == 'exam_mode':
+        regular = [item for item in candidates if item[2] != 'mastered']
+        mastered = [item for item in candidates if item[2] == 'mastered']
+        review_slots = max(1, limit // 5) if mastered else 0
+        candidates = regular[:max(0, limit - review_slots)] + mastered[:review_slots]
+    return [vocab for _, vocab, _, _ in candidates[:limit]]
 
 
-def build_daily_word_payloads(entries):
+def build_daily_word_payloads(entries, child_id=None):
+    progress_map = get_child_word_progress_map(child_id) if child_id is not None else {}
     return [
         {
             'id': vocab.get('ID', ''),
             'word': vocab.get('English', ''),
             'partOfSpeech': vocab.get('Category', ''),
             'meaningJa': vocab.get('Japanese', ''),
+            'level': get_entry_eiken_level(vocab),
+            'status': default_word_status_for_progress(progress_map.get(str(vocab.get('ID') or '').strip())),
             'meaningZh': vocab.get('Chinese', ''),
             'exampleEn': vocab.get('Example_English', '') or vocab.get('Example_English_Short', ''),
             'exampleJa': vocab.get('Example_Japanese', ''),
@@ -6835,7 +7000,7 @@ def api_daily_words():
             abort(400, 'child_id must be an integer')
         conn = get_db_connection()
         try:
-            child_row = conn.execute('SELECT daily_target FROM children WHERE id = ?', (resolved_child_id,)).fetchone()
+            child_row = conn.execute('SELECT daily_target, study_mode FROM children WHERE id = ?', (resolved_child_id,)).fetchone()
         finally:
             conn.close()
         if not child_row:
@@ -6848,8 +7013,150 @@ def api_daily_words():
         if child_row and child_row['daily_target']:
             limit = int(child_row['daily_target'])
     limit = max(1, min(200, limit))
-    words = build_daily_word_payloads(select_daily_vocab_entries(limit, resolved_child_id))
-    return jsonify(words=words, targetWordCount=limit)
+    study_mode = normalize_study_mode(child_row['study_mode'] if child_row else 'normal')
+    words = build_daily_word_payloads(select_daily_vocab_entries(limit, resolved_child_id, study_mode), resolved_child_id)
+    return jsonify(words=words, targetWordCount=limit, studyMode=study_mode)
+
+
+@app.route('/api/children/<int:child_id>/daily-words')
+def api_child_daily_words(child_id):
+    return api_daily_words_for_child(child_id)
+
+
+def api_daily_words_for_child(child_id):
+    requested_limit = request.args.get('limit')
+    conn = get_db_connection()
+    try:
+        child_row = conn.execute('SELECT daily_target, study_mode FROM children WHERE id = ?', (child_id,)).fetchone()
+    finally:
+        conn.close()
+    if not child_row:
+        abort(404, 'child not found')
+    try:
+        limit = int(requested_limit if requested_limit not in [None, ''] else child_row['daily_target'] or 20)
+    except (TypeError, ValueError):
+        limit = int(child_row['daily_target'] or 20)
+    limit = max(1, min(200, limit))
+    study_mode = normalize_study_mode(child_row['study_mode'])
+    words = build_daily_word_payloads(select_daily_vocab_entries(limit, child_id, study_mode), child_id)
+    return jsonify(words=words, targetWordCount=limit, studyMode=study_mode)
+
+
+def ensure_child_exists(conn, child_id):
+    row = conn.execute('SELECT id FROM children WHERE id = ?', (child_id,)).fetchone()
+    if not row:
+        abort(404, 'child not found')
+
+
+def upsert_child_word_status(child_id, vocab_id, status, parent_marked=False):
+    status = normalize_word_status(status)
+    now = get_now_iso()
+    mastered = 1 if status == 'mastered' else 0
+    mastery = 100 if status == 'mastered' else 0
+    mastered_at = now if status == 'mastered' else None
+    conn = get_db_connection()
+    try:
+        ensure_child_exists(conn, child_id)
+        conn.execute('INSERT OR IGNORE INTO vocabulary (id) VALUES (?)', (vocab_id,))
+        conn.execute(
+            '''
+            INSERT INTO child_vocab_progress (
+                child_id, vocab_id, correct_count, wrong_count, review_count,
+                memory_level, last_studied_at, mastered, created_at, updated_at,
+                correct_streak, mastery, status, mastered_at, last_reviewed_at,
+                is_parent_marked_mastered
+            ) VALUES (?, ?, 0, 0, 0, 0, NULL, ?, ?, ?, 0, ?, ?, ?, NULL, ?)
+            ON CONFLICT(child_id, vocab_id) DO UPDATE SET
+                status = excluded.status,
+                mastered = excluded.mastered,
+                mastery = CASE
+                    WHEN excluded.mastered = 1 AND child_vocab_progress.mastery < excluded.mastery THEN excluded.mastery
+                    ELSE child_vocab_progress.mastery
+                END,
+                mastered_at = CASE WHEN excluded.mastered = 1 THEN COALESCE(child_vocab_progress.mastered_at, excluded.mastered_at) ELSE NULL END,
+                is_parent_marked_mastered = CASE WHEN excluded.status = 'mastered' AND ? = 1 THEN 1 WHEN excluded.status <> 'mastered' THEN 0 ELSE child_vocab_progress.is_parent_marked_mastered END,
+                updated_at = excluded.updated_at
+            ''',
+            (
+                child_id,
+                vocab_id,
+                mastered,
+                now,
+                now,
+                mastery,
+                status,
+                mastered_at,
+                1 if parent_marked and status == 'mastered' else 0,
+                1 if parent_marked and status == 'mastered' else 0,
+            ),
+        )
+        conn.commit()
+    finally:
+        conn.close()
+
+
+@app.route('/api/children/<int:child_id>/word-status')
+def api_child_word_status(child_id):
+    level = request.args.get('level', '').strip()
+    search = request.args.get('search', '').strip()
+    conn = get_db_connection()
+    try:
+        ensure_child_exists(conn, child_id)
+        child_row = conn.execute('SELECT study_mode FROM children WHERE id = ?', (child_id,)).fetchone()
+    finally:
+        conn.close()
+    levels = sorted({get_entry_eiken_level(entry) for entry in vocab_list if get_entry_eiken_level(entry)})
+    return jsonify(
+        child_id=child_id,
+        study_mode=normalize_study_mode(child_row['study_mode'] if child_row else 'normal'),
+        levels=levels,
+        words=build_word_status_payload(child_id, level=level, search=search),
+    )
+
+
+@app.route('/api/children/<int:child_id>/words/<int:vocab_id>/status', methods=['POST'])
+def api_update_child_word_status(child_id, vocab_id):
+    data = request.get_json(silent=True) or {}
+    status = normalize_word_status(data.get('status'))
+    upsert_child_word_status(child_id, vocab_id, status, parent_marked=bool(data.get('is_parent_marked_mastered') or status == 'mastered'))
+    words = build_word_status_payload(child_id)
+    updated = next((word for word in words if str(word['id']) == str(vocab_id)), None)
+    return jsonify(word=updated)
+
+
+@app.route('/api/children/<int:child_id>/words/bulk-status', methods=['POST'])
+def api_bulk_update_child_word_status(child_id):
+    data = request.get_json(silent=True) or {}
+    status = normalize_word_status(data.get('status'))
+    raw_ids = data.get('word_ids') or data.get('wordIds') or []
+    if not isinstance(raw_ids, list) or not raw_ids:
+        abort(400, 'word_ids is required')
+    vocab_ids = []
+    for raw_id in raw_ids:
+        try:
+            vocab_ids.append(int(raw_id))
+        except (TypeError, ValueError):
+            abort(400, 'word_ids must be integers')
+    for vocab_id in vocab_ids:
+        upsert_child_word_status(child_id, vocab_id, status, parent_marked=(status == 'mastered'))
+    return jsonify(updated_count=len(vocab_ids), status=status)
+
+
+@app.route('/api/children/<int:child_id>/study-mode', methods=['POST'])
+def api_update_child_study_mode(child_id):
+    data = request.get_json(silent=True) or {}
+    study_mode = normalize_study_mode(data.get('study_mode'))
+    conn = get_db_connection()
+    try:
+        ensure_child_exists(conn, child_id)
+        conn.execute(
+            'UPDATE children SET study_mode = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?',
+            (study_mode, child_id),
+        )
+        conn.commit()
+    finally:
+        conn.close()
+    return jsonify(child_id=child_id, study_mode=study_mode)
 
 
 @app.route('/api/mark-mastered', methods=['POST'])
@@ -6883,18 +7190,21 @@ def api_mark_mastered():
                 INSERT INTO child_vocab_progress (
                     child_id, vocab_id, correct_count, wrong_count, review_count,
                     memory_level, last_studied_at, mastered, created_at, updated_at,
-                    correct_streak, mastery
-                ) VALUES (?, ?, 1, 0, 1, 0, ?, 1, ?, ?, 1, ?)
+                    correct_streak, mastery, status, mastered_at, last_reviewed_at
+                ) VALUES (?, ?, 1, 0, 1, 0, ?, 1, ?, ?, 1, ?, 'mastered', ?, ?)
                 ON CONFLICT(child_id, vocab_id) DO UPDATE SET
                     correct_count = child_vocab_progress.correct_count + 1,
                     review_count = child_vocab_progress.review_count + 1,
                     last_studied_at = excluded.last_studied_at,
+                    last_reviewed_at = excluded.last_reviewed_at,
                     mastered = 1,
+                    status = 'mastered',
+                    mastered_at = COALESCE(child_vocab_progress.mastered_at, excluded.mastered_at),
                     mastery = excluded.mastery,
                     correct_streak = child_vocab_progress.correct_streak + 1,
                     updated_at = excluded.updated_at
                 ''',
-                (child_id, vocab_id, now, now, now, next_mastery),
+                (child_id, vocab_id, now, now, now, next_mastery, now, now),
             )
             conn.execute(
                 '''
@@ -6913,7 +7223,7 @@ def api_mark_mastered():
         finally:
             conn.close()
 
-    progress = mark_word_mastered(word)
+    progress = mark_word_mastered(word) if child_id in [None, '', 'null'] else {'count': 0, 'mastered_words': []}
     settings = load_settings()
     target = settings.get('daily_target', 20)
     if child_id not in [None, '', 'null']:
@@ -6925,6 +7235,15 @@ def api_mark_mastered():
             ).fetchone()
             if child_row and child_row['daily_target']:
                 target = int(child_row['daily_target'])
+            mastered_count = conn.execute(
+                '''
+                SELECT COUNT(*) AS count
+                FROM child_vocab_progress
+                WHERE child_id = ? AND status = 'mastered'
+                ''',
+                (child_id,),
+            ).fetchone()
+            progress['count'] = mastered_count['count'] if mastered_count else 0
         finally:
             conn.close()
     remain = max(0, target - progress['count'])
@@ -7839,6 +8158,11 @@ def petlevel_redirect():
 @app.route('/progress')
 def progress_redirect():
     return redirect('/app/progress')
+
+
+@app.route('/parent/word-manager')
+def parent_word_manager_redirect():
+    return redirect('/app/parent/word-manager')
 
 
 @app.route('/settings')

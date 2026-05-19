@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
-import HeaderBar from '../components/HeaderBar';
 import TtsButton from '../components/TtsButton';
 import WebLearningLayout from '../components/WebLearningLayout';
 import WrongQuestionCard from '../components/WrongQuestionCard';
@@ -138,7 +137,6 @@ export default function ReviewPage() {
 
   return (
     <WebLearningLayout title="復習リスト" subtitle="まちがえた問題を確認" rightPanel={rightPanel}>
-      <HeaderBar subtitle="復習リスト" />
       <motion.section initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="panel px-6 py-6 sm:px-8">
         <div className="rounded-[28px] bg-[linear-gradient(180deg,#eef8ff_0%,#e3f3ff_100%)] p-6">
           <h2 className="display-font text-3xl font-extrabold text-[#354172]">まちがえた問題を見なおそう</h2>

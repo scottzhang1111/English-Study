@@ -1,6 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
-import HeaderBar from '../components/HeaderBar';
 import TtsButton from '../components/TtsButton';
 import WebLearningLayout from '../components/WebLearningLayout';
 import { getLearnedWords, submitVocabExpansionAnswer } from '../api';
@@ -151,7 +150,6 @@ export default function VocabExpansionPage() {
 
   return (
     <WebLearningLayout title="類義語・対義語" subtitle="関連語を広く確認" rightPanel={rightPanel}>
-      <HeaderBar subtitle="類義語・対義語" />
 
       {error ? (
         <div className="panel px-5 py-5 text-sm text-rose-700">{error}</div>

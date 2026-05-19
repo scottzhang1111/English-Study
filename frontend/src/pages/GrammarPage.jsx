@@ -1,6 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import HeaderBar from '../components/HeaderBar';
 import WebLearningLayout from '../components/WebLearningLayout';
 import {
   getGrammarLesson,
@@ -146,16 +145,6 @@ export default function GrammarPage() {
   if (loading) {
     return (
       <WebLearningLayout title="文法練習" subtitle="1日1レッスン" mobileTight>
-        <div className="max-md:hidden">
-          <HeaderBar subtitle="文法練習" />
-        </div>
-        <div className="mb-4 rounded-[22px] border border-white/80 bg-white/90 px-4 py-3 shadow-[0_12px_28px_rgba(145,177,209,0.14)] md:hidden">
-          <button type="button" onClick={() => navigate('/app')} className="text-sm font-black text-[#52668c]">
-            ← ホームに戻る
-          </button>
-          <h1 className="mt-2 text-xl font-black text-[#31406f]">文法練習</h1>
-          <p className="text-sm font-bold text-[#7d8db5]">今日の文法を準備中...</p>
-        </div>
         <div className="panel p-6 text-center font-bold text-[#6f7da8]">文法レッスンを準備しています...</div>
       </WebLearningLayout>
     );
@@ -163,16 +152,6 @@ export default function GrammarPage() {
 
   return (
     <WebLearningLayout title="文法練習" subtitle="1日1レッスン" mobileTight>
-      <div className="max-md:hidden">
-        <HeaderBar subtitle="文法練習" />
-      </div>
-      <div className="mb-4 rounded-[22px] border border-white/80 bg-white/90 px-4 py-3 shadow-[0_12px_28px_rgba(145,177,209,0.14)] md:hidden">
-        <button type="button" onClick={() => navigate('/app')} className="text-sm font-black text-[#52668c]">
-          ← ホームに戻る
-        </button>
-        <h1 className="mt-2 text-xl font-black text-[#31406f]">文法練習</h1>
-        <p className="text-sm font-bold text-[#7d8db5]">今日の文法：{lesson?.title || 'レッスン'}</p>
-      </div>
       {error && <div className="panel mb-4 p-5 text-sm font-bold text-rose-700">{error}</div>}
 
       <div className="mb-4 flex gap-2 overflow-x-auto pb-2 md:hidden">

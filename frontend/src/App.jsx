@@ -1,4 +1,4 @@
-import { Link, Routes, Route, useLocation, Navigate } from 'react-router-dom';
+import { Routes, Route, useLocation, Navigate } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import HomePage from './pages/HomePage';
 import AddChildPage from './pages/AddChildPage';
@@ -25,6 +25,7 @@ import PetRoomPage from './pages/PetRoomPage';
 import PetLevelPage from './pages/PetLevelPage';
 import ProgressPage from './pages/ProgressPage';
 import SettingsPage from './pages/SettingsPage';
+import ParentWordManagerPage from './pages/ParentWordManagerPage';
 import BottomNav from './components/BottomNav';
 import StartupGate, { RequireCurrentChild } from './components/StartupGate';
 import { LanguageProvider } from './LanguageContext';
@@ -71,17 +72,6 @@ function isStudyRoute(pathname) {
   return STUDY_ROUTE_PREFIXES.some((path) => pathname === path || pathname.startsWith(`${path}/`));
 }
 
-function StudyReturnControl() {
-  return (
-    <Link
-      to="/"
-      className="fixed left-3 top-3 z-30 rounded-full border border-white/80 bg-white/95 px-4 py-2 text-sm font-black text-[#435987] shadow-[0_12px_28px_rgba(103,148,191,0.16)] backdrop-blur transition hover:-translate-y-0.5 hover:bg-[#f8fcff] lg:hidden"
-    >
-      ← ホームに戻る
-    </Link>
-  );
-}
-
 function App() {
   const location = useLocation();
   const hideBottomNav = isStudyRoute(location.pathname);
@@ -125,6 +115,8 @@ function App() {
             <Route path="/pet" element={<AnimatedPage><ChildRequiredPage><PetRoomPage /></ChildRequiredPage></AnimatedPage>} />
             <Route path="/petlevel" element={<AnimatedPage><ChildRequiredPage><PetLevelPage /></ChildRequiredPage></AnimatedPage>} />
             <Route path="/progress" element={<AnimatedPage><ChildRequiredPage><ProgressPage /></ChildRequiredPage></AnimatedPage>} />
+            <Route path="/parent/word-manager" element={<AnimatedPage><ChildRequiredPage><ParentWordManagerPage /></ChildRequiredPage></AnimatedPage>} />
+            <Route path="/app/parent/word-manager" element={<AnimatedPage><ChildRequiredPage><ParentWordManagerPage /></ChildRequiredPage></AnimatedPage>} />
             <Route path="/settings" element={<AnimatedPage><SettingsPage /></AnimatedPage>} />
             <Route path="/settings/children" element={<AnimatedPage><SettingsPage /></AnimatedPage>} />
             <Route path="/settings/add-child" element={<AnimatedPage><AddChildPage /></AnimatedPage>} />
@@ -132,7 +124,7 @@ function App() {
               </Routes>
             </AnimatePresence>
             {hideBottomNav ? (
-              pageOwnsMobileStudyChrome ? null : <StudyReturnControl />
+              null
             ) : hideBottomNavOnMobile ? (
               <div className="max-md:hidden">
                 <BottomNav />

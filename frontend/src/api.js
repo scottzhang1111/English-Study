@@ -52,6 +52,8 @@ function normalizeApiChild(child) {
     id: String(child.id),
     targetLevel: child.targetLevel || child.target_level || '',
     dailyTarget: Number(child.dailyTarget || child.daily_target || 20),
+    studyMode: child.studyMode || child.study_mode || 'normal',
+    study_mode: child.study_mode || child.studyMode || 'normal',
     partnerMonsterId: child.partnerMonsterId || child.partner_monster_id || child.starter_pokemon_id || 1,
   };
 }
@@ -162,6 +164,63 @@ export const getDailyWords = async (options = 20) => {
     targetWordCount: Number(payload.targetWordCount || 20),
     words: limitedWords,
   };
+};
+
+export const getChildWordStatus = async ({ childId, level, search } = {}) => {
+  if (DATA_MODE !== 'static') {
+    return fetchJson(`/api/children/${encodeURIComponent(childId)}/word-status`, { params: { level, search } });
+  }
+  const words = await getWords();
+  return {
+    child_id: childId,
+    study_mode: 'normal',
+    levels: ['準2級'],
+    words: words
+      .filter((word) => !search || word.word.toLowerCase().includes(String(search).toLowerCase()) || word.jp.includes(search))
+      .map((word) => ({
+        id: word.id,
+        word: word.word,
+        japanese: word.jp,
+        meaningJa: word.jp,
+        level: '準2級',
+        status: 'new',
+        mastered_at: null,
+        last_reviewed_at: null,
+        wrong_count: 0,
+        correct_count: 0,
+        is_parent_marked_mastered: false,
+      })),
+  };
+};
+
+export const updateChildWordStatus = async ({ childId, wordId, status, isParentMarkedMastered } = {}) => {
+  if (DATA_MODE !== 'static') {
+    return fetchJson(`/api/children/${encodeURIComponent(childId)}/words/${encodeURIComponent(wordId)}/status`, {
+      method: 'POST',
+      body: { status, is_parent_marked_mastered: isParentMarkedMastered },
+    });
+  }
+  return { word: { id: wordId, status } };
+};
+
+export const updateChildWordsBulkStatus = async ({ childId, wordIds, status } = {}) => {
+  if (DATA_MODE !== 'static') {
+    return fetchJson(`/api/children/${encodeURIComponent(childId)}/words/bulk-status`, {
+      method: 'POST',
+      body: { word_ids: wordIds, status },
+    });
+  }
+  return { updated_count: wordIds?.length || 0, status };
+};
+
+export const updateChildStudyMode = async ({ childId, studyMode } = {}) => {
+  if (DATA_MODE !== 'static') {
+    return fetchJson(`/api/children/${encodeURIComponent(childId)}/study-mode`, {
+      method: 'POST',
+      body: { study_mode: studyMode },
+    });
+  }
+  return { child_id: childId, study_mode: studyMode };
 };
 
 export const markMastered = async ({ word, childId, vocabId }) => {

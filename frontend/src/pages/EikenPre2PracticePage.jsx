@@ -1,7 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import HeaderBar from '../components/HeaderBar';
 import WebLearningLayout from '../components/WebLearningLayout';
 import WrongQuestionCard from '../components/WrongQuestionCard';
 import { useChildren } from '../ChildrenContext';
@@ -225,7 +224,6 @@ export default function EikenPre2PracticePage() {
 
   return (
     <WebLearningLayout title="英検準2級 A特訓" subtitle="45秒チャレンジ" rightPanel={rightPanel}>
-      <HeaderBar subtitle="英検準2級 AI特訓" />
 
       <motion.section initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} className="panel px-5 py-5 sm:px-7">
         <div className="rounded-[28px] bg-[linear-gradient(180deg,#eef8ff_0%,#e3f3ff_100%)] p-5">

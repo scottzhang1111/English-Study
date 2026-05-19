@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
-import HeaderBar from '../components/HeaderBar';
 import TtsButton from '../components/TtsButton';
 import WebLearningLayout from '../components/WebLearningLayout';
 import { getLearnedWords, getQuizData, submitPracticeAnswer } from '../api';
@@ -147,7 +146,6 @@ export default function QuizPage() {
 
   return (
     <WebLearningLayout title="三択練習" subtitle="覚えた単語をクイズで確認" rightPanel={rightPanel}>
-      <HeaderBar subtitle="ミニ練習" />
 
       {error ? (
         <div className="panel px-5 py-5 text-sm text-rose-700">{error}</div>

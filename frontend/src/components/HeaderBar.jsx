@@ -1,3 +1,5 @@
+import { Link } from 'react-router-dom';
+
 function getTodayLabel() {
   const now = new Date();
   const date = new Intl.DateTimeFormat('ja-JP', {
@@ -11,11 +13,19 @@ function getTodayLabel() {
   return { date, weekday };
 }
 
-export default function HeaderBar({ subtitle }) {
+export default function HeaderBar({ subtitle, showBack = false, backTo = '/app' }) {
   const today = getTodayLabel();
 
   return (
     <header className="panel mb-3 max-w-full overflow-hidden px-1.5 py-1.5 md:px-6 md:py-3">
+      {showBack && (
+        <Link
+          to={backTo}
+          className="mb-2 inline-flex rounded-full border border-white/80 bg-white/95 px-4 py-2 text-sm font-black text-[#435987] shadow-[0_10px_22px_rgba(103,148,191,0.12)] md:hidden"
+        >
+          ← ホームに戻る
+        </Link>
+      )}
       <div className="relative flex max-w-full items-center gap-2 overflow-hidden rounded-[var(--radius-card)] bg-[linear-gradient(135deg,var(--color-surface-strong)_0%,color-mix(in_srgb,var(--color-bg)_56%,white)_52%,var(--color-surface-strong)_100%)] p-2.5 shadow-[inset_0_0_0_1px_rgba(255,255,255,0.72)] md:justify-between md:gap-4 md:p-6 lg:px-7 lg:py-5">
         <div className="flex min-w-0 flex-1 items-center gap-2.5 sm:gap-4">
           <div className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-[16px] bg-[var(--color-surface-strong)] text-sm font-black text-[var(--color-primary-dark)] shadow-[0_12px_22px_rgba(255,193,31,0.24),inset_0_-8px_12px_rgba(255,255,255,0.38)] md:h-20 md:w-20 md:rounded-[24px] md:text-[1.55rem]">

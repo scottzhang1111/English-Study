@@ -1,6 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import HeaderBar from '../components/HeaderBar';
 import WebLearningLayout from '../components/WebLearningLayout';
 import { getGrammarFormPractice, submitGrammarFormPracticeAnswer } from '../api';
 
@@ -79,7 +78,6 @@ export default function GrammarFormPracticePage() {
   if (loading) {
     return (
       <WebLearningLayout title="文法練習" subtitle="ランダム練習">
-        <HeaderBar subtitle="文法練習" />
         <div className="panel p-6 text-center font-bold text-[#6f7da8]">練習問題を準備しています...</div>
       </WebLearningLayout>
     );
@@ -87,7 +85,6 @@ export default function GrammarFormPracticePage() {
 
   return (
     <WebLearningLayout title="文法練習" subtitle="ランダム練習">
-      <HeaderBar subtitle="文法練習" />
       <section className="rounded-[34px] border border-white/90 bg-[linear-gradient(180deg,#eef8ff_0%,#fffdf7_100%)] p-5 shadow-[0_18px_44px_rgba(145,177,209,0.16)] sm:p-7">
         <div className="rounded-[28px] bg-white/82 p-5">
           <p className="text-xs font-black text-[#8fa0c2]">拡張練習</p>

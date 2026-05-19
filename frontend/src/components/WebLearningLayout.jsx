@@ -73,11 +73,12 @@ export default function WebLearningLayout({
   desktopRight = true,
   maxWidth = 'max-w-[1360px]',
   mobileTight = false,
+  mobileBack = true,
 }) {
   return (
     <div className={`mx-auto px-4 pb-32 pt-6 sm:px-6 lg:px-6 lg:py-6 lg:pb-10 ${mobileTight ? 'max-md:pt-3' : ''} ${maxWidth}`}>
       <div className="lg:hidden">
-        <HeaderBar subtitle={title} />
+        <HeaderBar subtitle={title} showBack={mobileBack} />
       </div>
 
       <div className={`lg:grid lg:items-start lg:gap-6 ${rightPanel && desktopRight ? 'lg:grid-cols-[160px_minmax(0,1fr)_280px]' : 'lg:grid-cols-[160px_minmax(0,1fr)]'}`}>

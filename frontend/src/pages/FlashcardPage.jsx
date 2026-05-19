@@ -1,7 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
-import HeaderBar from '../components/HeaderBar';
 import WebLearningLayout from '../components/WebLearningLayout';
 import { addPetExp, getFlashcardData, getHomeData, getLearnedWords, getTodayReviewQuiz, markMastered } from '../api';
 
@@ -335,7 +334,6 @@ export default function FlashcardPage() {
   if (studyError) {
     return (
       <WebLearningLayout title="単語カード" subtitle="覚えた単語を広く確認" rightPanel={rightPanel}>
-        <HeaderBar subtitle="単語カード" />
         <div className="panel px-5 py-5 text-sm text-rose-700">{studyError}</div>
       </WebLearningLayout>
     );
@@ -344,7 +342,6 @@ export default function FlashcardPage() {
   if (reviewError && mode === 'review') {
     return (
       <WebLearningLayout title="単語カード" subtitle="復習クイズ" rightPanel={rightPanel}>
-        <HeaderBar subtitle="単語カード" />
         <div className="panel px-5 py-5 text-sm text-rose-700">{reviewError}</div>
       </WebLearningLayout>
     );
@@ -352,7 +349,6 @@ export default function FlashcardPage() {
 
   return (
     <WebLearningLayout title="単語カード" subtitle="単語リストとカード学習" rightPanel={rightPanel}>
-      <HeaderBar subtitle="単語カード" />
 
       <motion.section
         initial={{ opacity: 0, y: 20 }}
