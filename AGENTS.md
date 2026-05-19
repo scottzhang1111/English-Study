@@ -1,14 +1,14 @@
 
-# Eiken Vocab Lab
+# Eigo Quest / 英語クエスト
 Do not solve state problems by adding more localStorage state.
 ## Project Goal
 
-This is a gamified English vocabulary learning app for children in Japan.
+This is a dark fantasy adventure English vocabulary learning app for children in Japan.
 
 Goals:
 - Help children memorize pronunciation
 - Help children understand word usage through example sentences
-- Make learning feel like a game
+- Make learning feel like a fantasy quest mobile game
 - Encourage daily study habits
 - Use a Pokémon-style reward and collection system
 - Support child-specific learning progress, review, and rewards
@@ -28,16 +28,22 @@ The core learning flow should be:
 
 Keep this flow stable before adding large new features.
 
-## UI Style
+## Target Mobile UI Style
 
-- Soft pastel colors
-- Rounded corners
-- Friendly for elementary school children
-- Minimal but playful
-- Smooth animations
-- Avoid overly complex layouts
-- Prefer large readable text
-- Use encouraging Japanese copy for children
+- Dark fantasy adventure learning app.
+- Deep navy background with subtle stars.
+- Purple glowing cards and glowing borders.
+- Cyan glow for progress, focus, and selected states.
+- Gold/yellow primary action buttons.
+- Large rounded cards.
+- Large touch targets for children.
+- Mobile-first layout.
+- Japanese UI text.
+- Clean layout, not too crowded.
+- Card-based learning UI.
+- Fixed bottom navigation for primary app sections.
+- Similar to a fantasy quest mobile game, while keeping learning content easy to read.
+- Smooth animations that support the quest feeling without distracting from study.
 
 Wrong answers should feel encouraging, not punishing.
 
@@ -72,13 +78,28 @@ unless it is only used internally in code.
 
 - Do NOT refactor the whole project unless explicitly asked.
 - Prefer incremental changes.
-- Keep the current design language.
+- Keep the Eigo Quest dark fantasy mobile design language.
 - Avoid breaking existing features.
 - Keep components reasonably small.
 - Do not introduce unnecessary dependencies.
 - Do not change routing or API contracts unless needed.
 - When fixing a bug, prefer the smallest safe change.
 - When a larger change is necessary, explain why in the final summary.
+
+## Frontend UI Change Rules
+
+- Do not modify backend unless explicitly requested.
+- Do not modify database unless explicitly requested.
+- Do not modify API behavior unless explicitly requested.
+- Do not modify quiz scoring logic.
+- Do not modify learning progress logic.
+- Only update frontend UI components unless explicitly requested.
+- Keep existing routes and click behavior.
+- Keep all existing data connections.
+- If data is missing, use safe fallback values for display only.
+- Make small incremental changes.
+- After each task, run: `cd frontend && npm run build`.
+- Report changed files and build result.
 
 ## Architecture Direction
 

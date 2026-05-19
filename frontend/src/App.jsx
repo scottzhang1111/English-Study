@@ -130,7 +130,7 @@ function App() {
                 <BottomNav />
               </div>
             ) : isDashboardRoute ? (
-              <div className="lg:hidden">
+              <div className="hidden">
                 <BottomNav />
               </div>
             ) : (

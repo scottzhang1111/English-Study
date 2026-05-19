@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
 import { Link, Navigate, NavLink, useNavigate } from 'react-router-dom';
 import HeaderBar from '../components/HeaderBar';
+import { EQBottomNav, EQBrandHeader, EQCard, EQMobileShell } from '../components/eigo';
 import { getGrammarLessons, getHomeData } from '../api';
 import { useChildren } from '../ChildrenContext';
 import { getPartner } from '../utils/childStorage';
@@ -331,6 +332,61 @@ export default function HomePage() {
   const grammarProgressWidth = `${grammarDailyDone * 100}%`;
   const grammarLessonTitle = todayGrammarLesson?.title || '今日の文法';
   const partner = selectedChild ? getPartner(selectedChild.partnerMonsterId) : null;
+  const adventureProgress = data
+    ? Math.min(100, Math.round((todayStudied / safeTodayTarget) * 100))
+    : 67;
+  const adventureProgressLabel = `${adventureProgress}%`;
+  const petImage = data?.pet?.image_url || data?.pet?.sprite_url || data?.pet?.imageUrl || partner?.image_url || AIR_RABBIT_DEFAULT_IMAGE;
+  const petName = data?.pet?.name || partner?.name || 'Air Rabbit';
+  const mobileDateLabel = new Intl.DateTimeFormat('ja-JP', {
+    month: 'numeric',
+    day: 'numeric',
+    weekday: 'short',
+  }).format(new Date());
+  const mobileLearningItems = [
+    {
+      title: '単語カード',
+      subtitle: '読む・聞く・例文で覚える',
+      badge: '目標クリア +40',
+      to: '/flashcard',
+      icon: '単',
+    },
+    {
+      title: 'クイズ練習',
+      subtitle: '覚えた単語をチェック',
+      badge: '未開始',
+      to: '/quiz',
+      icon: 'Q',
+    },
+    {
+      title: '類義語・対義語',
+      subtitle: '似た言葉・反対の言葉をチェック',
+      badge: '1500 words',
+      to: '/vocab-expansion',
+      icon: '語',
+    },
+    {
+      title: 'まちがい直し',
+      subtitle: '苦手な問題をもう一度',
+      badge: '3問',
+      to: '/review',
+      icon: '直',
+    },
+    {
+      title: '文法練習',
+      subtitle: '学んだ文法から5問',
+      badge: 'ランダム',
+      to: '/grammar-practice',
+      icon: '文',
+    },
+    {
+      title: '英検チャレンジ',
+      subtitle: '準2級の模擬テストに挑戦',
+      badge: '模擬テスト',
+      to: '/eiken-pre2',
+      icon: '英',
+    },
+  ];
 
   useEffect(() => {
     window.triggerHomePetMood = triggerPetMood;
@@ -378,7 +434,69 @@ export default function HomePage() {
   }
 
   return (
-    <div className="home-mobile-refresh mx-auto max-w-[1400px] overflow-x-hidden px-3 pb-28 pt-2 max-md:pb-32 sm:px-6 md:pb-10 lg:px-6 lg:pt-6" onPointerDown={wakePet}>
+    <>
+    <div className="lg:hidden" onPointerDown={wakePet}>
+      <EQMobileShell className="eq-home-menu">
+        <EQBrandHeader dateLabel={mobileDateLabel} />
+
+        <section className="eq-home-title-block">
+          <h1 className="eq-page-title">学習メニュー</h1>
+          <p className="eq-caption">今日もクエストを進めよう</p>
+        </section>
+
+        <EQCard className="eq-adventure-card">
+          <div className="eq-adventure-content">
+            <div className="eq-adventure-copy">
+              <p className="eq-caption">現在の冒険</p>
+              <h2 className="eq-adventure-world">風の区域</h2>
+              <p className="eq-adventure-stage">Stage 3 / 10</p>
+            </div>
+            <div className="eq-reward-preview">
+              <img src={petImage} alt={petName} loading="lazy" />
+              <span>報酬</span>
+            </div>
+          </div>
+          <div className="eq-adventure-progress-row">
+            <span>進行度</span>
+            <strong>{adventureProgressLabel}</strong>
+          </div>
+          <div className="eq-progress-bar" style={{ '--eq-progress': adventureProgressLabel }} />
+        </EQCard>
+
+        <section className="eq-learning-grid" aria-label="学習メニュー">
+          {mobileLearningItems.map((item) => (
+            <Link key={item.to} to={item.to} className="eq-menu-card">
+              <span className="eq-menu-icon">{item.icon}</span>
+              <span className="eq-menu-copy">
+                <strong>{item.title}</strong>
+                <span>{item.subtitle}</span>
+              </span>
+              <span className="eq-menu-badge">{item.badge}</span>
+            </Link>
+          ))}
+        </section>
+
+        <Link to="/eiken-real" className="eq-real-exam-card">
+          <span className="eq-menu-icon">真</span>
+          <span className="eq-menu-copy">
+            <strong>英検真題</strong>
+            <span>過去問とリスニング音声で練習</span>
+          </span>
+          <span className="eq-menu-badge">音声つき</span>
+        </Link>
+      </EQMobileShell>
+      <EQBottomNav
+        items={[
+          { label: 'ホーム', to: '/app', icon: 'home', active: true },
+          { label: '地図', to: '/app', icon: 'map' },
+          { label: '学習', to: '/daily-words', icon: 'study' },
+          { label: 'カード', to: '/flashcard', icon: 'cards' },
+          { label: 'その他', to: '/settings', icon: 'more' },
+        ]}
+      />
+    </div>
+
+    <div className="home-mobile-refresh mx-auto hidden max-w-[1400px] overflow-x-hidden px-3 pb-28 pt-2 max-md:pb-32 sm:px-6 md:pb-10 lg:block lg:px-6 lg:pt-6" onPointerDown={wakePet}>
       <div className="lg:hidden">
         <HeaderBar subtitle="英語を楽しく、毎日の習慣に。" />
       </div>
@@ -724,5 +842,6 @@ export default function HomePage() {
         </aside>
       </div>
     </div>
+    </>
   );
 }
