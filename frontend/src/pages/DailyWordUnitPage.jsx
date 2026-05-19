@@ -137,6 +137,7 @@ export default function DailyWordUnitPage() {
   const [resultStatus, setResultStatus] = useState('');
   const [earnedExp, setEarnedExp] = useState(0);
   const [partnerExp, setPartnerExp] = useState(0);
+  const [quizSaving, setQuizSaving] = useState(false);
   const [dailyTarget, setDailyTarget] = useState(DEFAULT_DAILY_WORD_TARGET);
   const [error, setError] = useState('');
   const { children, childrenLoading, childrenError } = useChildren();
@@ -235,6 +236,10 @@ export default function DailyWordUnitPage() {
     const passed = correctCount === quizQuestions.length;
     const exp = passed ? DAILY_PASS_EXP : 0;
     let nextPartnerExp = partnerExp;
+    setEarnedExp(exp);
+    setResultStatus(passed ? 'passed' : 'failed');
+    setStage('result');
+    setQuizSaving(true);
     try {
       await Promise.all(answers.map((answer) => {
         const payload = {
@@ -250,6 +255,7 @@ export default function DailyWordUnitPage() {
       }));
     } catch (err) {
       setError(err.message || '学習結果を保存できませんでした。');
+      setQuizSaving(false);
       return;
     }
     if (passed) {
@@ -258,14 +264,13 @@ export default function DailyWordUnitPage() {
         nextPartnerExp = Number(payload?.pet?.total_exp ?? payload?.pet?.exp ?? nextPartnerExp);
       } catch (err) {
         setError(err.message || 'EXPを保存できませんでした。');
+        setQuizSaving(false);
         return;
       }
     }
 
-    setEarnedExp(exp);
     setPartnerExp(nextPartnerExp);
-    setResultStatus(passed ? 'passed' : 'failed');
-    setStage('result');
+    setQuizSaving(false);
   };
 
   const nextQuiz = () => {
@@ -284,6 +289,7 @@ export default function DailyWordUnitPage() {
     setQuizIndex(0);
     setAnswers([]);
     setSelectedChoice('');
+    setQuizSaving(false);
     setResultStatus('');
     setEarnedExp(0);
     setStage('quiz');
@@ -294,6 +300,7 @@ export default function DailyWordUnitPage() {
     setQuizIndex(0);
     setAnswers([]);
     setSelectedChoice('');
+    setQuizSaving(false);
     setStage('quiz');
   };
 
@@ -305,6 +312,7 @@ export default function DailyWordUnitPage() {
     setQuizIndex(0);
     setAnswers([]);
     setSelectedChoice('');
+    setQuizSaving(false);
     setResultStatus('');
     setEarnedExp(0);
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -448,23 +456,30 @@ export default function DailyWordUnitPage() {
           <div className="rounded-[30px] bg-[linear-gradient(180deg,#eef8ff_0%,#fffdf7_100%)] p-6">
             <p className="text-sm font-black text-[#6f7da8]">小テスト</p>
             <h2 className="display-font mt-4 whitespace-pre-line text-3xl font-extrabold text-[#354172]">{currentQuestion.question}</h2>
-            <div className="mt-5 flex flex-wrap gap-3">
-              <button
-                type="button"
-                onClick={() => speak(currentQuestion.word.word)}
-                disabled={!selectedChoice}
-                className="ghost-button px-5 py-3 text-sm disabled:cursor-not-allowed disabled:opacity-45"
-              >
-                単語を聞く
-              </button>
-              {currentQuestion.word.exampleEn && (
+            <div className="mt-5 flex flex-wrap items-center justify-between gap-3">
+              <div className="flex flex-wrap gap-3">
                 <button
                   type="button"
-                  onClick={() => speak(currentQuestion.word.exampleEn)}
+                  onClick={() => speak(currentQuestion.word.word)}
                   disabled={!selectedChoice}
                   className="ghost-button px-5 py-3 text-sm disabled:cursor-not-allowed disabled:opacity-45"
                 >
-                  例文を聞く
+                  単語を聞く
+                </button>
+                {currentQuestion.word.exampleEn && (
+                  <button
+                    type="button"
+                    onClick={() => speak(currentQuestion.word.exampleEn)}
+                    disabled={!selectedChoice}
+                    className="ghost-button px-5 py-3 text-sm disabled:cursor-not-allowed disabled:opacity-45"
+                  >
+                    例文を聞く
+                  </button>
+                )}
+              </div>
+              {selectedChoice && (
+                <button type="button" onClick={nextQuiz} disabled={quizSaving} className="pill-button px-5 py-3 text-sm disabled:opacity-50">
+                  {quizIndex >= quizQuestions.length - 1 ? '結果へ' : '次へ'}
                 </button>
               )}
             </div>
@@ -501,9 +516,6 @@ export default function DailyWordUnitPage() {
                 {currentQuestion.word.word} / {currentQuestion.word.meaningJa}
               </p>
               {currentQuestion.word.exampleEn && <p className="mt-1">{currentQuestion.word.exampleEn}</p>}
-              <button type="button" onClick={nextQuiz} className="pill-button mt-4 px-5 py-3">
-                次へ
-              </button>
             </div>
           )}
         </section>
@@ -525,6 +537,7 @@ export default function DailyWordUnitPage() {
               <span className="rounded-full bg-[#fff7d6] px-4 py-2">獲得EXP: {earnedExp}</span>
               <span className="rounded-full bg-white/82 px-4 py-2">{partnerName} EXP: {partnerExp}</span>
             </div>
+            {quizSaving && <p className="mt-4 text-sm font-bold text-[#6f7da8]">学習結果を保存中...</p>}
           </div>
 
           {resultStatus === 'failed' && (

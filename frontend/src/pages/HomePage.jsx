@@ -46,43 +46,81 @@ const AIR_RABBIT_IMAGES = {
 };
 
 const AIR_RABBIT_LINES = {
-  encourage: 'あと少し、いっしょにがんばろう！',
+  encourage: '大丈夫、つぎはいけるよ',
   idle: '今日はなにを学ぶ？',
-  happy: '今日のミッション達成！',
+  happy: 'いい感じ！その調子！',
   excited: 'すごい！ボーナス中！',
   sleep: 'また明日ね…',
 };
 
-function getAirRabbitMood(todayCompleted, todayGoal, date = new Date()) {
-  const hour = date.getHours();
-  if (hour >= 22 || hour < 6) return 'sleep';
+const AIR_RABBIT_MOOD_STYLES = {
+  idle: { scale: 1, x: 0, y: 0 },
+  happy: { scale: 0.96, x: 0, y: 2 },
+  encourage: { scale: 0.98, x: 0, y: 1 },
+  excited: { scale: 0.95, x: 1, y: 0 },
+  sleep: { scale: 1.03, x: 0, y: 4 },
+};
 
-  const completed = Number(todayCompleted);
-  const goal = Number(todayGoal);
-  if (!Number.isFinite(completed) || !Number.isFinite(goal) || goal <= 0) return 'idle';
-  if (completed >= goal * 2) return 'excited';
-  if (completed >= goal) return 'happy';
-  return 'encourage';
+function usePetMood() {
+  const [mood, setMood] = useState('idle');
+  const moodTimerRef = useRef(null);
+  const sleepTimerRef = useRef(null);
+
+  const clearMoodTimer = () => {
+    if (moodTimerRef.current) window.clearTimeout(moodTimerRef.current);
+    moodTimerRef.current = null;
+  };
+
+  const resetSleepTimer = () => {
+    if (sleepTimerRef.current) window.clearTimeout(sleepTimerRef.current);
+    sleepTimerRef.current = window.setTimeout(() => setMood('sleep'), 60000);
+  };
+
+  const triggerPetMood = (type) => {
+    const config = {
+      correct: ['happy', 1200],
+      wrong: ['encourage', 1500],
+      passed: ['excited', 2500],
+    }[type];
+    if (!config) return;
+    clearMoodTimer();
+    setMood(config[0]);
+    moodTimerRef.current = window.setTimeout(() => setMood('idle'), config[1]);
+    resetSleepTimer();
+  };
+
+  const wakePet = () => {
+    if (mood === 'sleep') setMood('idle');
+    resetSleepTimer();
+  };
+
+  useEffect(() => {
+    resetSleepTimer();
+    return () => {
+      clearMoodTimer();
+      if (sleepTimerRef.current) window.clearTimeout(sleepTimerRef.current);
+    };
+  }, []);
+
+  return { mood, triggerPetMood, wakePet };
 }
 
-function AirRabbitTrial({ todayCompleted, todayGoal, className = '' }) {
-  const [now, setNow] = useState(() => new Date());
+function AirRabbitTrial({ mood: moodProp, onWake, className = '', strip = false }) {
   const [overrideMood, setOverrideMood] = useState(null);
   const [isBouncing, setIsBouncing] = useState(false);
   const bounceTimerRef = useRef(null);
-  const baseMood = useMemo(() => getAirRabbitMood(todayCompleted, todayGoal, now), [now, todayCompleted, todayGoal]);
-  const mood = overrideMood || baseMood;
+  const mood = overrideMood || moodProp || 'idle';
   const imageSrc = AIR_RABBIT_IMAGES[mood] || AIR_RABBIT_DEFAULT_IMAGE;
+  const transform = AIR_RABBIT_MOOD_STYLES[mood] || AIR_RABBIT_MOOD_STYLES.idle;
 
   useEffect(() => {
-    const timer = window.setInterval(() => setNow(new Date()), 60000);
     return () => {
-      window.clearInterval(timer);
       if (bounceTimerRef.current) window.clearTimeout(bounceTimerRef.current);
     };
   }, []);
 
   const handleClick = () => {
+    onWake?.();
     if (bounceTimerRef.current) window.clearTimeout(bounceTimerRef.current);
     setOverrideMood('excited');
     setIsBouncing(true);
@@ -99,10 +137,10 @@ function AirRabbitTrial({ todayCompleted, todayGoal, className = '' }) {
   };
 
   return (
-    <div className={`air-rabbit-card ${className}`}>
+    <div className={`${strip ? 'air-rabbit-strip-card' : 'air-rabbit-card'} ${className}`}>
       <button
         type="button"
-        className="air-rabbit-stage pet-aura"
+        className={`${strip ? 'air-rabbit-strip-stage' : 'air-rabbit-stage'} pet-aura`}
         onClick={handleClick}
         aria-label="Air Rabbit"
       >
@@ -110,11 +148,20 @@ function AirRabbitTrial({ todayCompleted, todayGoal, className = '' }) {
           src={imageSrc}
           alt="Air Rabbit"
           className={`air-rabbit-pet ${isBouncing ? 'is-bouncing' : ''}`}
+          style={{
+            '--pet-scale': transform.scale,
+            '--pet-breathe-scale': transform.scale * 1.035,
+            '--pet-bounce-high-scale': transform.scale * 1.09,
+            '--pet-bounce-low-scale': transform.scale * 0.96,
+            '--pet-bounce-mid-scale': transform.scale * 1.03,
+            '--pet-x': `${transform.x}px`,
+            '--pet-y': `${transform.y}px`,
+          }}
           onError={handleImageError}
           loading="lazy"
         />
       </button>
-      <p className="air-rabbit-bubble">{AIR_RABBIT_LINES[mood]}</p>
+      {!strip && <p className="air-rabbit-bubble">{AIR_RABBIT_LINES[mood]}</p>}
     </div>
   );
 }
@@ -166,6 +213,7 @@ export default function HomePage() {
   const [hasNoChildren, setHasNoChildren] = useState(false);
   const { children, childrenLoading, childrenError, selectedChildId, setSelectedChildId, refreshChildren } = useChildren();
   const navigate = useNavigate();
+  const { mood: petMood, triggerPetMood, wakePet } = usePetMood();
   const selectedChild = useMemo(
     () => children.find((item) => String(item.id) === String(selectedChildId)) || null,
     [children, selectedChildId],
@@ -176,6 +224,7 @@ export default function HomePage() {
   const isDailyComplete = todayStudied === safeTodayTarget;
   const isDailyOverComplete = todayStudied > safeTodayTarget;
   const bonusCount = Math.max(0, todayStudied - safeTodayTarget);
+  const dailyTaskStatus = isDailyOverComplete ? 'ボーナス中' : isDailyComplete ? '完了!' : `${todayStudied} / ${safeTodayTarget}`;
   const todayGrammarLesson = grammarData?.todayLesson || null;
   const grammarStats = grammarData?.stats || {};
   const grammarProgress = todayGrammarLesson?.progress || {};
@@ -278,9 +327,17 @@ export default function HomePage() {
     ? `${Math.min(100, (todayStudied / safeTodayTarget) * 100)}%`
     : '0%';
   const grammarDailyDone = isGrammarComplete ? 1 : 0;
+  const grammarTaskStatus = isGrammarComplete ? '完了!' : 'あと1レッスン';
   const grammarProgressWidth = `${grammarDailyDone * 100}%`;
   const grammarLessonTitle = todayGrammarLesson?.title || '今日の文法';
   const partner = selectedChild ? getPartner(selectedChild.partnerMonsterId) : null;
+
+  useEffect(() => {
+    window.triggerHomePetMood = triggerPetMood;
+    return () => {
+      if (window.triggerHomePetMood === triggerPetMood) delete window.triggerHomePetMood;
+    };
+  }, [triggerPetMood]);
 
   if (childrenLoading) {
     return null;
@@ -321,7 +378,7 @@ export default function HomePage() {
   }
 
   return (
-    <div className="mx-auto max-w-[1400px] overflow-x-hidden px-3 pb-28 pt-2 max-md:pb-36 sm:px-6 md:pb-10 lg:px-6 lg:pt-6">
+    <div className="home-mobile-refresh mx-auto max-w-[1400px] overflow-x-hidden px-3 pb-28 pt-2 max-md:pb-32 sm:px-6 md:pb-10 lg:px-6 lg:pt-6" onPointerDown={wakePet}>
       <div className="lg:hidden">
         <HeaderBar subtitle="英語を楽しく、毎日の習慣に。" />
       </div>
@@ -355,7 +412,7 @@ export default function HomePage() {
                 今日の学習
               </div>
 
-              <div className="rounded-[24px] bg-white/80 p-4 shadow-[0_10px_24px_rgba(145,177,209,0.08)] max-md:flex max-md:items-center max-md:justify-between max-md:gap-3 max-md:p-3">
+              <div className="home-child-card rounded-[24px] bg-white/80 p-4 shadow-[0_10px_24px_rgba(145,177,209,0.08)] max-md:flex max-md:items-center max-md:justify-between max-md:gap-3 max-md:p-3">
                 <div className="min-w-0 flex-1">
                   <div className="flex flex-wrap items-center gap-2">
                     <p className="truncate text-lg font-extrabold text-[#354172] max-md:text-2xl max-md:font-bold">
@@ -392,18 +449,34 @@ export default function HomePage() {
                 )}
               </div>
 
+              <div className="pet-companion-strip md:hidden">
+                <div className="min-w-0 flex-1">
+                  <p className="pet-companion-kicker">Air Rabbit</p>
+                  <p className="pet-companion-line">{AIR_RABBIT_LINES[petMood]}</p>
+                  <p className="pet-companion-subline">
+                    {isDailyOverComplete ? '今日はボーナス中' : isDailyComplete ? '今日のミッション達成' : '今日も少しずつ'}
+                  </p>
+                </div>
+                <AirRabbitTrial
+                  mood={petMood}
+                  onWake={wakePet}
+                  strip
+                  className="shrink-0"
+                />
+              </div>
+
               <div className="grid gap-3 max-md:grid-cols-2 max-md:gap-2 md:grid-cols-2">
                 <button
                   type="button"
                   onClick={() => navigate('/daily-words')}
-                  className="rounded-[24px] border border-[#f3d36a] bg-[linear-gradient(180deg,#fff6bd_0%,#ffd84f_100%)] p-4 text-left text-[#4f3900] shadow-[0_10px_0_rgba(170,120,0,0.78),0_16px_28px_rgba(255,191,31,0.22)] transition active:translate-y-0.5 active:shadow-[0_6px_0_rgba(170,120,0,0.78),0_10px_18px_rgba(255,191,31,0.18)] max-md:min-h-[116px] max-md:rounded-2xl max-md:p-3 max-md:shadow-[0_6px_0_rgba(170,120,0,0.72),0_10px_18px_rgba(255,191,31,0.18)] md:min-h-[140px] md:p-5"
+                  className="home-task-card home-task-card-word rounded-[24px] border border-[#f3d36a] bg-[linear-gradient(180deg,#fff6bd_0%,#ffd84f_100%)] p-4 text-left text-[#4f3900] shadow-[0_10px_0_rgba(170,120,0,0.78),0_16px_28px_rgba(255,191,31,0.22)] transition active:translate-y-0.5 active:shadow-[0_6px_0_rgba(170,120,0,0.78),0_10px_18px_rgba(255,191,31,0.18)] max-md:min-h-[116px] max-md:rounded-2xl max-md:p-3 max-md:shadow-[0_6px_0_rgba(170,120,0,0.72),0_10px_18px_rgba(255,191,31,0.18)] md:min-h-[140px] md:p-5"
                 >
                   <div className="flex items-start justify-between gap-2">
                     <div className="min-w-0">
                       <p className="display-font text-2xl font-black leading-tight max-md:text-xl max-md:font-bold">単語を学ぶ</p>
                       <p className="mt-1 text-sm font-black text-[#6b5a2d] max-md:text-sm max-md:font-semibold">今日 {safeTodayTarget}語</p>
                     </div>
-                    <span className="shrink-0 rounded-full bg-white/82 px-3 py-1 text-xs font-black max-md:px-1.5 max-md:py-0.5 max-md:text-sm max-md:font-bold max-md:leading-none">{todayStudied} / {safeTodayTarget}</span>
+                    <span className="home-task-status shrink-0 rounded-full bg-white/82 px-3 py-1 text-xs font-black max-md:px-1.5 max-md:py-0.5 max-md:text-sm max-md:font-bold max-md:leading-none">{dailyTaskStatus}</span>
                   </div>
                   <div className="mt-4 h-2.5 overflow-hidden rounded-full bg-white/70 max-md:mt-3 max-md:h-1.5">
                     <div className="h-full rounded-full bg-[#ffb81f]" style={{ width: progressWidth }} />
@@ -413,7 +486,7 @@ export default function HomePage() {
                 <button
                   type="button"
                   onClick={() => navigate('/grammar')}
-                  className="rounded-[24px] border border-[#dcecff] bg-white/86 p-4 text-left text-[#354172] shadow-[0_12px_26px_rgba(145,177,209,0.12)] transition hover:-translate-y-0.5 hover:bg-[#f8fcff] active:translate-y-0 max-md:min-h-[116px] max-md:rounded-2xl max-md:border-[#d8dcff] max-md:bg-[#f4f2ff] max-md:p-3 md:min-h-[140px] md:p-5"
+                  className="home-task-card home-task-card-grammar rounded-[24px] border border-[#dcecff] bg-white/86 p-4 text-left text-[#354172] shadow-[0_12px_26px_rgba(145,177,209,0.12)] transition hover:-translate-y-0.5 hover:bg-[#f8fcff] active:translate-y-0 max-md:min-h-[116px] max-md:rounded-2xl max-md:border-[#d8dcff] max-md:bg-[#f4f2ff] max-md:p-3 md:min-h-[140px] md:p-5"
                 >
                   <div className="flex items-start justify-between gap-2">
                     <div className="min-w-0">
@@ -421,7 +494,7 @@ export default function HomePage() {
                       <p className="mt-1 truncate text-sm font-black text-[#60709d] max-md:text-sm max-md:font-semibold">{grammarLessonTitle}</p>
                       <p className="mt-0.5 text-xs font-bold text-[#8fa0c2] max-md:text-xs max-md:font-medium">今日 1レッスン</p>
                     </div>
-                    <span className="shrink-0 rounded-full bg-[#eef8ff] px-3 py-1 text-xs font-black text-[#51688f] max-md:px-1.5 max-md:py-0.5 max-md:text-sm max-md:font-bold max-md:leading-none">{grammarDailyDone} / 1</span>
+                    <span className="home-task-status shrink-0 rounded-full bg-[#eef8ff] px-3 py-1 text-xs font-black text-[#51688f] max-md:px-1.5 max-md:py-0.5 max-md:text-sm max-md:font-bold max-md:leading-none">{grammarTaskStatus}</span>
                   </div>
                   <div className="mt-4 h-2.5 overflow-hidden rounded-full bg-[#edf1f7] max-md:mt-3 max-md:h-1.5">
                     <div className="h-full rounded-full bg-[linear-gradient(90deg,#bdefff,#83d7ff)]" style={{ width: grammarProgressWidth }} />
@@ -500,7 +573,7 @@ export default function HomePage() {
                 </div>
               )}
 
-              <div className="grid grid-cols-3 gap-2 rounded-[22px] bg-white/54 p-2 md:max-w-md">
+              <div className="home-compact-stats grid grid-cols-3 gap-2 rounded-[22px] bg-white/54 p-2 md:max-w-md">
                 <div className="rounded-2xl bg-white/68 px-2 py-2 text-center">
                   <div className="text-sm font-black text-[#354172] max-md:text-xl max-md:font-bold md:text-base">{data?.total_words ?? '-'}</div>
                   <div className="text-[10px] font-bold text-[#6f7da8] max-md:text-xs max-md:font-semibold">総単語数</div>
@@ -572,10 +645,10 @@ export default function HomePage() {
               )}
             </div>
 
-            <div className="relative mx-auto flex w-full max-w-[260px] justify-center md:max-w-[300px] lg:hidden xl:max-w-[340px] xl:pt-1">
+            <div className="relative mx-auto hidden w-full max-w-[260px] justify-center md:flex md:max-w-[300px] lg:hidden xl:max-w-[340px] xl:pt-1">
               <AirRabbitTrial
-                todayCompleted={todayStudied}
-                todayGoal={safeTodayTarget}
+                mood={petMood}
+                onWake={wakePet}
                 className="relative z-10 w-full"
               />
             </div>
@@ -623,8 +696,8 @@ export default function HomePage() {
             <p className="text-xs font-black text-[#8fa0c2]">今日の相棒</p>
             <div className="mt-3 rounded-[24px] bg-[#f8fcff] p-4 text-center">
               <AirRabbitTrial
-                todayCompleted={todayStudied}
-                todayGoal={safeTodayTarget}
+                mood={petMood}
+                onWake={wakePet}
                 className="mx-auto max-w-[220px]"
               />
             </div>

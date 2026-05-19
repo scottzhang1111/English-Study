@@ -6243,7 +6243,13 @@ def sanitize_eiken_real_exam_html(part_id):
     content = re.sub(r'\b(src)=(["\'])([^"\']+)\2', rewrite_asset, content, flags=re.I)
     audio_paths = [path for path in asset_paths if path.lower().endswith(('.mp3', '.wav', '.m4a'))]
     image_paths = [path for path in asset_paths if path.lower().endswith(('.png', '.gif', '.jpg', '.jpeg'))]
-    question_numbers = sorted({int(number) for number in re.findall(r'問\s*(\d+)', content)})
+    question_number_candidates = set()
+    question_number_candidates.update(int(number) for number in re.findall(r'問\s*(\d+)', content))
+    question_number_candidates.update(
+        int(number)
+        for number in re.findall(r'<input\b[^>]*type=["\']radio["\'][^>]*name=["\'][^"\']*?(\d+)["\']', content, flags=re.I)
+    )
+    question_numbers = sorted(question_number_candidates)
 
     return {
         **meta,

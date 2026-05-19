@@ -66,15 +66,20 @@ function getQuestionAnswer(answers, questionNumber) {
   return Object.entries(answers || {}).find(([key]) => Number(key.match(/\d+/)?.[0]) === Number(questionNumber))?.[1] || '';
 }
 
+function getCorrectAnswerForQuestion(correctAnswers, questionNumber) {
+  return getQuestionAnswer(correctAnswers, questionNumber);
+}
+
 function getQuestionNumberFromName(name = '') {
   const match = String(name).match(/\d+/);
   return match ? Number(match[0]) : null;
 }
 
 function buildQuestionNumbers(count, fallback = []) {
+  if (fallback.length > 0) return fallback;
   const total = Number(count || 0);
   if (total > 0) return Array.from({ length: total }, (_, index) => index + 1);
-  return fallback;
+  return [];
 }
 
 function cleanPreviewText(value = '') {
@@ -230,7 +235,11 @@ export default function EikenRealExamPage() {
   );
   const parts = useMemo(() => getPartList(selectedExam, mode), [selectedExam, mode]);
   const questionCount = partData?.question_count || 0;
-  const visibleQuestionNumbers = questionNumbers.length > 0 ? questionNumbers : buildQuestionNumbers(questionCount);
+  const visibleQuestionNumbers = questionNumbers.length > 0
+    ? questionNumbers
+    : partData?.question_numbers?.length
+      ? partData.question_numbers
+      : buildQuestionNumbers(questionCount);
   const normalizedHtml = useMemo(() => normalizeEikenMediaHtml(partData?.html || ''), [partData?.html]);
   const questionPreviews = useMemo(() => extractEikenQuestionPreviews(normalizedHtml, mode), [normalizedHtml, mode]);
   const audioSources = useMemo(
@@ -350,7 +359,8 @@ export default function EikenRealExamPage() {
     element.querySelectorAll('input[type="radio"]').forEach((input) => {
       const cell = input.closest('td');
       if (!cell) return;
-      const correctAnswer = correctAnswers[input.name];
+      const questionNumber = getQuestionNumberFromName(input.name);
+      const correctAnswer = getCorrectAnswerForQuestion(correctAnswers, questionNumber);
       if (input.value === correctAnswer) {
         cell.classList.add('eiken-answer-right-key');
       }
@@ -427,7 +437,7 @@ export default function EikenRealExamPage() {
 
   const getQuestionChipClass = (questionNumber) => {
     const selectedAnswer = getQuestionAnswer(answers, questionNumber);
-    const correctAnswer = result?.correct_answers?.[`問${questionNumber}`];
+    const correctAnswer = getCorrectAnswerForQuestion(result?.correct_answers, questionNumber);
     const base = 'min-h-9 rounded-full px-3 text-sm font-bold transition';
     if (result?.answer_key_available && correctAnswer) {
       return `${base} ${
