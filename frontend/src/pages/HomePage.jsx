@@ -1,8 +1,7 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
 import { Link, Navigate, NavLink, useNavigate } from 'react-router-dom';
 import HeaderBar from '../components/HeaderBar';
-import PetDisplay from '../components/PetDisplay';
 import { getGrammarLessons, getHomeData } from '../api';
 import { useChildren } from '../ChildrenContext';
 import { getPartner } from '../utils/childStorage';
@@ -36,6 +35,89 @@ const PARTNER_LINES = [
 ];
 
 const MENU_ICONS = ['📖', '📝', '🔗', '❌', '✍️', '🏆', '🎧'];
+
+const AIR_RABBIT_DEFAULT_IMAGE = '/pets/AIR_RABBIT1.png';
+const AIR_RABBIT_IMAGES = {
+  idle: AIR_RABBIT_DEFAULT_IMAGE,
+  happy: '/pets/AIR_RABBIT1_Happy.png',
+  encourage: '/pets/AIR_RABBIT1_Pump.png',
+  excited: '/pets/AIR_RABBIT1_Jump.png',
+  sleep: '/pets/AIR_RABBIT1_Sleep.png',
+};
+
+const AIR_RABBIT_LINES = {
+  encourage: 'あと少し、いっしょにがんばろう！',
+  idle: '今日はなにを学ぶ？',
+  happy: '今日のミッション達成！',
+  excited: 'すごい！ボーナス中！',
+  sleep: 'また明日ね…',
+};
+
+function getAirRabbitMood(todayCompleted, todayGoal, date = new Date()) {
+  const hour = date.getHours();
+  if (hour >= 22 || hour < 6) return 'sleep';
+
+  const completed = Number(todayCompleted);
+  const goal = Number(todayGoal);
+  if (!Number.isFinite(completed) || !Number.isFinite(goal) || goal <= 0) return 'idle';
+  if (completed >= goal * 2) return 'excited';
+  if (completed >= goal) return 'happy';
+  return 'encourage';
+}
+
+function AirRabbitTrial({ todayCompleted, todayGoal, className = '' }) {
+  const [now, setNow] = useState(() => new Date());
+  const [overrideMood, setOverrideMood] = useState(null);
+  const [isBouncing, setIsBouncing] = useState(false);
+  const bounceTimerRef = useRef(null);
+  const baseMood = useMemo(() => getAirRabbitMood(todayCompleted, todayGoal, now), [now, todayCompleted, todayGoal]);
+  const mood = overrideMood || baseMood;
+  const imageSrc = AIR_RABBIT_IMAGES[mood] || AIR_RABBIT_DEFAULT_IMAGE;
+
+  useEffect(() => {
+    const timer = window.setInterval(() => setNow(new Date()), 60000);
+    return () => {
+      window.clearInterval(timer);
+      if (bounceTimerRef.current) window.clearTimeout(bounceTimerRef.current);
+    };
+  }, []);
+
+  const handleClick = () => {
+    if (bounceTimerRef.current) window.clearTimeout(bounceTimerRef.current);
+    setOverrideMood('excited');
+    setIsBouncing(true);
+    bounceTimerRef.current = window.setTimeout(() => {
+      setOverrideMood(null);
+      setIsBouncing(false);
+      bounceTimerRef.current = null;
+    }, 800);
+  };
+
+  const handleImageError = (event) => {
+    if (event.currentTarget.src.endsWith('/pets/AIR_RABBIT1.png')) return;
+    event.currentTarget.src = AIR_RABBIT_DEFAULT_IMAGE;
+  };
+
+  return (
+    <div className={`air-rabbit-card ${className}`}>
+      <button
+        type="button"
+        className="air-rabbit-stage pet-aura"
+        onClick={handleClick}
+        aria-label="Air Rabbit"
+      >
+        <img
+          src={imageSrc}
+          alt="Air Rabbit"
+          className={`air-rabbit-pet ${isBouncing ? 'is-bouncing' : ''}`}
+          onError={handleImageError}
+          loading="lazy"
+        />
+      </button>
+      <p className="air-rabbit-bubble">{AIR_RABBIT_LINES[mood]}</p>
+    </div>
+  );
+}
 
 const DESKTOP_NAV_ITEMS = [
   { label: 'ホーム', path: '/', icon: '⌂' },
@@ -490,13 +572,11 @@ export default function HomePage() {
               )}
             </div>
 
-            <div className="relative mx-auto hidden w-full max-w-[260px] justify-center md:flex md:max-w-[300px] lg:hidden xl:max-w-[340px] xl:pt-1">
-              <PetDisplay
-                pet={data?.pet}
+            <div className="relative mx-auto flex w-full max-w-[260px] justify-center md:max-w-[300px] lg:hidden xl:max-w-[340px] xl:pt-1">
+              <AirRabbitTrial
+                todayCompleted={todayStudied}
+                todayGoal={safeTodayTarget}
                 className="relative z-10 w-full"
-                showDetails={false}
-                enableEffects
-                bubbleText={petBubbleText}
               />
             </div>
           </div>
@@ -542,11 +622,10 @@ export default function HomePage() {
           <div className="sticky top-6 rounded-[30px] border border-white/80 bg-white/86 p-5 shadow-[0_16px_36px_rgba(129,164,199,0.14)] backdrop-blur">
             <p className="text-xs font-black text-[#8fa0c2]">今日の相棒</p>
             <div className="mt-3 rounded-[24px] bg-[#f8fcff] p-4 text-center">
-              <PetDisplay
-                pet={data?.pet}
+              <AirRabbitTrial
+                todayCompleted={todayStudied}
+                todayGoal={safeTodayTarget}
                 className="mx-auto max-w-[220px]"
-                showDetails={false}
-                enableEffects
               />
             </div>
             <h2 className="mt-4 text-xl font-black text-[#31406f]">{data?.pet?.name || partner?.name || 'ペット'}</h2>
@@ -565,7 +644,6 @@ export default function HomePage() {
                 />
               </div>
             </div>
-            <p className="mt-4 rounded-[20px] bg-[#fff8d9] p-3 text-sm font-bold leading-6 text-[#6b5a2d]">{petBubbleText}</p>
             {(isDailyComplete || isDailyOverComplete) && (
               <div className="mt-3 rounded-full bg-[#eefbf1] px-3 py-2 text-center text-xs font-black text-[#2f6b42]">今日の目標クリア</div>
             )}
