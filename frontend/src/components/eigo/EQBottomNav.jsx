@@ -2,7 +2,7 @@ import { NavLink } from 'react-router-dom';
 
 const defaultItems = [
   { label: 'ホーム', to: '/app', icon: 'home' },
-  { label: '地図', to: '/app', icon: 'map' },
+  { label: '地図', to: '/study-map', icon: 'map' },
   { label: '学習', to: '/daily-words', icon: 'study' },
   { label: 'カード', to: '/flashcard', icon: 'cards' },
   { label: 'その他', to: '/settings', icon: 'more' },
@@ -64,7 +64,7 @@ export default function EQBottomNav({ items = defaultItems, className = '' }) {
           key={`${item.to}-${item.label}`}
           to={item.to}
           className={({ isActive }) =>
-            `eq-bottom-nav-link ${isActive || item.active ? 'is-active' : ''}`.trim()
+            `eq-bottom-nav-link ${item.active ?? isActive ? 'is-active' : ''}`.trim()
           }
           aria-label={item.label}
           end={item.end}

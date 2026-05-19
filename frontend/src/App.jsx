@@ -24,6 +24,9 @@ import PokedexPage from './pages/PokedexPage';
 import PetRoomPage from './pages/PetRoomPage';
 import PetLevelPage from './pages/PetLevelPage';
 import ProgressPage from './pages/ProgressPage';
+import CardCollectionPage from './pages/CardCollectionPage';
+import CardRewardPage from './pages/CardRewardPage';
+import StudyMapPage from './pages/StudyMapPage';
 import SettingsPage from './pages/SettingsPage';
 import ParentWordManagerPage from './pages/ParentWordManagerPage';
 import BottomNav from './components/BottomNav';
@@ -66,6 +69,9 @@ const STUDY_ROUTE_PREFIXES = [
   '/review',
   '/error-review',
   '/today-review-quiz',
+  '/cards',
+  '/card-reward',
+  '/study-map',
 ];
 
 function isStudyRoute(pathname) {
@@ -109,6 +115,9 @@ function App() {
             <Route path="/child-stats" element={<AnimatedPage><ChildRequiredPage><ChildStatsPage /></ChildRequiredPage></AnimatedPage>} />
             <Route path="/learned-words" element={<AnimatedPage><ChildRequiredPage><LearnedWordsPage /></ChildRequiredPage></AnimatedPage>} />
             <Route path="/hatch" element={<AnimatedPage><HatchPage /></AnimatedPage>} />
+            <Route path="/cards" element={<AnimatedPage><ChildRequiredPage><CardCollectionPage /></ChildRequiredPage></AnimatedPage>} />
+            <Route path="/card-reward" element={<AnimatedPage><ChildRequiredPage><CardRewardPage /></ChildRequiredPage></AnimatedPage>} />
+            <Route path="/study-map" element={<AnimatedPage><ChildRequiredPage><StudyMapPage /></ChildRequiredPage></AnimatedPage>} />
             <Route path="/pokedex" element={<AnimatedPage><ChildRequiredPage><PokedexPage /></ChildRequiredPage></AnimatedPage>} />
             <Route path="/pets" element={<AnimatedPage><ChildRequiredPage><PokedexPage /></ChildRequiredPage></AnimatedPage>} />
             <Route path="/petroom" element={<AnimatedPage><ChildRequiredPage><PetRoomPage /></ChildRequiredPage></AnimatedPage>} />

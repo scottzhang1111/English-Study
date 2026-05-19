@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import WebLearningLayout from '../components/WebLearningLayout';
+import { EQBackPill, EQBrandHeader, EQCard, EQChoiceButton, EQMobileShell } from '../components/eigo';
 import { getGrammarFormPractice, submitGrammarFormPracticeAnswer } from '../api';
 
 const CHILD_STORAGE_KEY = 'selected_child_id';
@@ -31,6 +32,10 @@ export default function GrammarFormPracticePage() {
   const question = questions[index] || null;
   const isLast = index >= questions.length - 1;
   const correctCount = results.filter((item) => item.isCorrect).length;
+  const compactDateLabel = new Intl.DateTimeFormat('ja-JP', {
+    month: 'numeric',
+    day: 'numeric',
+  }).format(new Date());
 
   const loadPractice = () => {
     setLoading(true);
@@ -85,7 +90,92 @@ export default function GrammarFormPracticePage() {
 
   return (
     <WebLearningLayout title="文法練習" subtitle="ランダム練習">
-      <section className="rounded-[34px] border border-white/90 bg-[linear-gradient(180deg,#eef8ff_0%,#fffdf7_100%)] p-5 shadow-[0_18px_44px_rgba(145,177,209,0.16)] sm:p-7">
+      <div className="lg:hidden">
+        <EQMobileShell className="eq-grammar-screen">
+          <EQBackPill to="/grammar">← 文法へ戻る</EQBackPill>
+          <EQBrandHeader dateLabel={compactDateLabel} className="eq-brand-header-compact" />
+
+          <EQCard className="eq-grammar-hero-card">
+            <div className="eq-grammar-hero-copy">
+              <span className="eq-grammar-label">拡張練習</span>
+              <h1>学んだ文法から5問</h1>
+              <p>これまで学習した文法だけからランダムに出題します。まちがえた問題は復習リストに入ります。</p>
+            </div>
+            <div className="eq-grammar-hero-orb" aria-hidden="true">文</div>
+          </EQCard>
+
+          {error ? (
+            <EQCard className="eq-grammar-state-card">
+              <h1>読み込みに失敗しました</h1>
+              <p>{error}</p>
+              <button type="button" onClick={loadPractice} className="eq-gold-button">もう一度</button>
+            </EQCard>
+          ) : !questions.length ? (
+            <EQCard className="eq-grammar-state-card">
+              <h1>練習できる文法がありません</h1>
+              <p>まず文法レッスンを学習しましょう。</p>
+              <button type="button" onClick={() => navigate('/grammar')} className="eq-gold-button">文法へ</button>
+            </EQCard>
+          ) : index >= questions.length ? (
+            <EQCard className="eq-grammar-state-card">
+              <span className="eq-grammar-label">結果</span>
+              <h1>{correctCount} / {questions.length} 問 正解</h1>
+              <p>おつかれさまでした。まちがえた問題は復習できます。</p>
+              <div className="eq-grammar-result-actions">
+                <button type="button" onClick={loadPractice} className="eq-gold-button">もう5問</button>
+                <button type="button" onClick={() => navigate('/review')} className="eq-purple-button">復習へ</button>
+              </div>
+            </EQCard>
+          ) : (
+            <article className="eq-grammar-question-panel">
+              <div className="eq-grammar-meta">
+                <span className="eq-grammar-tag">{question.category} / {question.title}</span>
+                <span className="eq-grammar-hint-pill">{question.targetGrammar}</span>
+                <span className="eq-grammar-progress">{index + 1} / {questions.length}</span>
+              </div>
+
+              <p className="eq-grammar-instruction">{question.questionJp}</p>
+              <EQCard className="eq-grammar-sentence-card">
+                <p>{question.promptEn}</p>
+              </EQCard>
+
+              <div className="eq-grammar-options">
+                {question.choices.map((choice, choiceIndex) => (
+                  <EQChoiceButton
+                    key={`${question.testId}-${choice}`}
+                    badge={String.fromCharCode(65 + choiceIndex)}
+                    selected={selectedIndex === choiceIndex && !answerResult}
+                    correct={Boolean(answerResult && choiceIndex === answerResult.correctIndex)}
+                    wrong={Boolean(answerResult && choiceIndex === selectedIndex && !answerResult.isCorrect)}
+                    disabled={Boolean(answerResult)}
+                    onClick={() => setSelectedIndex(choiceIndex)}
+                  >
+                    {choice}
+                  </EQChoiceButton>
+                ))}
+              </div>
+
+              {!answerResult ? (
+                <button type="button" disabled={selectedIndex === null || submitting} onClick={handleAnswer} className="eq-gold-button eq-grammar-submit">
+                  {submitting ? '保存中...' : '答える'}
+                </button>
+              ) : (
+                <EQCard className={`eq-grammar-feedback ${answerResult.isCorrect ? 'is-correct' : 'is-wrong'}`}>
+                  <h2>{answerResult.isCorrect ? 'よくできました！' : 'ここを覚えれば大丈夫'}</h2>
+                  <p>答え: {answerResult.correctAnswer}</p>
+                  <p>{answerResult.correctReasonJp}</p>
+                  {!answerResult.isCorrect && answerResult.selectedExplanationJp && <p>選んだ答え: {answerResult.selectedExplanationJp}</p>}
+                  <button type="button" onClick={handleNext} className="eq-gold-button">
+                    {isLast ? '結果を見る' : '次の問題へ'}
+                  </button>
+                </EQCard>
+              )}
+            </article>
+          )}
+        </EQMobileShell>
+      </div>
+
+      <section className="hidden rounded-[34px] border border-white/90 bg-[linear-gradient(180deg,#eef8ff_0%,#fffdf7_100%)] p-5 shadow-[0_18px_44px_rgba(145,177,209,0.16)] sm:p-7 lg:block">
         <div className="rounded-[28px] bg-white/82 p-5">
           <p className="text-xs font-black text-[#8fa0c2]">拡張練習</p>
           <h1 className="display-font mt-1 text-3xl font-black text-[#31406f]">学んだ文法から5問</h1>

@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import TtsButton from '../components/TtsButton';
 import WebLearningLayout from '../components/WebLearningLayout';
+import { EQBottomNav, EQCard, EQChoiceButton, EQMobileShell } from '../components/eigo';
 import { getLearnedWords, getQuizData, submitPracticeAnswer } from '../api';
 
 function shuffleItems(items) {
@@ -144,7 +145,134 @@ export default function QuizPage() {
     setCurrentIndex(questions.length);
   };
 
+  const quizProgressPercent = questions.length
+    ? `${(Math.min(currentIndex + 1, questions.length) / questions.length) * 100}%`
+    : '0%';
+  const mobileQuestionCount = questions.length ? `${Math.min(currentIndex + 1, questions.length)} / ${questions.length}` : '- / -';
+  const targetJapanese = currentQuiz?.japanese || currentQuiz?.meaning || currentQuiz?.jp || currentQuiz?.question || '読み込み中...';
+  const answerIsCorrect = Boolean(answer && currentQuiz && answer === currentQuiz.correct);
+  const feedbackTitle = answerIsCorrect ? '正解！' : 'もう一度確認しよう';
+  const feedbackText = answerIsCorrect
+    ? 'よくできました。この調子で次の問題へ進もう。'
+    : `正しい答えは「${currentQuiz?.correct || '-'}」です。カードで意味と例文を確認できます。`;
+  const choiceLetters = ['A', 'B', 'C', 'D'];
+
   return (
+    <>
+    <div className="lg:hidden">
+      <EQMobileShell className="eq-quiz-screen">
+        <div className="eq-quiz-top">
+          <button type="button" onClick={() => navigate('/app')} className="eq-quiz-close" aria-label="ホームに戻る">
+            ×
+          </button>
+          <div className="eq-quiz-progress">
+            <div className="eq-word-study-progress-row">
+              <span>クイズ</span>
+              <strong>{mobileQuestionCount}</strong>
+            </div>
+            <div className="eq-progress-bar" style={{ '--eq-progress': quizProgressPercent }} />
+          </div>
+        </div>
+
+        {error ? (
+          <EQCard className="eq-quiz-state-card">
+            <h1>読み込みに失敗しました</h1>
+            <p>{error}</p>
+          </EQCard>
+        ) : isInitialLoading ? (
+          <EQCard className="eq-quiz-state-card">
+            <h1>クイズを準備中...</h1>
+            <p>復習できる単語を集めています。</p>
+          </EQCard>
+        ) : isBatchComplete ? (
+          <EQCard className="eq-quiz-state-card">
+            <span className="eq-quiz-type-badge">結果</span>
+            <h1>{correctCount} / {questions.length} 正解</h1>
+            <p>{wrongAnswers.length > 0 ? 'まちがえた問題をもう一度練習できます。' : '全問正解です。よくできました！'}</p>
+            <div className="eq-quiz-result-actions">
+              {wrongAnswers.length > 0 && (
+                <button type="button" onClick={() => fetchQuizBatch({ retryWrong: true })} className="eq-purple-button">
+                  まちがい練習
+                </button>
+              )}
+              <button type="button" onClick={() => fetchQuizBatch()} className="eq-gold-button">
+                次の10問
+              </button>
+            </div>
+          </EQCard>
+        ) : hasNoReviewWords ? (
+          <EQCard className="eq-quiz-state-card">
+            <h1>クイズできる単語がありません</h1>
+            <p>{emptyMessage || '単語カードで単語を覚えてから、もう一度ためしましょう。'}</p>
+            <button type="button" onClick={openCard} className="eq-gold-button">
+              単語カードへ
+            </button>
+          </EQCard>
+        ) : (
+          <>
+            <EQCard className="eq-quiz-question-card">
+              <div className="eq-quiz-question-copy">
+                <span className="eq-quiz-type-badge">英単語クイズ</span>
+                <p className="eq-quiz-question-text">次の日本語に合う英単語はどれ？</p>
+                <h1>{targetJapanese}</h1>
+              </div>
+              <div className="eq-quiz-mascot" aria-hidden="true">Q</div>
+            </EQCard>
+
+            <div className="eq-quiz-options">
+              {currentQuiz?.choices.map((choice, index) => {
+                const isCorrect = answer && choice === currentQuiz.correct;
+                const isWrong = answer && choice === answer && choice !== currentQuiz.correct;
+                return (
+                  <EQChoiceButton
+                    key={choice}
+                    badge={choiceLetters[index] || String(index + 1)}
+                    correct={Boolean(isCorrect)}
+                    wrong={Boolean(isWrong)}
+                    onClick={() => handleSelection(choice)}
+                    disabled={!!answer}
+                  >
+                    {choice}
+                  </EQChoiceButton>
+                );
+              })}
+            </div>
+
+            {answer && currentQuiz && (
+              <EQCard className={`eq-quiz-feedback ${answerIsCorrect ? 'is-correct' : 'is-wrong'}`}>
+                <h2>{feedbackTitle}</h2>
+                <p>{feedbackText}</p>
+                {currentQuiz.word && <TtsButton text={currentQuiz.word} label="単語" />}
+                {currentQuiz.example && <p className="eq-quiz-example">{currentQuiz.example}</p>}
+                {result?.pet_exp_awarded > 0 && (
+                  <p className="eq-quiz-exp">EXP +{result.pet_exp_awarded}</p>
+                )}
+                <div className="eq-quiz-feedback-actions">
+                  {answer !== currentQuiz.correct && (
+                    <button type="button" onClick={openCard} className="eq-purple-button">
+                      カードで確認
+                    </button>
+                  )}
+                  <button type="button" onClick={handleNext} className="eq-gold-button">
+                    {currentIndex >= questions.length - 1 ? '結果を見る' : '次へ'}
+                  </button>
+                </div>
+              </EQCard>
+            )}
+          </>
+        )}
+      </EQMobileShell>
+      <EQBottomNav
+        items={[
+          { label: 'ホーム', to: '/app', icon: 'home' },
+          { label: '地図', to: '/study-map', icon: 'map' },
+          { label: '学習', to: '/daily-words', icon: 'study', active: true },
+          { label: 'カード', to: '/flashcard', icon: 'cards' },
+          { label: 'その他', to: '/settings', icon: 'more' },
+        ]}
+      />
+    </div>
+    <div className="hidden lg:block">
     <WebLearningLayout title="三択練習" subtitle="覚えた単語をクイズで確認" rightPanel={rightPanel}>
 
       {error ? (
@@ -282,5 +410,7 @@ export default function QuizPage() {
         </motion.section>
       )}
     </WebLearningLayout>
+    </div>
+    </>
   );
 }

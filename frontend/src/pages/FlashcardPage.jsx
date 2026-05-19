@@ -2,7 +2,9 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import WebLearningLayout from '../components/WebLearningLayout';
+import { EQBackPill, EQBottomNav, EQCard, EQMobileShell } from '../components/eigo';
 import { addPetExp, getFlashcardData, getHomeData, getLearnedWords, getTodayReviewQuiz, markMastered } from '../api';
+import { createMissionReward } from '../helpers/eigoQuestRewards';
 
 const DAILY_TARGET = 20;
 const CHILD_STORAGE_KEY = 'selected_child_id';
@@ -259,7 +261,13 @@ export default function FlashcardPage() {
       const hasReviewSequence = !requestedWord && studyWords.length > 0;
       if (hasReviewSequence && studyIndex < studyWords.length - 1) {
         showStudyWord(studyWords[studyIndex + 1], studyIndex + 1, studyWords);
-      } else if (hasReviewSequence || requestedWord || nextProgress >= DAILY_TARGET) {
+      } else if (nextProgress >= Number(result?.target ?? DAILY_TARGET)) {
+        createMissionReward({
+          childId: selectedChildId,
+          learnedWordsCount: Number(result?.mastered_words ?? homeData?.mastered_words ?? nextProgress),
+        });
+        navigate('/card-reward');
+      } else if (hasReviewSequence || requestedWord) {
         navigate('/progress');
       } else {
         await loadLearnedStudyWords();
@@ -347,7 +355,115 @@ export default function FlashcardPage() {
     );
   }
 
+  const mobileStudyCount = studyWords.length
+    ? `${studyIndex + 1} / ${studyWords.length}`
+    : `${progressValue} / ${DAILY_TARGET}`;
+  const mobileStudyProgress = studyWords.length
+    ? `${Math.min(100, ((studyIndex + 1) / studyWords.length) * 100)}%`
+    : progressWidth;
+  const mobilePartOfSpeech = flashcard?.part_of_speech || flashcard?.pos || flashcard?.speech || 'word';
+  const mobileExampleTranslation = flashcard?.sentence_jp || flashcard?.example_jp || '日本語訳を読み込み中...';
+
   return (
+    <>
+    {mode === 'study' && (
+      <div className="lg:hidden">
+        <EQMobileShell className="eq-word-study-screen">
+          <div className="eq-word-study-top">
+            <EQBackPill to="/app">← ホームに戻る</EQBackPill>
+            <div className="eq-word-study-progress">
+              <div className="eq-word-study-progress-row">
+                <span>学習中</span>
+                <strong>{mobileStudyCount}</strong>
+              </div>
+              <div className="eq-progress-bar" style={{ '--eq-progress': mobileStudyProgress }} />
+            </div>
+          </div>
+
+          {studyEmpty ? (
+            <EQCard className="eq-word-card eq-word-empty-card">
+              <h1>学習できる単語がありません</h1>
+              <p>今日の学習から単語を進めよう。</p>
+              <button type="button" onClick={() => navigate('/daily-words')} className="eq-gold-button">
+                学習へ
+              </button>
+            </EQCard>
+          ) : studyLoading || !flashcard ? (
+            <EQCard className="eq-word-card eq-word-empty-card">
+              <h1>読み込み中...</h1>
+              <p>単語カードを準備しています。</p>
+            </EQCard>
+          ) : (
+            <>
+              <EQCard className="eq-word-card">
+                <div className="eq-word-card-head">
+                  <span className="eq-word-pos-badge">{mobilePartOfSpeech}</span>
+                  <button
+                    type="button"
+                    onClick={() => playAudio(flashcard.word, audioRef)}
+                    className="eq-word-speaker"
+                    aria-label="発音を聞く"
+                  >
+                    ▶
+                  </button>
+                </div>
+
+                <h1 className="eq-word-title">{flashcard.word}</h1>
+                <p className="eq-word-pronunciation">
+                  {flashcard.pronunciation || flashcard.phonetic || flashcard.reading || '発音を聞いて覚えよう'}
+                </p>
+
+                <div className="eq-word-meaning-block">
+                  <p className="eq-word-label">意味</p>
+                  <p className="eq-word-meaning">{flashcard.jp || '意味を読み込み中...'}</p>
+                </div>
+
+                <div className="eq-word-example-block">
+                  <p className="eq-word-label">例文</p>
+                  <p className="eq-word-example-en">{flashcard.example || '-'}</p>
+                  <p className="eq-word-example-ja">{mobileExampleTranslation}</p>
+                  {flashcard.example ? (
+                    <button
+                      type="button"
+                      onClick={() => playAudio(flashcard.example, audioRef)}
+                      className="eq-word-example-audio"
+                    >
+                      例文を聞く
+                    </button>
+                  ) : null}
+                </div>
+              </EQCard>
+
+              <div className="eq-word-actions">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setRecallChoice('dont_know');
+                    setStep(3);
+                  }}
+                  className="eq-word-unknown-button"
+                >
+                  わからない
+                </button>
+                <button type="button" onClick={handleNextStudy} className="eq-word-known-button">
+                  わかった！
+                </button>
+              </div>
+            </>
+          )}
+        </EQMobileShell>
+        <EQBottomNav
+          items={[
+            { label: 'ホーム', to: '/app', icon: 'home' },
+            { label: '地図', to: '/study-map', icon: 'map' },
+            { label: '学習', to: '/daily-words', icon: 'study', active: true },
+            { label: 'カード', to: '/flashcard', icon: 'cards' },
+            { label: 'その他', to: '/settings', icon: 'more' },
+          ]}
+        />
+      </div>
+    )}
+    <div className={mode === 'study' ? 'hidden lg:block' : ''}>
     <WebLearningLayout title="単語カード" subtitle="単語リストとカード学習" rightPanel={rightPanel}>
 
       <motion.section
@@ -786,5 +902,7 @@ export default function FlashcardPage() {
         </div>
       </motion.section>
     </WebLearningLayout>
+    </div>
+    </>
   );
 }

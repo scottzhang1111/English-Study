@@ -6,6 +6,7 @@ import { EQBottomNav, EQBrandHeader, EQCard, EQMobileShell } from '../components
 import { getGrammarLessons, getHomeData } from '../api';
 import { useChildren } from '../ChildrenContext';
 import { getPartner } from '../utils/childStorage';
+import { getEigoQuestProgress } from '../helpers/eigoQuestProgress';
 
 const DEFAULT_DAILY_WORD_TARGET = 20;
 const DEFAULT_HOME_DATA = {
@@ -332,9 +333,9 @@ export default function HomePage() {
   const grammarProgressWidth = `${grammarDailyDone * 100}%`;
   const grammarLessonTitle = todayGrammarLesson?.title || '今日の文法';
   const partner = selectedChild ? getPartner(selectedChild.partnerMonsterId) : null;
-  const adventureProgress = data
-    ? Math.min(100, Math.round((todayStudied / safeTodayTarget) * 100))
-    : 67;
+  const learnedWordsCount = Number(data?.mastered_words ?? data?.learned_words ?? todayStudied ?? 0);
+  const questProgress = getEigoQuestProgress(learnedWordsCount);
+  const adventureProgress = questProgress.stageProgressPercent || 0;
   const adventureProgressLabel = `${adventureProgress}%`;
   const petImage = data?.pet?.image_url || data?.pet?.sprite_url || data?.pet?.imageUrl || partner?.image_url || AIR_RABBIT_DEFAULT_IMAGE;
   const petName = data?.pet?.name || partner?.name || 'Air Rabbit';
@@ -448,8 +449,8 @@ export default function HomePage() {
           <div className="eq-adventure-content">
             <div className="eq-adventure-copy">
               <p className="eq-caption">現在の冒険</p>
-              <h2 className="eq-adventure-world">風の区域</h2>
-              <p className="eq-adventure-stage">Stage 3 / 10</p>
+              <h2 className="eq-adventure-world">{questProgress.currentWorld.nameJa}</h2>
+              <p className="eq-adventure-stage">{questProgress.stageLabel}</p>
             </div>
             <div className="eq-reward-preview">
               <img src={petImage} alt={petName} loading="lazy" />
@@ -488,7 +489,7 @@ export default function HomePage() {
       <EQBottomNav
         items={[
           { label: 'ホーム', to: '/app', icon: 'home', active: true },
-          { label: '地図', to: '/app', icon: 'map' },
+          { label: '地図', to: '/study-map', icon: 'map' },
           { label: '学習', to: '/daily-words', icon: 'study' },
           { label: 'カード', to: '/flashcard', icon: 'cards' },
           { label: 'その他', to: '/settings', icon: 'more' },

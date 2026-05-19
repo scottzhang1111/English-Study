@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { addPetExp, getDailyWords, getHomeData, markMastered, submitPracticeAnswer } from '../api';
 import { useChildren } from '../ChildrenContext';
 import { getPartner } from '../utils/childStorage';
+import { createMissionReward } from '../helpers/eigoQuestRewards';
 
 const DEFAULT_DAILY_WORD_TARGET = 20;
 const DAILY_PASS_EXP = 20;
@@ -330,6 +331,14 @@ export default function DailyWordUnitPage() {
 
     setPartnerExp(nextPartnerExp);
     setQuizSaving(false);
+    if (passed) {
+      const latestHomeData = await getHomeData(child.id).catch(() => null);
+      createMissionReward({
+        childId: child.id,
+        learnedWordsCount: Number(latestHomeData?.mastered_words ?? latestHomeData?.learned_words ?? latestHomeData?.progress ?? targetCount),
+      });
+      navigate('/card-reward');
+    }
   };
 
   const nextQuiz = () => {
