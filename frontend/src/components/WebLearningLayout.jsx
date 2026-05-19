@@ -12,7 +12,7 @@ const NAV_ITEMS = [
 function WebSidebar() {
   return (
     <aside className="hidden lg:block">
-      <nav className="sticky top-6 rounded-3xl border border-white/80 bg-white/86 p-3 shadow-[0_16px_36px_rgba(129,164,199,0.14)] backdrop-blur">
+      <nav className="sticky top-6 rounded-[var(--radius-card)] border border-[var(--color-border)] bg-[var(--color-surface)] p-3 shadow-[var(--shadow-card)] backdrop-blur">
         <div className="px-3 py-2">
           <p className="text-xs font-bold text-[#9aa7c4]">英楽語</p>
         </div>
@@ -25,8 +25,8 @@ function WebSidebar() {
               className={({ isActive }) =>
                 `flex min-h-11 items-center rounded-2xl px-3 text-sm font-bold transition ${
                   isActive
-                    ? 'bg-[#fff2a8] text-[#5f4a00]'
-                    : 'text-[#65779f] hover:bg-[#f6fbff]'
+                    ? 'bg-[color-mix(in_srgb,var(--color-primary)_34%,white)] text-[var(--color-primary-dark)]'
+                    : 'text-[var(--color-muted)] hover:bg-[color-mix(in_srgb,var(--color-bg)_42%,white)]'
                 }`
               }
             >
@@ -49,17 +49,17 @@ function CompactHeader({ title, subtitle }) {
   }).format(new Date());
 
   return (
-    <header className="hidden min-h-[68px] items-center justify-between rounded-3xl border border-white/80 bg-white/86 px-5 py-3 shadow-[0_14px_32px_rgba(129,164,199,0.12)] backdrop-blur lg:flex">
+    <header className="hidden min-h-[68px] items-center justify-between rounded-[var(--radius-card)] border border-[var(--color-border)] bg-[var(--color-surface)] px-5 py-3 shadow-[var(--shadow-card)] backdrop-blur lg:flex">
       <div className="flex min-w-0 items-center gap-3">
         <img src="/assets/homepage-icon.png" alt="英楽語" className="h-11 w-11 shrink-0 rounded-2xl object-cover" />
         <div className="min-w-0">
-          <h1 className="truncate text-2xl font-bold text-[#31406f]">{title}</h1>
-          {subtitle && <p className="truncate text-sm font-semibold text-[#7d8db5]">{subtitle}</p>}
+          <h1 className="truncate text-2xl font-bold text-[var(--color-text)]">{title}</h1>
+          {subtitle && <p className="truncate text-sm font-semibold text-[var(--color-muted)]">{subtitle}</p>}
         </div>
       </div>
       <div className="shrink-0 text-right">
-        <p className="text-sm font-bold text-[#31406f]">{selectedChild?.name || 'Student'}</p>
-        <p className="text-xs font-semibold text-[#7d8db5]">{dateText}</p>
+        <p className="text-sm font-bold text-[var(--color-text)]">{selectedChild?.name || 'Student'}</p>
+        <p className="text-xs font-semibold text-[var(--color-muted)]">{dateText}</p>
       </div>
     </header>
   );

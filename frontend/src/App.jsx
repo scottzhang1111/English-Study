@@ -29,6 +29,7 @@ import BottomNav from './components/BottomNav';
 import StartupGate, { RequireCurrentChild } from './components/StartupGate';
 import { LanguageProvider } from './LanguageContext';
 import { ChildrenProvider } from './ChildrenContext';
+import { ThemeSchemeProvider } from './ThemeContext';
 
 function AnimatedPage({ children }) {
   return (
@@ -89,11 +90,12 @@ function App() {
   const isDashboardRoute = location.pathname === '/' || location.pathname === '/app';
 
   return (
-    <LanguageProvider>
-      <ChildrenProvider>
-        <div className="app-shell min-h-screen text-slate-900">
-          <AnimatePresence mode="wait" initial={false}>
-            <Routes location={location} key={location.pathname}>
+    <ThemeSchemeProvider>
+      <LanguageProvider>
+        <ChildrenProvider>
+          <div className="app-shell min-h-screen">
+            <AnimatePresence mode="wait" initial={false}>
+              <Routes location={location} key={location.pathname}>
             <Route path="/" element={<AnimatedPage><StartupGate /></AnimatedPage>} />
             <Route path="/app" element={<AnimatedPage><StartupGate /></AnimatedPage>} />
             <Route path="/select-child" element={<AnimatedPage><ChildSelectPage /></AnimatedPage>} />
@@ -127,24 +129,25 @@ function App() {
             <Route path="/settings/children" element={<AnimatedPage><SettingsPage /></AnimatedPage>} />
             <Route path="/settings/add-child" element={<AnimatedPage><AddChildPage /></AnimatedPage>} />
             <Route path="*" element={<Navigate replace to="/" />} />
-            </Routes>
-          </AnimatePresence>
-          {hideBottomNav ? (
-            pageOwnsMobileStudyChrome ? null : <StudyReturnControl />
-          ) : hideBottomNavOnMobile ? (
-            <div className="max-md:hidden">
+              </Routes>
+            </AnimatePresence>
+            {hideBottomNav ? (
+              pageOwnsMobileStudyChrome ? null : <StudyReturnControl />
+            ) : hideBottomNavOnMobile ? (
+              <div className="max-md:hidden">
+                <BottomNav />
+              </div>
+            ) : isDashboardRoute ? (
+              <div className="lg:hidden">
+                <BottomNav />
+              </div>
+            ) : (
               <BottomNav />
-            </div>
-          ) : isDashboardRoute ? (
-            <div className="lg:hidden">
-              <BottomNav />
-            </div>
-          ) : (
-            <BottomNav />
-          )}
-        </div>
-      </ChildrenProvider>
-    </LanguageProvider>
+            )}
+          </div>
+        </ChildrenProvider>
+      </LanguageProvider>
+    </ThemeSchemeProvider>
   );
 }
 

@@ -9,6 +9,7 @@ import {
   saveChildProfile,
 } from '../api';
 import { PET_STARTER_OPTIONS } from '../lib/petMaster';
+import { useThemeScheme } from '../ThemeContext';
 
 const DEFAULT_FORM = {
   name: '',
@@ -18,6 +19,13 @@ const DEFAULT_FORM = {
 };
 
 const GRADE_OPTIONS = ['1', '2', '3', '4', '5', '6'];
+
+const THEME_OPTIONS = [
+  { id: 'soft-kids', label: 'やさしい', description: 'ホームやペットに合う、やわらかい雰囲気' },
+  { id: 'clean-study', label: 'すっきり', description: '単語・文法に合う、読みやすい学習向け' },
+  { id: 'premium', label: 'プレミアム', description: 'レポートやWeb画面に合う、落ち着いた質感' },
+  { id: 'workbook', label: '練習帳', description: '英検・復習に合う、紙面に近い集中モード' },
+];
 
 const TYPE_LABELS = {
   air: 'そら',
@@ -62,6 +70,7 @@ export default function SettingsPage() {
   const [deleteTargetChild, setDeleteTargetChild] = useState(null);
   const [isDeletingChild, setIsDeletingChild] = useState(false);
   const { children, childrenError, selectedChildId, setSelectedChildId, refreshChildren } = useChildren();
+  const { themeScheme, setThemeScheme } = useThemeScheme();
 
   const selectedStarter = useMemo(
     () => starterOptions.find((option) => String(option.id) === String(selectedStarterId)) || null,
@@ -226,6 +235,33 @@ export default function SettingsPage() {
       <HeaderBar subtitle="子どもの設定" />
 
       <div className="grid gap-8">
+        <section className="panel px-6 py-6 sm:px-8">
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+            <div>
+              <h1 className="display-font text-2xl font-bold text-[var(--color-text)]">テーマ</h1>
+              <p className="mt-1 text-sm font-semibold text-[var(--color-muted)]">画面全体の色、角丸、影、フォントを切り替えます。</p>
+            </div>
+          </div>
+          <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+            {THEME_OPTIONS.map((option) => {
+              const active = themeScheme === option.id;
+              return (
+                <button
+                  key={option.id}
+                  type="button"
+                  onClick={() => setThemeScheme(option.id)}
+                  className={`theme-option-card ${active ? 'theme-option-card-active' : ''}`}
+                  aria-pressed={active}
+                >
+                  <span className="theme-option-swatch" />
+                  <span className="mt-3 text-base font-bold">{option.label}</span>
+                  <span className="mt-1 text-xs font-semibold leading-5">{option.description}</span>
+                </button>
+              );
+            })}
+          </div>
+        </section>
+
         {!hasChildren && !showForm && (
           <motion.section
             initial={{ opacity: 0, y: 20 }}

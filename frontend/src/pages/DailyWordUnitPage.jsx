@@ -85,12 +85,71 @@ function getUnitWords(baseWords, unitIndex, targetCount = DEFAULT_DAILY_WORD_TAR
   return [];
 }
 
+const CLOZE_IRREGULAR_FORMS = {
+  be: ['am', 'is', 'are', 'was', 'were', 'been', 'being'],
+  become: ['became', 'become', 'becoming'],
+  begin: ['began', 'begun', 'beginning'],
+  buy: ['bought', 'buying'],
+  come: ['came', 'coming'],
+  do: ['did', 'done', 'doing'],
+  eat: ['ate', 'eaten', 'eating'],
+  find: ['found', 'finding'],
+  get: ['got', 'gotten', 'getting'],
+  give: ['gave', 'given', 'giving'],
+  go: ['went', 'gone', 'going'],
+  have: ['had', 'having'],
+  keep: ['kept', 'keeping'],
+  know: ['knew', 'known', 'knowing'],
+  lose: ['lost', 'losing'],
+  make: ['made', 'making'],
+  meet: ['met', 'meeting'],
+  read: ['read', 'reading'],
+  run: ['ran', 'running'],
+  say: ['said', 'saying'],
+  see: ['saw', 'seen', 'seeing'],
+  take: ['took', 'taken', 'taking'],
+  teach: ['taught', 'teaching'],
+  think: ['thought', 'thinking'],
+  win: ['won', 'winning'],
+  write: ['wrote', 'written', 'writing'],
+};
+
+function getClozeForms(word) {
+  const normalized = String(word || '').trim().toLowerCase();
+  if (!normalized) return [];
+  if (/\s|~/.test(normalized)) return [normalized.replace(/\s*~\s*/g, '')].filter(Boolean);
+
+  const forms = new Set([
+    normalized,
+    `${normalized}s`,
+    `${normalized}ed`,
+    `${normalized}ing`,
+  ]);
+
+  if (normalized.endsWith('e')) {
+    forms.add(`${normalized.slice(0, -1)}ed`);
+    forms.add(`${normalized.slice(0, -1)}ing`);
+  }
+  if (normalized.endsWith('y')) {
+    forms.add(`${normalized.slice(0, -1)}ies`);
+    forms.add(`${normalized.slice(0, -1)}ied`);
+  }
+  (CLOZE_IRREGULAR_FORMS[normalized] || []).forEach((form) => forms.add(form));
+
+  return [...forms].sort((a, b) => b.length - a.length);
+}
+
 function buildCloze(sentence, word) {
   if (!sentence || !word) return '';
-  const escaped = word.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-  const withBoundary = sentence.replace(new RegExp(`\\b${escaped}\\b`, 'i'), '______');
-  if (withBoundary !== sentence) return withBoundary;
-  return sentence.replace(new RegExp(escaped, 'i'), '______');
+  const forms = getClozeForms(word);
+
+  for (const form of forms) {
+    const escaped = form.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const withBoundary = sentence.replace(new RegExp(`\\b${escaped}\\b`, 'i'), '______');
+    if (withBoundary !== sentence && withBoundary.includes('______')) return withBoundary;
+  }
+
+  return '';
 }
 
 function buildQuizQuestions(words, choiceSource = words) {
