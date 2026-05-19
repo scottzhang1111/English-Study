@@ -1,7 +1,7 @@
 ﻿import { useEffect, useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
-import HeaderBar from '../components/HeaderBar';
+import AppDashboardLayout from '../components/AppDashboardLayout';
 import { useChildren } from '../ChildrenContext';
 import {
   deleteChildProfile,
@@ -231,10 +231,8 @@ export default function SettingsPage() {
   const visibleProfileError = profileError || childrenError;
 
   return (
-    <div className="mx-auto max-w-5xl px-4 pb-32 pt-6 sm:px-6">
-      <HeaderBar subtitle="子どもの設定" />
-
-      <div className="grid gap-8">
+    <AppDashboardLayout title="設定" subtitle="子どもとテーマを整えます。">
+      <div className="grid gap-5 lg:gap-6">
         <section className="panel px-6 py-6 sm:px-8">
           <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
             <div>
@@ -541,7 +539,7 @@ export default function SettingsPage() {
           </motion.div>
         </div>
       )}
-    </div>
+    </AppDashboardLayout>
   );
 }
 

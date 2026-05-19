@@ -285,3 +285,11 @@ Recommended verification after changes:
 8. Pokémon EXP increases for the selected child.
 9. Wrong answers appear in review for the selected child only.
 10. Refresh the browser and confirm progress still comes from backend data.
+
+# Pet PNG
+1. transparent background
+2. solid body
+3. clean silhouette
+4. NO transparent fur
+5. NO cutout holes
+6. full opaque character

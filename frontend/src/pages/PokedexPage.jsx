@@ -1,5 +1,5 @@
 ﻿import { useEffect, useMemo, useRef, useState } from 'react';
-import HeaderBar from '../components/HeaderBar';
+import AppDashboardLayout from '../components/AppDashboardLayout';
 import { getBattleMonsters, getPetsData } from '../api';
 
 const CHILD_STORAGE_KEY = 'selected_child_id';
@@ -115,12 +115,44 @@ export default function PokedexPage() {
     }, 500);
   };
 
+  const rightPanel = (
+    <div className="rounded-[30px] border border-white/80 bg-white/72 p-5 shadow-[0_16px_36px_rgba(129,164,199,0.12)] backdrop-blur">
+      <p className="text-xs font-black text-[var(--color-muted)]">今日の仲間</p>
+      <div className="mt-3 rounded-[24px] bg-[#f8fcff] p-4 text-center">
+        <div className="mx-auto flex h-[176px] w-[176px] items-center justify-center rounded-full bg-[radial-gradient(circle_at_50%_40%,#fff7d6_0%,#e9f8ff_62%,#dcefff_100%)]">
+          {currentPet && currentImage ? (
+            <img
+              src={currentImage}
+              alt={currentPet.name}
+              onClick={handlePoke}
+              className={`animate-breathe h-[150px] w-[150px] cursor-pointer object-contain drop-shadow-[0_12px_12px_rgba(86,106,144,0.20)] ${petClassName}`}
+              loading="lazy"
+            />
+          ) : (
+            <span className="text-3xl font-black text-[var(--color-muted)]">?</span>
+          )}
+        </div>
+        <p className="display-font mt-3 truncate text-xl font-bold text-[var(--color-text)]">{currentPet?.name || 'ペット'}</p>
+        <p className="mt-1 text-sm font-bold text-[var(--color-muted)]">Lv. {getSafeLevel(currentPet)}</p>
+      </div>
+      <div className="mt-4 rounded-[20px] bg-white/72 p-3">
+        <div className="mb-2 flex items-center justify-between text-xs font-black text-[var(--color-muted)]">
+          <span>EXP</span>
+          <span>{currentPet?.exp ?? 0} / {currentPet?.max_exp ?? 100}</span>
+        </div>
+        <ExpBar value={currentPet?.exp_progress || 0} />
+      </div>
+      <div className="mt-3 rounded-full bg-[#eefbf1] px-3 py-2 text-center text-xs font-black text-[#2f6b42]">
+        学習すると仲間が育つよ
+      </div>
+    </div>
+  );
+
   return (
-    <div className="mx-auto max-w-6xl px-4 pb-32 pt-6 sm:px-6">
-      <HeaderBar subtitle="ペットコレクション" />
+    <AppDashboardLayout title="ペット図鑑" subtitle="学ぶほど、仲間がふえる。" rightPanel={rightPanel}>
       {error && <div className="mb-4 rounded-[24px] bg-rose-50 px-5 py-4 text-sm font-bold text-rose-700">{error}</div>}
 
-      <section className="rounded-[36px] border border-white/80 bg-[linear-gradient(180deg,#fffdf7_0%,#eef8ff_100%)] px-5 py-5 shadow-[0_18px_44px_rgba(145,177,209,0.16)]">
+      <section className="panel hero-panel px-5 py-5 lg:px-6 lg:py-6">
         <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
           <div>
             <div className="inline-flex rounded-full bg-[#fff7d6] px-4 py-2 text-sm font-black text-[#6b5a2d]">
@@ -328,7 +360,7 @@ export default function PokedexPage() {
           </div>
         </div>
       )}
-    </div>
+    </AppDashboardLayout>
   );
 }
 
