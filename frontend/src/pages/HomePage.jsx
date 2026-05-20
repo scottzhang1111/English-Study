@@ -11,6 +11,8 @@ import eigoQuestCards from '../config/eigoQuestCards';
 import { eigoQuestIconAssets } from '../config/eigoQuestAssets';
 
 const DEFAULT_DAILY_WORD_TARGET = 20;
+const EQ_WORDS_PER_WORLD = 200;
+const EQ_WORDS_PER_STAGE = 20;
 const HOME_WORLD_NAME_JA = {
   wind: '風の区域',
   fire: '火の山',
@@ -446,6 +448,13 @@ export default function HomePage() {
   const wrongReviewDone = Number(data?.today_review_done ?? 0);
   const wrongReviewTarget = Number(data?.today_review_target ?? 3);
   const rewardCard = eigoQuestCards.find((card) => card.worldId === questProgress.currentWorld.id) || eigoQuestCards[0];
+  const currentWorldWordsRaw = questProgress.learnedWords % EQ_WORDS_PER_WORLD;
+  const currentWorldWords = questProgress.learnedWords > 0 && currentWorldWordsRaw === 0
+    ? EQ_WORDS_PER_WORLD
+    : currentWorldWordsRaw;
+  const currentWorldStage = Math.min(10, Math.max(1, Math.floor(currentWorldWords / EQ_WORDS_PER_STAGE) + 1));
+  const currentWorldProgressLabel = `${currentWorldWords} / ${EQ_WORDS_PER_WORLD} words`;
+  const currentWorldProgressPercent = `${Math.min(100, Math.round((currentWorldWords / EQ_WORDS_PER_WORLD) * 100))}%`;
   const worldDisplayName = HOME_WORLD_NAME_JA[questProgress.currentWorld.id] || questProgress.currentWorld.nameJa || '風の区域';
   const worldEnglishLabel = `${String(questProgress.currentWorld.id || 'wind').toUpperCase()} REALM`;
   const rewardCardName = questProgress.currentWorld.id === 'wind' ? 'そよ風の精霊' : (rewardCard?.nameJa || 'そよ風の精霊');
@@ -458,6 +467,13 @@ export default function HomePage() {
     { title: '文法', subtitle: '文法5問チャレンジ', to: '/grammar-practice', icon: '文' },
     { title: 'まちがい', subtitle: '苦手を復習', to: '/review', icon: '直' },
   ];
+  const homeQuickActions = [
+    { title: '単語', subtitle: '新しい単語を覚えよう！', to: '/flashcard', icon: '単', iconSrc: eigoQuestIconAssets.word },
+    { title: 'クイズ', subtitle: 'クイズに挑戦しよう！', to: '/quiz', icon: 'Q', iconSrc: eigoQuestIconAssets.quiz },
+    { title: '文法', subtitle: '文法のルールを学ぼう！', to: '/grammar-practice', icon: '文', iconSrc: eigoQuestIconAssets.grammar },
+    { title: 'まちがい直し', subtitle: '間違えた問題を復習しよう！', to: '/review', icon: '直', iconSrc: eigoQuestIconAssets.review },
+  ];
+  const grammarMissionDone = isGrammarComplete ? 1 : 0;
 
   useEffect(() => {
     window.triggerHomePetMood = triggerPetMood;
@@ -529,6 +545,24 @@ export default function HomePage() {
           </div>
         </section>
 
+        <EQCard className="eq-home-status-card">
+          <div>
+            <span>連</span>
+            <small>連続学習日数</small>
+            <strong>{streakDays}日</strong>
+          </div>
+          <div>
+            <span>語</span>
+            <small>これまでに学んだ単語</small>
+            <strong>{questProgress.learnedWords} words</strong>
+          </div>
+          <div>
+            <span>C</span>
+            <small>所持コイン</small>
+            <strong>{coins}</strong>
+          </div>
+        </EQCard>
+
         <section className="eq-home-greeting">
           <h1>Hello, {selectedChild.name} 👋</h1>
           <p>今日も冒険しよう！</p>
@@ -550,18 +584,24 @@ export default function HomePage() {
           <div className="eq-home-hero-stack">
             <div className="eq-home-hero-copy">
               <p className="eq-home-hero-label">現在の冒険</p>
+              <button type="button" className="eq-home-map-pill" onClick={() => navigate('/study-map')}>
+                世界一覧
+              </button>
               <h2>{worldDisplayName}</h2>
               <p className="eq-home-world-en">{worldEnglishLabel}</p>
+              <p className="eq-home-world-description">
+                風が導く、自由への旅。単語と文法を少しずつ覚える冒険
+              </p>
               <div className="eq-home-hero-meta">
-                <span>{questProgress.stageLabel}</span>
-                <strong>{totalProgressText}</strong>
+                <span>Stage {currentWorldStage} / 10</span>
+                <strong>{currentWorldProgressLabel}</strong>
               </div>
               <div className="eq-home-hero-progress">
                 <div className="eq-adventure-progress-row">
-                  <span>進行度</span>
-                  <strong>{adventureProgressLabel}</strong>
+                  <span>この世界の進行度</span>
+                  <strong>{currentWorldProgressPercent}</strong>
                 </div>
-                <div className="eq-progress-bar" style={{ '--eq-progress': adventureProgressLabel }} />
+                <div className="eq-progress-bar" style={{ '--eq-progress': currentWorldProgressPercent }} />
               </div>
             </div>
 
@@ -656,7 +696,7 @@ export default function HomePage() {
         </EQCard>
 
         <section className="eq-home-compact-menu" aria-label="学習メニュー">
-          {compactLearningItems.map((item) => (
+          {homeQuickActions.map((item) => (
             <Link key={item.to} to={item.to} className="eq-home-mode-card">
               <EQMenuIcon src={item.iconSrc || getMenuIconSrc(item.to)} fallback={item.icon} />
               <span className="eq-menu-copy">
@@ -666,6 +706,61 @@ export default function HomePage() {
             </Link>
           ))}
         </section>
+
+        <section className="eq-home-daily-grid">
+          <div className="eq-home-glass-panel eq-home-mission-panel">
+            <h3>今日のミッション</h3>
+            <div className="eq-home-mission-compact">
+              <div>
+                <span className={todayStudied >= safeTodayTarget ? 'is-done' : ''}>{todayStudied >= safeTodayTarget ? '☑' : '›'}</span>
+                <strong>単語を学ぶ</strong>
+                <em>{todayStudied} / {safeTodayTarget}</em>
+              </div>
+              <div>
+                <span className={quizDone >= quizTarget ? 'is-done' : ''}>{quizDone >= quizTarget ? '☑' : '›'}</span>
+                <strong>クイズに挑戦</strong>
+                <em>{quizDone} / {quizTarget}</em>
+              </div>
+              <div>
+                <span className={grammarMissionDone >= 1 ? 'is-done' : ''}>{grammarMissionDone >= 1 ? '☑' : '›'}</span>
+                <strong>文法を練習</strong>
+                <em>{grammarMissionDone} / 1</em>
+              </div>
+              <div>
+                <span className={wrongReviewDone >= wrongReviewTarget ? 'is-done' : ''}>{wrongReviewDone >= wrongReviewTarget ? '☑' : '›'}</span>
+                <strong>まちがい直し</strong>
+                <em>{wrongReviewDone} / {wrongReviewTarget}</em>
+              </div>
+            </div>
+          </div>
+
+          <div className="eq-home-glass-panel eq-home-reward-panel">
+            <span>今日の報酬カード</span>
+            <div className="eq-home-reward-visual">
+              <div className="eq-home-reward-thumb">
+                {rewardCardImage && !homeRewardImageFailed ? (
+                  <img
+                    src={rewardCardImage}
+                    alt={rewardCardName}
+                    loading="lazy"
+                    onError={() => setHomeRewardImageFailed(true)}
+                  />
+                ) : (
+                  <strong>{questProgress.currentWorld.icon || '風'}</strong>
+                )}
+              </div>
+              <div>
+                <strong>{rewardCardName}</strong>
+                <small>EXP +50</small>
+                <small>Coin +30</small>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <button type="button" onClick={() => navigate('/daily-words')} className="eq-gold-button eq-home-primary-cta eq-home-main-cta">
+          冒険をつづける
+        </button>
 
         <Link to="/cards" className="eq-home-reward-card-section">
           <span className="eq-caption">今日の報酬カード</span>
