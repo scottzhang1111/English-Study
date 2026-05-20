@@ -1,19 +1,43 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo, useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getHomeData } from '../api';
-import { EQBackPill, EQBottomNav, EQCard, EQMobileShell } from '../components/eigo';
+import { EQBottomNav, EQCard, EQMobileShell } from '../components/eigo';
 import eigoQuestWorlds from '../config/eigoQuestWorlds';
-import { EIGO_QUEST_STAGES_PER_WORLD, getEigoQuestProgress } from '../helpers/eigoQuestProgress';
 
 const CHILD_STORAGE_KEY = 'selected_child_id';
-const MOCK_LEARNED_WORDS = 42;
+const MOCK_LEARNED_WORDS = 420;
+const TOTAL_WORDS_TARGET = 1500;
+const WORDS_PER_WORLD = 200;
+const STAGES_PER_WORLD = 10;
+const WORDS_PER_STAGE = 20;
+
+const WORLD_DISPLAY = {
+  wind: { nameJa: '風の世界', nameEn: 'WIND REALM', symbol: '風', color: '#45d7ff' },
+  fire: { nameJa: '火の世界', nameEn: 'FIRE REALM', symbol: '火', color: '#ff6b3d' },
+  thunder: { nameJa: '雷の世界', nameEn: 'THUNDER REALM', symbol: '雷', color: '#8b6bff' },
+  wood: { nameJa: '木の世界', nameEn: 'WOOD REALM', symbol: '木', color: '#67d96b' },
+  rock: { nameJa: '岩の世界', nameEn: 'ROCK REALM', symbol: '岩', color: '#d7a85b' },
+  shadow: { nameJa: '影の世界', nameEn: 'SHADOW REALM', symbol: '影', color: '#a569ff' },
+  water: { nameJa: '水の世界', nameEn: 'WATER REALM', symbol: '水', color: '#4ccfff' },
+  light: { nameJa: '光の世界', nameEn: 'LIGHT REALM', symbol: '光', color: '#ffd86b' },
+};
+
+function clamp(value, min, max) {
+  return Math.min(max, Math.max(min, value));
+}
+
+function getWorldStageLabel(progressWords) {
+  if (progressWords >= WORDS_PER_WORLD) return 'クリア';
+  if (progressWords <= 0) return `Stage 0 / ${STAGES_PER_WORLD}`;
+  return `Stage ${Math.floor(progressWords / WORDS_PER_STAGE) + 1} / ${STAGES_PER_WORLD}`;
+}
 
 export default function StudyMapPage() {
   const navigate = useNavigate();
   const childId = useMemo(() => localStorage.getItem(CHILD_STORAGE_KEY) || '', []);
   const [homeData, setHomeData] = useState(null);
   const [error, setError] = useState('');
-  const [worldImageFailed, setWorldImageFailed] = useState(false);
+  const [failedImages, setFailedImages] = useState(() => new Set());
 
   useEffect(() => {
     if (!childId) {
@@ -24,88 +48,133 @@ export default function StudyMapPage() {
     getHomeData(childId)
       .then((payload) => setHomeData(payload))
       .catch((err) => {
-        setError(err.message || '学習マップを読み込めませんでした。');
+        setError(err.message || '学習データを読み込めませんでした。');
         setHomeData({ mastered_words: MOCK_LEARNED_WORDS });
       });
   }, [childId, navigate]);
 
   const rawLearnedWords = homeData?.mastered_words ?? homeData?.learned_words ?? homeData?.progress;
-  const learnedWordsCount = rawLearnedWords === undefined || rawLearnedWords === null
-    ? MOCK_LEARNED_WORDS
-    : Number(rawLearnedWords);
-  const questProgress = getEigoQuestProgress(learnedWordsCount, eigoQuestWorlds);
-  const currentWorld = questProgress.currentWorld;
-  const todayWordsDone = Number(homeData?.progress ?? 5);
-  const todayWordsTarget = Number(homeData?.target ?? 5);
-  const quizDone = Number(homeData?.today_quiz_correct ?? homeData?.quiz_progress ?? 3);
-  const quizTarget = Number(homeData?.today_quiz_target ?? 5);
-  const wrongReviewDone = Number(homeData?.today_review_done ?? 0);
-  const wrongReviewTarget = Number(homeData?.today_review_target ?? 3);
+  const learnedWordsCount = Number.isFinite(Number(rawLearnedWords))
+    ? clamp(Number(rawLearnedWords), 0, TOTAL_WORDS_TARGET)
+    : MOCK_LEARNED_WORDS;
 
-  useEffect(() => {
-    setWorldImageFailed(false);
-  }, [currentWorld.id]);
+  const currentWorldIndex = Math.min(
+    eigoQuestWorlds.length - 1,
+    Math.max(0, Math.floor(learnedWordsCount / WORDS_PER_WORLD))
+  );
+
+  const worlds = eigoQuestWorlds.map((world, index) => {
+    const display = WORLD_DISPLAY[world.id] || {
+      nameJa: world.nameJa,
+      nameEn: `${world.id.toUpperCase()} REALM`,
+      symbol: world.icon || '★',
+      color: world.themeColor || '#45d7ff',
+    };
+    const progressWords = clamp(learnedWordsCount - index * WORDS_PER_WORLD, 0, WORDS_PER_WORLD);
+    const isComplete = progressWords >= WORDS_PER_WORLD;
+    const isCurrent = index === currentWorldIndex && !isComplete;
+    const isFuture = progressWords === 0 && !isCurrent;
+
+    return {
+      ...world,
+      ...display,
+      progressWords,
+      progressPercent: Math.round((progressWords / WORDS_PER_WORLD) * 100),
+      stageLabel: getWorldStageLabel(progressWords),
+      status: isComplete ? 'complete' : isCurrent ? 'current' : isFuture ? 'future' : 'active',
+    };
+  });
+
+  const clearedWorlds = worlds.filter((world) => world.status === 'complete').length;
+  const totalProgressPercent = Math.round((learnedWordsCount / TOTAL_WORDS_TARGET) * 100);
+
+  function handleImageError(worldId) {
+    setFailedImages((current) => {
+      const next = new Set(current);
+      next.add(worldId);
+      return next;
+    });
+  }
+
+  function handleWorldClick(world) {
+    if (world.status === 'current') {
+      navigate('/app');
+    }
+  }
 
   return (
     <div className="eq-study-map-wrap">
-      <EQMobileShell className="eq-study-map-screen">
-        <EQBackPill to="/app">← ホームに戻る</EQBackPill>
-
-        <header className="eq-study-map-header">
-          <p className="eq-caption">学習マップ</p>
-          <h1 className="eq-page-title">冒険の地図</h1>
-          <p className="eq-caption">
-            {questProgress.learnedWords} / {questProgress.totalWords} words
-          </p>
+      <EQMobileShell className="eq-study-map-screen eq-world-overview-screen">
+        <header className="eq-map-hero-header">
+          <div>
+            <h1>冒険マップ</h1>
+            <p>8つの世界から学習するエリアを選ぼう</p>
+          </div>
+          <button type="button" className="eq-map-rank-pill">ランキング</button>
         </header>
 
         {error ? <div className="eq-study-map-error">{error}</div> : null}
 
-        <section className="eq-study-world-scene" style={{ '--world-color': currentWorld.themeColor }}>
-          <div className="eq-study-world-image-stage" aria-hidden="true">
-            {!worldImageFailed && currentWorld.backgroundImage ? (
-              <img
-                src={currentWorld.backgroundImage}
-                alt=""
-                className="eq-decorative-image"
-                loading="lazy"
-                onError={() => setWorldImageFailed(true)}
-              />
-            ) : (
-              <span>{currentWorld.icon || '✨'}</span>
-            )}
+        <EQCard className="eq-map-summary-card">
+          <div className="eq-map-summary-row">
+            <div>
+              <span>総進行</span>
+              <strong>{learnedWordsCount} / {TOTAL_WORDS_TARGET} words</strong>
+            </div>
+            <div>
+              <span>クリアした世界</span>
+              <strong>{clearedWorlds} / {worlds.length}</strong>
+            </div>
           </div>
-          <div className="eq-study-world-scene-copy">
-            <span className="eq-grammar-label">現在の冒険</span>
-            <h2>{currentWorld.nameJa}</h2>
-            <p>{currentWorld.subtitleJa}</p>
+          <div className="eq-map-total-progress">
+            <span style={{ width: `${totalProgressPercent}%` }} />
           </div>
+        </EQCard>
+
+        <section className="eq-world-overview-grid" aria-label="8つの世界">
+          {worlds.map((world) => (
+            <button
+              key={world.id}
+              type="button"
+              className={`eq-world-overview-card is-${world.status}`}
+              style={{ '--world-color': world.color }}
+              onClick={() => handleWorldClick(world)}
+            >
+              <div className="eq-world-overview-bg" aria-hidden="true">
+                {!failedImages.has(world.id) && world.backgroundImage ? (
+                  <img
+                    src={world.backgroundImage}
+                    alt=""
+                    loading="lazy"
+                    onError={() => handleImageError(world.id)}
+                  />
+                ) : (
+                  <span>{world.symbol}</span>
+                )}
+              </div>
+              <div className="eq-world-overview-content">
+                <div className="eq-world-symbol-row">
+                  <span className="eq-world-symbol">{world.symbol}</span>
+                  {world.status === 'current' ? <em>現在の世界</em> : null}
+                  {world.status === 'complete' ? <em>✓ クリア</em> : null}
+                </div>
+                <div className="eq-world-overview-title">
+                  <h2>{world.nameJa}</h2>
+                  <p>{world.nameEn}</p>
+                </div>
+                <div className="eq-world-overview-meta">
+                  <strong>{world.stageLabel}</strong>
+                  <span>{world.progressWords} / {WORDS_PER_WORLD} words</span>
+                </div>
+                <div className="eq-world-card-progress">
+                  <span style={{ width: `${world.progressPercent}%` }} />
+                </div>
+              </div>
+            </button>
+          ))}
         </section>
 
-        <EQCard className="eq-stage-map-panel eq-current-stage-panel">
-          <div className="eq-stage-map-heading">
-            <h2>{questProgress.stageLabel}</h2>
-            <span>{questProgress.stageInWorld} / {EIGO_QUEST_STAGES_PER_WORLD}</span>
-          </div>
-          <p className="eq-current-stage-title">現在のミッション</p>
-          <div className="eq-current-stage-missions">
-            <div>
-              <span>単語</span>
-              <strong>{todayWordsDone} / {todayWordsTarget}</strong>
-            </div>
-            <div>
-              <span>クイズ</span>
-              <strong>{quizDone} / {quizTarget}</strong>
-            </div>
-            <div>
-              <span>まちがい</span>
-              <strong>{wrongReviewDone} / {wrongReviewTarget}</strong>
-            </div>
-          </div>
-          <button type="button" onClick={() => navigate('/daily-words')} className="eq-gold-button eq-study-map-cta">
-            このステージを進める
-          </button>
-        </EQCard>
+        <p className="eq-map-bottom-message">各世界で 200 words + 文法練習 を学べるよ！</p>
       </EQMobileShell>
 
       <EQBottomNav
