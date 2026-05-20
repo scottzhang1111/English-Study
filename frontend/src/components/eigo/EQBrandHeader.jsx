@@ -9,6 +9,7 @@ export default function EQBrandHeader({
   subtitle = '楽しく続ける英語学習',
   dateLabel,
   className = '',
+  imageClassName = '',
 }) {
   const [imageFailed, setImageFailed] = useState(false);
 
@@ -20,7 +21,13 @@ export default function EQBrandHeader({
     <header className={`eq-brand-header ${className}`.trim()}>
       <div className="eq-brand-icon" aria-hidden={!iconSrc}>
         {iconSrc && !imageFailed ? (
-          <img src={iconSrc} alt={iconAlt} loading="lazy" onError={() => setImageFailed(true)} />
+          <img
+            src={iconSrc}
+            alt={iconAlt}
+            className={imageClassName}
+            loading="lazy"
+            onError={() => setImageFailed(true)}
+          />
         ) : (
           <span>{fallbackIcon}</span>
         )}

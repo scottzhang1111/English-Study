@@ -256,6 +256,17 @@ body,
   user-select: none;
 }
 
+.home-logo {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  object-position: center;
+  filter: drop-shadow(0 0 10px rgba(255, 211, 90, 0.26));
+  pointer-events: none;
+  user-select: none;
+}
+
 .eq-brand-icon span {
   pointer-events: none;
 }
@@ -526,6 +537,27 @@ body,
   color: var(--eq-primary);
   font-size: 12px;
   font-weight: 950;
+}
+
+.eq-home-status-card .stat-icon {
+  background: transparent;
+  box-shadow: none;
+}
+
+.stat-icon img,
+.action-icon {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  object-position: center;
+  filter: drop-shadow(0 8px 12px rgba(0, 0, 0, 0.28)) drop-shadow(0 0 10px rgba(53, 217, 255, 0.16));
+  pointer-events: none;
+  user-select: none;
+}
+
+.stat-icon span {
+  pointer-events: none;
 }
 
 .eq-home-status-card div:last-child span {

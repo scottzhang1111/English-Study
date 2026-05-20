@@ -7,8 +7,9 @@ import { getGrammarLessons, getHomeData } from '../api';
 import { useChildren } from '../ChildrenContext';
 import { getPartner } from '../utils/childStorage';
 import { getEigoQuestProgress } from '../helpers/eigoQuestProgress';
-import eigoQuestCards from '../config/eigoQuestCards';
+import { eigoQuestCards } from '../config/eigoQuestCards';
 import { eigoQuestIconAssets } from '../config/eigoQuestAssets';
+import eigoQuestAssets from '../data/eigoQuestAssets';
 
 const DEFAULT_DAILY_WORD_TARGET = 20;
 const EQ_WORDS_PER_WORLD = 200;
@@ -61,7 +62,7 @@ const AIR_RABBIT_IMAGES = {
   sleep: '/pets/AIR_RABBIT1_Sleep.png',
 };
 
-function EQMenuIcon({ src, fallback }) {
+function HomeAssetIcon({ src, fallback, className = '', imageClassName = '' }) {
   const [imageFailed, setImageFailed] = useState(false);
 
   useEffect(() => {
@@ -69,12 +70,12 @@ function EQMenuIcon({ src, fallback }) {
   }, [src]);
 
   return (
-    <span className="eq-menu-icon">
+    <span className={className}>
       {src && !imageFailed ? (
         <img
           src={src}
           alt=""
-          className="eq-decorative-image"
+          className={`eq-decorative-image ${imageClassName}`.trim()}
           loading="lazy"
           aria-hidden="true"
           onError={() => setImageFailed(true)}
@@ -86,11 +87,22 @@ function EQMenuIcon({ src, fallback }) {
   );
 }
 
+function EQMenuIcon({ src, fallback }) {
+  return (
+    <HomeAssetIcon
+      src={src}
+      fallback={fallback}
+      className="eq-menu-icon"
+      imageClassName="action-icon"
+    />
+  );
+}
+
 function getMenuIconSrc(to) {
-  if (to === '/flashcard') return eigoQuestIconAssets.word;
-  if (to === '/quiz') return eigoQuestIconAssets.quiz;
-  if (to === '/grammar-practice') return eigoQuestIconAssets.grammar;
-  if (to === '/review') return eigoQuestIconAssets.review;
+  if (to === '/flashcard') return eigoQuestAssets.actions.word;
+  if (to === '/quiz') return eigoQuestAssets.actions.quiz;
+  if (to === '/grammar-practice') return eigoQuestAssets.actions.grammar;
+  if (to === '/review') return eigoQuestAssets.actions.review;
   if (to === '/vocab-expansion') return eigoQuestIconAssets.study;
   if (to === '/eiken-pre2' || to === '/eiken-real') return eigoQuestIconAssets.study;
   return '';
@@ -468,10 +480,10 @@ export default function HomePage() {
     { title: 'まちがい', subtitle: '苦手を復習', to: '/review', icon: '直' },
   ];
   const homeQuickActions = [
-    { title: '単語', subtitle: '新しい単語を覚えよう！', to: '/flashcard', icon: '単', iconSrc: eigoQuestIconAssets.word },
-    { title: 'クイズ', subtitle: 'クイズに挑戦しよう！', to: '/quiz', icon: 'Q', iconSrc: eigoQuestIconAssets.quiz },
-    { title: '文法', subtitle: '文法のルールを学ぼう！', to: '/grammar-practice', icon: '文', iconSrc: eigoQuestIconAssets.grammar },
-    { title: 'まちがい直し', subtitle: '間違えた問題を復習しよう！', to: '/review', icon: '直', iconSrc: eigoQuestIconAssets.review },
+    { title: '単語', subtitle: '新しい単語を覚えよう！', to: '/flashcard', icon: '単', iconSrc: eigoQuestAssets.actions.word },
+    { title: 'クイズ', subtitle: 'クイズに挑戦しよう！', to: '/quiz', icon: 'Q', iconSrc: eigoQuestAssets.actions.quiz },
+    { title: '文法', subtitle: '文法のルールを学ぼう！', to: '/grammar-practice', icon: '文', iconSrc: eigoQuestAssets.actions.grammar },
+    { title: 'まちがい直し', subtitle: '間違えた問題を復習しよう！', to: '/review', icon: '直', iconSrc: eigoQuestAssets.actions.review },
   ];
   const grammarMissionDone = isGrammarComplete ? 1 : 0;
 
@@ -534,6 +546,8 @@ export default function HomePage() {
       <EQMobileShell className="eq-home-menu">
         <section className="eq-home-brand-panel">
           <EQBrandHeader
+            iconSrc={eigoQuestAssets.logo}
+            imageClassName="home-logo"
             title="英語クエスト"
             subtitle="今日もクエストを進めよう！"
             className="eq-home-brand"
@@ -560,17 +574,29 @@ export default function HomePage() {
 
         <EQCard className="eq-home-status-card">
           <div>
-            <span>連</span>
+            <HomeAssetIcon
+              src={eigoQuestAssets.stats.streak}
+              fallback="連"
+              className="stat-icon"
+            />
             <small>連続学習日数</small>
             <strong>{streakDays}日</strong>
           </div>
           <div>
-            <span>語</span>
+            <HomeAssetIcon
+              src={eigoQuestAssets.stats.learnedWords}
+              fallback="語"
+              className="stat-icon"
+            />
             <small>これまでに学んだ単語</small>
             <strong>{questProgress.learnedWords} words</strong>
           </div>
           <div>
-            <span>C</span>
+            <HomeAssetIcon
+              src={eigoQuestAssets.stats.coin}
+              fallback="C"
+              className="stat-icon"
+            />
             <small>所持コイン</small>
             <strong>{coins}</strong>
           </div>
