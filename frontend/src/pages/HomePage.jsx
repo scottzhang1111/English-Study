@@ -690,7 +690,7 @@ export default function HomePage() {
               </div>
             </div>
 
-            <button type="button" onClick={() => navigate('/daily-words')} className="eq-gold-button eq-home-primary-cta">
+            <button type="button" onClick={() => navigate('/world-stage')} className="eq-gold-button eq-home-primary-cta">
               冒険をつづける <span aria-hidden="true">→</span>
             </button>
           </div>
@@ -732,7 +732,7 @@ export default function HomePage() {
             <strong>{rewardCard?.nameJa || '風の精霊'}</strong>
           </div>
 
-          <button type="button" onClick={() => navigate('/daily-words')} className="eq-gold-button eq-home-primary-cta">
+          <button type="button" onClick={() => navigate('/world-stage')} className="eq-gold-button eq-home-primary-cta">
             冒険をつづける
           </button>
         </EQCard>
@@ -801,7 +801,7 @@ export default function HomePage() {
           </div>
         </section>
 
-        <button type="button" onClick={() => navigate('/daily-words')} className="eq-gold-button eq-home-primary-cta eq-home-main-cta">
+        <button type="button" onClick={() => navigate('/world-stage')} className="eq-gold-button eq-home-primary-cta eq-home-main-cta">
           冒険をつづける
         </button>
 
