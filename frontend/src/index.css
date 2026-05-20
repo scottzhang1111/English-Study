@@ -128,18 +128,29 @@ html {
   scroll-behavior: smooth;
   max-width: 100%;
   overflow-x: hidden;
+  min-height: 100%;
+  background-color: #070816;
+  background:
+    radial-gradient(circle at 20% 0%, rgba(28, 80, 150, 0.35), transparent 36%),
+    radial-gradient(circle at 85% 10%, rgba(95, 55, 180, 0.32), transparent 38%),
+    linear-gradient(180deg, #0b1638 0%, #101044 45%, #070816 100%);
 }
 
 body {
   width: 100%;
-  min-height: 100vh;
+  min-height: 100%;
   margin: 0;
   overflow-x: hidden;
+  overscroll-behavior-y: none;
   font-family: var(--font-main);
   font-size: var(--font-size-base);
   line-height: var(--line-height-body);
-  color: var(--color-text);
-  background: var(--color-bg);
+  color: #f5f7ff;
+  background-color: #070816;
+  background:
+    radial-gradient(circle at 20% 0%, rgba(28, 80, 150, 0.35), transparent 36%),
+    radial-gradient(circle at 85% 10%, rgba(95, 55, 180, 0.32), transparent 38%),
+    linear-gradient(180deg, #0b1638 0%, #101044 45%, #070816 100%);
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
 }
@@ -170,8 +181,13 @@ textarea {
 
 #root {
   width: 100%;
-  min-height: 100vh;
+  min-height: 100%;
   overflow-x: hidden;
+  color: #f5f7ff;
+  background:
+    radial-gradient(circle at 20% 0%, rgba(28, 80, 150, 0.35), transparent 36%),
+    radial-gradient(circle at 85% 10%, rgba(95, 55, 180, 0.32), transparent 38%),
+    linear-gradient(180deg, #0b1638 0%, #101044 45%, #070816 100%);
 }
 
 .app-shell {
