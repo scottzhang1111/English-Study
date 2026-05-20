@@ -233,6 +233,8 @@
   height: 100%;
   object-fit: contain;
   object-position: center;
+  pointer-events: none;
+  user-select: none;
 }
 
 .eq-brand-icon span {
@@ -323,6 +325,16 @@
   width: 28px;
   height: 28px;
   place-items: center;
+}
+
+.eq-bottom-nav-icon img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  object-position: center;
+  pointer-events: none;
+  user-select: none;
 }
 
 .eq-choice-badge {
@@ -752,6 +764,20 @@
   color: var(--eq-primary);
   font-size: 16px;
   font-weight: 900;
+}
+
+.eq-menu-icon img {
+  display: block;
+  width: 78%;
+  height: 78%;
+  object-fit: contain;
+  object-position: center;
+  pointer-events: none;
+  user-select: none;
+}
+
+.eq-menu-icon span {
+  pointer-events: none;
 }
 
 .eq-menu-copy {

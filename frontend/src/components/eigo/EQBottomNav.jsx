@@ -1,4 +1,6 @@
+import { useEffect, useState } from 'react';
 import { NavLink } from 'react-router-dom';
+import { getEigoQuestIcon } from '../../config/eigoQuestAssets';
 
 const defaultItems = [
   { label: 'ホーム', to: '/app', icon: 'home' },
@@ -8,7 +10,7 @@ const defaultItems = [
   { label: 'その他', to: '/settings', icon: 'more' },
 ];
 
-function EQNavIcon({ icon }) {
+function EQNavSvgIcon({ icon }) {
   const common = {
     viewBox: '0 0 24 24',
     fill: 'none',
@@ -54,6 +56,30 @@ function EQNavIcon({ icon }) {
         </svg>
       );
   }
+}
+
+function EQNavIcon({ icon }) {
+  const iconSrc = getEigoQuestIcon(icon);
+  const [imageFailed, setImageFailed] = useState(false);
+
+  useEffect(() => {
+    setImageFailed(false);
+  }, [iconSrc]);
+
+  if (iconSrc && !imageFailed) {
+    return (
+      <img
+        src={iconSrc}
+        alt=""
+        className="eq-decorative-image"
+        loading="lazy"
+        aria-hidden="true"
+        onError={() => setImageFailed(true)}
+      />
+    );
+  }
+
+  return <EQNavSvgIcon icon={icon} />;
 }
 
 export default function EQBottomNav({ items = defaultItems, className = '' }) {

@@ -8,6 +8,7 @@ import { useChildren } from '../ChildrenContext';
 import { getPartner } from '../utils/childStorage';
 import { getEigoQuestProgress } from '../helpers/eigoQuestProgress';
 import eigoQuestCards from '../config/eigoQuestCards';
+import { eigoQuestIconAssets } from '../config/eigoQuestAssets';
 
 const DEFAULT_DAILY_WORD_TARGET = 20;
 const DEFAULT_HOME_DATA = {
@@ -47,6 +48,41 @@ const AIR_RABBIT_IMAGES = {
   excited: '/pets/AIR_RABBIT1_Jump.png',
   sleep: '/pets/AIR_RABBIT1_Sleep.png',
 };
+
+function EQMenuIcon({ src, fallback }) {
+  const [imageFailed, setImageFailed] = useState(false);
+
+  useEffect(() => {
+    setImageFailed(false);
+  }, [src]);
+
+  return (
+    <span className="eq-menu-icon">
+      {src && !imageFailed ? (
+        <img
+          src={src}
+          alt=""
+          className="eq-decorative-image"
+          loading="lazy"
+          aria-hidden="true"
+          onError={() => setImageFailed(true)}
+        />
+      ) : (
+        <span>{fallback || '✨'}</span>
+      )}
+    </span>
+  );
+}
+
+function getMenuIconSrc(to) {
+  if (to === '/flashcard') return eigoQuestIconAssets.word;
+  if (to === '/quiz') return eigoQuestIconAssets.quiz;
+  if (to === '/grammar-practice') return eigoQuestIconAssets.grammar;
+  if (to === '/review') return eigoQuestIconAssets.review;
+  if (to === '/vocab-expansion') return eigoQuestIconAssets.study;
+  if (to === '/eiken-pre2' || to === '/eiken-real') return eigoQuestIconAssets.study;
+  return '';
+}
 
 const AIR_RABBIT_LINES = {
   encourage: '大丈夫、つぎはいけるよ',
@@ -536,7 +572,7 @@ export default function HomePage() {
         <section className="eq-home-compact-menu" aria-label="学習メニュー">
           {compactLearningItems.map((item) => (
             <Link key={item.to} to={item.to} className="eq-home-mode-card">
-              <span className="eq-menu-icon">{item.icon}</span>
+              <EQMenuIcon src={item.iconSrc || getMenuIconSrc(item.to)} fallback={item.icon} />
               <span className="eq-menu-copy">
                 <strong>{item.title}</strong>
                 <span>{item.subtitle}</span>
@@ -579,7 +615,7 @@ export default function HomePage() {
         <section className="eq-learning-grid" aria-label="学習メニュー">
           {mobileLearningItems.map((item) => (
             <Link key={item.to} to={item.to} className="eq-menu-card">
-              <span className="eq-menu-icon">{item.icon}</span>
+              <EQMenuIcon src={item.iconSrc || getMenuIconSrc(item.to)} fallback={item.icon} />
               <span className="eq-menu-copy">
                 <strong>{item.title}</strong>
                 <span>{item.subtitle}</span>
@@ -590,7 +626,7 @@ export default function HomePage() {
         </section>
 
         <Link to="/eiken-real" className="eq-real-exam-card">
-          <span className="eq-menu-icon">真</span>
+          <EQMenuIcon src={eigoQuestIconAssets.study} fallback="真" />
           <span className="eq-menu-copy">
             <strong>英検真題</strong>
             <span>過去問とリスニング音声で練習</span>

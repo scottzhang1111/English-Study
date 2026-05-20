@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
+import { eigoQuestAppAssets } from '../../config/eigoQuestAssets';
 
 export default function EQBrandHeader({
-  iconSrc = '/assets/homepage-icon.png',
+  iconSrc = eigoQuestAppAssets.logoMark,
   iconAlt = '英語クエスト',
   fallbackIcon = 'EQ',
   title = '英語クエスト',
@@ -19,7 +20,7 @@ export default function EQBrandHeader({
     <header className={`eq-brand-header ${className}`.trim()}>
       <div className="eq-brand-icon" aria-hidden={!iconSrc}>
         {iconSrc && !imageFailed ? (
-          <img src={iconSrc} alt={iconAlt} onError={() => setImageFailed(true)} />
+          <img src={iconSrc} alt={iconAlt} loading="lazy" onError={() => setImageFailed(true)} />
         ) : (
           <span>{fallbackIcon}</span>
         )}
