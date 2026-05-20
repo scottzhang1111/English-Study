@@ -459,7 +459,7 @@ export default function HomePage() {
   const worldEnglishLabel = `${String(questProgress.currentWorld.id || 'wind').toUpperCase()} REALM`;
   const rewardCardName = questProgress.currentWorld.id === 'wind' ? 'そよ風の精霊' : (rewardCard?.nameJa || 'そよ風の精霊');
   const rewardCardImage = questProgress.currentWorld.id === 'wind'
-    ? '/assets/eigo-quest/cards/wind/wind-spirit-r.png'
+    ? '/assets/eigo-quest/cards/wind/wind-guardian1.png'
     : rewardCard?.image;
   const compactLearningItems = [
     { title: '単語', subtitle: '読む・聞く・例文', to: '/flashcard', icon: '単' },
@@ -535,10 +535,23 @@ export default function HomePage() {
         <section className="eq-home-brand-panel">
           <EQBrandHeader
             title="英語クエスト"
-            subtitle="今日もクエストを進めよう"
-            dateLabel={mobileDateLabel}
+            subtitle="今日もクエストを進めよう！"
             className="eq-home-brand"
           />
+          <div className="eq-home-header-actions" aria-label="ホーム操作">
+            <button type="button" aria-label="お知らせ">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M15 17H9m9-2H6l1.4-1.9V9.6A4.6 4.6 0 0 1 12 5a4.6 4.6 0 0 1 4.6 4.6v3.5L18 15Z" />
+                <path d="M10 18.2a2.2 2.2 0 0 0 4 0" />
+              </svg>
+            </button>
+            <Link to="/settings" aria-label="設定">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M12 15.2a3.2 3.2 0 1 0 0-6.4 3.2 3.2 0 0 0 0 6.4Z" />
+                <path d="M19 13.4v-2.8l-2.1-.7a5.8 5.8 0 0 0-.6-1.3l1-2-2.1-1.4-1.7 1.4a6.4 6.4 0 0 0-1.5-.1l-1.7-1.3-2.1 1.4 1 2a5.8 5.8 0 0 0-.6 1.3l-2.1.7v2.8l2.1.7c.2.5.4.9.6 1.3l-1 2 2.1 1.4 1.7-1.3c.5.1 1 .1 1.5.1l1.7 1.3 2.1-1.4-1-2c.3-.4.5-.8.6-1.3l2.1-.8Z" />
+              </svg>
+            </Link>
+          </div>
           <div className="eq-home-mini-stats">
             <span>連続日数 {streakDays}日</span>
             <span>コイン {coins}</span>
@@ -603,6 +616,9 @@ export default function HomePage() {
                 </div>
                 <div className="eq-progress-bar" style={{ '--eq-progress': currentWorldProgressPercent }} />
               </div>
+              <button type="button" className="eq-home-stage-detail" onClick={() => navigate('/study-map')}>
+                ステージ詳細 <span aria-hidden="true">›</span>
+              </button>
             </div>
 
             <div className="eq-home-glass-panel eq-home-mission-panel">
