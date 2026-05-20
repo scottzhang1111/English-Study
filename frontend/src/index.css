@@ -129,11 +129,11 @@ html {
   max-width: 100%;
   overflow-x: hidden;
   min-height: 100%;
-  background-color: #070816;
+  overscroll-behavior-y: none;
+  background-color: #06091f;
   background:
-    radial-gradient(circle at 20% 0%, rgba(28, 80, 150, 0.35), transparent 36%),
-    radial-gradient(circle at 85% 10%, rgba(95, 55, 180, 0.32), transparent 38%),
-    linear-gradient(180deg, #0b1638 0%, #101044 45%, #070816 100%);
+    radial-gradient(circle at top, rgba(45, 64, 160, 0.45), transparent 38%),
+    linear-gradient(180deg, #111b55 0%, #080b25 45%, #050718 100%);
 }
 
 body {
@@ -146,11 +146,10 @@ body {
   font-size: var(--font-size-base);
   line-height: var(--line-height-body);
   color: #f5f7ff;
-  background-color: #070816;
+  background-color: #06091f;
   background:
-    radial-gradient(circle at 20% 0%, rgba(28, 80, 150, 0.35), transparent 36%),
-    radial-gradient(circle at 85% 10%, rgba(95, 55, 180, 0.32), transparent 38%),
-    linear-gradient(180deg, #0b1638 0%, #101044 45%, #070816 100%);
+    radial-gradient(circle at top, rgba(45, 64, 160, 0.45), transparent 38%),
+    linear-gradient(180deg, #111b55 0%, #080b25 45%, #050718 100%);
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
 }
@@ -184,24 +183,24 @@ textarea {
   min-height: 100%;
   overflow-x: hidden;
   color: #f5f7ff;
+  background-color: #06091f;
   background:
-    radial-gradient(circle at 20% 0%, rgba(28, 80, 150, 0.35), transparent 36%),
-    radial-gradient(circle at 85% 10%, rgba(95, 55, 180, 0.32), transparent 38%),
-    linear-gradient(180deg, #0b1638 0%, #101044 45%, #070816 100%);
+    radial-gradient(circle at top, rgba(45, 64, 160, 0.45), transparent 38%),
+    linear-gradient(180deg, #111b55 0%, #080b25 45%, #050718 100%);
 }
 
 .app-shell {
   position: relative;
   width: 100%;
-  min-height: 100vh;
+  min-height: 100dvh;
   margin: 0 auto;
   overflow-x: hidden;
-  color: var(--color-text);
+  color: #f5f7ff;
+  background-color: #06091f;
   background:
-    radial-gradient(circle at 12% 22%, color-mix(in srgb, var(--color-primary) 30%, transparent), transparent 18%),
-    radial-gradient(circle at 88% 30%, color-mix(in srgb, var(--color-secondary) 44%, transparent), transparent 20%),
-    linear-gradient(180deg, var(--color-bg) 0%, color-mix(in srgb, var(--color-bg) 72%, white) 100%);
-  box-shadow: 0 0 40px rgba(112, 158, 203, 0.14);
+    radial-gradient(circle at top, rgba(45, 64, 160, 0.45), transparent 38%),
+    linear-gradient(180deg, #111b55 0%, #080b25 45%, #050718 100%);
+  box-shadow: none;
 }
 
 .app-shell::before,

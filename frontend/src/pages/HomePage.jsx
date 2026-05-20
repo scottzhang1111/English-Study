@@ -459,6 +459,9 @@ export default function HomePage() {
   const quizTarget = Number(data?.today_quiz_target ?? 5);
   const wrongReviewDone = Number(data?.today_review_done ?? 0);
   const wrongReviewTarget = Number(data?.today_review_target ?? 3);
+  const displayTodayStudied = Math.min(todayStudied, safeTodayTarget);
+  const displayQuizDone = Math.min(quizDone, quizTarget);
+  const displayWrongReviewDone = Math.min(wrongReviewDone, wrongReviewTarget);
   const rewardCard = eigoQuestCards.find((card) => card.worldId === questProgress.currentWorld.id) || eigoQuestCards[0];
   const currentWorldWordsRaw = questProgress.learnedWords % EQ_WORDS_PER_WORLD;
   const currentWorldWords = questProgress.learnedWords > 0 && currentWorldWordsRaw === 0
@@ -653,17 +656,17 @@ export default function HomePage() {
                 <div>
                   <span className={todayStudied >= safeTodayTarget ? 'is-done' : ''}>{todayStudied >= safeTodayTarget ? '☑' : '□'}</span>
                   <strong>単語を学ぶ</strong>
-                  <em>{todayStudied} / {safeTodayTarget}</em>
+                  <em>{displayTodayStudied} / {safeTodayTarget}</em>
                 </div>
                 <div>
                   <span className={quizDone >= quizTarget ? 'is-done' : ''}>{quizDone >= quizTarget ? '☑' : '□'}</span>
                   <strong>クイズに挑戦</strong>
-                  <em>{quizDone} / {quizTarget}</em>
+                  <em>{displayQuizDone} / {quizTarget}</em>
                 </div>
                 <div>
                   <span className={wrongReviewDone >= wrongReviewTarget ? 'is-done' : ''}>{wrongReviewDone >= wrongReviewTarget ? '☑' : '□'}</span>
                   <strong>まちがい直し</strong>
-                  <em>{wrongReviewDone} / {wrongReviewTarget}</em>
+                  <em>{displayWrongReviewDone} / {wrongReviewTarget}</em>
                 </div>
               </div>
             </div>
@@ -715,15 +718,15 @@ export default function HomePage() {
           <div className="eq-home-mission-list">
             <div>
               <span>単語を学ぶ</span>
-              <strong>{todayStudied} / {safeTodayTarget}</strong>
+              <strong>{displayTodayStudied} / {safeTodayTarget}</strong>
             </div>
             <div>
               <span>クイズに挑戦</span>
-              <strong>{quizDone} / {quizTarget}</strong>
+              <strong>{displayQuizDone} / {quizTarget}</strong>
             </div>
             <div>
               <span>まちがい直し</span>
-              <strong>{wrongReviewDone} / {wrongReviewTarget}</strong>
+              <strong>{displayWrongReviewDone} / {wrongReviewTarget}</strong>
             </div>
           </div>
 
@@ -736,6 +739,10 @@ export default function HomePage() {
             冒険をつづける
           </button>
         </EQCard>
+
+        <button type="button" onClick={() => navigate('/world-stage')} className="eq-gold-button eq-home-primary-cta eq-home-main-cta">
+          冒険をつづける
+        </button>
 
         <section className="eq-home-compact-menu" aria-label="学習メニュー">
           {homeQuickActions.map((item) => (
@@ -757,12 +764,12 @@ export default function HomePage() {
               <div>
                 <span className={todayStudied >= safeTodayTarget ? 'is-done' : ''}>{todayStudied >= safeTodayTarget ? '☑' : '›'}</span>
                 <strong>単語を学ぶ</strong>
-                <em>{todayStudied} / {safeTodayTarget}</em>
+                <em>{displayTodayStudied} / {safeTodayTarget}</em>
               </div>
               <div>
                 <span className={quizDone >= quizTarget ? 'is-done' : ''}>{quizDone >= quizTarget ? '☑' : '›'}</span>
                 <strong>クイズに挑戦</strong>
-                <em>{quizDone} / {quizTarget}</em>
+                <em>{displayQuizDone} / {quizTarget}</em>
               </div>
               <div>
                 <span className={grammarMissionDone >= 1 ? 'is-done' : ''}>{grammarMissionDone >= 1 ? '☑' : '›'}</span>
@@ -772,7 +779,7 @@ export default function HomePage() {
               <div>
                 <span className={wrongReviewDone >= wrongReviewTarget ? 'is-done' : ''}>{wrongReviewDone >= wrongReviewTarget ? '☑' : '›'}</span>
                 <strong>まちがい直し</strong>
-                <em>{wrongReviewDone} / {wrongReviewTarget}</em>
+                <em>{displayWrongReviewDone} / {wrongReviewTarget}</em>
               </div>
             </div>
           </div>
@@ -800,10 +807,6 @@ export default function HomePage() {
             </div>
           </div>
         </section>
-
-        <button type="button" onClick={() => navigate('/world-stage')} className="eq-gold-button eq-home-primary-cta eq-home-main-cta">
-          冒険をつづける
-        </button>
 
         <Link to="/cards" className="eq-home-reward-card-section">
           <span className="eq-caption">今日の報酬カード</span>
