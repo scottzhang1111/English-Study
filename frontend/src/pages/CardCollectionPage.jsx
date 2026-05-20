@@ -45,15 +45,19 @@ function getImageCandidates(card) {
   const candidates = [];
   const image = card?.image || '';
   const fileName = image.split('/').pop();
-  const worldFolder = card?.worldId === 'rock' ? 'rook' : card?.worldId;
+  const worldFolder = card?.worldId;
   const number = fileName?.match(/(\d+)\.png$/)?.[1];
 
   if (image) candidates.push(image);
   if (worldFolder && fileName) candidates.push(`/assets/eigo-quest/cards/${worldFolder}/${fileName}`);
   if (worldFolder && number) candidates.push(`/assets/eigo-quest/cards/${worldFolder}/${card.worldId}-guardian${number}.png`);
-  if (card?.worldId === 'fire' && number) candidates.push(`/assets/eigo-quest/cards/fire/wind-guardian${number}.png`);
 
   return Array.from(new Set(candidates.filter(Boolean)));
+}
+
+function getCoverImageCandidates(card) {
+  if (!card?.worldId) return [];
+  return [`/assets/eigo-quest/cards/${card.worldId}/${card.worldId}-cover.png`];
 }
 
 function getCardReviewPath(card) {
@@ -70,7 +74,10 @@ function getCardReviewPath(card) {
 
 function CardImage({ card, large = false }) {
   const [index, setIndex] = useState(0);
-  const candidates = useMemo(() => getImageCandidates(card), [card]);
+  const candidates = useMemo(
+    () => (card.owned ? getImageCandidates(card) : getCoverImageCandidates(card)),
+    [card],
+  );
   const world = getWorldMeta(card.worldId);
   const src = candidates[index];
 
