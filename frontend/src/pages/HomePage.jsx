@@ -214,6 +214,7 @@ export default function HomePage() {
   const [error, setError] = useState(null);
   const [partnerLineIndex, setPartnerLineIndex] = useState(0);
   const [hasNoChildren, setHasNoChildren] = useState(false);
+  const [homeWorldImageFailed, setHomeWorldImageFailed] = useState(false);
   const { children, childrenLoading, childrenError, selectedChildId, setSelectedChildId, refreshChildren } = useChildren();
   const navigate = useNavigate();
   const { mood: petMood, triggerPetMood, wakePet } = usePetMood();
@@ -412,6 +413,10 @@ export default function HomePage() {
     };
   }, [triggerPetMood]);
 
+  useEffect(() => {
+    setHomeWorldImageFailed(false);
+  }, [questProgress.currentWorld.id]);
+
   if (childrenLoading) {
     return null;
   }
@@ -473,6 +478,18 @@ export default function HomePage() {
         </section>
 
         <EQCard className="eq-adventure-card eq-home-main-adventure">
+          <div className="eq-home-adventure-bg" aria-hidden="true">
+            {!homeWorldImageFailed && questProgress.currentWorld.backgroundImage ? (
+              <img
+                src={questProgress.currentWorld.backgroundImage}
+                alt=""
+                loading="lazy"
+                onError={() => setHomeWorldImageFailed(true)}
+              />
+            ) : (
+              <span>{questProgress.currentWorld.icon || '✨'}</span>
+            )}
+          </div>
           <div className="eq-adventure-content">
             <div className="eq-adventure-copy">
               <p className="eq-caption">現在の冒険</p>

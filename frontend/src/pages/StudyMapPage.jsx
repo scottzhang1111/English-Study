@@ -8,12 +8,6 @@ import { EIGO_QUEST_STAGES_PER_WORLD, getEigoQuestProgress } from '../helpers/ei
 const CHILD_STORAGE_KEY = 'selected_child_id';
 const MOCK_LEARNED_WORDS = 42;
 
-function getStageStatus(stageNumber, currentStage) {
-  if (stageNumber < currentStage) return 'completed';
-  if (stageNumber === currentStage) return 'current';
-  return 'locked';
-}
-
 export default function StudyMapPage() {
   const navigate = useNavigate();
   const childId = useMemo(() => localStorage.getItem(CHILD_STORAGE_KEY) || '', []);
@@ -41,19 +35,16 @@ export default function StudyMapPage() {
     : Number(rawLearnedWords);
   const questProgress = getEigoQuestProgress(learnedWordsCount, eigoQuestWorlds);
   const currentWorld = questProgress.currentWorld;
+  const todayWordsDone = Number(homeData?.progress ?? 5);
+  const todayWordsTarget = Number(homeData?.target ?? 5);
+  const quizDone = Number(homeData?.today_quiz_correct ?? homeData?.quiz_progress ?? 3);
+  const quizTarget = Number(homeData?.today_quiz_target ?? 5);
+  const wrongReviewDone = Number(homeData?.today_review_done ?? 0);
+  const wrongReviewTarget = Number(homeData?.today_review_target ?? 3);
 
   useEffect(() => {
     setWorldImageFailed(false);
   }, [currentWorld.id]);
-
-  const stageNodes = Array.from({ length: EIGO_QUEST_STAGES_PER_WORLD }, (_, stageIndex) => {
-    const stageNumber = stageIndex + 1;
-    return {
-      stageNumber,
-      status: getStageStatus(stageNumber, questProgress.stageInWorld),
-      isBoss: stageNumber === EIGO_QUEST_STAGES_PER_WORLD,
-    };
-  });
 
   return (
     <div className="eq-study-map-wrap">
@@ -70,12 +61,7 @@ export default function StudyMapPage() {
 
         {error ? <div className="eq-study-map-error">{error}</div> : null}
 
-        <section
-          className="eq-study-world-scene"
-          style={{
-            '--world-color': currentWorld.themeColor,
-          }}
-        >
+        <section className="eq-study-world-scene" style={{ '--world-color': currentWorld.themeColor }}>
           <div className="eq-study-world-image-stage" aria-hidden="true">
             {!worldImageFailed && currentWorld.backgroundImage ? (
               <img
@@ -94,54 +80,32 @@ export default function StudyMapPage() {
             <h2>{currentWorld.nameJa}</h2>
             <p>{currentWorld.subtitleJa}</p>
           </div>
-          <div className="eq-study-world-icon" aria-hidden="true">
-            {currentWorld.icon}
-          </div>
-          <div className="eq-adventure-progress-row">
-            <span>{questProgress.stageLabel}</span>
-            <strong>{questProgress.stageProgressPercent}%</strong>
-          </div>
-          <div className="eq-progress-bar" style={{ '--eq-progress': `${questProgress.stageProgressPercent}%` }} />
         </section>
 
-        <EQCard className="eq-stage-map-panel">
+        <EQCard className="eq-stage-map-panel eq-current-stage-panel">
           <div className="eq-stage-map-heading">
-            <h2>ステージ</h2>
+            <h2>{questProgress.stageLabel}</h2>
             <span>{questProgress.stageInWorld} / {EIGO_QUEST_STAGES_PER_WORLD}</span>
           </div>
-
-          <div className="eq-stage-node-grid" aria-label={`${currentWorld.nameJa} stages`}>
-            {stageNodes.map((stage) => (
-              <button
-                key={stage.stageNumber}
-                type="button"
-                className={`eq-stage-node is-${stage.status} ${stage.isBoss ? 'is-boss' : ''}`}
-                disabled={stage.status === 'locked'}
-                aria-label={`Stage ${stage.stageNumber}${stage.isBoss ? ' boss' : ''}`}
-              >
-                <span className="eq-stage-node-marker">
-                  {stage.isBoss ? 'B' : stage.stageNumber}
-                </span>
-                <span className="eq-stage-node-label">
-                  {stage.isBoss ? 'Boss' : `Stage ${stage.stageNumber}`}
-                </span>
-              </button>
-            ))}
-          </div>
-        </EQCard>
-
-        <section className="eq-world-mini-strip" aria-label="Worlds">
-          {eigoQuestWorlds.map((world, index) => (
-            <div
-              key={world.id}
-              className={`eq-world-mini ${index < questProgress.worldIndex ? 'is-complete' : ''} ${index === questProgress.worldIndex ? 'is-current' : ''}`}
-              style={{ '--world-color': world.themeColor }}
-            >
-              <span>{world.icon}</span>
-              <strong>{world.nameJa}</strong>
+          <p className="eq-current-stage-title">現在のミッション</p>
+          <div className="eq-current-stage-missions">
+            <div>
+              <span>単語</span>
+              <strong>{todayWordsDone} / {todayWordsTarget}</strong>
             </div>
-          ))}
-        </section>
+            <div>
+              <span>クイズ</span>
+              <strong>{quizDone} / {quizTarget}</strong>
+            </div>
+            <div>
+              <span>まちがい</span>
+              <strong>{wrongReviewDone} / {wrongReviewTarget}</strong>
+            </div>
+          </div>
+          <button type="button" onClick={() => navigate('/daily-words')} className="eq-gold-button eq-study-map-cta">
+            このステージを進める
+          </button>
+        </EQCard>
       </EQMobileShell>
 
       <EQBottomNav
