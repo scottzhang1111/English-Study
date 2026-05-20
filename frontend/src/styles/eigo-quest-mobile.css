@@ -231,7 +231,12 @@
 .eq-brand-icon img {
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: contain;
+  object-position: center;
+}
+
+.eq-brand-icon span {
+  pointer-events: none;
 }
 
 .eq-brand-copy {
@@ -620,6 +625,8 @@
   width: 54px;
   height: 54px;
   object-fit: contain;
+  object-position: center;
+  pointer-events: none;
 }
 
 .eq-adventure-progress-row {
@@ -1826,9 +1833,9 @@
   padding: 18px;
   border: 1px solid color-mix(in srgb, var(--world-color, var(--eq-primary)) 42%, transparent);
   border-radius: var(--eq-radius-xl);
-  background-color: var(--eq-card);
-  background-position: center;
-  background-size: cover;
+  background:
+    linear-gradient(180deg, rgba(7, 9, 31, 0.18), rgba(7, 9, 31, 0.94)),
+    var(--eq-card);
   box-shadow: var(--eq-shadow-card), 0 0 28px color-mix(in srgb, var(--world-color, var(--eq-primary)) 30%, transparent);
 }
 
@@ -1847,6 +1854,50 @@
 .eq-study-world-scene .eq-progress-bar {
   position: relative;
   z-index: 1;
+}
+
+.eq-study-world-image-stage {
+  position: absolute;
+  inset: 12px 12px 74px;
+  z-index: 0;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  border-radius: 22px;
+  pointer-events: none;
+}
+
+.eq-study-world-image-stage::after {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, transparent 0%, rgba(7, 9, 31, 0.48) 100%);
+  content: "";
+  pointer-events: none;
+}
+
+.eq-study-world-image-stage img,
+.eq-decorative-image {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  object-position: center;
+  pointer-events: none;
+  user-select: none;
+}
+
+.eq-study-world-image-stage span {
+  display: grid;
+  width: 86px;
+  height: 86px;
+  place-items: center;
+  border: 1px solid color-mix(in srgb, var(--world-color, var(--eq-primary)) 46%, transparent);
+  border-radius: 28px;
+  background: rgba(7, 9, 31, 0.44);
+  color: var(--world-color, var(--eq-primary));
+  font-size: 34px;
+  font-weight: 950;
+  pointer-events: none;
 }
 
 .eq-study-world-scene-copy {

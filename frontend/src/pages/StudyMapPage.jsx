@@ -19,6 +19,7 @@ export default function StudyMapPage() {
   const childId = useMemo(() => localStorage.getItem(CHILD_STORAGE_KEY) || '', []);
   const [homeData, setHomeData] = useState(null);
   const [error, setError] = useState('');
+  const [worldImageFailed, setWorldImageFailed] = useState(false);
 
   useEffect(() => {
     if (!childId) {
@@ -40,6 +41,11 @@ export default function StudyMapPage() {
     : Number(rawLearnedWords);
   const questProgress = getEigoQuestProgress(learnedWordsCount, eigoQuestWorlds);
   const currentWorld = questProgress.currentWorld;
+
+  useEffect(() => {
+    setWorldImageFailed(false);
+  }, [currentWorld.id]);
+
   const stageNodes = Array.from({ length: EIGO_QUEST_STAGES_PER_WORLD }, (_, stageIndex) => {
     const stageNumber = stageIndex + 1;
     return {
@@ -68,9 +74,21 @@ export default function StudyMapPage() {
           className="eq-study-world-scene"
           style={{
             '--world-color': currentWorld.themeColor,
-            backgroundImage: `linear-gradient(180deg, rgba(7, 9, 31, 0.18), rgba(7, 9, 31, 0.94)), url(${currentWorld.backgroundImage})`,
           }}
         >
+          <div className="eq-study-world-image-stage" aria-hidden="true">
+            {!worldImageFailed && currentWorld.backgroundImage ? (
+              <img
+                src={currentWorld.backgroundImage}
+                alt=""
+                className="eq-decorative-image"
+                loading="lazy"
+                onError={() => setWorldImageFailed(true)}
+              />
+            ) : (
+              <span>{currentWorld.icon || '✨'}</span>
+            )}
+          </div>
           <div className="eq-study-world-scene-copy">
             <span className="eq-grammar-label">現在の冒険</span>
             <h2>{currentWorld.nameJa}</h2>
