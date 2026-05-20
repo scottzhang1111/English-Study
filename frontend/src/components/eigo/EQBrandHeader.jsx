@@ -4,7 +4,7 @@ import { eigoQuestAppAssets } from '../../config/eigoQuestAssets';
 export default function EQBrandHeader({
   iconSrc = eigoQuestAppAssets.logoMark,
   iconAlt = '英語クエスト',
-  fallbackIcon = 'EQ',
+  fallbackIcon = '★',
   title = '英語クエスト',
   subtitle = '楽しく続ける英語学習',
   dateLabel,
