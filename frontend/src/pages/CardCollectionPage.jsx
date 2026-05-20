@@ -1,22 +1,22 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { EQBackPill, EQBottomNav, EQCard, EQMobileShell } from '../components/eigo';
 import eigoQuestCards from '../config/eigoQuestCards';
-import eigoQuestWorlds from '../config/eigoQuestWorlds';
 import { getOwnedCardIds } from '../helpers/eigoQuestRewards';
 
-const CARD_FILTERS = ['すべて', '風', '火', '雷', '木', '岩', '影', '水', '光'];
-
-const WORLD_CLASS_BY_ID = {
-  wind: '風',
-  fire: '火',
-  thunder: '雷',
-  wood: '木',
-  rock: '岩',
-  shadow: '影',
-  water: '水',
-  light: '光',
+const WORLD_META = {
+  all: { label: 'すべて', name: 'すべて', color: '#ffd35a', symbol: '★' },
+  wind: { label: '風', name: '風の世界', color: '#45d7ff', symbol: '風' },
+  fire: { label: '火', name: '火の世界', color: '#ff6b3d', symbol: '火' },
+  thunder: { label: '雷', name: '雷の世界', color: '#8b6bff', symbol: '雷' },
+  wood: { label: '木', name: '木の世界', color: '#67d96b', symbol: '木' },
+  rock: { label: '岩', name: '岩の世界', color: '#d7a85b', symbol: '岩' },
+  shadow: { label: '影', name: '影の世界', color: '#a569ff', symbol: '影' },
+  water: { label: '水', name: '水の世界', color: '#4ccfff', symbol: '水' },
+  light: { label: '光', name: '光の世界', color: '#ffd86b', symbol: '光' },
 };
+
+const CARD_FILTERS = ['all', 'wind', 'fire', 'thunder', 'wood', 'rock', 'shadow', 'water', 'light'];
 
 const WORD_REVIEW_MODES = new Set([
   'antonym',
@@ -37,12 +37,23 @@ const WORD_REVIEW_MODES = new Set([
   'wrongWords',
 ]);
 
-function getWorld(card) {
-  return eigoQuestWorlds.find((world) => world.id === card.worldId) || null;
+function getWorldMeta(worldId) {
+  return WORLD_META[worldId] || WORLD_META.wind;
 }
 
-function getWorldClass(card) {
-  return WORLD_CLASS_BY_ID[card.worldId] || getWorld(card)?.icon || '風';
+function getImageCandidates(card) {
+  const candidates = [];
+  const image = card?.image || '';
+  const fileName = image.split('/').pop();
+  const worldFolder = card?.worldId === 'rock' ? 'rook' : card?.worldId;
+  const number = fileName?.match(/(\d+)\.png$/)?.[1];
+
+  if (image) candidates.push(image);
+  if (worldFolder && fileName) candidates.push(`/assets/eigo-quest/cards/${worldFolder}/${fileName}`);
+  if (worldFolder && number) candidates.push(`/assets/eigo-quest/cards/${worldFolder}/${card.worldId}-guardian${number}.png`);
+  if (card?.worldId === 'fire' && number) candidates.push(`/assets/eigo-quest/cards/fire/wind-guardian${number}.png`);
+
+  return Array.from(new Set(candidates.filter(Boolean)));
 }
 
 function getCardReviewPath(card) {
@@ -57,28 +68,52 @@ function getCardReviewPath(card) {
   return `/review?${params.toString()}`;
 }
 
-function CardArt({ card, large = false }) {
-  const worldClass = getWorldClass(card);
+function CardImage({ card, large = false }) {
+  const [index, setIndex] = useState(0);
+  const candidates = useMemo(() => getImageCandidates(card), [card]);
+  const world = getWorldMeta(card.worldId);
+  const src = candidates[index];
+
+  useEffect(() => {
+    setIndex(0);
+  }, [card?.id]);
+
   return (
-    <div className={`eq-card-art eq-card-world-${worldClass} ${large ? 'is-large' : ''} ${card.owned ? '' : 'is-locked'}`}>
-      <div className="eq-card-art-symbol">{card.owned ? worldClass : '?'}</div>
+    <div className={`eq-card-art ${large ? 'is-large' : ''} ${card.owned ? 'is-owned' : 'is-locked'}`}>
+      {src ? (
+        <img
+          src={src}
+          alt={card.owned ? card.nameJa : ''}
+          loading="lazy"
+          onError={() => setIndex((current) => current + 1)}
+        />
+      ) : (
+        <span className="eq-card-art-symbol">{world.symbol}</span>
+      )}
+      {!card.owned ? <span className="eq-card-lock-mark">???</span> : null}
     </div>
   );
 }
 
 export default function CardCollectionPage() {
-  const [activeFilter, setActiveFilter] = useState('すべて');
+  const [activeFilter, setActiveFilter] = useState('all');
   const [detailCard, setDetailCard] = useState(null);
   const navigate = useNavigate();
-  const ownedCardIds = useMemo(() => new Set(getOwnedCardIds()), []);
+  const storedOwnedCardIds = useMemo(() => getOwnedCardIds(), []);
+  const ownedCardIds = useMemo(() => {
+    if (storedOwnedCardIds.length > 0) return new Set(storedOwnedCardIds);
+    return new Set(eigoQuestCards.filter((card) => card.worldId === 'wind').slice(0, 3).map((card) => card.id));
+  }, [storedOwnedCardIds]);
   const cards = useMemo(
     () => eigoQuestCards.map((card) => ({ ...card, owned: ownedCardIds.has(card.id) })),
     [ownedCardIds],
   );
   const visibleCards = useMemo(
-    () => cards.filter((card) => activeFilter === 'すべて' || getWorldClass(card) === activeFilter),
+    () => cards.filter((card) => activeFilter === 'all' || card.worldId === activeFilter),
     [activeFilter, cards],
   );
+  const ownedCount = cards.filter((card) => card.owned).length;
+  const selectedWorld = getWorldMeta(activeFilter);
 
   return (
     <div className="eq-card-page-wrap">
@@ -86,37 +121,55 @@ export default function CardCollectionPage() {
         <EQBackPill to="/app">← ホームに戻る</EQBackPill>
 
         <header className="eq-card-page-header">
-          <h1 className="eq-page-title">カードコレクション</h1>
-          <p className="eq-caption">集めたカードで復習クエストへ進もう</p>
+          <div>
+            <p>Card Collection</p>
+            <h1 className="eq-page-title">カードコレクション</h1>
+            <span>世界ごとのカードを集めて、復習クエストへ進もう</span>
+          </div>
+          <EQCard className="eq-card-collection-summary">
+            <div>
+              <span>所持カード</span>
+              <strong>{ownedCount} / {cards.length}</strong>
+            </div>
+            <div>
+              <span>表示中</span>
+              <strong>{selectedWorld.name}</strong>
+            </div>
+          </EQCard>
         </header>
 
         <div className="eq-card-filter-tabs" role="tablist" aria-label="カード属性">
-          {CARD_FILTERS.map((filter) => (
-            <button
-              key={filter}
-              type="button"
-              onClick={() => setActiveFilter(filter)}
-              className={activeFilter === filter ? 'is-active' : ''}
-            >
-              {filter}
-            </button>
-          ))}
+          {CARD_FILTERS.map((filter) => {
+            const world = getWorldMeta(filter);
+            return (
+              <button
+                key={filter}
+                type="button"
+                onClick={() => setActiveFilter(filter)}
+                className={activeFilter === filter ? 'is-active' : ''}
+                style={{ '--world-color': world.color }}
+              >
+                {world.label}
+              </button>
+            );
+          })}
         </div>
 
         <section className="eq-card-grid" aria-label="カード一覧">
           {visibleCards.map((card) => {
-            const world = getWorld(card);
+            const world = getWorldMeta(card.worldId);
             return (
               <button
                 key={card.id}
                 type="button"
                 onClick={() => setDetailCard(card)}
-                className={`eq-collection-card ${card.owned ? 'is-owned' : 'is-locked'}`}
+                className={`eq-collection-card is-${card.worldId} ${card.owned ? 'is-owned' : 'is-locked'}`}
+                style={{ '--world-color': world.color }}
               >
                 <span className={`eq-rarity-badge rarity-${card.rarity}`}>{card.rarity}</span>
-                <CardArt card={card} />
+                <CardImage card={card} />
                 <strong>{card.owned ? card.nameJa : '???'}</strong>
-                <span>{world?.nameJa || 'ワールド'}のカード</span>
+                <span>{world.name}</span>
               </button>
             );
           })}
@@ -139,16 +192,20 @@ export default function CardCollectionPage() {
             <button type="button" onClick={() => setDetailCard(null)} className="eq-card-detail-close">
               閉じる
             </button>
-            <CardArt card={detailCard} large />
+            <CardImage card={detailCard} large />
             <div className="eq-card-detail-body">
               <span className={`eq-rarity-badge rarity-${detailCard.rarity}`}>{detailCard.rarity}</span>
               <h2>{detailCard.owned ? detailCard.nameJa : '???'}</h2>
-              <p className="eq-card-world">ワールド: {getWorld(detailCard)?.nameJa || detailCard.worldId}</p>
+              <p className="eq-card-world">ワールド: {getWorldMeta(detailCard.worldId).name}</p>
               <p>
                 {detailCard.owned
                   ? detailCard.descriptionJa
                   : 'まだ手に入れていないカードです。クエストを進めて解放しよう。'}
               </p>
+              <div className="eq-card-detail-meta">
+                <span>Type: {detailCard.type}</span>
+                <span>Review: {detailCard.reviewMode}</span>
+              </div>
               <button
                 type="button"
                 onClick={() => navigate(getCardReviewPath(detailCard))}

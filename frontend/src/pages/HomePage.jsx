@@ -740,7 +740,12 @@ export default function HomePage() {
           </button>
         </EQCard>
 
-        <button type="button" onClick={() => navigate('/world-stage')} className="eq-gold-button eq-home-primary-cta eq-home-main-cta">
+        <button
+          type="button"
+          onClick={() => navigate('/world-stage')}
+          className="eq-gold-button eq-home-primary-cta eq-home-main-cta"
+          style={{ '--eq-gold-button-image': `url(${eigoQuestAssets.ui.goldButton})` }}
+        >
           冒険をつづける
         </button>
 
