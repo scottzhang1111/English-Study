@@ -4,3 +4,4 @@ export { default as EQBrandHeader } from './EQBrandHeader';
 export { default as EQCard } from './EQCard';
 export { default as EQChoiceButton } from './EQChoiceButton';
 export { default as EQMobileShell } from './EQMobileShell';
+export { default as FantasyMenuTile } from './FantasyMenuTile';

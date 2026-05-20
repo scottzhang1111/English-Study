@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
 import { Link, Navigate, NavLink, useNavigate } from 'react-router-dom';
 import HeaderBar from '../components/HeaderBar';
-import { EQBottomNav, EQBrandHeader, EQCard, EQMobileShell } from '../components/eigo';
+import { EQBottomNav, EQBrandHeader, EQCard, EQMobileShell, FantasyMenuTile } from '../components/eigo';
 import { getGrammarLessons, getHomeData } from '../api';
 import { useChildren } from '../ChildrenContext';
 import { getPartner } from '../utils/childStorage';
@@ -480,10 +480,10 @@ export default function HomePage() {
     { title: 'まちがい', subtitle: '苦手を復習', to: '/review', icon: '直' },
   ];
   const homeQuickActions = [
-    { title: '単語', subtitle: '新しい単語を覚えよう！', to: '/flashcard', icon: '単', iconSrc: eigoQuestAssets.actions.word },
-    { title: 'クイズ', subtitle: 'クイズに挑戦しよう！', to: '/quiz', icon: 'Q', iconSrc: eigoQuestAssets.actions.quiz },
-    { title: '文法', subtitle: '文法のルールを学ぼう！', to: '/grammar-practice', icon: '文', iconSrc: eigoQuestAssets.actions.grammar },
-    { title: 'まちがい直し', subtitle: '間違えた問題を復習しよう！', to: '/review', icon: '直', iconSrc: eigoQuestAssets.actions.review },
+    { title: '単語', subtitle: '新しい単語を覚えよう！', to: '/flashcard', fallback: '単', icon: eigoQuestAssets.actions.word, theme: 'green' },
+    { title: 'クイズ', subtitle: 'クイズに挑戦しよう！', to: '/quiz', fallback: 'Q', icon: eigoQuestAssets.actions.quiz, theme: 'purple' },
+    { title: '文法', subtitle: '文法のルールを学ぼう！', to: '/grammar-practice', fallback: '文', icon: eigoQuestAssets.actions.grammar, theme: 'blue' },
+    { title: 'まちがい直し', subtitle: '間違えた問題を復習しよう！', to: '/review', fallback: '直', icon: eigoQuestAssets.actions.review, theme: 'gold' },
   ];
   const grammarMissionDone = isGrammarComplete ? 1 : 0;
 
@@ -740,11 +740,12 @@ export default function HomePage() {
         <section className="eq-home-compact-menu" aria-label="学習メニュー">
           {homeQuickActions.map((item) => (
             <Link key={item.to} to={item.to} className="eq-home-mode-card">
-              <EQMenuIcon src={item.iconSrc || getMenuIconSrc(item.to)} fallback={item.icon} />
-              <span className="eq-menu-copy">
-                <strong>{item.title}</strong>
-                <span>{item.subtitle}</span>
-              </span>
+              <FantasyMenuTile
+                title={item.title}
+                subtitle={item.subtitle}
+                icon={item.icon || item.fallback}
+                theme={item.theme}
+              />
             </Link>
           ))}
         </section>
