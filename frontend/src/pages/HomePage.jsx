@@ -7,6 +7,7 @@ import { getGrammarLessons, getHomeData } from '../api';
 import { useChildren } from '../ChildrenContext';
 import { getPartner } from '../utils/childStorage';
 import { getEigoQuestProgress } from '../helpers/eigoQuestProgress';
+import eigoQuestCards from '../config/eigoQuestCards';
 
 const DEFAULT_DAILY_WORD_TARGET = 20;
 const DEFAULT_HOME_DATA = {
@@ -389,6 +390,21 @@ export default function HomePage() {
     },
   ];
 
+  const totalProgressText = `${questProgress.learnedWords} / ${questProgress.totalWords} words`;
+  const streakDays = Number(data?.study_days ?? data?.streak_days ?? 0);
+  const coins = Number(data?.coins ?? data?.coin ?? 0);
+  const quizDone = Number(data?.today_quiz_correct ?? data?.quiz_progress ?? 3);
+  const quizTarget = Number(data?.today_quiz_target ?? 5);
+  const wrongReviewDone = Number(data?.today_review_done ?? 0);
+  const wrongReviewTarget = Number(data?.today_review_target ?? 3);
+  const rewardCard = eigoQuestCards.find((card) => card.worldId === questProgress.currentWorld.id) || eigoQuestCards[0];
+  const compactLearningItems = [
+    { title: '単語', subtitle: '読む・聞く・例文', to: '/flashcard', icon: '単' },
+    { title: 'クイズ', subtitle: '覚えた単語を確認', to: '/quiz', icon: 'Q' },
+    { title: '文法', subtitle: '文法5問チャレンジ', to: '/grammar-practice', icon: '文' },
+    { title: 'まちがい', subtitle: '苦手を復習', to: '/review', icon: '直' },
+  ];
+
   useEffect(() => {
     window.triggerHomePetMood = triggerPetMood;
     return () => {
@@ -436,8 +452,87 @@ export default function HomePage() {
 
   return (
     <>
-    <div className="lg:hidden" onPointerDown={wakePet}>
+    <div className="eq-home-mobile-root lg:hidden" onPointerDown={wakePet}>
       <EQMobileShell className="eq-home-menu">
+        <section className="eq-home-brand-panel">
+          <EQBrandHeader
+            title="英語クエスト"
+            subtitle="今日もクエストを進めよう"
+            dateLabel={mobileDateLabel}
+            className="eq-home-brand"
+          />
+          <div className="eq-home-mini-stats">
+            <span>連続日数 {streakDays}日</span>
+            <span>コイン {coins}</span>
+          </div>
+        </section>
+
+        <section className="eq-home-greeting">
+          <h1>Hello, {selectedChild.name} 👋</h1>
+          <p>今日も冒険しよう！</p>
+        </section>
+
+        <EQCard className="eq-adventure-card eq-home-main-adventure">
+          <div className="eq-adventure-content">
+            <div className="eq-adventure-copy">
+              <p className="eq-caption">現在の冒険</p>
+              <h2 className="eq-adventure-world">{questProgress.currentWorld.nameJa}</h2>
+              <p className="eq-adventure-stage">{questProgress.stageLabel}</p>
+              <p className="eq-home-total-progress">{totalProgressText}</p>
+            </div>
+            <div className="eq-reward-preview">
+              <span className="eq-reward-card-icon">{questProgress.currentWorld.icon}</span>
+              <span>報酬</span>
+            </div>
+          </div>
+          <div className="eq-adventure-progress-row">
+            <span>進行度</span>
+            <strong>{adventureProgressLabel}</strong>
+          </div>
+          <div className="eq-progress-bar" style={{ '--eq-progress': adventureProgressLabel }} />
+
+          <div className="eq-home-mission-list">
+            <div>
+              <span>単語を学ぶ</span>
+              <strong>{todayStudied} / {safeTodayTarget}</strong>
+            </div>
+            <div>
+              <span>クイズに挑戦</span>
+              <strong>{quizDone} / {quizTarget}</strong>
+            </div>
+            <div>
+              <span>まちがい直し</span>
+              <strong>{wrongReviewDone} / {wrongReviewTarget}</strong>
+            </div>
+          </div>
+
+          <div className="eq-home-reward-inline">
+            <span>今日の報酬カード</span>
+            <strong>{rewardCard?.nameJa || '風の精霊'}</strong>
+          </div>
+
+          <button type="button" onClick={() => navigate('/daily-words')} className="eq-gold-button eq-home-primary-cta">
+            冒険をつづける
+          </button>
+        </EQCard>
+
+        <section className="eq-home-compact-menu" aria-label="学習メニュー">
+          {compactLearningItems.map((item) => (
+            <Link key={item.to} to={item.to} className="eq-home-mode-card">
+              <span className="eq-menu-icon">{item.icon}</span>
+              <span className="eq-menu-copy">
+                <strong>{item.title}</strong>
+                <span>{item.subtitle}</span>
+              </span>
+            </Link>
+          ))}
+        </section>
+
+        <Link to="/cards" className="eq-home-reward-card-section">
+          <span className="eq-caption">今日の報酬カード</span>
+          <strong>{rewardCard?.nameJa || '風の精霊'}</strong>
+          <span>ミッション達成で獲得！</span>
+        </Link>
         <EQBrandHeader dateLabel={mobileDateLabel} />
 
         <section className="eq-home-title-block">
@@ -492,6 +587,16 @@ export default function HomePage() {
           { label: '地図', to: '/study-map', icon: 'map' },
           { label: '学習', to: '/daily-words', icon: 'study' },
           { label: 'カード', to: '/flashcard', icon: 'cards' },
+          { label: 'その他', to: '/settings', icon: 'more' },
+        ]}
+      />
+      <EQBottomNav
+        className="eq-home-bottom-nav"
+        items={[
+          { label: 'ホーム', to: '/app', icon: 'home', active: true },
+          { label: '地図', to: '/study-map', icon: 'map' },
+          { label: '学習', to: '/daily-words', icon: 'study' },
+          { label: 'カード', to: '/cards', icon: 'cards' },
           { label: 'その他', to: '/settings', icon: 'more' },
         ]}
       />

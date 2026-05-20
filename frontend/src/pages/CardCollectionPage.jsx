@@ -18,12 +18,43 @@ const WORLD_CLASS_BY_ID = {
   light: '光',
 };
 
+const WORD_REVIEW_MODES = new Set([
+  'antonym',
+  'audioQuiz',
+  'cloze',
+  'dailyReview',
+  'example',
+  'flashcard',
+  'listening',
+  'mixed',
+  'multipleChoice',
+  'sentence',
+  'speedQuiz',
+  'synonym',
+  'timedReview',
+  'vocabExpansion',
+  'weakness',
+  'wrongWords',
+]);
+
 function getWorld(card) {
   return eigoQuestWorlds.find((world) => world.id === card.worldId) || null;
 }
 
 function getWorldClass(card) {
   return WORLD_CLASS_BY_ID[card.worldId] || getWorld(card)?.icon || '風';
+}
+
+function getCardReviewPath(card) {
+  if (!card?.owned) return '/review';
+  if (!WORD_REVIEW_MODES.has(card.reviewMode)) return '/review';
+
+  const params = new URLSearchParams({
+    worldId: card.worldId,
+    cardId: card.id,
+    reviewMode: card.reviewMode,
+  });
+  return `/review?${params.toString()}`;
 }
 
 function CardArt({ card, large = false }) {
@@ -113,10 +144,14 @@ export default function CardCollectionPage() {
               <span className={`eq-rarity-badge rarity-${detailCard.rarity}`}>{detailCard.rarity}</span>
               <h2>{detailCard.owned ? detailCard.nameJa : '???'}</h2>
               <p className="eq-card-world">ワールド: {getWorld(detailCard)?.nameJa || detailCard.worldId}</p>
-              <p>{detailCard.owned ? detailCard.descriptionJa : 'まだ手に入れていないカードです。クエストを進めて解放しよう。'}</p>
+              <p>
+                {detailCard.owned
+                  ? detailCard.descriptionJa
+                  : 'まだ手に入れていないカードです。クエストを進めて解放しよう。'}
+              </p>
               <button
                 type="button"
-                onClick={() => navigate('/review')}
+                onClick={() => navigate(getCardReviewPath(detailCard))}
                 disabled={!detailCard.owned}
                 className="eq-gold-button"
               >
