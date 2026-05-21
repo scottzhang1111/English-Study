@@ -40,7 +40,7 @@ html,
 body,
 #root {
   min-height: 100%;
-  background: #05081f;
+  background: #05030d;
   overscroll-behavior: none;
 }
 
@@ -142,10 +142,10 @@ html {
   overflow-x: hidden;
   min-height: 100%;
   overscroll-behavior-y: none;
-  background-color: #06091f;
+  background-color: #05030d;
   background:
-    radial-gradient(circle at top, rgba(45, 64, 160, 0.45), transparent 38%),
-    linear-gradient(180deg, #111b55 0%, #080b25 45%, #050718 100%);
+    radial-gradient(circle at top, rgba(72, 34, 118, 0.32), transparent 38%),
+    linear-gradient(180deg, #130722 0%, #090413 45%, #05030d 100%);
 }
 
 body {
@@ -158,10 +158,10 @@ body {
   font-size: var(--font-size-base);
   line-height: var(--line-height-body);
   color: #f5f7ff;
-  background-color: #06091f;
+  background-color: #05030d;
   background:
-    radial-gradient(circle at top, rgba(45, 64, 160, 0.45), transparent 38%),
-    linear-gradient(180deg, #111b55 0%, #080b25 45%, #050718 100%);
+    radial-gradient(circle at top, rgba(72, 34, 118, 0.32), transparent 38%),
+    linear-gradient(180deg, #130722 0%, #090413 45%, #05030d 100%);
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
 }
@@ -195,10 +195,10 @@ textarea {
   min-height: 100%;
   overflow-x: hidden;
   color: #f5f7ff;
-  background-color: #06091f;
+  background-color: #05030d;
   background:
-    radial-gradient(circle at top, rgba(45, 64, 160, 0.45), transparent 38%),
-    linear-gradient(180deg, #111b55 0%, #080b25 45%, #050718 100%);
+    radial-gradient(circle at top, rgba(72, 34, 118, 0.32), transparent 38%),
+    linear-gradient(180deg, #130722 0%, #090413 45%, #05030d 100%);
 }
 
 .app-shell {
@@ -208,10 +208,10 @@ textarea {
   margin: 0 auto;
   overflow-x: hidden;
   color: #f5f7ff;
-  background-color: #06091f;
+  background-color: #05030d;
   background:
-    radial-gradient(circle at top, rgba(45, 64, 160, 0.45), transparent 38%),
-    linear-gradient(180deg, #111b55 0%, #080b25 45%, #050718 100%);
+    radial-gradient(circle at top, rgba(72, 34, 118, 0.32), transparent 38%),
+    linear-gradient(180deg, #130722 0%, #090413 45%, #05030d 100%);
   box-shadow: none;
 }
 

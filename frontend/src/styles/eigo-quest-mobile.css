@@ -1,7 +1,7 @@
 :root {
-  --eq-bg: #07091f;
-  --eq-bg-2: #0d1038;
-  --eq-bg-3: #17104a;
+  --eq-bg: #05030d;
+  --eq-bg-2: #0a0416;
+  --eq-bg-3: #170827;
 
   --eq-card: rgba(19, 24, 68, 0.86);
   --eq-card-soft: rgba(34, 28, 88, 0.74);
@@ -34,16 +34,16 @@
   --eq-bottom-nav-height: 66px;
   --eq-mobile-max: 430px;
   --eq-fantasy-bg:
-    radial-gradient(circle at top, rgba(45, 64, 160, 0.45), transparent 38%),
-    linear-gradient(180deg, #111b55 0%, #080b25 45%, #050718 100%);
+    radial-gradient(circle at 28% 0%, rgba(92, 42, 145, 0.34), transparent 38%),
+    linear-gradient(180deg, #140824 0%, #090413 48%, #05030d 100%);
 }
 
 html,
 body,
 #root {
   min-height: 100%;
-  background-color: #05081f;
-  background: #05081f;
+  background-color: #05030d;
+  background: #05030d;
   overscroll-behavior: none;
 }
 
@@ -66,8 +66,8 @@ body,
   min-height: 100dvh;
   overflow: hidden;
   background:
-    radial-gradient(circle at 30% 0%, rgba(49, 76, 180, 0.5), transparent 36%),
-    linear-gradient(180deg, #111d5a 0%, #070a24 48%, #05061a 100%);
+    radial-gradient(circle at 30% 0%, rgba(92, 42, 145, 0.34), transparent 36%),
+    linear-gradient(180deg, #140824 0%, #090413 48%, #05030d 100%);
 }
 
 .eq-card {
@@ -203,8 +203,8 @@ body,
   padding: max(12px, env(safe-area-inset-top, 0px)) 14px calc(104px + env(safe-area-inset-bottom, 0px));
   color: var(--eq-text);
   background:
-    radial-gradient(circle at 30% 0%, rgba(49, 76, 180, 0.5), transparent 36%),
-    linear-gradient(180deg, #111d5a 0%, #070a24 48%, #05061a 100%);
+    radial-gradient(circle at 30% 0%, rgba(92, 42, 145, 0.34), transparent 36%),
+    linear-gradient(180deg, #140824 0%, #090413 48%, #05030d 100%);
   overflow-x: hidden;
 }
 
@@ -433,8 +433,8 @@ body,
   overflow: hidden;
   padding: max(6px, env(safe-area-inset-top, 0px)) 12px calc(var(--eq-bottom-nav-height) + 28px + env(safe-area-inset-bottom, 0px));
   background:
-    radial-gradient(circle at 30% 0%, rgba(49, 76, 180, 0.5), transparent 36%),
-    linear-gradient(180deg, #111d5a 0%, #070a24 48%, #05061a 100%);
+    radial-gradient(circle at 30% 0%, rgba(92, 42, 145, 0.34), transparent 36%),
+    linear-gradient(180deg, #140824 0%, #090413 48%, #05030d 100%);
 }
 
 .eq-home-brand-panel {
