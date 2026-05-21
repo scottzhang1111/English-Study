@@ -435,8 +435,7 @@ export default function DailyWordUnitPage() {
                   key={`${word.id}-${index}`}
                   type="button"
                   onClick={() => {
-                    setStudyIndex(index);
-                    setStage('study');
+                    navigate(`/flashcard?word=${encodeURIComponent(word.word)}`);
                   }}
                   className="eq-daily-word-row"
                 >
@@ -463,7 +462,13 @@ export default function DailyWordUnitPage() {
               <strong>{todayWords.length} / {targetCount} 語を確認しました！</strong>
             </div>
 
-            <GoldQuestButton onClick={startStudy} disabled={!todayWords.length} className="eq-daily-start-button">
+            <GoldQuestButton
+              onClick={() => {
+                if (todayWords[0]?.word) navigate(`/flashcard?word=${encodeURIComponent(todayWords[0].word)}`);
+              }}
+              disabled={!todayWords.length}
+              className="eq-daily-start-button"
+            >
               学習をスタート
             </GoldQuestButton>
           </section>
