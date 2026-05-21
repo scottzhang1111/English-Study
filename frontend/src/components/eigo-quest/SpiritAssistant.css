@@ -1,6 +1,6 @@
 .spirit-assistant {
-  --spirit-size: 118px; /* Adjust the character size here. */
-  --spirit-bubble-width: 198px; /* Adjust bubble width for longer messages. */
+  --spirit-size: 136px; /* Adjust the character size here. */
+  --spirit-bubble-width: 188px; /* Adjust bubble width for longer messages. */
   position: relative;
   z-index: 8;
   display: flex;
@@ -13,7 +13,7 @@
 
 .spirit-assistant--home {
   /* Home MVP placement: in the content flow, right aligned, above the bottom nav. */
-  margin: 0 0 -4px auto;
+  margin: -4px 0 -8px auto;
 }
 
 .spirit-assistant--bottom-right {

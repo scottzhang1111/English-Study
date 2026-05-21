@@ -630,7 +630,12 @@ body,
   padding: 15px;
   border: 1px solid rgba(95, 126, 255, 0.35);
   border-radius: 28px;
+  background: #071237;
   box-shadow: 0 0 0 1px rgba(126, 87, 255, 0.25), 0 20px 60px rgba(0, 0, 0, 0.35);
+}
+
+.eq-home-main-adventure::before {
+  display: none;
 }
 
 .eq-home-main-adventure > :not(.eq-home-adventure-bg) {
@@ -650,12 +655,12 @@ body,
 
 .eq-home-adventure-bg {
   position: absolute;
-  inset: 0;
+  inset: -1px;
   z-index: 0;
   display: grid;
   place-items: center;
   overflow: hidden;
-  border-radius: inherit;
+  border-radius: 28px;
   pointer-events: none;
 }
 
@@ -663,8 +668,8 @@ body,
   position: absolute;
   inset: 0;
   background:
-    linear-gradient(90deg, rgba(4, 8, 32, 0.88) 0%, rgba(4, 8, 32, 0.56) 45%, rgba(4, 8, 32, 0.18) 100%),
-    linear-gradient(180deg, rgba(0, 0, 0, 0.15), rgba(0, 0, 0, 0.45));
+    linear-gradient(90deg, rgba(4, 8, 32, 0.66) 0%, rgba(4, 8, 32, 0.34) 45%, rgba(4, 8, 32, 0.06) 100%),
+    linear-gradient(180deg, rgba(0, 0, 0, 0.02), rgba(0, 0, 0, 0.2));
   content: "";
   pointer-events: none;
 }
@@ -675,7 +680,7 @@ body,
   height: 100%;
   object-fit: cover;
   object-position: center;
-  filter: brightness(0.72) saturate(1.2);
+  filter: brightness(1.02) saturate(1.28);
   pointer-events: none;
   user-select: none;
 }
@@ -3675,4 +3680,13 @@ body,
 .eq-stage-start-button {
   min-height: 58px;
   font-size: 18px;
+}
+
+.eq-home-menu .eq-home-daily-grid,
+.eq-home-menu .eq-home-reward-card-section,
+.eq-home-main-adventure .eq-home-mission-panel,
+.eq-home-main-adventure .eq-home-reward-panel,
+.eq-home-main-adventure .eq-home-mission-list,
+.eq-home-main-adventure .eq-home-reward-inline {
+  display: none !important;
 }
