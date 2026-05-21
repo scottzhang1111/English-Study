@@ -13,7 +13,15 @@
 
 .spirit-assistant--home {
   /* Home MVP placement: in the content flow, right aligned, above the bottom nav. */
-  margin: -14px 0 -12px auto;
+  --spirit-size: clamp(74px, 19vw, 92px);
+  --spirit-bubble-width: min(62vw, 238px);
+  width: 100%;
+  min-height: clamp(90px, 12dvh, 110px);
+  margin: 0;
+  justify-content: space-between;
+  gap: 8px;
+  flex: 0 0 auto;
+  overflow: visible;
 }
 
 .spirit-assistant--bottom-right {
@@ -44,6 +52,30 @@
     0 0 18px rgba(53, 217, 255, 0.18);
   color: var(--eq-text, #f7f7ff);
   pointer-events: auto;
+}
+
+.spirit-assistant--home .spirit-assistant__bubble {
+  order: 1;
+  transform: none;
+  max-width: min(62vw, 238px);
+  padding: 9px 11px;
+}
+
+.spirit-assistant--home .spirit-assistant__button {
+  order: 2;
+}
+
+.spirit-assistant--home .spirit-assistant__bubble p {
+  max-height: 3.2em;
+  white-space: pre-line;
+  -webkit-line-clamp: 2;
+  font-size: clamp(10px, 3vw, 12px);
+  line-height: 1.35;
+}
+
+.spirit-assistant--home .spirit-assistant__bubble span {
+  margin-bottom: 3px;
+  font-size: clamp(9px, 2.8vw, 11px);
 }
 
 .spirit-assistant__bubble::after {
@@ -183,6 +215,28 @@
 
   .spirit-assistant__bubble p {
     font-size: 11px;
+  }
+
+  .spirit-assistant--home {
+    --spirit-size: 74px;
+    --spirit-bubble-width: min(62vw, 210px);
+    min-height: 88px;
+  }
+}
+
+@media (max-height: 740px) and (max-width: 480px) {
+  .spirit-assistant--home {
+    --spirit-size: 68px;
+    min-height: 76px;
+  }
+
+  .spirit-assistant--home .spirit-assistant__bubble {
+    padding: 8px 10px;
+  }
+
+  .spirit-assistant--home .spirit-assistant__bubble p {
+    font-size: 10px;
+    line-height: 1.3;
   }
 }
 

@@ -762,7 +762,7 @@ export default function HomePage() {
           worldName="風の国"
           mood="idle"
           messages={[
-            '今日は単語を5つ覚えよう！できたらクイズに進もう！',
+            '今日は単語を5つ覚えよう！\nできたらクイズに進もう！',
           ]}
         />
 
