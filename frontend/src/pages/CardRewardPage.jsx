@@ -1,9 +1,8 @@
-import { useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
+import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import {
-  EQBottomNav,
   GoldQuestButton,
-  MagicPanel,
   QuestPageLayout,
   SpiritGuide,
 } from '../components/eigo';
@@ -14,6 +13,14 @@ import {
   getPendingReward,
   pickRewardCardForProgress,
 } from '../helpers/eigoQuestRewards';
+
+const sparkleParticles = Array.from({ length: 18 }, (_, index) => ({
+  id: index,
+  left: `${12 + ((index * 17) % 76)}%`,
+  top: `${8 + ((index * 29) % 74)}%`,
+  delay: (index % 6) * 0.18,
+  size: 4 + (index % 4) * 2,
+}));
 
 function getWorldClass(worldId) {
   const worldClassMap = {
@@ -29,23 +36,37 @@ function getWorldClass(worldId) {
   return worldClassMap[worldId] || '風';
 }
 
+function getRewardCardImage(card) {
+  if (!card?.image) return '';
+  const worldId = card.worldId || 'wind';
+  if (card.image.includes(`/cards/${worldId}/`)) return card.image;
+  return card.image.replace('/assets/eigo-quest/cards/', `/assets/eigo-quest/cards/${worldId}/`);
+}
+
 export default function CardRewardPage() {
   const navigate = useNavigate();
+  const [isFlipped, setIsFlipped] = useState(false);
   const pendingReward = useMemo(() => getPendingReward(), []);
   const fallbackCard = useMemo(() => pickRewardCardForProgress(0), []);
   const rewardCard = getCardById(pendingReward?.cardId) || fallbackCard;
   const rewardExp = pendingReward?.exp ?? 50;
   const rewardCoin = pendingReward?.coin ?? 30;
   const worldClass = getWorldClass(rewardCard?.worldId);
+  const rewardImage = getRewardCardImage(rewardCard);
+
+  useEffect(() => {
+    const timer = window.setTimeout(() => setIsFlipped(true), 800);
+    return () => window.clearTimeout(timer);
+  }, []);
 
   const handleClaim = () => {
     if (rewardCard?.id) addOwnedCardId(rewardCard.id);
     clearPendingReward();
-    navigate('/cards');
+    navigate('/world-stage');
   };
 
   return (
-    <div className="eq-card-page-wrap">
+    <div className="eq-card-page-wrap quest-reward-page-wrap">
       <QuestPageLayout
         title="ステージクリア！"
         subtitle="単語も文法もマスターしたね"
@@ -54,25 +75,83 @@ export default function CardRewardPage() {
         completedSteps={['words', 'quiz', 'grammar', 'grammarTest']}
         className="eq-card-reward-screen quest-reward-layout"
       >
-        <SpiritGuide
-          worldName="風の精霊"
-          mood="happy"
-          messages={['やったね！\nごほうびカードをゲット！']}
-        />
+        <section className="quest-reward-spirit-row">
+          <SpiritGuide
+            worldName="風の精霊"
+            mood="happy"
+            messages={['やったね！ごほうびカードをゲット！']}
+            className="quest-reward-spirit"
+          />
+        </section>
 
-        <MagicPanel className="eq-reward-card-showcase quest-reward-showcase">
-          <span className="quest-new-ribbon">NEW</span>
-          <span className={`eq-rarity-badge rarity-${rewardCard?.rarity || 'R'}`}>{rewardCard?.rarity || 'R'}</span>
-          <div className={`eq-card-art eq-card-world-${worldClass} is-large`}>
-            <div className="eq-card-art-symbol">{worldClass}</div>
+        <section className="quest-reward-card-stage" aria-label="獲得カード">
+          <motion.div
+            className="quest-reward-halo"
+            aria-hidden="true"
+            animate={{ scale: [0.94, 1.1, 0.94], opacity: [0.42, 0.82, 0.42] }}
+            transition={{ duration: 2.6, repeat: Infinity, ease: 'easeInOut' }}
+          />
+          {sparkleParticles.map((particle) => (
+            <motion.span
+              key={particle.id}
+              className="quest-reward-sparkle"
+              aria-hidden="true"
+              style={{
+                left: particle.left,
+                top: particle.top,
+                width: particle.size,
+                height: particle.size,
+              }}
+              animate={{
+                y: [-5, 8, -5],
+                opacity: [0.3, 1, 0.3],
+                scale: [0.75, 1.25, 0.75],
+              }}
+              transition={{ duration: 2.4, repeat: Infinity, delay: particle.delay, ease: 'easeInOut' }}
+            />
+          ))}
+
+          <div className="quest-reward-card-flip">
+            <motion.div
+              className="quest-reward-card-inner"
+              initial={{ rotateY: 0 }}
+              animate={{ rotateY: isFlipped ? 180 : 0 }}
+              transition={{ duration: 0.9, ease: [0.22, 1, 0.36, 1] }}
+            >
+              <div className="quest-reward-card-face quest-reward-card-back">
+                <span>英語クエスト</span>
+                <strong>{worldClass}</strong>
+              </div>
+              <div className="quest-reward-card-face quest-reward-card-front">
+                <span className="quest-new-ribbon">NEW</span>
+                {rewardImage ? (
+                  <img src={rewardImage} alt={rewardCard.nameJa || 'そよ風の精霊'} />
+                ) : (
+                  <div className={`eq-card-art eq-card-world-${worldClass} is-large`}>
+                    <div className="eq-card-art-symbol">{worldClass}</div>
+                  </div>
+                )}
+                <div className="quest-reward-card-caption">
+                  <h2>{rewardCard?.nameJa || 'そよ風の精霊'}</h2>
+                  <p aria-label="星5">★★★★★</p>
+                </div>
+              </div>
+            </motion.div>
           </div>
-          <h2>{rewardCard?.nameJa || '風の精霊'}</h2>
-          <div className="eq-reward-list">
-            <span>EXP +{rewardExp}</span>
-            <span>Coin +{rewardCoin}</span>
-            <span>カード獲得</span>
-          </div>
-        </MagicPanel>
+        </section>
+
+        <div className="quest-reward-bonus-row" aria-label="獲得報酬">
+          <span><b>EXP</b> +{rewardExp}</span>
+          <span><b>Coin</b> +{rewardCoin}</span>
+          <span>カード獲得</span>
+        </div>
+
+        <div className="quest-reward-complete-bar" aria-label="ステージ完了状況">
+          <span><b>単語</b> 5/5 完了</span>
+          <span><b>小テスト</b> 合格</span>
+          <span><b>文法学習</b> 完了</span>
+          <span><b>文法テスト</b> 合格</span>
+        </div>
 
         <GoldQuestButton onClick={handleClaim} className="eq-reward-claim-button">
           つぎのステージへ
@@ -81,16 +160,6 @@ export default function CardRewardPage() {
           ホームへ戻る
         </button>
       </QuestPageLayout>
-
-      <EQBottomNav
-        items={[
-          { label: 'ホーム', to: '/app', icon: 'home' },
-          { label: '地図', to: '/study-map', icon: 'map' },
-          { label: '学習', to: '/daily-words', icon: 'study' },
-          { label: 'カード', to: '/cards', icon: 'cards', active: true },
-          { label: '設定', to: '/settings', icon: 'more' },
-        ]}
-      />
     </div>
   );
 }

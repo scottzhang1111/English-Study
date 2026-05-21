@@ -9,6 +9,9 @@ import {
   EQCard,
   EQChoiceButton,
   EQMobileShell,
+  GoldQuestButton,
+  MagicPanel,
+  QuestHeader,
   QuestProgressStepper,
   SpiritGuide,
 } from '../components/eigo';
@@ -16,6 +19,14 @@ import { getLearnedWords, getQuizData, submitPracticeAnswer } from '../api';
 
 function shuffleItems(items) {
   return [...items].sort(() => Math.random() - 0.5);
+}
+
+function speak(text) {
+  if (!text || typeof window === 'undefined' || !('speechSynthesis' in window)) return;
+  window.speechSynthesis.cancel();
+  const utterance = new SpeechSynthesisUtterance(text);
+  utterance.lang = 'en-US';
+  window.speechSynthesis.speak(utterance);
 }
 
 export default function QuizPage() {
@@ -164,28 +175,26 @@ export default function QuizPage() {
     ? 'よくできました。この調子で次の問題へ進もう。'
     : `正しい答えは「${currentQuiz?.correct || '-'}」です。カードで意味と例文を確認できます。`;
   const choiceLetters = ['A', 'B', 'C', 'D'];
+  const quizWord = currentQuiz?.word || currentQuiz?.correct || targetJapanese;
+  const quizQuestionText = currentQuiz?.word
+    ? `${currentQuiz.word} の意味はどれ？`
+    : `${targetJapanese} はどれ？`;
 
   return (
     <>
-    <div className="lg:hidden">
+    <div className="quest-quiz-page-wrap lg:hidden">
       <EQMobileShell className="eq-quiz-screen">
-        <div className="eq-quiz-top">
-          <button type="button" onClick={() => navigate('/app')} className="eq-quiz-close" aria-label="ホームに戻る">
-            ×
-          </button>
-          <div className="eq-quiz-progress">
-            <div className="eq-word-study-progress-row">
-              <span>クイズ</span>
-              <strong>{mobileQuestionCount}</strong>
-            </div>
-            <div className="eq-progress-bar" style={{ '--eq-progress': quizProgressPercent }} />
-          </div>
-        </div>
-
+        <QuestHeader
+          title="小テスト"
+          subtitle="ことばをおぼえたか ためしてみよう"
+          backTo="/flashcard"
+          className="quest-quiz-header"
+        />
         <QuestProgressStepper current="quiz" completed={['words']} />
         <SpiritGuide
           worldName="風の精霊"
           messages={['つぎはクイズだよ！\nがんばろう！', '答えを選んだら、理由も見てみよう！']}
+          className="quest-quiz-spirit"
         />
 
         {error ? (
@@ -204,14 +213,21 @@ export default function QuizPage() {
             <h1>{correctCount} / {questions.length} 正解</h1>
             <p>{wrongAnswers.length > 0 ? 'まちがえた問題をもう一度練習できます。' : '全問正解です。よくできました！'}</p>
             <div className="eq-quiz-result-actions">
+              {wrongAnswers.length === 0 && (
+                <button type="button" onClick={() => navigate('/grammar')} className="eq-gold-button">
+                  文法学習へ
+                </button>
+              )}
               {wrongAnswers.length > 0 && (
                 <button type="button" onClick={() => fetchQuizBatch({ retryWrong: true })} className="eq-purple-button">
                   まちがい練習
                 </button>
               )}
+              {wrongAnswers.length > 0 && (
               <button type="button" onClick={() => fetchQuizBatch()} className="eq-gold-button">
                 次の10問
               </button>
+              )}
             </div>
           </EQCard>
         ) : hasNoReviewWords ? (
@@ -224,66 +240,68 @@ export default function QuizPage() {
           </EQCard>
         ) : (
           <>
-            <EQCard className="eq-quiz-question-card">
-              <div className="eq-quiz-question-copy">
-                <span className="eq-quiz-type-badge">英単語クイズ</span>
-                <p className="eq-quiz-question-text">次の日本語に合う英単語はどれ？</p>
-                <h1>{targetJapanese}</h1>
+            <MagicPanel
+              className={`quest-quiz-panel ${answer ? (answerIsCorrect ? 'is-correct' : 'is-wrong') : ''}`.trim()}
+              initial={{ opacity: 0, y: 18 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.3, ease: 'easeOut' }}
+            >
+              <div className="quest-quiz-panel-top">
+                <span>✦ {mobileQuestionCount}</span>
+                <strong>正解 <b>{correctCount}</b></strong>
               </div>
-              <div className="eq-quiz-mascot" aria-hidden="true">Q</div>
-            </EQCard>
 
-            <div className="eq-quiz-options">
-              {currentQuiz?.choices.map((choice, index) => {
-                const isCorrect = answer && choice === currentQuiz.correct;
-                const isWrong = answer && choice === answer && choice !== currentQuiz.correct;
-                return (
-                  <EQChoiceButton
-                    key={choice}
-                    badge={choiceLetters[index] || String(index + 1)}
-                    correct={Boolean(isCorrect)}
-                    wrong={Boolean(isWrong)}
-                    onClick={() => handleSelection(choice)}
-                    disabled={!!answer}
-                  >
-                    {choice}
-                  </EQChoiceButton>
-                );
-              })}
-            </div>
+              <h1 className="quest-quiz-question">{quizQuestionText}</h1>
 
-            {answer && currentQuiz && (
-              <EQCard className={`eq-quiz-feedback ${answerIsCorrect ? 'is-correct' : 'is-wrong'}`}>
-                <h2>{feedbackTitle}</h2>
-                <p>{feedbackText}</p>
-                {currentQuiz.word && (
-                  <AudioButton onClick={() => {
-                    if ('speechSynthesis' in window) {
-                      window.speechSynthesis.cancel();
-                      const utterance = new SpeechSynthesisUtterance(currentQuiz.word);
-                      utterance.lang = 'en-US';
-                      window.speechSynthesis.speak(utterance);
-                    }
-                  }}>
-                    単語を聞く
-                  </AudioButton>
-                )}
-                {currentQuiz.example && <p className="eq-quiz-example">{currentQuiz.example}</p>}
-                {result?.pet_exp_awarded > 0 && (
-                  <p className="eq-quiz-exp">EXP +{result.pet_exp_awarded}</p>
-                )}
-                <div className="eq-quiz-feedback-actions">
-                  {answer !== currentQuiz.correct && (
-                    <button type="button" onClick={openCard} className="eq-purple-button">
-                      カードで確認
-                    </button>
-                  )}
-                  <button type="button" onClick={handleNext} className="eq-gold-button">
-                    {currentIndex >= questions.length - 1 ? '結果を見る' : '次へ'}
-                  </button>
+              <div className="quest-quiz-audio-row">
+                <AudioButton onClick={() => speak(quizWord)}>
+                  単語を聞く
+                </AudioButton>
+                <AudioButton
+                  tone="purple"
+                  onClick={() => speak(currentQuiz?.example || quizWord)}
+                >
+                  例文を聞く
+                </AudioButton>
+              </div>
+
+              <div className="eq-quiz-options quest-quiz-options">
+                {currentQuiz?.choices.map((choice, index) => {
+                  const isCorrect = answer && choice === currentQuiz.correct;
+                  const isWrong = answer && choice === answer && choice !== currentQuiz.correct;
+                  return (
+                    <EQChoiceButton
+                      key={choice}
+                      badge={choiceLetters[index] || String(index + 1)}
+                      correct={Boolean(isCorrect)}
+                      wrong={Boolean(isWrong)}
+                      selected={answer === choice && !isWrong && !isCorrect}
+                      onClick={() => handleSelection(choice)}
+                      disabled={!!answer}
+                      className="quest-quiz-choice"
+                    >
+                      {choice}
+                    </EQChoiceButton>
+                  );
+                })}
+              </div>
+
+              {answer && currentQuiz ? (
+                <div className={`quest-quiz-feedback ${answerIsCorrect ? 'is-correct' : 'is-wrong'}`}>
+                  <h2>{feedbackTitle}</h2>
+                  <p>{feedbackText}</p>
+                  {result?.pet_exp_awarded > 0 ? <p className="eq-quiz-exp">EXP +{result.pet_exp_awarded}</p> : null}
                 </div>
-              </EQCard>
-            )}
+              ) : null}
+
+              <GoldQuestButton
+                onClick={answer ? handleNext : undefined}
+                disabled={!answer}
+                className="quest-quiz-submit"
+              >
+                {answer ? (currentIndex >= questions.length - 1 ? '結果を見る' : 'つぎへ') : 'こたえる'}
+              </GoldQuestButton>
+            </MagicPanel>
           </>
         )}
       </EQMobileShell>

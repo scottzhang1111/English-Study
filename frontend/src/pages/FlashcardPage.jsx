@@ -15,7 +15,6 @@ import {
   WorldMiniBanner,
 } from '../components/eigo';
 import { addPetExp, getFlashcardData, getHomeData, getLearnedWords, getTodayReviewQuiz, markMastered } from '../api';
-import { createMissionReward } from '../helpers/eigoQuestRewards';
 
 const DAILY_TARGET = 20;
 const CHILD_STORAGE_KEY = 'selected_child_id';
@@ -273,11 +272,7 @@ export default function FlashcardPage() {
       if (hasReviewSequence && studyIndex < studyWords.length - 1) {
         showStudyWord(studyWords[studyIndex + 1], studyIndex + 1, studyWords);
       } else if (nextProgress >= Number(result?.target ?? DAILY_TARGET)) {
-        createMissionReward({
-          childId: selectedChildId,
-          learnedWordsCount: Number(result?.mastered_words ?? homeData?.mastered_words ?? nextProgress),
-        });
-        navigate('/card-reward');
+        navigate('/quiz');
       } else if (hasReviewSequence || requestedWord) {
         navigate('/progress');
       } else {

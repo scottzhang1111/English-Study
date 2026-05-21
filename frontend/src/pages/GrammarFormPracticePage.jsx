@@ -7,10 +7,14 @@ import {
   EQCard,
   EQChoiceButton,
   EQMobileShell,
+  GoldQuestButton,
+  MagicPanel,
+  QuestHeader,
   QuestProgressStepper,
   SpiritGuide,
 } from '../components/eigo';
 import { getGrammarFormPractice, submitGrammarFormPracticeAnswer } from '../api';
+import { createMissionReward } from '../helpers/eigoQuestRewards';
 
 const CHILD_STORAGE_KEY = 'selected_child_id';
 
@@ -40,6 +44,8 @@ export default function GrammarFormPracticePage() {
   const question = questions[index] || null;
   const isLast = index >= questions.length - 1;
   const correctCount = results.filter((item) => item.isCorrect).length;
+  const passTarget = Math.min(questions.length || 3, 3);
+  const remainingToPass = Math.max(0, passTarget - correctCount);
   const compactDateLabel = new Intl.DateTimeFormat('ja-JP', {
     month: 'numeric',
     day: 'numeric',
@@ -52,7 +58,7 @@ export default function GrammarFormPracticePage() {
     setSelectedIndex(null);
     setAnswerResult(null);
     setResults([]);
-    getGrammarFormPractice({ childId, limit: 5 })
+    getGrammarFormPractice({ childId, limit: 3 })
       .then((payload) => setQuestions(payload.questions || []))
       .catch((err) => setError(err.message || '文法練習を読み込めませんでした。'))
       .finally(() => setLoading(false));
@@ -85,6 +91,11 @@ export default function GrammarFormPracticePage() {
       setAnswerResult(null);
       return;
     }
+    if (correctCount >= questions.length) {
+      createMissionReward({ childId });
+      navigate('/card-reward');
+      return;
+    }
     setIndex(questions.length);
   };
 
@@ -98,7 +109,101 @@ export default function GrammarFormPracticePage() {
 
   return (
     <WebLearningLayout title="文法練習" subtitle="ランダム練習">
-      <div className="lg:hidden">
+      <div className="quest-grammar-test-page-wrap lg:hidden">
+        <EQMobileShell className="eq-grammar-screen quest-grammar-test-screen">
+          <QuestHeader
+            title="文法テスト"
+            subtitle="ルールをつかえたら合格！"
+            backTo="/grammar"
+            className="quest-grammar-test-header"
+          />
+          <QuestProgressStepper current="grammarTest" completed={['words', 'quiz', 'grammar']} />
+
+          <div className="quest-grammar-test-status" aria-label="文法テストの進行状況">
+            <span><b>{questions.length && index < questions.length ? index + 1 : 0}</b> / {questions.length || 3}</span>
+            <span>合格まで <b>{remainingToPass}</b> 問</span>
+          </div>
+
+          <SpiritGuide
+            worldName="風の精霊"
+            messages={['あと少し！正しい形をえらぼう！']}
+            className="quest-grammar-test-spirit"
+          />
+
+          {error ? (
+            <MagicPanel className="eq-grammar-state-card quest-grammar-test-state">
+              <h1>読み込みに失敗しました</h1>
+              <p>{error}</p>
+              <GoldQuestButton onClick={loadPractice}>もう一度</GoldQuestButton>
+            </MagicPanel>
+          ) : !questions.length ? (
+            <MagicPanel className="eq-grammar-state-card quest-grammar-test-state">
+              <h1>文法テストがありません</h1>
+              <p>まずは文法学習を進めよう。</p>
+              <GoldQuestButton onClick={() => navigate('/grammar')}>文法へ</GoldQuestButton>
+            </MagicPanel>
+          ) : index >= questions.length ? (
+            <MagicPanel className="eq-grammar-state-card quest-grammar-test-state">
+              <span className="eq-grammar-label">結果</span>
+              <h1>{correctCount} / {questions.length} 問 正解</h1>
+              <p>まちがえた問題は復習リストで確認できるよ。</p>
+              <div className="eq-grammar-result-actions">
+                <GoldQuestButton onClick={loadPractice}>もう一度</GoldQuestButton>
+                <button type="button" onClick={() => navigate('/review')} className="eq-purple-button">復習へ</button>
+              </div>
+            </MagicPanel>
+          ) : (
+            <MagicPanel className="quest-grammar-test-panel">
+              <div className="quest-grammar-test-meta">
+                <span className="quest-grammar-test-label">
+                  {question.targetGrammar || `${question.title || '現在完了'}・経験`}
+                </span>
+              </div>
+
+              <p className="quest-grammar-test-question">
+                {question.promptEn || 'She ___ to Tokyo three times.'}
+              </p>
+
+              <div className="eq-grammar-options quest-grammar-test-options">
+                {question.choices.map((choice, choiceIndex) => (
+                  <EQChoiceButton
+                    key={`${question.testId}-${choice}`}
+                    selected={selectedIndex === choiceIndex && !answerResult}
+                    correct={Boolean(answerResult && choiceIndex === answerResult.correctIndex)}
+                    wrong={Boolean(answerResult && choiceIndex === selectedIndex && !answerResult.isCorrect)}
+                    disabled={Boolean(answerResult)}
+                    onClick={() => setSelectedIndex(choiceIndex)}
+                  >
+                    {choice}
+                  </EQChoiceButton>
+                ))}
+              </div>
+
+              {!answerResult ? (
+                <GoldQuestButton
+                  disabled={selectedIndex === null || submitting}
+                  onClick={handleAnswer}
+                  className="quest-grammar-test-submit"
+                >
+                  {submitting ? '判定中...' : 'こたえる'}
+                </GoldQuestButton>
+              ) : (
+                <div className={`eq-grammar-feedback quest-grammar-test-feedback ${answerResult.isCorrect ? 'is-correct' : 'is-wrong'}`}>
+                  <h2>{answerResult.isCorrect ? '正解！' : 'もう少し！'}</h2>
+                  <p>答え: {answerResult.correctAnswer}</p>
+                  <p>{answerResult.correctReasonJp}</p>
+                  {!answerResult.isCorrect && answerResult.selectedExplanationJp && <p>えらんだ答え: {answerResult.selectedExplanationJp}</p>}
+                  <GoldQuestButton onClick={handleNext} className="quest-grammar-test-submit">
+                    {isLast ? (correctCount >= questions.length ? '報酬へ' : '結果を見る') : 'つぎへ'}
+                  </GoldQuestButton>
+                </div>
+              )}
+            </MagicPanel>
+          )}
+        </EQMobileShell>
+      </div>
+
+      <div className="hidden">
         <EQMobileShell className="eq-grammar-screen">
           <EQBackPill to="/grammar">← 文法へ戻る</EQBackPill>
           <EQBrandHeader dateLabel={compactDateLabel} className="eq-brand-header-compact" />
