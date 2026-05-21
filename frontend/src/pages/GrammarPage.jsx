@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import WebLearningLayout from '../components/WebLearningLayout';
+import { QuestProgressStepper, SpiritGuide, WorldMiniBanner } from '../components/eigo';
 import {
   getGrammarLesson,
   getGrammarLessons,
@@ -153,6 +154,15 @@ export default function GrammarPage() {
   return (
     <WebLearningLayout title="文法練習" subtitle="1日1レッスン" mobileTight>
       {error && <div className="panel mb-4 p-5 text-sm font-bold text-rose-700">{error}</div>}
+
+      <div className="quest-grammar-mobile-intro lg:hidden">
+        <WorldMiniBanner day="Day 1" learned={5} total={5} />
+        <QuestProgressStepper current="grammar" completed={['words', 'quiz']} />
+        <SpiritGuide
+          worldName="風の精霊"
+          messages={['よくできたね！\nつぎは文法を学ぼう！', 'ことばの使い方を覚えると、冒険が進むよ！']}
+        />
+      </div>
 
       <div className="mb-4 flex gap-2 overflow-x-auto pb-2 md:hidden">
         {lessons.map((item) => {

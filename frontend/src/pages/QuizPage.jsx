@@ -3,7 +3,15 @@ import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import TtsButton from '../components/TtsButton';
 import WebLearningLayout from '../components/WebLearningLayout';
-import { EQBottomNav, EQCard, EQChoiceButton, EQMobileShell } from '../components/eigo';
+import {
+  AudioButton,
+  EQBottomNav,
+  EQCard,
+  EQChoiceButton,
+  EQMobileShell,
+  QuestProgressStepper,
+  SpiritGuide,
+} from '../components/eigo';
 import { getLearnedWords, getQuizData, submitPracticeAnswer } from '../api';
 
 function shuffleItems(items) {
@@ -174,6 +182,12 @@ export default function QuizPage() {
           </div>
         </div>
 
+        <QuestProgressStepper current="quiz" completed={['words']} />
+        <SpiritGuide
+          worldName="風の精霊"
+          messages={['つぎはクイズだよ！\nがんばろう！', '答えを選んだら、理由も見てみよう！']}
+        />
+
         {error ? (
           <EQCard className="eq-quiz-state-card">
             <h1>読み込みに失敗しました</h1>
@@ -242,7 +256,18 @@ export default function QuizPage() {
               <EQCard className={`eq-quiz-feedback ${answerIsCorrect ? 'is-correct' : 'is-wrong'}`}>
                 <h2>{feedbackTitle}</h2>
                 <p>{feedbackText}</p>
-                {currentQuiz.word && <TtsButton text={currentQuiz.word} label="単語" />}
+                {currentQuiz.word && (
+                  <AudioButton onClick={() => {
+                    if ('speechSynthesis' in window) {
+                      window.speechSynthesis.cancel();
+                      const utterance = new SpeechSynthesisUtterance(currentQuiz.word);
+                      utterance.lang = 'en-US';
+                      window.speechSynthesis.speak(utterance);
+                    }
+                  }}>
+                    単語を聞く
+                  </AudioButton>
+                )}
                 {currentQuiz.example && <p className="eq-quiz-example">{currentQuiz.example}</p>}
                 {result?.pet_exp_awarded > 0 && (
                   <p className="eq-quiz-exp">EXP +{result.pet_exp_awarded}</p>

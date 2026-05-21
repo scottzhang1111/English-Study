@@ -1,7 +1,15 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import WebLearningLayout from '../components/WebLearningLayout';
-import { EQBackPill, EQBrandHeader, EQCard, EQChoiceButton, EQMobileShell } from '../components/eigo';
+import {
+  EQBackPill,
+  EQBrandHeader,
+  EQCard,
+  EQChoiceButton,
+  EQMobileShell,
+  QuestProgressStepper,
+  SpiritGuide,
+} from '../components/eigo';
 import { getGrammarFormPractice, submitGrammarFormPracticeAnswer } from '../api';
 
 const CHILD_STORAGE_KEY = 'selected_child_id';
@@ -94,6 +102,11 @@ export default function GrammarFormPracticePage() {
         <EQMobileShell className="eq-grammar-screen">
           <EQBackPill to="/grammar">← 文法へ戻る</EQBackPill>
           <EQBrandHeader dateLabel={compactDateLabel} className="eq-brand-header-compact" />
+          <QuestProgressStepper current="grammarTest" completed={['words', 'quiz', 'grammar']} />
+          <SpiritGuide
+            worldName="風の精霊"
+            messages={['あと少し！\n正しい形をえらぼう！', '合格まで進もう！']}
+          />
 
           <EQCard className="eq-grammar-hero-card">
             <div className="eq-grammar-hero-copy">

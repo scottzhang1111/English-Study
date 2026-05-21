@@ -1,6 +1,12 @@
 import { useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { EQBottomNav, EQCard, EQMobileShell } from '../components/eigo';
+import {
+  EQBottomNav,
+  GoldQuestButton,
+  MagicPanel,
+  QuestPageLayout,
+  SpiritGuide,
+} from '../components/eigo';
 import {
   addOwnedCardId,
   clearPendingReward,
@@ -40,14 +46,22 @@ export default function CardRewardPage() {
 
   return (
     <div className="eq-card-page-wrap">
-      <EQMobileShell className="eq-card-reward-screen">
-        <header className="eq-card-reward-header">
-          <p className="eq-caption">クエスト報酬</p>
-          <h1 className="eq-page-title">ミッション完了！</h1>
-          <p>素晴らしい！報酬を獲得しました！</p>
-        </header>
+      <QuestPageLayout
+        title="ステージクリア！"
+        subtitle="単語も文法もマスターしたね"
+        backTo="/app"
+        currentStep="reward"
+        completedSteps={['words', 'quiz', 'grammar', 'grammarTest']}
+        className="eq-card-reward-screen quest-reward-layout"
+      >
+        <SpiritGuide
+          worldName="風の精霊"
+          mood="happy"
+          messages={['やったね！\nごほうびカードをゲット！']}
+        />
 
-        <EQCard className="eq-reward-card-showcase">
+        <MagicPanel className="eq-reward-card-showcase quest-reward-showcase">
+          <span className="quest-new-ribbon">NEW</span>
           <span className={`eq-rarity-badge rarity-${rewardCard?.rarity || 'R'}`}>{rewardCard?.rarity || 'R'}</span>
           <div className={`eq-card-art eq-card-world-${worldClass} is-large`}>
             <div className="eq-card-art-symbol">{worldClass}</div>
@@ -56,13 +70,17 @@ export default function CardRewardPage() {
           <div className="eq-reward-list">
             <span>EXP +{rewardExp}</span>
             <span>Coin +{rewardCoin}</span>
+            <span>カード獲得</span>
           </div>
-        </EQCard>
+        </MagicPanel>
 
-        <button type="button" onClick={handleClaim} className="eq-gold-button eq-reward-claim-button">
-          カードを受け取る
+        <GoldQuestButton onClick={handleClaim} className="eq-reward-claim-button">
+          つぎのステージへ
+        </GoldQuestButton>
+        <button type="button" onClick={() => navigate('/app')} className="quest-home-return">
+          ホームへ戻る
         </button>
-      </EQMobileShell>
+      </QuestPageLayout>
 
       <EQBottomNav
         items={[
@@ -70,7 +88,7 @@ export default function CardRewardPage() {
           { label: '地図', to: '/study-map', icon: 'map' },
           { label: '学習', to: '/daily-words', icon: 'study' },
           { label: 'カード', to: '/cards', icon: 'cards', active: true },
-          { label: 'その他', to: '/settings', icon: 'more' },
+          { label: '設定', to: '/settings', icon: 'more' },
         ]}
       />
     </div>

@@ -2,7 +2,18 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import WebLearningLayout from '../components/WebLearningLayout';
-import { EQBackPill, EQBottomNav, EQCard, EQMobileShell } from '../components/eigo';
+import {
+  AudioButton,
+  EQBottomNav,
+  EQCard,
+  EQMobileShell,
+  GoldQuestButton,
+  MagicPanel,
+  QuestHeader,
+  QuestProgressStepper,
+  SpiritGuide,
+  WorldMiniBanner,
+} from '../components/eigo';
 import { addPetExp, getFlashcardData, getHomeData, getLearnedWords, getTodayReviewQuiz, markMastered } from '../api';
 import { createMissionReward } from '../helpers/eigoQuestRewards';
 
@@ -363,22 +374,33 @@ export default function FlashcardPage() {
     : progressWidth;
   const mobilePartOfSpeech = flashcard?.part_of_speech || flashcard?.pos || flashcard?.speech || 'word';
   const mobileExampleTranslation = flashcard?.sentence_jp || flashcard?.example_jp || '日本語訳を読み込み中...';
+  const mobileMeaning = flashcard?.jp || flashcard?.meaningJa || flashcard?.japanese || '意味を読み込み中...';
+  const mobilePhrase = flashcard?.phrase || flashcard?.collocation || flashcard?.chunk || (
+    flashcard?.word ? `${flashcard.word} a person` : '-'
+  );
 
   return (
     <>
     {mode === 'study' && (
-      <div className="lg:hidden">
+      <div className="quest-word-page-wrap lg:hidden">
         <EQMobileShell className="eq-word-study-screen">
-          <div className="eq-word-study-top">
-            <EQBackPill to="/app">← ホームに戻る</EQBackPill>
-            <div className="eq-word-study-progress">
-              <div className="eq-word-study-progress-row">
-                <span>学習中</span>
-                <strong>{mobileStudyCount}</strong>
-              </div>
-              <div className="eq-progress-bar" style={{ '--eq-progress': mobileStudyProgress }} />
-            </div>
-          </div>
+          <QuestHeader
+            title="単語学習"
+            subtitle="風の国のことばを集めよう"
+            backTo="/app"
+            className="quest-word-header"
+          />
+
+          <WorldMiniBanner
+            day={dayLabel}
+            learned={studyWords.length ? studyIndex + 1 : Math.min(progressValue, DAILY_TARGET)}
+            total={studyWords.length || DAILY_TARGET}
+          />
+          <SpiritGuide
+            worldName="風の精霊"
+            messages={['まずは単語をおぼえよう！', '音を聞いて、声に出してみよう！']}
+            className="quest-word-spirit"
+          />
 
           {studyEmpty ? (
             <EQCard className="eq-word-card eq-word-empty-card">
@@ -395,62 +417,61 @@ export default function FlashcardPage() {
             </EQCard>
           ) : (
             <>
-              <EQCard className="eq-word-card">
+              <MagicPanel
+                className="eq-word-card quest-word-panel"
+                initial={{ opacity: 0, y: 18 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.32, ease: 'easeOut' }}
+              >
                 <div className="eq-word-card-head">
                   <span className="eq-word-pos-badge">{mobilePartOfSpeech}</span>
-                  <button
+                  <AudioButton
                     type="button"
                     onClick={() => playAudio(flashcard.word, audioRef)}
-                    className="eq-word-speaker"
+                    className="eq-word-speaker-action quest-word-top-audio"
                     aria-label="発音を聞く"
                   >
-                    ▶
-                  </button>
+                    音
+                  </AudioButton>
                 </div>
 
                 <h1 className="eq-word-title">{flashcard.word}</h1>
-                <p className="eq-word-pronunciation">
-                  {flashcard.pronunciation || flashcard.phonetic || flashcard.reading || '発音を聞いて覚えよう'}
-                </p>
 
                 <div className="eq-word-meaning-block">
                   <p className="eq-word-label">意味</p>
-                  <p className="eq-word-meaning">{flashcard.jp || '意味を読み込み中...'}</p>
+                  <p className="eq-word-meaning">{mobileMeaning}</p>
+                </div>
+
+                <div className="eq-word-phrase-block">
+                  <p className="eq-word-label">フレーズ</p>
+                  <p className="eq-word-phrase">{mobilePhrase}</p>
                 </div>
 
                 <div className="eq-word-example-block">
                   <p className="eq-word-label">例文</p>
                   <p className="eq-word-example-en">{flashcard.example || '-'}</p>
                   <p className="eq-word-example-ja">{mobileExampleTranslation}</p>
+                </div>
+                <div className="quest-word-audio-row">
+                  <AudioButton type="button" onClick={() => playAudio(flashcard.word, audioRef)}>
+                    単語を聞く
+                  </AudioButton>
                   {flashcard.example ? (
-                    <button
-                      type="button"
-                      onClick={() => playAudio(flashcard.example, audioRef)}
-                      className="eq-word-example-audio"
-                    >
+                    <AudioButton type="button" onClick={() => playAudio(flashcard.example, audioRef)} tone="purple">
                       例文を聞く
-                    </button>
+                    </AudioButton>
                   ) : null}
                 </div>
-              </EQCard>
+              </MagicPanel>
 
               <div className="eq-word-actions">
-                <button
-                  type="button"
-                  onClick={() => {
-                    setRecallChoice('dont_know');
-                    setStep(3);
-                  }}
-                  className="eq-word-unknown-button"
-                >
-                  わからない
-                </button>
-                <button type="button" onClick={handleNextStudy} className="eq-word-known-button">
-                  わかった！
-                </button>
+                <GoldQuestButton onClick={handleNextStudy} className="quest-word-next-button">
+                  次へ
+                </GoldQuestButton>
               </div>
             </>
           )}
+          <QuestProgressStepper current="words" />
         </EQMobileShell>
         <EQBottomNav
           items={[
