@@ -36,6 +36,18 @@
   --white-panel: var(--color-surface);
 }
 
+html,
+body,
+#root {
+  min-height: 100%;
+  background: #05081f;
+  overscroll-behavior: none;
+}
+
+body {
+  margin: 0;
+}
+
 :root[data-theme='soft-kids'] {
   --color-bg: #eaf6ff;
   --color-surface: rgba(255, 255, 255, 0.72);

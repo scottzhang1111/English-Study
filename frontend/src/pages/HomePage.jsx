@@ -759,7 +759,6 @@ export default function HomePage() {
           type="button"
           onClick={() => navigate('/world-stage')}
           className="eq-gold-button eq-home-primary-cta eq-home-main-cta eq-home-main-cta--final"
-          style={{ '--eq-gold-button-image': `url(${eigoQuestAssets.ui.goldButton})` }}
         >
           冒険をつづける
         </button>

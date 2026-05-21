@@ -1,19 +1,19 @@
 .spirit-assistant {
-  --spirit-size: 112px; /* Adjust the character size here. */
-  --spirit-bubble-width: 184px; /* Adjust bubble width for longer messages. */
+  --spirit-size: 118px; /* Adjust the character size here. */
+  --spirit-bubble-width: 198px; /* Adjust bubble width for longer messages. */
   position: relative;
   z-index: 8;
   display: flex;
   width: min(100%, 360px);
   align-items: flex-end;
   justify-content: flex-end;
-  gap: 8px;
+  gap: 6px;
   pointer-events: none;
 }
 
 .spirit-assistant--home {
   /* Home MVP placement: in the content flow, right aligned, above the bottom nav. */
-  margin: -4px 0 -2px auto;
+  margin: 0 0 -4px auto;
 }
 
 .spirit-assistant--bottom-right {
