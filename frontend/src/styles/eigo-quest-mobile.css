@@ -694,13 +694,15 @@ body,
 }
 
 .world-overlay-left {
-  background: linear-gradient(
-    90deg,
-    rgba(3, 8, 28, 0.88) 0%,
-    rgba(5, 13, 40, 0.68) 36%,
-    rgba(5, 13, 40, 0.24) 64%,
-    rgba(5, 13, 40, 0.1) 100%
-  );
+  background:
+    radial-gradient(circle at 83% 78%, rgba(68, 244, 255, 0.12) 0 12%, transparent 28%),
+    linear-gradient(
+      90deg,
+      rgba(2, 7, 26, 0.94) 0%,
+      rgba(4, 13, 42, 0.82) 34%,
+      rgba(7, 20, 58, 0.34) 67%,
+      rgba(10, 26, 58, 0.1) 100%
+    );
 }
 
 .world-overlay-bottom {
@@ -747,15 +749,40 @@ body,
 }
 
 .eq-home-map-pill {
+  display: inline-flex;
   min-height: 36px;
+  align-items: center;
+  gap: 8px;
   padding: 9px 16px;
   border: 1px solid rgba(255, 224, 120, 0.42);
   border-radius: var(--eq-radius-pill);
-  background: rgba(5, 8, 24, 0.68);
-  color: #ffe78f;
+  background: linear-gradient(180deg, rgba(13, 19, 47, 0.78), rgba(4, 8, 28, 0.72));
+  color: #fff7c8;
   font-size: 15px;
   font-weight: 950;
   backdrop-filter: blur(10px);
+  box-shadow: 0 0 0 rgba(255, 226, 128, 0);
+  transition: transform 160ms ease, box-shadow 160ms ease, border-color 160ms ease, color 160ms ease;
+}
+
+.eq-home-map-pill:hover,
+.eq-home-map-pill:active {
+  border-color: rgba(255, 236, 157, 0.82);
+  color: #fff;
+  box-shadow: 0 0 18px rgba(255, 216, 92, 0.28);
+  transform: scale(1.035);
+}
+
+.world-list-arrow {
+  display: grid;
+  width: 18px;
+  height: 18px;
+  place-items: center;
+  border-radius: 999px;
+  background: rgba(255, 221, 105, 0.18);
+  color: #ffe37b;
+  font-size: 13px;
+  line-height: 1;
 }
 
 .world-card-top {
@@ -780,7 +807,7 @@ body,
 }
 
 .world-main-info {
-  max-width: 60%;
+  max-width: min(470px, 62%);
   margin-top: 34px;
 }
 
@@ -821,55 +848,59 @@ body,
 }
 
 .eq-home-hero-meta {
-  display: block;
-  min-width: 260px;
+  display: grid;
+  min-width: 252px;
   margin-top: 0;
-  padding: 16px 20px;
-  border: 1px solid rgba(255, 226, 140, 0.35);
-  border-radius: 4px;
-  background: linear-gradient(90deg, rgba(20, 25, 18, 0.76), rgba(20, 28, 35, 0.44));
+  gap: 14px;
+  padding: 18px 20px;
+  border: 1px solid rgba(255, 226, 140, 0.32);
+  border-radius: 16px;
+  background:
+    linear-gradient(135deg, rgba(14, 22, 48, 0.74), rgba(5, 10, 30, 0.42)),
+    radial-gradient(circle at 16% 12%, rgba(255, 230, 134, 0.16), transparent 34%);
+  backdrop-filter: blur(14px) saturate(1.12);
   box-shadow:
-    inset 0 0 20px rgba(255, 221, 100, 0.08),
-    0 10px 25px rgba(0, 0, 0, 0.28);
+    inset 0 1px 0 rgba(255, 255, 255, 0.12),
+    inset 0 0 24px rgba(255, 221, 100, 0.08),
+    0 16px 36px rgba(0, 0, 0, 0.34),
+    0 0 22px rgba(48, 218, 255, 0.09);
 }
 
 .stage-main {
-  display: flex;
-  align-items: baseline;
-  gap: 10px;
+  display: block;
 }
 
-.stage-main span {
+.stage-main strong {
   color: #ffdc66;
   font-size: 28px;
   font-weight: 950;
   line-height: 1.05;
+  white-space: nowrap;
   text-shadow: 0 0 16px rgba(255, 211, 90, 0.32), 0 2px 18px rgba(0, 0, 0, 0.82);
 }
 
-.stage-main strong {
-  color: #fff;
-  font-size: 34px;
-  font-weight: 950;
-}
-
 .words-main {
-  margin-top: 8px;
   color: #fff;
-  font-size: 22px;
+  font-size: 24px;
   font-weight: 950;
+  line-height: 1.12;
 }
 
-.words-main span {
-  color: rgba(255, 255, 255, 0.88);
+.words-main strong {
+  color: #fff;
+  white-space: nowrap;
+  text-shadow: 0 0 18px rgba(112, 246, 255, 0.16), 0 3px 16px rgba(0, 0, 0, 0.72);
 }
 
 .portal-progress {
   display: flex;
-  min-width: 130px;
+  min-width: 126px;
   flex-direction: column;
   align-items: center;
-  gap: 8px;
+  gap: 7px;
+  margin-right: 4px;
+  margin-bottom: 4px;
+  filter: drop-shadow(0 0 18px rgba(60, 239, 255, 0.24));
 }
 
 .eq-home-hero-progress {
@@ -878,11 +909,11 @@ body,
 
 .portal-label {
   margin: 0;
-  color: rgba(255, 255, 255, 0.78);
+  color: rgba(255, 255, 255, 0.9);
   font-size: 14px;
   font-weight: 850;
   text-align: center;
-  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.8);
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.92);
 }
 
 .portal-ring {
@@ -893,8 +924,9 @@ body,
   place-items: center;
   position: relative;
   background:
-    radial-gradient(circle at center, rgba(5, 10, 24, 0.95) 0 54%, transparent 56%),
-    conic-gradient(from -90deg, #65fff1 var(--progress), rgba(255, 220, 120, 0.22) 0);
+    radial-gradient(circle at center, rgba(7, 13, 31, 0.96) 0 48%, rgba(16, 34, 58, 0.48) 51%, transparent 58%),
+    conic-gradient(from -90deg, #65fff1 var(--progress), rgba(255, 220, 120, 0.22) 0),
+    radial-gradient(circle at center, rgba(95, 250, 255, 0.34), transparent 70%);
   box-shadow:
     0 0 18px rgba(85, 245, 255, 0.42),
     0 0 36px rgba(255, 222, 110, 0.22),
@@ -920,12 +952,12 @@ body,
 
 @media (max-width: 480px) {
   .eq-home-main-adventure {
-    min-height: 360px;
+    min-height: 420px;
     border-radius: 24px;
   }
 
   .eq-home-hero-stack {
-    min-height: 360px;
+    min-height: 420px;
   }
 
   .eq-home-hero-copy {
@@ -944,8 +976,8 @@ body,
   }
 
   .world-main-info {
-    max-width: 78%;
-    margin-top: 30px;
+    max-width: 82%;
+    margin-top: 32px;
   }
 
   .eq-home-hero-copy h2 {
@@ -969,24 +1001,17 @@ body,
 
   .eq-home-hero-meta {
     flex: 1;
-    min-width: 0;
-    padding: 13px 16px;
-  }
-
-  .stage-main {
-    gap: 7px;
-  }
-
-  .stage-main span {
-    font-size: 23px;
+    min-width: 190px;
+    gap: 10px;
+    padding: 14px 16px;
   }
 
   .stage-main strong {
-    font-size: 27px;
+    font-size: 24px;
   }
 
   .words-main {
-    font-size: 18px;
+    font-size: 19px;
   }
 
   .portal-progress {

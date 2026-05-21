@@ -627,7 +627,8 @@ export default function HomePage() {
               <div className="world-card-top">
                 <span className="eq-home-hero-label current-badge">現在の冒険</span>
                 <button type="button" className="eq-home-map-pill world-list-button" onClick={() => navigate('/study-map')}>
-                  世界一覧 ›
+                  <span>世界一覧</span>
+                  <span className="world-list-arrow" aria-hidden="true">&gt;</span>
                 </button>
               </div>
 
@@ -640,14 +641,12 @@ export default function HomePage() {
               </div>
 
               <div className="world-progress-row">
-                <div className="eq-home-hero-meta stage-panel">
+                <div className="eq-home-hero-meta stage-panel" aria-label={`${currentWorldStage} / 10 stages, ${currentWorldProgressLabel}`}>
                   <div className="stage-main">
-                    <span>Stage</span>
-                    <strong>{currentWorldStage} / 10</strong>
+                    <strong>Stage {currentWorldStage} / 10</strong>
                   </div>
                   <div className="words-main">
-                    <strong>{currentWorldWords}</strong>
-                    <span> / {EQ_WORDS_PER_WORLD} words</span>
+                    <strong>{currentWorldProgressLabel}</strong>
                   </div>
                 </div>
 
