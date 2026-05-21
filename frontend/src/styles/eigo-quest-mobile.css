@@ -680,7 +680,7 @@ body,
   object-fit: cover;
   object-position: center;
   transform: scale(1.02);
-  filter: brightness(0.9) saturate(1.18) contrast(1.08);
+  filter: brightness(0.72) saturate(1.08) contrast(1.12);
   pointer-events: none;
   user-select: none;
 }
@@ -698,19 +698,19 @@ body,
     radial-gradient(circle at 83% 78%, rgba(68, 244, 255, 0.12) 0 12%, transparent 28%),
     linear-gradient(
       90deg,
-      rgba(2, 7, 26, 0.94) 0%,
-      rgba(4, 13, 42, 0.82) 34%,
-      rgba(7, 20, 58, 0.34) 67%,
-      rgba(10, 26, 58, 0.1) 100%
+      rgba(1, 5, 20, 0.97) 0%,
+      rgba(2, 9, 32, 0.9) 34%,
+      rgba(5, 16, 48, 0.48) 67%,
+      rgba(7, 19, 48, 0.2) 100%
     );
 }
 
 .world-overlay-bottom {
   background: linear-gradient(
     180deg,
-    rgba(4, 8, 24, 0.12) 0%,
-    rgba(4, 8, 24, 0.24) 48%,
-    rgba(2, 5, 18, 0.86) 100%
+    rgba(2, 6, 20, 0.24) 0%,
+    rgba(3, 8, 26, 0.4) 48%,
+    rgba(1, 4, 15, 0.94) 100%
   );
 }
 
@@ -814,7 +814,7 @@ body,
 .eq-home-hero-copy h2 {
   margin: 0;
   color: #fff;
-  font-size: clamp(48px, 9vw, 72px);
+  font-size: clamp(43px, 9vw, 67px);
   font-weight: 950;
   line-height: 0.95;
   letter-spacing: 0;
@@ -824,7 +824,7 @@ body,
 .eq-home-world-en {
   margin: 10px 0 0;
   color: rgba(255, 255, 255, 0.78);
-  font-size: 18px;
+  font-size: 13px;
   font-weight: 950;
   letter-spacing: 0;
 }
@@ -833,7 +833,7 @@ body,
   max-width: 260px;
   margin: 16px 0 0;
   color: rgba(255, 255, 255, 0.88);
-  font-size: 17px;
+  font-size: 12px;
   font-weight: 850;
   line-height: 1.55;
   text-shadow: 0 3px 12px rgba(0, 0, 0, 0.8);
@@ -872,7 +872,7 @@ body,
 
 .stage-main strong {
   color: #ffdc66;
-  font-size: 28px;
+  font-size: 23px;
   font-weight: 950;
   line-height: 1.05;
   white-space: nowrap;
@@ -881,7 +881,7 @@ body,
 
 .words-main {
   color: #fff;
-  font-size: 24px;
+  font-size: 19px;
   font-weight: 950;
   line-height: 1.12;
 }
@@ -910,7 +910,7 @@ body,
 .portal-label {
   margin: 0;
   color: rgba(255, 255, 255, 0.9);
-  font-size: 14px;
+  font-size: 9px;
   font-weight: 850;
   text-align: center;
   text-shadow: 0 2px 10px rgba(0, 0, 0, 0.92);
@@ -945,7 +945,7 @@ body,
 .portal-ring span {
   position: relative;
   color: #68fff3;
-  font-size: 22px;
+  font-size: 17px;
   font-weight: 950;
   text-shadow: 0 0 12px rgba(104, 255, 243, 0.9);
 }
@@ -981,16 +981,16 @@ body,
   }
 
   .eq-home-hero-copy h2 {
-    font-size: 48px;
+    font-size: 43px;
   }
 
   .eq-home-world-en {
-    font-size: 15px;
+    font-size: 10px;
   }
 
   .eq-home-world-description {
     max-width: 230px;
-    font-size: 15px;
+    font-size: 10px;
     line-height: 1.45;
   }
 
@@ -1007,11 +1007,11 @@ body,
   }
 
   .stage-main strong {
-    font-size: 24px;
+    font-size: 19px;
   }
 
   .words-main {
-    font-size: 19px;
+    font-size: 14px;
   }
 
   .portal-progress {
@@ -1024,11 +1024,11 @@ body,
   }
 
   .portal-ring span {
-    font-size: 18px;
+    font-size: 13px;
   }
 
   .portal-label {
-    font-size: 12px;
+    font-size: 7px;
     line-height: 1.2;
   }
 }
