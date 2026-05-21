@@ -101,8 +101,6 @@
 }
 
 .spirit-assistant__float,
-.spirit-assistant__layer,
-.spirit-assistant__fx,
 .spirit-assistant__sparkles {
   position: absolute;
   inset: 0;
@@ -122,36 +120,13 @@
   user-select: none;
 }
 
-.spirit-assistant__image--body,
-.spirit-assistant__image--state {
+.spirit-assistant__image--full {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
   position: relative;
   z-index: 2;
-}
-
-.spirit-assistant__layer--wings {
-  z-index: 1;
-  transform-origin: 50% 56%;
-}
-
-.spirit-assistant__layer--face {
-  z-index: 3;
-  transform-origin: 50% 48%;
-}
-
-.spirit-assistant__layer--leaf {
-  z-index: 4;
-  transform: translate(12%, -8%) scale(0.9);
-}
-
-.spirit-assistant__layer--orb {
-  z-index: 5;
-  transform: translate(-26%, 14%) scale(0.34);
-}
-
-.spirit-assistant__fx--halo {
-  z-index: 0;
-  opacity: 0.42;
-  transform: scale(1.12);
 }
 
 .spirit-assistant__fallback {
