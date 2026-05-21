@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { Link, Navigate, NavLink, useNavigate } from 'react-router-dom';
 import HeaderBar from '../components/HeaderBar';
 import { EQBottomNav, EQBrandHeader, EQCard, EQMobileShell, FantasyMenuTile } from '../components/eigo';
+import SpiritAssistant from '../components/eigo-quest/SpiritAssistant';
 import { getGrammarLessons, getHomeData } from '../api';
 import { useChildren } from '../ChildrenContext';
 import { getPartner } from '../utils/childStorage';
@@ -761,6 +762,18 @@ export default function HomePage() {
             </Link>
           ))}
         </section>
+
+        {/* MVP experiment: adjust size/placement in SpiritAssistant.css and copy via these messages. */}
+        <SpiritAssistant
+          worldName="風の国"
+          mood="normal"
+          messages={[
+            'ここは「風の国」だよ。',
+            '風に乗って、新しい言葉を集めよう！',
+            '次はクイズに挑戦してみよう！',
+            'きっとできるよ、がんばって！',
+          ]}
+        />
 
         <section className="eq-home-daily-grid">
           <div className="eq-home-glass-panel eq-home-mission-panel">
