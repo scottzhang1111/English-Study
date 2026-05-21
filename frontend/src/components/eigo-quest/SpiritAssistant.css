@@ -101,6 +101,7 @@
 }
 
 .spirit-assistant__float,
+.spirit-assistant__layer,
 .spirit-assistant__sparkles {
   position: absolute;
   inset: 0;
@@ -127,6 +128,33 @@
   object-fit: contain;
   position: relative;
   z-index: 2;
+}
+
+.spirit-assistant__image--body {
+  position: relative;
+  z-index: 3;
+}
+
+.spirit-assistant__layer--fae {
+  z-index: 1;
+  opacity: 0.6;
+}
+
+.spirit-assistant__layer--wings {
+  z-index: 2;
+  transform-origin: 54% 56%;
+}
+
+.spirit-assistant__layer--face {
+  z-index: 4;
+}
+
+.spirit-assistant__layer--orb {
+  z-index: 5;
+}
+
+.spirit-assistant__layer--leaf {
+  z-index: 6;
 }
 
 .spirit-assistant__fallback {
