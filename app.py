@@ -1566,8 +1566,6 @@ def init_db(force=False):
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 word_id INTEGER,
                 message TEXT,
-                error_date TEXT NOT NULL,
-                error_count INTEGER NOT NULL DEFAULT 1,
                 created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
             )
             '''
@@ -2462,10 +2460,6 @@ def migrate_children_profile_fields(conn):
     conn.commit()
 
 
-def quote_identifier(identifier):
-    return '"' + str(identifier).replace('"', '""') + '"'
-
-
 def get_table_columns(conn, table_name):
     return {
         row['name']
@@ -2474,55 +2468,22 @@ def get_table_columns(conn, table_name):
 
 
 def migrate_error_log_schema(conn):
-    columns = get_table_columns(conn, 'error_log')
     if use_postgres():
-        pk_column_rows = conn.execute(
-            '''
-            SELECT a.attname AS name
-            FROM pg_index i
-            JOIN pg_attribute a ON a.attrelid = i.indrelid AND a.attnum = ANY(i.indkey)
-            WHERE i.indrelid = 'error_log'::regclass AND i.indisprimary
-            ORDER BY a.attnum
-            '''
-        ).fetchall()
-        pk_columns = {row['name'] for row in pk_column_rows}
-        if 'id' not in columns:
-            conn.execute('ALTER TABLE error_log ADD COLUMN id INTEGER')
-            conn.execute('CREATE SEQUENCE IF NOT EXISTS error_log_id_seq')
-            conn.execute("ALTER SEQUENCE error_log_id_seq OWNED BY error_log.id")
-            conn.execute("UPDATE error_log SET id = nextval('error_log_id_seq') WHERE id IS NULL")
-            conn.execute("ALTER TABLE error_log ALTER COLUMN id SET DEFAULT nextval('error_log_id_seq')")
-            conn.execute('ALTER TABLE error_log ALTER COLUMN id SET NOT NULL')
-        elif 'id' not in pk_columns:
-            conn.execute('CREATE SEQUENCE IF NOT EXISTS error_log_id_seq')
-            conn.execute("ALTER SEQUENCE error_log_id_seq OWNED BY error_log.id")
-            conn.execute("UPDATE error_log SET id = nextval('error_log_id_seq') WHERE id IS NULL")
-            conn.execute("ALTER TABLE error_log ALTER COLUMN id SET DEFAULT nextval('error_log_id_seq')")
-            conn.execute("SELECT setval('error_log_id_seq', COALESCE((SELECT MAX(id) FROM error_log), 0) + 1, false)")
-        if 'message' not in columns:
-            conn.execute('ALTER TABLE error_log ADD COLUMN message TEXT')
-        if 'created_at' not in columns:
-            conn.execute('ALTER TABLE error_log ADD COLUMN created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP')
-            conn.execute('UPDATE error_log SET created_at = COALESCE(created_at, CURRENT_TIMESTAMP)')
-        if 'error_date' not in columns:
-            conn.execute('ALTER TABLE error_log ADD COLUMN error_date TEXT NOT NULL DEFAULT CURRENT_DATE')
-        if 'error_count' not in columns:
-            conn.execute('ALTER TABLE error_log ADD COLUMN error_count INTEGER NOT NULL DEFAULT 1')
-        pk_rows = []
-        if pk_columns != {'id'}:
-            pk_rows = conn.execute(
-                "SELECT conname FROM pg_constraint WHERE conrelid = 'error_log'::regclass AND contype = 'p'"
-            ).fetchall()
-            for row in pk_rows:
-                conn.execute(f'ALTER TABLE error_log DROP CONSTRAINT IF EXISTS {quote_identifier(row["conname"])}')
+        conn.execute('DROP TABLE IF EXISTS error_log CASCADE')
         conn.execute(
-            "ALTER TABLE error_log ALTER COLUMN word_id TYPE INTEGER USING NULLIF(regexp_replace(word_id::text, '[^0-9]', '', 'g'), '')::integer"
+            '''
+            CREATE TABLE error_log (
+                id SERIAL PRIMARY KEY,
+                word_id INTEGER NULL,
+                message TEXT,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
+            '''
         )
-        if pk_columns != {'id'}:
-            conn.execute('ALTER TABLE error_log ADD PRIMARY KEY (id)')
         return
 
-    needs_rebuild = 'id' not in columns or 'message' not in columns or 'created_at' not in columns
+    columns = get_table_columns(conn, 'error_log')
+    needs_rebuild = 'id' not in columns or 'message' not in columns or 'created_at' not in columns or 'error_date' in columns or 'error_count' in columns
     if not needs_rebuild:
         return
     conn.execute('DROP TABLE IF EXISTS error_log_new')
@@ -2532,20 +2493,20 @@ def migrate_error_log_schema(conn):
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             word_id INTEGER,
             message TEXT,
-            error_date TEXT NOT NULL,
-            error_count INTEGER NOT NULL DEFAULT 1,
             created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
         )
         '''
     )
     select_message = 'message' if 'message' in columns else "''"
     select_created_at = 'created_at' if 'created_at' in columns else 'CURRENT_TIMESTAMP'
-    select_error_date = 'error_date' if 'error_date' in columns else 'CURRENT_DATE'
-    select_error_count = 'error_count' if 'error_count' in columns else '1'
+    select_word_id = (
+        "CASE WHEN word_id GLOB '[0-9]*' AND word_id != '' THEN CAST(word_id AS INTEGER) ELSE NULL END"
+        if 'word_id' in columns else 'NULL'
+    )
     conn.execute(
         f'''
-        INSERT INTO error_log_new (word_id, message, error_date, error_count, created_at)
-        SELECT word_id, {select_message}, {select_error_date}, {select_error_count}, {select_created_at}
+        INSERT INTO error_log_new (word_id, message, created_at)
+        SELECT {select_word_id}, {select_message}, COALESCE({select_created_at}, CURRENT_TIMESTAMP)
         FROM error_log
         '''
     )
@@ -2889,14 +2850,13 @@ def migrate_vocabulary_ids(conn):
 def log_error(word_id):
     if not word_id:
         return
-    today = get_today()
     raw_word_id = str(word_id).strip()
     normalized_word_id = int(raw_word_id) if raw_word_id.isdigit() else None
     conn = get_db_connection()
     try:
         conn.execute(
-            'INSERT INTO error_log (word_id, message, error_date, error_count, created_at) VALUES (?, ?, ?, ?, CURRENT_TIMESTAMP)',
-            (normalized_word_id, f'wrong answer for word_id={raw_word_id}', today, 1),
+            'INSERT INTO error_log (word_id, message, created_at) VALUES (?, ?, CURRENT_TIMESTAMP)',
+            (normalized_word_id, f'wrong answer for word_id={raw_word_id}'),
         )
         conn.commit()
     finally:
@@ -2971,12 +2931,12 @@ def get_review_list(child_id=None):
     try:
         rows = conn.execute(
             '''
-            SELECT word_id, MAX(error_date) AS error_date, SUM(error_count) AS error_count
+            SELECT word_id, MAX(created_at) AS last_error_at, COUNT(*) AS error_count
             FROM error_log
             WHERE word_id IS NOT NULL
             GROUP BY word_id
-            HAVING SUM(error_count) > 2
-            ORDER BY error_count DESC, error_date DESC
+            HAVING COUNT(*) > 2
+            ORDER BY error_count DESC, last_error_at DESC
             '''
         ).fetchall()
     finally:
@@ -2997,7 +2957,7 @@ def get_review_list(child_id=None):
             'example_japanese': vocab.get('Example_Japanese', '').strip() if vocab else '',
             'sentence_jp': sentence_jp,
             'error_count': row['error_count'],
-            'last_error_date': row['error_date'],
+            'last_error_date': row['last_error_at'],
         })
     return review_items
 
