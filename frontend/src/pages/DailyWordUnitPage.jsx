@@ -4,6 +4,13 @@ import { addPetExp, getDailyWords, getHomeData, markMastered, submitPracticeAnsw
 import { useChildren } from '../ChildrenContext';
 import { getPartner } from '../utils/childStorage';
 import { createMissionReward } from '../helpers/eigoQuestRewards';
+import {
+  EQBottomNav,
+  EQMobileShell,
+  GoldQuestButton,
+  QuestHeader,
+  SpiritGuide,
+} from '../components/eigo';
 
 const DEFAULT_DAILY_WORD_TARGET = 20;
 const DAILY_PASS_EXP = 20;
@@ -389,7 +396,92 @@ export default function DailyWordUnitPage() {
   if (!child) return null;
 
   return (
-    <div className="mx-auto max-w-6xl px-4 pb-32 pt-4 sm:px-6">
+    <>
+    {!error && stage === 'preview' && (
+      <div className="eq-daily-words-preview lg:hidden">
+        <EQMobileShell className="eq-daily-words-shell">
+          <QuestHeader
+            title="単語一覧"
+            subtitle={`今日の${targetCount}語を確認しよう`}
+            backTo="/app"
+            className="eq-daily-words-header"
+          />
+
+          <section className="eq-daily-world-card">
+            <img src="/assets/eigo-quest/worlds/wind.png" alt="" />
+            <div className="eq-daily-world-shade" aria-hidden="true" />
+            <div className="eq-daily-world-icon" aria-hidden="true">風</div>
+            <div className="eq-daily-world-copy">
+              <h2>風の世界</h2>
+              <p>WIND REALM</p>
+              <div>
+                <span>Day {unitIndex + 1}</span>
+                <strong>今日の単語 <b>{todayWords.length}</b> / {targetCount} words</strong>
+              </div>
+            </div>
+          </section>
+
+          <SpiritGuide
+            worldName="風の精霊"
+            messages={[`今日は${targetCount}個の単語を集めよう！`]}
+            className="eq-daily-words-spirit"
+          />
+
+          <section className="eq-daily-word-list-panel">
+            <h2>✦ 今日の単語リスト ✦</h2>
+            <div className="eq-daily-word-list">
+              {todayWords.map((word, index) => (
+                <button
+                  key={`${word.id}-${index}`}
+                  type="button"
+                  onClick={() => {
+                    setStudyIndex(index);
+                    setStage('study');
+                  }}
+                  className="eq-daily-word-row"
+                >
+                  <span className="eq-daily-word-number">{index + 1}</span>
+                  <strong>{word.word}</strong>
+                  <em>✦</em>
+                  <small>{word.meaningJa}</small>
+                  <span
+                    className="eq-daily-word-audio"
+                    aria-label={`${word.word} を聞く`}
+                    onClick={(event) => {
+                      event.stopPropagation();
+                      speak(word.word);
+                    }}
+                  >
+                    ▶
+                  </span>
+                </button>
+              ))}
+            </div>
+
+            <div className="eq-daily-ready-pill">
+              <span>✓ 準備OK</span>
+              <strong>{todayWords.length} / {targetCount} 語を確認しました！</strong>
+            </div>
+
+            <GoldQuestButton onClick={startStudy} disabled={!todayWords.length} className="eq-daily-start-button">
+              学習をスタート
+            </GoldQuestButton>
+          </section>
+        </EQMobileShell>
+
+        <EQBottomNav
+          items={[
+            { label: 'ホーム', to: '/app', icon: 'home' },
+            { label: '地図', to: '/study-map', icon: 'map' },
+            { label: '学習', to: '/daily-words', icon: 'study', active: true },
+            { label: 'カード', to: '/flashcard', icon: 'cards' },
+            { label: '設定', to: '/settings', icon: 'more' },
+          ]}
+        />
+      </div>
+    )}
+
+    <div className={`mx-auto max-w-6xl px-4 pb-32 pt-4 sm:px-6 ${stage === 'preview' ? 'max-lg:hidden' : ''}`}>
       <header className="panel mb-4 overflow-hidden px-4 py-4 sm:px-6">
         <div className="flex items-center justify-between gap-4 rounded-[34px] bg-[linear-gradient(135deg,#fffef8_0%,#eef7ff_55%,#f8fbff_100%)] px-5 py-5 sm:px-7">
           <div className="flex min-w-0 items-center gap-4">
@@ -649,6 +741,7 @@ export default function DailyWordUnitPage() {
         </section>
       )}
     </div>
+    </>
   );
 }
 

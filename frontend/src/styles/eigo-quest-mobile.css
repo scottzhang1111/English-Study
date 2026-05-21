@@ -1483,6 +1483,280 @@ body,
   gap: clamp(6px, 1dvh, 9px);
 }
 
+.eq-daily-words-preview {
+  min-height: 100dvh;
+  background:
+    radial-gradient(circle at 50% 18%, rgba(33, 95, 190, 0.3), transparent 34%),
+    linear-gradient(180deg, #020719 0%, #050717 58%, #02030b 100%);
+}
+
+.eq-daily-words-shell {
+  display: flex;
+  min-height: 100dvh;
+  flex-direction: column;
+  gap: 10px;
+  padding: max(8px, env(safe-area-inset-top, 0px)) 12px calc(var(--eq-bottom-nav-height) + 34px + env(safe-area-inset-bottom, 0px));
+  overflow: hidden;
+}
+
+.eq-daily-words-header {
+  margin-bottom: 0;
+}
+
+.eq-daily-words-header .quest-header-copy h1::after {
+  margin-left: 8px;
+  color: #ffe58e;
+  content: "✦";
+  text-shadow: 0 0 16px rgba(255, 211, 90, 0.86);
+}
+
+.eq-daily-world-card {
+  position: relative;
+  display: grid;
+  min-height: 116px;
+  grid-template-columns: 58px minmax(0, 1fr);
+  gap: 12px;
+  align-items: center;
+  overflow: hidden;
+  border: 1px solid rgba(255, 211, 90, 0.54);
+  border-radius: 20px;
+  padding: 12px;
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.08),
+    0 0 28px rgba(69, 168, 255, 0.18);
+}
+
+.eq-daily-world-card img,
+.eq-daily-world-shade {
+  position: absolute;
+  inset: 0;
+}
+
+.eq-daily-world-card img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.eq-daily-world-shade {
+  background:
+    linear-gradient(90deg, rgba(3, 8, 25, 0.86), rgba(3, 8, 25, 0.56), rgba(3, 8, 25, 0.18)),
+    linear-gradient(180deg, rgba(4, 12, 38, 0.18), rgba(2, 4, 14, 0.34));
+}
+
+.eq-daily-world-icon,
+.eq-daily-world-copy {
+  position: relative;
+  z-index: 1;
+}
+
+.eq-daily-world-icon {
+  display: grid;
+  width: 54px;
+  height: 54px;
+  place-items: center;
+  border: 1px solid rgba(115, 198, 255, 0.64);
+  border-radius: 18px;
+  background:
+    radial-gradient(circle at 50% 45%, rgba(92, 205, 255, 0.4), transparent 58%),
+    rgba(5, 19, 54, 0.72);
+  color: #9be8ff;
+  font-size: 24px;
+  font-weight: 950;
+  box-shadow: 0 0 18px rgba(75, 174, 255, 0.42);
+}
+
+.eq-daily-world-copy h2,
+.eq-daily-world-copy p {
+  margin: 0;
+}
+
+.eq-daily-world-copy h2 {
+  color: #f8fbff;
+  font-size: clamp(1.45rem, 6vw, 2rem);
+  font-weight: 950;
+  line-height: 1;
+  text-shadow: 0 3px 14px rgba(0, 0, 0, 0.55);
+}
+
+.eq-daily-world-copy p {
+  margin-top: 4px;
+  color: rgba(198, 216, 248, 0.82);
+  font-size: 0.86rem;
+  font-weight: 950;
+}
+
+.eq-daily-world-copy div {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.eq-daily-world-copy div > span {
+  border: 1px solid rgba(73, 172, 255, 0.7);
+  border-radius: 10px;
+  padding: 6px 10px;
+  background: rgba(2, 14, 44, 0.72);
+  color: #77cfff;
+  font-size: 0.8rem;
+  font-weight: 950;
+}
+
+.eq-daily-world-copy strong {
+  color: rgba(232, 240, 255, 0.88);
+  font-size: 0.82rem;
+  font-weight: 900;
+}
+
+.eq-daily-world-copy b {
+  color: #ffdc69;
+  font-size: 1.08rem;
+}
+
+.eq-daily-words-spirit {
+  min-height: 94px;
+  margin-top: -2px;
+}
+
+.eq-daily-words-spirit .spirit-assistant--quest {
+  --spirit-size: clamp(96px, 27vw, 122px);
+}
+
+.eq-daily-word-list-panel {
+  position: relative;
+  display: grid;
+  min-height: 0;
+  flex: 1;
+  gap: 8px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 211, 90, 0.72);
+  border-radius: 24px;
+  padding: 12px 10px 14px;
+  background:
+    radial-gradient(circle at 50% 0%, rgba(55, 143, 255, 0.22), transparent 36%),
+    linear-gradient(180deg, rgba(7, 23, 63, 0.92), rgba(3, 8, 28, 0.96));
+  box-shadow:
+    inset 0 0 28px rgba(75, 165, 255, 0.08),
+    0 0 32px rgba(255, 211, 90, 0.18);
+}
+
+.eq-daily-word-list-panel h2 {
+  margin: 0;
+  color: #ffe18c;
+  font-size: clamp(0.92rem, 4vw, 1.12rem);
+  font-weight: 950;
+  text-align: center;
+  text-shadow: 0 0 14px rgba(255, 211, 90, 0.42);
+}
+
+.eq-daily-word-list {
+  display: grid;
+  min-height: 0;
+  gap: 6px;
+  overflow-y: auto;
+  padding-right: 4px;
+  scrollbar-color: rgba(92, 190, 255, 0.9) rgba(7, 23, 63, 0.45);
+  scrollbar-width: thin;
+}
+
+.eq-daily-word-row {
+  display: grid;
+  min-height: 34px;
+  grid-template-columns: 28px minmax(72px, 1fr) 16px minmax(90px, 1fr) 30px;
+  gap: 6px;
+  align-items: center;
+  border: 1px solid rgba(83, 181, 255, 0.36);
+  border-radius: 999px;
+  background: rgba(4, 17, 50, 0.72);
+  color: #f7fbff;
+  padding: 3px 5px;
+  text-align: left;
+  box-shadow: inset 0 0 16px rgba(67, 159, 255, 0.06);
+}
+
+.eq-daily-word-row:active {
+  transform: scale(0.99);
+}
+
+.eq-daily-word-number {
+  display: grid;
+  width: 24px;
+  height: 24px;
+  place-items: center;
+  border: 1px solid rgba(255, 211, 90, 0.72);
+  border-radius: 999px;
+  color: #ffd76b;
+  font-size: 0.76rem;
+  font-weight: 950;
+}
+
+.eq-daily-word-row strong {
+  overflow: hidden;
+  font-size: clamp(0.88rem, 4.1vw, 1.08rem);
+  font-weight: 950;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.eq-daily-word-row em {
+  color: #ffd76b;
+  font-style: normal;
+  text-align: center;
+  text-shadow: 0 0 10px rgba(255, 211, 90, 0.68);
+}
+
+.eq-daily-word-row small {
+  overflow: hidden;
+  color: rgba(222, 233, 255, 0.84);
+  font-size: clamp(0.68rem, 3vw, 0.8rem);
+  font-weight: 850;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.eq-daily-word-audio {
+  display: grid;
+  width: 26px;
+  height: 26px;
+  place-items: center;
+  border: 1px solid rgba(255, 211, 90, 0.62);
+  border-radius: 999px;
+  background: rgba(2, 11, 33, 0.7);
+  color: #ffd76b;
+  font-size: 0.72rem;
+  box-shadow: 0 0 10px rgba(255, 211, 90, 0.18);
+}
+
+.eq-daily-ready-pill {
+  display: flex;
+  min-height: 34px;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  border: 1px solid rgba(255, 211, 90, 0.44);
+  border-radius: 999px;
+  background: rgba(3, 17, 46, 0.78);
+  color: rgba(238, 245, 255, 0.9);
+  font-size: 0.76rem;
+  font-weight: 900;
+}
+
+.eq-daily-ready-pill span {
+  color: #8dffb5;
+}
+
+.eq-daily-ready-pill strong {
+  color: #ffe18c;
+}
+
+.eq-daily-start-button {
+  width: min(88%, 320px);
+  min-height: 56px;
+  justify-self: center;
+  font-size: clamp(1.2rem, 5.8vw, 1.7rem);
+}
+
 .eq-home-mobile-root > .eq-bottom-nav:not(.eq-home-bottom-nav) {
   display: none;
 }
