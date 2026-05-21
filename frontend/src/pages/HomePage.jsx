@@ -557,12 +557,6 @@ export default function HomePage() {
             className="eq-home-brand"
           />
           <div className="eq-home-header-actions" aria-label="ホーム操作">
-            <button type="button" aria-label="お知らせ">
-              <svg viewBox="0 0 24 24" aria-hidden="true">
-                <path d="M15 17H9m9-2H6l1.4-1.9V9.6A4.6 4.6 0 0 1 12 5a4.6 4.6 0 0 1 4.6 4.6v3.5L18 15Z" />
-                <path d="M10 18.2a2.2 2.2 0 0 0 4 0" />
-              </svg>
-            </button>
             <Link to="/settings" aria-label="設定">
               <svg viewBox="0 0 24 24" aria-hidden="true">
                 <path d="M12 15.2a3.2 3.2 0 1 0 0-6.4 3.2 3.2 0 0 0 0 6.4Z" />
