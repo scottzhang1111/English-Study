@@ -470,7 +470,8 @@ export default function HomePage() {
     : currentWorldWordsRaw;
   const currentWorldStage = Math.min(10, Math.max(1, Math.floor(currentWorldWords / EQ_WORDS_PER_STAGE) + 1));
   const currentWorldProgressLabel = `${currentWorldWords} / ${EQ_WORDS_PER_WORLD} words`;
-  const currentWorldProgressPercent = `${Math.min(100, Math.round((currentWorldWords / EQ_WORDS_PER_WORLD) * 100))}%`;
+  const currentWorldProgressValue = Math.min(100, Math.round((currentWorldWords / EQ_WORDS_PER_WORLD) * 100));
+  const currentWorldProgressPercent = `${currentWorldProgressValue}%`;
   const worldDisplayName = HOME_WORLD_NAME_JA[questProgress.currentWorld.id] || questProgress.currentWorld.nameJa || '風の区域';
   const worldEnglishLabel = `${String(questProgress.currentWorld.id || 'wind').toUpperCase()} REALM`;
   const rewardCardName = questProgress.currentWorld.id === 'wind' ? 'そよ風の精霊' : (rewardCard?.nameJa || 'そよ風の精霊');
@@ -605,10 +606,11 @@ export default function HomePage() {
           <p>今日も冒険しよう！</p>
         </section>
 
-        <EQCard className="eq-adventure-card eq-home-main-adventure">
+        <EQCard className="eq-adventure-card eq-home-main-adventure current-world-card">
           <div className="eq-home-adventure-bg" aria-hidden="true">
             {!homeWorldImageFailed && questProgress.currentWorld.backgroundImage ? (
               <img
+                className="world-bg"
                 src={questProgress.currentWorld.backgroundImage}
                 alt=""
                 loading="lazy"
@@ -618,27 +620,43 @@ export default function HomePage() {
               <span>{questProgress.currentWorld.icon || '✨'}</span>
             )}
           </div>
+          <div className="world-overlay-left" aria-hidden="true" />
+          <div className="world-overlay-bottom" aria-hidden="true" />
           <div className="eq-home-hero-stack">
-            <div className="eq-home-hero-copy">
-              <p className="eq-home-hero-label">現在の冒険</p>
-              <button type="button" className="eq-home-map-pill" onClick={() => navigate('/study-map')}>
-                世界一覧
-              </button>
-              <h2>{worldDisplayName}</h2>
-              <p className="eq-home-world-en">{worldEnglishLabel}</p>
-              <p className="eq-home-world-description">
-                風が導く、自由への旅。単語と文法を少しずつ覚える冒険
-              </p>
-              <div className="eq-home-hero-meta">
-                <span>Stage {currentWorldStage} / 10</span>
-                <strong>{currentWorldProgressLabel}</strong>
+            <div className="eq-home-hero-copy world-card-content">
+              <div className="world-card-top">
+                <span className="eq-home-hero-label current-badge">現在の冒険</span>
+                <button type="button" className="eq-home-map-pill world-list-button" onClick={() => navigate('/study-map')}>
+                  世界一覧 ›
+                </button>
               </div>
-              <div className="eq-home-hero-progress">
-                <div className="eq-adventure-progress-row">
-                  <span>この世界の進行度</span>
-                  <strong>{currentWorldProgressPercent}</strong>
+
+              <div className="world-main-info">
+                <h2>{worldDisplayName}</h2>
+                <p className="eq-home-world-en world-en">{worldEnglishLabel}</p>
+                <p className="eq-home-world-description world-desc">
+                  風が導く、自由への旅。単語と文法を少しずつ覚える冒険
+                </p>
+              </div>
+
+              <div className="world-progress-row">
+                <div className="eq-home-hero-meta stage-panel">
+                  <div className="stage-main">
+                    <span>Stage</span>
+                    <strong>{currentWorldStage} / 10</strong>
+                  </div>
+                  <div className="words-main">
+                    <strong>{currentWorldWords}</strong>
+                    <span> / {EQ_WORDS_PER_WORLD} words</span>
+                  </div>
                 </div>
-                <div className="eq-progress-bar" style={{ '--eq-progress': currentWorldProgressPercent }} />
+
+                <div className="portal-progress">
+                  <span className="portal-label">この世界の進行度</span>
+                  <div className="portal-ring" style={{ '--progress': currentWorldProgressPercent }}>
+                    <span>{currentWorldProgressPercent}</span>
+                  </div>
+                </div>
               </div>
             </div>
 
