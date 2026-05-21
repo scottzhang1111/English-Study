@@ -2098,6 +2098,7 @@ def init_db(force=False):
         migrate_vocabulary_word_columns(conn)
         migrate_vocabulary_ids(conn)
         migrate_child_vocab_progress(conn)
+        migrate_daily_study_log(conn)
         conn.commit()
         _DB_INITIALIZED = True
         elapsed_ms = int((time.perf_counter() - started_at) * 1000)
@@ -2645,6 +2646,69 @@ def dedupe_child_vocab_progress(conn):
             ''',
             (child_id, vocab_id, keep_id),
         )
+
+
+def migrate_daily_study_log(conn):
+    duplicate_keys = conn.execute(
+        '''
+        SELECT child_id, study_date, MIN(id) AS keep_id
+        FROM daily_study_log
+        GROUP BY child_id, study_date
+        HAVING COUNT(*) > 1
+        '''
+    ).fetchall()
+    for duplicate in duplicate_keys:
+        child_id = duplicate['child_id']
+        study_date = duplicate['study_date']
+        keep_id = duplicate['keep_id']
+        aggregate = conn.execute(
+            '''
+            SELECT
+                SUM(studied_count) AS studied_count,
+                SUM(correct_count) AS correct_count,
+                SUM(wrong_count) AS wrong_count,
+                SUM(study_minutes) AS study_minutes,
+                MIN(created_at) AS created_at,
+                MAX(updated_at) AS updated_at
+            FROM daily_study_log
+            WHERE child_id = ? AND study_date = ?
+            ''',
+            (child_id, study_date),
+        ).fetchone()
+        conn.execute(
+            '''
+            UPDATE daily_study_log
+            SET studied_count = ?,
+                correct_count = ?,
+                wrong_count = ?,
+                study_minutes = ?,
+                created_at = ?,
+                updated_at = ?
+            WHERE id = ?
+            ''',
+            (
+                aggregate['studied_count'] or 0,
+                aggregate['correct_count'] or 0,
+                aggregate['wrong_count'] or 0,
+                aggregate['study_minutes'] or 0,
+                aggregate['created_at'],
+                aggregate['updated_at'],
+                keep_id,
+            ),
+        )
+        conn.execute(
+            '''
+            DELETE FROM daily_study_log
+            WHERE child_id = ? AND study_date = ? AND id <> ?
+            ''',
+            (child_id, study_date, keep_id),
+        )
+    conn.execute(
+        '''
+        CREATE UNIQUE INDEX IF NOT EXISTS idx_daily_study_log_child_date
+        ON daily_study_log (child_id, study_date)
+        '''
+    )
 
 
 def migrate_vocabulary_word_columns(conn):

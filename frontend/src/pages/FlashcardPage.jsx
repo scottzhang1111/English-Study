@@ -14,7 +14,7 @@ import {
   SpiritGuide,
   WorldMiniBanner,
 } from '../components/eigo';
-import { addPetExp, getFlashcardData, getHomeData, getLearnedWords, getTodayReviewQuiz, markMastered } from '../api';
+import { addPetExp, getDailyWords, getFlashcardData, getHomeData, getLearnedWords, getTodayReviewQuiz, markMastered } from '../api';
 
 const DAILY_TARGET = 20;
 const CHILD_STORAGE_KEY = 'selected_child_id';
@@ -101,6 +101,7 @@ export default function FlashcardPage() {
   const navigate = useNavigate();
   const location = useLocation();
   const [searchParams] = useSearchParams();
+  const routePrefix = location.pathname.startsWith('/app/') ? '/app' : '';
 
   const selectedChildId = useMemo(() => localStorage.getItem(CHILD_STORAGE_KEY) || '', []);
   const requestedWord = searchParams.get('word') || '';
@@ -122,6 +123,8 @@ export default function FlashcardPage() {
     : `${progressValue} / ${DAILY_TARGET} words`;
   const currentReviewQuestion = reviewData?.questions?.[reviewIndex] || null;
   const reviewTotal = reviewData?.questions?.length || 0;
+  const safeRequestedWordIndex = Number.isFinite(requestedWordIndex) && requestedWordIndex >= 0 ? requestedWordIndex : 0;
+  const safeRequestedWordTotal = Number.isFinite(requestedWordTotal) && requestedWordTotal > 0 ? requestedWordTotal : 0;
   const clozeSentence = useMemo(
     () => buildCloze(flashcard?.example || '', flashcard?.word || ''),
     [flashcard?.example, flashcard?.word],
@@ -181,8 +184,26 @@ export default function FlashcardPage() {
     setStudyLoading(true);
     setStudyError(null);
     try {
-      const payload = await getFlashcardData({ word, childId: selectedChildId });
-      showStudyWord(payload, 0, [payload]);
+      const [payload, dailyPayload] = await Promise.all([
+        getFlashcardData({ word, childId: selectedChildId }),
+        requestedWord
+          ? getDailyWords({ childId: selectedChildId, limit: safeRequestedWordTotal || DAILY_TARGET }).catch(() => null)
+          : Promise.resolve(null),
+      ]);
+      const dailyWords = dailyPayload?.words || [];
+      const matchedIndex = dailyWords.findIndex((item) => (
+        String(item.word || '').toLowerCase() === String(payload.word || word).toLowerCase()
+        || String(item.id || '') === String(payload.id || '')
+      ));
+      const sequenceIndex = matchedIndex >= 0
+        ? matchedIndex
+        : Math.min(safeRequestedWordIndex, Math.max(0, dailyWords.length - 1));
+      const sequenceWords = dailyWords.length ? [...dailyWords] : [payload];
+      sequenceWords[sequenceIndex] = {
+        ...sequenceWords[sequenceIndex],
+        ...payload,
+      };
+      showStudyWord(payload, sequenceIndex, sequenceWords);
     } catch (err) {
       setStudyError(err.message);
     } finally {
@@ -254,6 +275,19 @@ export default function FlashcardPage() {
     }
   };
 
+  const showStudyComplete = () => {
+    setMode('complete');
+    setFlashcard(null);
+    setStep(1);
+    setRecallChoice('');
+    setFillAnswer('');
+    setFillFeedback('');
+    setFillCorrect(false);
+    setEarnedExp(0);
+    setStudyEmpty(false);
+    setStudyLoading(false);
+  };
+
   const handleNextStudy = async () => {
     if (!flashcard) return;
     try {
@@ -270,21 +304,22 @@ export default function FlashcardPage() {
         remain: result?.remain ?? Math.max(0, DAILY_TARGET - nextProgress),
       }));
 
-      if (requestedWord) {
-        navigate(nextProgress >= Number(result?.target ?? DAILY_TARGET) ? '/quiz' : '/daily-words');
+      const nextIndex = studyIndex + 1;
+      if (studyWords.length > 0 && nextIndex < studyWords.length) {
+        const nextWord = studyWords[nextIndex];
+        if (!nextWord?.word) {
+          showStudyComplete();
+          return;
+        }
+        if (requestedWord) {
+          const total = safeRequestedWordTotal || studyWords.length;
+          navigate(`${routePrefix}/flashcard?word=${encodeURIComponent(nextWord.word)}&index=${nextIndex}&total=${total}`);
+          return;
+        }
+        showStudyWord(nextWord, nextIndex, studyWords);
         return;
       }
-
-      const hasReviewSequence = !requestedWord && studyWords.length > 0;
-      if (hasReviewSequence && studyIndex < studyWords.length - 1) {
-        showStudyWord(studyWords[studyIndex + 1], studyIndex + 1, studyWords);
-      } else if (nextProgress >= Number(result?.target ?? DAILY_TARGET)) {
-        navigate('/quiz');
-      } else if (hasReviewSequence || requestedWord) {
-        navigate('/progress');
-      } else {
-        await loadLearnedStudyWords();
-      }
+      showStudyComplete();
     } catch (err) {
       setStudyError(err.message);
     }
@@ -334,6 +369,13 @@ export default function FlashcardPage() {
     : mode === 'review-complete' || progressValue >= DAILY_TARGET
       ? '100%'
       : progressPercent;
+  const questNavItems = [
+    { label: '\u30db\u30fc\u30e0', to: '/app', icon: 'home' },
+    { label: '\u5730\u56f3', to: '/study-map', icon: 'map' },
+    { label: '\u5b66\u7fd2', to: `${routePrefix}/daily-words`, icon: 'study', active: true },
+    { label: '\u30ab\u30fc\u30c9', to: `${routePrefix}/flashcard`, icon: 'cards' },
+    { label: '\u305d\u306e\u4ed6', to: '/settings', icon: 'more' },
+  ];
   const rightPanel = (
     <div className="rounded-3xl border border-white/80 bg-white/86 p-5 shadow-[0_16px_36px_rgba(129,164,199,0.14)] backdrop-blur">
       <p className="text-xs font-bold text-[#8fa0c2]">今日の単語</p>
@@ -348,15 +390,38 @@ export default function FlashcardPage() {
       </div>
       <div className="mt-5 grid gap-3">
         <button type="button" onClick={() => loadLearnedStudyWords()} className="pill-button px-4 py-3 text-sm">単語一覧</button>
-        <button type="button" onClick={() => navigate('/quiz')} className="ghost-button px-4 py-3 text-sm">クイズに進む</button>
+        <button type="button" onClick={() => navigate(`${routePrefix}/quiz`)} className="ghost-button px-4 py-3 text-sm">クイズに進む</button>
       </div>
     </div>
   );
   if (studyError) {
     return (
-      <WebLearningLayout title="単語カード" subtitle="覚えた単語を広く確認" rightPanel={rightPanel}>
-        <div className="panel px-5 py-5 text-sm text-rose-700">{studyError}</div>
-      </WebLearningLayout>
+      <>
+        <div className="quest-word-page-wrap lg:hidden">
+          <EQMobileShell className="eq-word-study-screen">
+            <QuestHeader
+              title="単語カード"
+              subtitle="通信を確認して、もう一度ためしてください"
+              backTo="/app"
+              className="quest-word-header"
+            />
+            <EQCard className="eq-word-card eq-word-empty-card">
+              <h1>読み込みに失敗しました</h1>
+              <p>{studyError}</p>
+              <button type="button" onClick={() => setStudyError(null)} className="eq-gold-button">
+                カードに戻る
+              </button>
+            </EQCard>
+            <QuestProgressStepper current="words" />
+          </EQMobileShell>
+          <EQBottomNav items={questNavItems} />
+        </div>
+        <div className="hidden lg:block">
+          <WebLearningLayout title="単語カード" subtitle="覚えた単語を広く確認" rightPanel={rightPanel}>
+            <div className="panel px-5 py-5 text-sm text-rose-700">{studyError}</div>
+          </WebLearningLayout>
+        </div>
+      </>
     );
   }
 
@@ -393,7 +458,7 @@ export default function FlashcardPage() {
 
   return (
     <>
-    {mode === 'study' && (
+    {(mode === 'study' || mode === 'complete') && (
       <div className="quest-word-page-wrap lg:hidden">
         <EQMobileShell className="eq-word-study-screen">
           <QuestHeader
@@ -414,7 +479,18 @@ export default function FlashcardPage() {
             className="quest-word-spirit"
           />
 
-          {studyEmpty ? (
+          {mode === 'complete' ? (
+            <EQCard className="eq-word-card eq-word-empty-card">
+              <h1>{'\u4eca\u65e5\u306e\u5358\u8a9e\u306f\u5b8c\u4e86\u3057\u307e\u3057\u305f'}</h1>
+              <p>{'\u3053\u306e\u307e\u307e\u5fa9\u7fd2\u3059\u308b\u304b\u3001\u5358\u8a9e\u30ea\u30b9\u30c8\u306b\u623b\u3063\u3066\u6b21\u306e\u5192\u967a\u3092\u9078\u3079\u307e\u3059\u3002'}</p>
+              <button type="button" onClick={() => navigate(`${routePrefix}/daily-words`)} className="eq-gold-button">
+                {'\u5358\u8a9e\u30ea\u30b9\u30c8\u3078'}
+              </button>
+              <button type="button" onClick={() => navigate(`${routePrefix}/quiz`)} className="eq-gold-button">
+                {'\u30af\u30a4\u30ba\u3078\u9032\u3080'}
+              </button>
+            </EQCard>
+          ) : studyEmpty ? (
             <EQCard className="eq-word-card eq-word-empty-card">
               <h1>学習できる単語がありません</h1>
               <p>今日の学習から単語を進めよう。</p>
@@ -479,18 +555,10 @@ export default function FlashcardPage() {
           )}
           <QuestProgressStepper current="words" />
         </EQMobileShell>
-        <EQBottomNav
-          items={[
-            { label: 'ホーム', to: '/app', icon: 'home' },
-            { label: '地図', to: '/study-map', icon: 'map' },
-            { label: '学習', to: '/daily-words', icon: 'study', active: true },
-            { label: 'カード', to: '/flashcard', icon: 'cards' },
-            { label: 'その他', to: '/settings', icon: 'more' },
-          ]}
-        />
+        <EQBottomNav items={questNavItems} />
       </div>
     )}
-    <div className={mode === 'study' ? 'hidden lg:block' : ''}>
+    <div className={mode === 'study' || mode === 'complete' ? 'hidden lg:block' : ''}>
     <WebLearningLayout title="単語カード" subtitle="単語リストとカード学習" rightPanel={rightPanel}>
 
       <motion.section
@@ -782,6 +850,31 @@ export default function FlashcardPage() {
                   </motion.div>
                 )}
               </AnimatePresence>
+            )}
+
+            {mode === 'complete' && (
+              <motion.div
+                key="study-complete"
+                initial={{ opacity: 0, y: 12 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -12 }}
+                className="rounded-[28px] bg-[#f8fbff] px-6 py-10 text-center text-[#6f7da8]"
+              >
+                <h2 className="display-font text-2xl font-extrabold text-[#354172]">
+                  {'\u4eca\u65e5\u306e\u5358\u8a9e\u306f\u5b8c\u4e86\u3057\u307e\u3057\u305f'}
+                </h2>
+                <p className="mt-3 text-sm font-bold leading-7">
+                  {'\u3053\u306e\u307e\u307e\u5fa9\u7fd2\u3059\u308b\u304b\u3001\u5358\u8a9e\u30ea\u30b9\u30c8\u306b\u623b\u3063\u3066\u6b21\u306e\u5192\u967a\u3092\u9078\u3079\u307e\u3059\u3002'}
+                </p>
+                <div className="mt-6 flex flex-wrap justify-center gap-3">
+                  <button type="button" onClick={() => navigate(`${routePrefix}/daily-words`)} className="ghost-button px-6 py-3">
+                    {'\u5358\u8a9e\u30ea\u30b9\u30c8\u3078'}
+                  </button>
+                  <button type="button" onClick={() => navigate(`${routePrefix}/quiz`)} className="pill-button px-6 py-3">
+                    {'\u30af\u30a4\u30ba\u3078\u9032\u3080'}
+                  </button>
+                </div>
+              </motion.div>
             )}
 
             {mode === 'review' && (

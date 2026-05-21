@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { addPetExp, getDailyWords, getHomeData, markMastered, submitPracticeAnswer } from '../api';
 import { useChildren } from '../ChildrenContext';
 import { getPartner } from '../utils/childStorage';
@@ -190,6 +190,8 @@ function buildQuizQuestions(words, choiceSource = words) {
 
 export default function DailyWordUnitPage() {
   const navigate = useNavigate();
+  const location = useLocation();
+  const routePrefix = location.pathname.startsWith('/app/') ? '/app' : '';
   const selectedChildId = useMemo(() => localStorage.getItem(CHILD_STORAGE_KEY) || '', []);
   const [child, setChild] = useState(null);
   const partner = child ? getPartner(child.partnerMonsterId || child.starter_pokemon_id) : null;
@@ -435,7 +437,7 @@ export default function DailyWordUnitPage() {
                   key={`${word.id}-${index}`}
                   type="button"
                   onClick={() => {
-                    navigate(`/flashcard?word=${encodeURIComponent(word.word)}&index=${index}&total=${targetCount}`);
+                    navigate(`${routePrefix}/flashcard?word=${encodeURIComponent(word.word)}&index=${index}&total=${targetCount}`);
                   }}
                   className="eq-daily-word-row"
                 >
@@ -464,7 +466,7 @@ export default function DailyWordUnitPage() {
 
             <GoldQuestButton
               onClick={() => {
-                if (todayWords[0]?.word) navigate(`/flashcard?word=${encodeURIComponent(todayWords[0].word)}&index=0&total=${targetCount}`);
+                if (todayWords[0]?.word) navigate(`${routePrefix}/flashcard?word=${encodeURIComponent(todayWords[0].word)}&index=0&total=${targetCount}`);
               }}
               disabled={!todayWords.length}
               className="eq-daily-start-button"

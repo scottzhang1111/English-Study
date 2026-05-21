@@ -59,7 +59,9 @@ const STUDY_ROUTE_PREFIXES = [
   '/daily-words',
   '/app/daily-words',
   '/flashcard',
+  '/app/flashcard',
   '/quiz',
+  '/app/quiz',
   '/vocab-expansion',
   '/grammar-practice',
   '/ai-practice',
@@ -100,7 +102,9 @@ function App() {
             <Route path="/daily-words" element={<AnimatedPage><ChildRequiredPage><DailyWordUnitPage /></ChildRequiredPage></AnimatedPage>} />
             <Route path="/app/daily-words" element={<AnimatedPage><ChildRequiredPage><DailyWordUnitPage /></ChildRequiredPage></AnimatedPage>} />
             <Route path="/flashcard" element={<AnimatedPage><ChildRequiredPage><FlashcardPage /></ChildRequiredPage></AnimatedPage>} />
+            <Route path="/app/flashcard" element={<AnimatedPage><ChildRequiredPage><FlashcardPage /></ChildRequiredPage></AnimatedPage>} />
             <Route path="/quiz" element={<AnimatedPage><ChildRequiredPage><QuizPage /></ChildRequiredPage></AnimatedPage>} />
+            <Route path="/app/quiz" element={<AnimatedPage><ChildRequiredPage><QuizPage /></ChildRequiredPage></AnimatedPage>} />
             <Route path="/vocab-expansion" element={<AnimatedPage><ChildRequiredPage><VocabExpansionPage /></ChildRequiredPage></AnimatedPage>} />
             <Route path="/grammar" element={<AnimatedPage><ChildRequiredPage><GrammarPage /></ChildRequiredPage></AnimatedPage>} />
             <Route path="/grammar-practice" element={<AnimatedPage><ChildRequiredPage><GrammarFormPracticePage /></ChildRequiredPage></AnimatedPage>} />
