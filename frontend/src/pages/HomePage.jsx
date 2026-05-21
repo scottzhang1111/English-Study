@@ -564,6 +564,9 @@ export default function HomePage() {
                 <path d="M19 13.4v-2.8l-2.1-.7a5.8 5.8 0 0 0-.6-1.3l1-2-2.1-1.4-1.7 1.4a6.4 6.4 0 0 0-1.5-.1l-1.7-1.3-2.1 1.4 1 2a5.8 5.8 0 0 0-.6 1.3l-2.1.7v2.8l2.1.7c.2.5.4.9.6 1.3l-1 2 2.1 1.4 1.7-1.3c.5.1 1 .1 1.5.1l1.7 1.3 2.1-1.4-1-2c.3-.4.5-.8.6-1.3l2.1-.8Z" />
               </svg>
             </Link>
+            <button type="button" aria-label="ヘルプ">
+              <span aria-hidden="true">?</span>
+            </button>
           </div>
           <div className="eq-home-mini-stats">
             <span>連続日数 {streakDays}日</span>
@@ -762,9 +765,18 @@ export default function HomePage() {
           worldName="風の国"
           mood="idle"
           messages={[
-            '今日は単語を5つ覚えよう！\nできたらクイズに進もう！',
+            '風の国へようこそ！\n今日は単語を5つ覚えよう！\nできたらクイズに進もう！',
           ]}
         />
+
+        <button type="button" onClick={() => navigate('/daily-words')} className="eq-home-quest-card">
+          <span className="eq-home-quest-icon" aria-hidden="true">風</span>
+          <span>
+            <strong>風の国</strong>
+            <small>今日は単語を5つ覚えよう！<br />できたらクイズに進もう！</small>
+          </span>
+          <em aria-hidden="true">›</em>
+        </button>
 
         <button
           type="button"
