@@ -36,6 +36,7 @@ export default function QuizPage() {
   const [error, setError] = useState(null);
   const [answer, setAnswer] = useState(null);
   const [result, setResult] = useState(null);
+  const [submittingAnswer, setSubmittingAnswer] = useState(false);
   const [answers, setAnswers] = useState([]);
   const [usedWordIds, setUsedWordIds] = useState([]);
   const [emptyMessage, setEmptyMessage] = useState('');
@@ -46,7 +47,7 @@ export default function QuizPage() {
   const errorCount = currentQuiz?.error_count ?? 0;
   const isInitialLoading = loading && !currentQuiz;
   const isBatchComplete = questions.length > 0 && currentIndex >= questions.length;
-  const hasNoReviewWords = (!loading && questions.length === 0) || (currentQuiz && currentQuiz.choices.length === 0);
+  const hasNoReviewWords = (!loading && questions.length === 0) || (currentQuiz && (currentQuiz.choices || []).length === 0);
   const pageText = questions.length ? `${Math.min(currentIndex + 1, questions.length)} / ${questions.length}` : '- / -';
   const correctCount = answers.filter((item) => item.correct).length;
   const wrongAnswers = answers.filter((item) => !item.correct);
@@ -98,6 +99,7 @@ export default function QuizPage() {
       setAnswer(null);
       setAnswers([]);
       setResult(null);
+      setSubmittingAnswer(false);
       if (!retryWrong) {
         setUsedWordIds((prev) => [...prev, ...selectedWords.map((word) => String(word.id || word.word))]);
       }
@@ -116,6 +118,7 @@ export default function QuizPage() {
     const saved = answers.find((item) => item.index === currentIndex);
     setAnswer(saved?.selected || null);
     setResult(null);
+    setSubmittingAnswer(false);
   }, [currentIndex]);
 
   const openCard = () => {
@@ -124,8 +127,9 @@ export default function QuizPage() {
   };
 
   const handleSelection = async (choice) => {
-    if (!currentQuiz || answer || !currentQuiz.correct) return;
+    if (!currentQuiz || answer || submittingAnswer || !currentQuiz.correct) return;
     setAnswer(choice);
+    setSubmittingAnswer(true);
     const childId = localStorage.getItem('selected_child_id') || '';
     try {
       const payload = await submitPracticeAnswer({
@@ -147,6 +151,8 @@ export default function QuizPage() {
       ]);
     } catch (err) {
       setError(err.message);
+    } finally {
+      setSubmittingAnswer(false);
     }
   };
 
@@ -277,7 +283,7 @@ export default function QuizPage() {
                       wrong={Boolean(isWrong)}
                       selected={answer === choice && !isWrong && !isCorrect}
                       onClick={() => handleSelection(choice)}
-                      disabled={!!answer}
+                      disabled={!!answer || submittingAnswer}
                       className="quest-quiz-choice"
                     >
                       {choice}
@@ -296,10 +302,10 @@ export default function QuizPage() {
 
               <GoldQuestButton
                 onClick={answer ? handleNext : undefined}
-                disabled={!answer}
+                disabled={!answer || submittingAnswer || !result}
                 className="quest-quiz-submit"
               >
-                {answer ? (currentIndex >= questions.length - 1 ? '結果を見る' : 'つぎへ') : 'こたえる'}
+                {submittingAnswer ? '判定中...' : answer ? (currentIndex >= questions.length - 1 ? '結果を見る' : 'つぎへ') : 'こたえる'}
               </GoldQuestButton>
             </MagicPanel>
           </>
@@ -389,7 +395,7 @@ export default function QuizPage() {
                       key={choice}
                       type="button"
                       onClick={() => handleSelection(choice)}
-                      disabled={!!answer}
+                      disabled={!!answer || submittingAnswer}
                       className={`rounded-[24px] border px-5 py-4 text-left text-lg font-bold transition ${
                         isCorrect
                           ? 'border-[#ffcf48] bg-[#fff4bf] text-[#5e4e76]'
@@ -444,10 +450,10 @@ export default function QuizPage() {
             <button
               type="button"
               onClick={handleNext}
-              disabled={loading || !currentQuiz?.correct || !answer}
+              disabled={loading || submittingAnswer || !currentQuiz?.correct || !answer || !result}
               className="pill-button px-5 py-3 disabled:opacity-40"
             >
-              {loading ? '読み込み中...' : currentIndex >= questions.length - 1 ? '結果を見る' : '次の問題'}
+              {loading || submittingAnswer ? '読み込み中...' : currentIndex >= questions.length - 1 ? '結果を見る' : '次の問題'}
             </button>
           </div>
         </motion.section>

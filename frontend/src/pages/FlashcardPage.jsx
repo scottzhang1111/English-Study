@@ -268,6 +268,11 @@ export default function FlashcardPage() {
         remain: result?.remain ?? Math.max(0, DAILY_TARGET - nextProgress),
       }));
 
+      if (requestedWord) {
+        navigate(nextProgress >= Number(result?.target ?? DAILY_TARGET) ? '/quiz' : '/daily-words');
+        return;
+      }
+
       const hasReviewSequence = !requestedWord && studyWords.length > 0;
       if (hasReviewSequence && studyIndex < studyWords.length - 1) {
         showStudyWord(studyWords[studyIndex + 1], studyIndex + 1, studyWords);
@@ -420,14 +425,6 @@ export default function FlashcardPage() {
               >
                 <div className="eq-word-card-head">
                   <span className="eq-word-pos-badge">{mobilePartOfSpeech}</span>
-                  <AudioButton
-                    type="button"
-                    onClick={() => playAudio(flashcard.word, audioRef)}
-                    className="eq-word-speaker-action quest-word-top-audio"
-                    aria-label="発音を聞く"
-                  >
-                    音
-                  </AudioButton>
                 </div>
 
                 <h1 className="eq-word-title">{flashcard.word}</h1>
