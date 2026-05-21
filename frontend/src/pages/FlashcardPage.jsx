@@ -104,6 +104,8 @@ export default function FlashcardPage() {
 
   const selectedChildId = useMemo(() => localStorage.getItem(CHILD_STORAGE_KEY) || '', []);
   const requestedWord = searchParams.get('word') || '';
+  const requestedWordIndex = Number(searchParams.get('index'));
+  const requestedWordTotal = Number(searchParams.get('total'));
   const shouldLoadReviewQuiz = location.pathname.includes('today-review-quiz');
   const progressValue = Math.min(DAILY_TARGET, Number(homeData?.progress || 0));
   const progressPercent = `${(progressValue / DAILY_TARGET) * 100}%`;
@@ -372,6 +374,16 @@ export default function FlashcardPage() {
   const mobileStudyProgress = studyWords.length
     ? `${Math.min(100, ((studyIndex + 1) / studyWords.length) * 100)}%`
     : progressWidth;
+  const mobileTotalWords = studyWords.length > 1
+    ? studyWords.length
+    : Number.isFinite(requestedWordTotal) && requestedWordTotal > 0
+      ? requestedWordTotal
+      : Number(homeData?.target || DAILY_TARGET);
+  const mobileCurrentNumber = studyWords.length > 1
+    ? studyIndex + 1
+    : Number.isFinite(requestedWordIndex) && requestedWordIndex >= 0
+      ? requestedWordIndex + 1
+      : 1;
   const mobilePartOfSpeech = flashcard?.part_of_speech || flashcard?.pos || flashcard?.speech || 'word';
   const mobileExampleTranslation = flashcard?.sentence_jp || flashcard?.example_jp || '日本語訳を読み込み中...';
   const mobileMeaning = flashcard?.jp || flashcard?.meaningJa || flashcard?.japanese || '意味を読み込み中...';
@@ -393,8 +405,8 @@ export default function FlashcardPage() {
 
           <WorldMiniBanner
             day={dayLabel}
-            learned={studyWords.length ? studyIndex + 1 : Math.min(progressValue, DAILY_TARGET)}
-            total={studyWords.length || DAILY_TARGET}
+            learned={mobileCurrentNumber}
+            total={mobileTotalWords}
           />
           <SpiritGuide
             worldName="風の精霊"
@@ -423,11 +435,10 @@ export default function FlashcardPage() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.32, ease: 'easeOut' }}
               >
-                <div className="eq-word-card-head">
-                  <span className="eq-word-pos-badge">{mobilePartOfSpeech}</span>
-                </div>
-
                 <h1 className="eq-word-title">{flashcard.word}</h1>
+                <div className="eq-word-card-head">
+                  <span className="eq-word-pos-badge">word / {mobilePartOfSpeech}</span>
+                </div>
 
                 <div className="eq-word-meaning-block">
                   <p className="eq-word-label">意味</p>
@@ -442,6 +453,9 @@ export default function FlashcardPage() {
                 <div className="eq-word-example-block">
                   <p className="eq-word-label">例文</p>
                   <p className="eq-word-example-en">{flashcard.example || '-'}</p>
+                </div>
+                <div className="eq-word-translation-block">
+                  <p className="eq-word-label">日本語訳</p>
                   <p className="eq-word-example-ja">{mobileExampleTranslation}</p>
                 </div>
                 <div className="quest-word-audio-row">

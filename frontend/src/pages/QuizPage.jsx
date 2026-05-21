@@ -14,6 +14,7 @@ import {
   QuestHeader,
   QuestProgressStepper,
   SpiritGuide,
+  WorldMiniBanner,
 } from '../components/eigo';
 import { getLearnedWords, getQuizData, submitPracticeAnswer } from '../api';
 
@@ -51,6 +52,8 @@ export default function QuizPage() {
   const pageText = questions.length ? `${Math.min(currentIndex + 1, questions.length)} / ${questions.length}` : '- / -';
   const correctCount = answers.filter((item) => item.correct).length;
   const wrongAnswers = answers.filter((item) => !item.correct);
+  const passScore = questions.length ? Math.ceil(questions.length * 0.9) : 0;
+  const quizPassed = questions.length > 0 && correctCount >= passScore;
   const rightPanel = (
     <div className="rounded-3xl border border-white/80 bg-white/86 p-5 shadow-[0_16px_36px_rgba(129,164,199,0.14)] backdrop-blur">
       <p className="text-xs font-bold text-[#8fa0c2]">三択練習</p>
@@ -214,28 +217,49 @@ export default function QuizPage() {
             <p>復習できる単語を集めています。</p>
           </EQCard>
         ) : isBatchComplete ? (
-          <EQCard className="eq-quiz-state-card">
-            <span className="eq-quiz-type-badge">結果</span>
-            <h1>{correctCount} / {questions.length} 正解</h1>
-            <p>{wrongAnswers.length > 0 ? 'まちがえた問題をもう一度練習できます。' : '全問正解です。よくできました！'}</p>
-            <div className="eq-quiz-result-actions">
-              {wrongAnswers.length === 0 && (
-                <button type="button" onClick={() => navigate('/grammar')} className="eq-gold-button">
-                  文法学習へ
+          <section className="quest-quiz-result-view">
+            <WorldMiniBanner day="Day 1" learned={questions.length} total={questions.length || 1} />
+            <SpiritGuide
+              worldName="風の精霊"
+              messages={[quizPassed ? 'よくできたね！つぎは文法に進もう！' : 'あと少し！もう一度ためしてみよう！']}
+              className="quest-quiz-result-spirit"
+            />
+            <MagicPanel className={`quest-quiz-result-card ${quizPassed ? 'is-pass' : 'is-retry'}`.trim()}>
+              <span className="quest-quiz-result-badge">小テスト結果</span>
+              <h1>{quizPassed ? '合格！' : 'もう一度！'}</h1>
+              <div className="quest-quiz-result-score">
+                <strong>{correctCount}</strong>
+                <span>/ {questions.length} 正解</span>
+              </div>
+              <p>
+                {quizPassed
+                  ? '単語の意味をよく覚えられたね。'
+                  : `合格には ${passScore} 問以上の正解が必要です。`}
+              </p>
+              {wrongAnswers.length > 0 ? (
+                <div className="quest-quiz-result-miss">
+                  <span>まちがえた単語：<b>{wrongAnswers.length}</b>語</span>
+                  <button type="button" onClick={() => fetchQuizBatch({ retryWrong: true })}>
+                    復習する
+                  </button>
+                </div>
+              ) : null}
+              <div className="quest-quiz-result-actions">
+                {quizPassed ? (
+                  <GoldQuestButton onClick={() => navigate('/grammar')} className="quest-quiz-result-main">
+                    文法学習へ
+                  </GoldQuestButton>
+                ) : (
+                  <GoldQuestButton onClick={() => fetchQuizBatch({ retryWrong: wrongAnswers.length > 0 })} className="quest-quiz-result-main">
+                    もう一度テスト
+                  </GoldQuestButton>
+                )}
+                <button type="button" onClick={() => navigate('/daily-words')} className="quest-quiz-result-secondary">
+                  単語学習にもどる
                 </button>
-              )}
-              {wrongAnswers.length > 0 && (
-                <button type="button" onClick={() => fetchQuizBatch({ retryWrong: true })} className="eq-purple-button">
-                  まちがい練習
-                </button>
-              )}
-              {wrongAnswers.length > 0 && (
-              <button type="button" onClick={() => fetchQuizBatch()} className="eq-gold-button">
-                次の10問
-              </button>
-              )}
-            </div>
-          </EQCard>
+              </div>
+            </MagicPanel>
+          </section>
         ) : hasNoReviewWords ? (
           <EQCard className="eq-quiz-state-card">
             <h1>クイズできる単語がありません</h1>
