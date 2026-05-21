@@ -380,8 +380,8 @@ export default function FlashcardPage() {
       <div className="quest-word-page-wrap lg:hidden">
         <EQMobileShell className="eq-word-study-screen">
           <QuestHeader
-            title="単語学習"
-            subtitle="風の国のことばを集めよう"
+            title="単語詳細"
+            subtitle="ことばを深く覚えよう"
             backTo="/app"
             className="quest-word-header"
           />
@@ -393,7 +393,7 @@ export default function FlashcardPage() {
           />
           <SpiritGuide
             worldName="風の精霊"
-            messages={['まずは単語をおぼえよう！', '音を聞いて、声に出してみよう！']}
+            messages={['いいね！意味と例文を見てみよう！']}
             className="quest-word-spirit"
           />
 
@@ -461,7 +461,7 @@ export default function FlashcardPage() {
 
               <div className="eq-word-actions">
                 <GoldQuestButton onClick={handleNextStudy} className="quest-word-next-button">
-                  次へ
+                  つぎへ
                 </GoldQuestButton>
               </div>
             </>

@@ -3212,13 +3212,14 @@ body,
 
 .eq-word-study-screen {
   display: flex;
+  min-height: 100dvh;
   flex-direction: column;
-  gap: 14px;
-  padding-bottom: calc(22px + env(safe-area-inset-bottom, 0px));
+  gap: 10px;
+  padding-bottom: calc(var(--eq-bottom-nav-height) + 28px + env(safe-area-inset-bottom, 0px));
 }
 
 .quest-word-page-wrap > .eq-bottom-nav {
-  display: none;
+  display: flex;
 }
 
 .quest-word-header {
@@ -3226,7 +3227,7 @@ body,
 }
 
 .quest-word-header .quest-header-copy h1 {
-  font-size: clamp(38px, 11vw, 50px);
+  font-size: clamp(28px, 8.5vw, 40px);
 }
 
 .quest-word-header .quest-header-copy h1::after {
@@ -3237,11 +3238,12 @@ body,
 }
 
 .quest-word-spirit {
-  min-height: 92px;
+  min-height: 96px;
+  margin-top: -2px;
 }
 
 .quest-word-spirit .spirit-assistant--quest {
-  --spirit-size: clamp(84px, 24vw, 112px);
+  --spirit-size: clamp(92px, 26vw, 122px);
 }
 
 .eq-word-study-top {
@@ -3272,13 +3274,20 @@ body,
   display: flex;
   min-height: auto;
   flex-direction: column;
-  gap: 14px;
+  gap: 11px;
   padding: 20px;
 }
 
 .quest-word-panel {
-  padding: 26px 22px 22px;
-  border-radius: 32px;
+  padding: 20px 14px 14px;
+  border-radius: 24px;
+  border-color: rgba(255, 211, 90, 0.76);
+  background:
+    radial-gradient(circle at 18% 0%, rgba(74, 172, 255, 0.22), transparent 34%),
+    linear-gradient(180deg, rgba(7, 24, 66, 0.94), rgba(3, 8, 28, 0.97));
+  box-shadow:
+    inset 0 0 26px rgba(86, 178, 255, 0.08),
+    0 0 28px rgba(255, 211, 90, 0.18);
 }
 
 .quest-word-panel::after {
@@ -3317,7 +3326,7 @@ body,
 .eq-word-card-head {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: center;
   gap: 12px;
   order: 2;
 }
@@ -3325,7 +3334,7 @@ body,
 .eq-word-pos-badge {
   max-width: 70%;
   overflow: hidden;
-  padding: 8px 12px;
+  padding: 6px 18px;
   border: 1px solid rgba(255, 211, 90, 0.34);
   border-radius: var(--eq-radius-pill);
   background: rgba(255, 211, 90, 0.12);
@@ -3358,7 +3367,8 @@ body,
   margin: 0;
   overflow-wrap: anywhere;
   color: var(--eq-text);
-  font-size: clamp(52px, 15vw, 78px);
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: clamp(44px, 13vw, 66px);
   font-weight: 950;
   letter-spacing: 0;
   line-height: 1.05;
@@ -3378,61 +3388,89 @@ body,
 .eq-word-phrase-block,
 .eq-word-example-block {
   display: grid;
-  gap: 8px;
+  grid-template-columns: minmax(82px, auto) minmax(0, 1fr);
+  gap: 9px;
+  align-items: start;
+  min-width: 0;
+  padding: 9px 10px;
+  border: 1px solid rgba(86, 178, 255, 0.26);
+  border-radius: 14px;
+  background: rgba(3, 16, 48, 0.48);
+}
+
+.eq-word-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  margin: 0;
+  width: auto;
   min-width: 0;
   padding: 0;
   border: 0;
   border-radius: 0;
   background: transparent;
+  color: #ffdc72;
+  font-size: 12px;
+  font-weight: 900;
+  line-height: 1.25;
+  text-align: left;
+  white-space: nowrap;
 }
 
-.eq-word-label {
-  margin: 0;
-  width: fit-content;
-  min-width: 84px;
-  padding: 7px 12px;
-  border: 1px solid rgba(89, 184, 255, 0.54);
-  border-radius: 10px;
-  background: rgba(11, 43, 96, 0.46);
-  color: #8fd6ff;
-  font-size: 14px;
-  font-weight: 900;
-  line-height: 1;
-  text-align: center;
+.eq-word-label::before {
+  display: grid;
+  width: 22px;
+  height: 22px;
+  place-items: center;
+  border: 1px solid rgba(255, 211, 90, 0.48);
+  border-radius: 7px;
+  background: rgba(255, 211, 90, 0.12);
+  color: #ffe58e;
+  font-size: 12px;
+  content: "✦";
+}
+
+.eq-word-meaning-block .eq-word-label::before {
+  content: "★";
+}
+
+.eq-word-phrase-block .eq-word-label::before {
+  content: "☘";
+}
+
+.eq-word-example-block .eq-word-label::before {
+  content: "💬";
 }
 
 .eq-word-meaning {
   margin: 0;
   overflow-wrap: anywhere;
   color: var(--eq-text);
-  font-size: clamp(22px, 6vw, 30px);
-  font-weight: 900;
+  font-size: clamp(13px, 3.7vw, 17px);
+  font-weight: 850;
   line-height: 1.35;
 }
 
 .eq-word-phrase {
   margin: 0;
   color: #ffdc72;
-  font-size: clamp(18px, 5vw, 24px);
+  font-size: clamp(13px, 3.8vw, 17px);
   font-weight: 950;
   line-height: 1.3;
 }
 
 .eq-word-meaning-block,
 .eq-word-phrase-block {
-  grid-template-columns: auto minmax(0, 1fr);
-  align-items: center;
   column-gap: 14px;
 }
 
 .eq-word-example-block {
   margin-top: 2px;
-  padding-top: 14px;
-  border-top: 1px solid rgba(255, 212, 101, 0.42);
 }
 
 .eq-word-example-en,
 .eq-word-example-ja {
+  grid-column: 2;
   margin: 0;
   overflow-wrap: anywhere;
   line-height: 1.55;
@@ -3440,13 +3478,13 @@ body,
 
 .eq-word-example-en {
   color: var(--eq-text);
-  font-size: clamp(17px, 4.7vw, 24px);
+  font-size: clamp(13px, 3.7vw, 17px);
   font-weight: 800;
 }
 
 .eq-word-example-ja {
   color: var(--eq-text-sub);
-  font-size: clamp(13px, 3.6vw, 17px);
+  font-size: clamp(12px, 3.3vw, 15px);
   font-weight: 850;
 }
 
@@ -3467,7 +3505,7 @@ body,
   bottom: auto;
   display: flex;
   justify-content: center;
-  margin-top: 0;
+  margin-top: -2px;
   z-index: 2;
 }
 
@@ -3475,7 +3513,7 @@ body,
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 12px;
-  margin-top: 4px;
+  margin-top: 2px;
 }
 
 .quest-word-audio-row .audio-quest-button {
@@ -3494,13 +3532,13 @@ body,
 }
 
 .quest-word-next-button {
-  width: min(78%, 300px);
-  min-height: 62px;
-  font-size: clamp(24px, 7vw, 34px);
+  width: min(82%, 320px);
+  min-height: 56px;
+  font-size: clamp(22px, 6.5vw, 30px);
 }
 
 .eq-word-study-screen > .quest-progress-stepper {
-  margin-top: 2px;
+  display: none;
 }
 
 .eq-word-unknown-button,
