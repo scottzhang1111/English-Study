@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
 import { Link, Navigate, NavLink, useNavigate } from 'react-router-dom';
 import HeaderBar from '../components/HeaderBar';
-import { EQBottomNav, EQBrandHeader, EQCard, EQMobileShell, FantasyMenuTile } from '../components/eigo';
+import { EQBottomNav, EQBrandHeader, EQCard, EQMobileShell } from '../components/eigo';
 import SpiritAssistant from '../components/eigo-quest/SpiritAssistant';
 import { getGrammarLessons, getHomeData } from '../api';
 import { useChildren } from '../ChildrenContext';
@@ -646,9 +646,6 @@ export default function HomePage() {
                 </div>
                 <div className="eq-progress-bar" style={{ '--eq-progress': currentWorldProgressPercent }} />
               </div>
-              <button type="button" className="eq-home-stage-detail" onClick={() => navigate('/study-map')}>
-                ステージ詳細 <span aria-hidden="true">›</span>
-              </button>
             </div>
 
             <div className="eq-home-glass-panel eq-home-mission-panel">
@@ -744,36 +741,28 @@ export default function HomePage() {
         <button
           type="button"
           onClick={() => navigate('/world-stage')}
-          className="eq-gold-button eq-home-primary-cta eq-home-main-cta"
+          className="eq-gold-button eq-home-primary-cta eq-home-main-cta eq-home-main-cta--legacy"
           style={{ '--eq-gold-button-image': `url(${eigoQuestAssets.ui.goldButton})` }}
         >
           冒険をつづける
         </button>
 
-        <section className="eq-home-compact-menu" aria-label="学習メニュー">
-          {homeQuickActions.map((item) => (
-            <Link key={item.to} to={item.to} className="eq-home-mode-card">
-              <FantasyMenuTile
-                title={item.title}
-                subtitle={item.subtitle}
-                icon={item.icon || item.fallback}
-                theme={item.theme}
-              />
-            </Link>
-          ))}
-        </section>
-
-        {/* MVP experiment: adjust size/placement in SpiritAssistant.css and copy via these messages. */}
         <SpiritAssistant
           worldName="風の国"
-          mood="normal"
+          mood="idle"
           messages={[
-            'ここは「風の国」だよ。',
-            '風に乗って、新しい言葉を集めよう！',
-            '次はクイズに挑戦してみよう！',
-            'きっとできるよ、がんばって！',
+            '今日は単語を5つ覚えよう！できたらクイズに進もう！',
           ]}
         />
+
+        <button
+          type="button"
+          onClick={() => navigate('/world-stage')}
+          className="eq-gold-button eq-home-primary-cta eq-home-main-cta eq-home-main-cta--final"
+          style={{ '--eq-gold-button-image': `url(${eigoQuestAssets.ui.goldButton})` }}
+        >
+          冒険をつづける
+        </button>
 
         <section className="eq-home-daily-grid">
           <div className="eq-home-glass-panel eq-home-mission-panel">

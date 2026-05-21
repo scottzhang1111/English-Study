@@ -194,7 +194,7 @@ body,
   width: 100%;
   max-width: var(--eq-mobile-max);
   margin: 0 auto;
-  padding: 14px 16px calc(var(--eq-bottom-nav-height) + 30px + env(safe-area-inset-bottom, 0px));
+  padding: 10px 14px calc(var(--eq-bottom-nav-height) + 18px + env(safe-area-inset-bottom, 0px));
   color: var(--eq-text);
   background: var(--eq-fantasy-bg);
   overflow-x: hidden;
@@ -396,7 +396,7 @@ body,
 .eq-home-menu {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 8px;
 }
 
 .eq-home-mobile-root > .eq-bottom-nav:not(.eq-home-bottom-nav) {
@@ -413,7 +413,7 @@ body,
 
 .eq-home-menu {
   min-height: 100dvh;
-  padding-bottom: calc(var(--eq-bottom-nav-height, 66px) + env(safe-area-inset-bottom, 0px) + 40px);
+  padding-bottom: calc(var(--eq-bottom-nav-height, 66px) + env(safe-area-inset-bottom, 0px) + 14px);
   background: var(--eq-fantasy-bg);
 }
 
@@ -424,19 +424,19 @@ body,
 }
 
 .eq-home-brand {
-  min-height: 58px;
-  padding: 4px 94px 6px 0;
+  min-height: 52px;
+  padding: 2px 90px 4px 0;
 }
 
 .eq-home-brand .eq-brand-icon {
-  width: 48px;
-  height: 48px;
+  width: 44px;
+  height: 44px;
   border-radius: 14px;
 }
 
 .eq-home-brand .eq-brand-title {
   color: var(--eq-gold);
-  font-size: 27px;
+  font-size: 24px;
   font-weight: 950;
   letter-spacing: 0.04em;
   text-shadow: 0 0 18px rgba(255, 211, 90, 0.45);
@@ -509,8 +509,8 @@ body,
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 6px;
-  min-height: 62px;
-  padding: 7px 9px;
+  min-height: 56px;
+  padding: 6px 8px;
   border-color: rgba(53, 217, 255, 0.18);
   background:
     radial-gradient(circle at 8% 18%, rgba(53, 217, 255, 0.08), transparent 34%),
@@ -600,14 +600,27 @@ body,
   font-weight: 800;
 }
 
+.eq-home-greeting,
+.eq-home-compact-menu,
+.eq-home-daily-grid,
+.eq-home-reward-card-section,
+.eq-home-title-block,
+.eq-learning-grid,
+.eq-real-exam-card,
+.eq-home-menu > .eq-brand-header,
+.eq-home-menu > .eq-adventure-card:not(.eq-home-main-adventure),
+.eq-home-main-cta--legacy {
+  display: none;
+}
+
 .eq-home-main-adventure {
   position: relative;
   display: grid;
-  gap: 14px;
-  min-height: 270px;
+  gap: 10px;
+  min-height: 322px;
   align-content: end;
   overflow: hidden;
-  padding: 18px;
+  padding: 16px;
   border-color: rgba(67, 207, 255, 0.35);
   border-radius: 24px;
   box-shadow: 0 0 0 1px rgba(126, 87, 255, 0.25), 0 20px 60px rgba(0, 0, 0, 0.35);
@@ -643,8 +656,8 @@ body,
   position: absolute;
   inset: 0;
   background:
-    linear-gradient(90deg, rgba(5, 10, 35, 0.92) 0%, rgba(5, 10, 35, 0.62) 48%, rgba(5, 10, 35, 0.28) 100%),
-    linear-gradient(180deg, rgba(0, 0, 0, 0.05), rgba(0, 0, 0, 0.35));
+    linear-gradient(90deg, rgba(5, 8, 30, 0.78) 0%, rgba(5, 8, 30, 0.45) 52%, rgba(5, 8, 30, 0.15) 100%),
+    linear-gradient(180deg, rgba(0, 0, 0, 0.02), rgba(0, 0, 0, 0.18));
   content: "";
   pointer-events: none;
 }
@@ -676,7 +689,7 @@ body,
   position: relative;
   z-index: 2;
   display: grid;
-  min-height: 234px;
+  min-height: 286px;
   align-content: end;
   gap: 0;
 }
@@ -684,7 +697,7 @@ body,
 .eq-home-hero-copy {
   position: relative;
   display: grid;
-  gap: 9px;
+  gap: 7px;
   text-shadow: 0 2px 18px rgba(0, 0, 0, 0.78);
 }
 
@@ -718,7 +731,7 @@ body,
 .eq-home-hero-copy h2 {
   margin: 0;
   color: var(--eq-text);
-  font-size: 40px;
+  font-size: 38px;
   font-weight: 950;
   line-height: 1.02;
 }
@@ -743,8 +756,8 @@ body,
 .eq-home-hero-meta {
   display: grid;
   align-items: start;
-  gap: 4px;
-  margin-top: 9px;
+  gap: 3px;
+  margin-top: 5px;
 }
 
 .eq-home-hero-meta span,
@@ -761,7 +774,7 @@ body,
   border: 0;
   background: transparent;
   color: var(--eq-gold);
-  font-size: 25px;
+  font-size: 23px;
   line-height: 1.05;
   text-shadow: 0 0 16px rgba(255, 211, 90, 0.32), 0 2px 18px rgba(0, 0, 0, 0.82);
 }
@@ -776,11 +789,11 @@ body,
 
 .eq-home-hero-progress {
   display: grid;
-  gap: 8px;
+  gap: 7px;
   width: min(100%, 268px);
-  margin-top: 9px;
+  margin-top: 6px;
   padding-right: 8px;
-  padding-bottom: 44px;
+  padding-bottom: 0;
 }
 
 .eq-home-hero-progress .eq-adventure-progress-row {
@@ -1020,19 +1033,20 @@ body,
 
 .eq-home-main-cta {
   position: relative;
-  width: 90%;
-  aspect-ratio: 866 / 288;
+  width: 88%;
+  height: 62px;
+  aspect-ratio: auto;
   min-height: 0;
-  margin-top: 2px;
+  margin-top: 0;
   margin-right: auto;
   margin-left: auto;
   padding: 0;
   overflow: hidden;
   border: 0;
   border-radius: 0;
-  background: var(--eq-gold-button-image, none) center / contain no-repeat;
+  background: var(--eq-gold-button-image, none) center / 100% 100% no-repeat;
   color: #17100a;
-  font-size: 24px;
+  font-size: 21px;
   font-weight: 950;
   text-shadow: 0 1px 0 rgba(255, 244, 185, 0.55);
   box-shadow: none;

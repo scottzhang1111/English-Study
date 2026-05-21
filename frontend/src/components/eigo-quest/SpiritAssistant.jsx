@@ -11,6 +11,8 @@ const DEFAULT_MESSAGES = [
   'きっとできるよ、がんばって！',
 ];
 
+const MISTAKE_MESSAGE = 'だいじょうぶ。まちがい直しで強くなれるよ！';
+
 const asset = (name) => `${SPIRIT_ASSET_BASE}/${name}`;
 
 const SPIRIT_STATES = {
@@ -20,7 +22,6 @@ const SPIRIT_STATES = {
   happy: asset('happy.png'),
   smile: asset('happy.png'),
   sad: asset('sad.png'),
-  comfort: asset('sad.png'),
   dance: asset('dance.png'),
 };
 
@@ -28,11 +29,16 @@ function SpiritImage({ src, alt = '', className = '', onMissing }) {
   if (!src) return null;
 
   return (
-    <img
+    <motion.img
+      key={src}
       src={src}
       alt={alt}
       className={className}
       draggable="false"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.22, ease: 'easeOut' }}
       onError={() => onMissing?.(src)}
     />
   );
@@ -40,19 +46,36 @@ function SpiritImage({ src, alt = '', className = '', onMissing }) {
 
 export default function SpiritAssistant({
   worldName = '風の国',
-  mood = 'normal',
+  mood = 'idle',
   messages = DEFAULT_MESSAGES,
   position = 'home',
+  hasMistakes = false,
+  mistakeCount = 0,
   onClick,
 }) {
   const safeMessages = messages?.length ? messages : DEFAULT_MESSAGES;
+  const shouldShowMistakeState = hasMistakes || mistakeCount > 0 || mood === 'sad';
   const [failedAssets, setFailedAssets] = useState({});
   const [lineIndex, setLineIndex] = useState(0);
   const [reaction, setReaction] = useState(null);
+  const [bubbleTalk, setBubbleTalk] = useState(true);
   const [sparkleBurst, setSparkleBurst] = useState(0);
 
-  const activeMood = reaction || mood || 'idle';
-  const spiritSrc = SPIRIT_STATES[activeMood] || SPIRIT_STATES.idle;
+  const displayState = shouldShowMistakeState
+    ? 'sad'
+    : reaction || (bubbleTalk ? 'talk' : mood === 'normal' ? 'idle' : mood) || 'idle';
+  const spiritSrc = failedAssets[SPIRIT_STATES[displayState]]
+    ? SPIRIT_STATES.idle
+    : SPIRIT_STATES[displayState] || SPIRIT_STATES.idle;
+  const currentMessage = shouldShowMistakeState ? MISTAKE_MESSAGE : safeMessages[lineIndex];
+
+  useEffect(() => {
+    if (shouldShowMistakeState || reaction) return undefined;
+
+    setBubbleTalk(true);
+    const timer = window.setTimeout(() => setBubbleTalk(false), 1500);
+    return () => window.clearTimeout(timer);
+  }, [lineIndex, reaction, shouldShowMistakeState]);
 
   useEffect(() => {
     if (!reaction) return undefined;
@@ -69,6 +92,7 @@ export default function SpiritAssistant({
     const nextReaction = Math.random() > 0.5 ? 'happy' : 'dance';
     const nextLine = Math.floor(Math.random() * safeMessages.length);
 
+    setBubbleTalk(false);
     setReaction(nextReaction);
     setLineIndex(nextLine);
     setSparkleBurst((value) => value + 1);
@@ -94,7 +118,7 @@ export default function SpiritAssistant({
         transition={{ duration: 0.28 }}
       >
         <span>{worldName}</span>
-        <p>{safeMessages[lineIndex]}</p>
+        <p>{currentMessage}</p>
       </motion.div>
 
       <motion.button
@@ -112,15 +136,19 @@ export default function SpiritAssistant({
       >
         <motion.span
           className="spirit-assistant__float"
-          animate={{ y: [0, -8, 0], scale: [1, 1.025, 1] }}
+          animate={{ y: [0, -8, 0], scale: [1, 1.03, 1] }}
           transition={{ duration: 3.2, repeat: Infinity, ease: 'easeInOut' }}
         >
-          <SpiritImage
-            src={failedAssets[spiritSrc] ? SPIRIT_STATES.idle : spiritSrc}
-            alt="精霊アシスタント"
-            className="spirit-assistant__image spirit-assistant__image--full"
-            onMissing={handleMissing}
-          />
+          <span className="spirit-assistant__image-stack">
+            <AnimatePresence mode="wait" initial={false}>
+              <SpiritImage
+                src={spiritSrc}
+                alt="精霊アシスタント"
+                className="spirit-assistant__image spirit-assistant__image--full"
+                onMissing={handleMissing}
+              />
+            </AnimatePresence>
+          </span>
 
           <AnimatePresence>
             {reaction ? (
