@@ -12,6 +12,7 @@ import urllib.error
 import urllib.parse
 import urllib.request
 import uuid
+from werkzeug.exceptions import HTTPException
 
 try:
     import psycopg2
@@ -146,7 +147,26 @@ def get_cors_origins():
     return origins
 
 
-CORS(app, resources={r'/api/*': {'origins': get_cors_origins()}, r'/health': {'origins': get_cors_origins()}})
+CORS(app, resources={r'/api/*': {'origins': get_cors_origins()}, r'/debug/*': {'origins': get_cors_origins()}, r'/health': {'origins': get_cors_origins()}})
+
+
+@app.errorhandler(HTTPException)
+def handle_http_exception(error):
+    return jsonify(
+        error=error.name,
+        message=error.description,
+        status=error.code,
+    ), error.code
+
+
+@app.errorhandler(Exception)
+def handle_unexpected_exception(error):
+    app.logger.exception('Unhandled exception during %s %s', request.method, request.path)
+    return jsonify(
+        error='internal_server_error',
+        message='サーバーで問題が起きました。時間をおいてもう一度ためしてください。',
+        status=500,
+    ), 500
 
 
 def get_openai_api_key():
@@ -445,6 +465,13 @@ def resolve_vocab_entry(identifier, entries=None):
         if _clean_csv_value(entry.get('English')).lower() == target:
             return entry
     return None
+
+
+def ensure_vocab_entry_exists(identifier):
+    entry = resolve_vocab_entry(identifier, vocab_list)
+    if not entry:
+        abort(404, 'word not found')
+    return entry
 
 
 def filter_vocab_entries(entries, importance=None, frequency=None):
@@ -1536,9 +1563,12 @@ def init_db(force=False):
         conn.execute(
             '''
             CREATE TABLE IF NOT EXISTS error_log (
-                word_id TEXT PRIMARY KEY,
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                word_id INTEGER,
+                message TEXT,
                 error_date TEXT NOT NULL,
-                error_count INTEGER NOT NULL
+                error_count INTEGER NOT NULL DEFAULT 1,
+                created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
             )
             '''
         )
@@ -2089,6 +2119,7 @@ def init_db(force=False):
             END
             '''
         )
+        migrate_error_log_schema(conn)
         migrate_pokemon_catalog(conn)
         migrate_child_pokemon_collection(conn)
         migrate_children_profile_fields(conn)
@@ -2431,6 +2462,97 @@ def migrate_children_profile_fields(conn):
     conn.commit()
 
 
+def quote_identifier(identifier):
+    return '"' + str(identifier).replace('"', '""') + '"'
+
+
+def get_table_columns(conn, table_name):
+    return {
+        row['name']
+        for row in conn.execute(f'PRAGMA table_info({table_name})').fetchall()
+    }
+
+
+def migrate_error_log_schema(conn):
+    columns = get_table_columns(conn, 'error_log')
+    if use_postgres():
+        pk_column_rows = conn.execute(
+            '''
+            SELECT a.attname AS name
+            FROM pg_index i
+            JOIN pg_attribute a ON a.attrelid = i.indrelid AND a.attnum = ANY(i.indkey)
+            WHERE i.indrelid = 'error_log'::regclass AND i.indisprimary
+            ORDER BY a.attnum
+            '''
+        ).fetchall()
+        pk_columns = {row['name'] for row in pk_column_rows}
+        if 'id' not in columns:
+            conn.execute('ALTER TABLE error_log ADD COLUMN id INTEGER')
+            conn.execute('CREATE SEQUENCE IF NOT EXISTS error_log_id_seq')
+            conn.execute("ALTER SEQUENCE error_log_id_seq OWNED BY error_log.id")
+            conn.execute("UPDATE error_log SET id = nextval('error_log_id_seq') WHERE id IS NULL")
+            conn.execute("ALTER TABLE error_log ALTER COLUMN id SET DEFAULT nextval('error_log_id_seq')")
+            conn.execute('ALTER TABLE error_log ALTER COLUMN id SET NOT NULL')
+        elif 'id' not in pk_columns:
+            conn.execute('CREATE SEQUENCE IF NOT EXISTS error_log_id_seq')
+            conn.execute("ALTER SEQUENCE error_log_id_seq OWNED BY error_log.id")
+            conn.execute("UPDATE error_log SET id = nextval('error_log_id_seq') WHERE id IS NULL")
+            conn.execute("ALTER TABLE error_log ALTER COLUMN id SET DEFAULT nextval('error_log_id_seq')")
+            conn.execute("SELECT setval('error_log_id_seq', COALESCE((SELECT MAX(id) FROM error_log), 0) + 1, false)")
+        if 'message' not in columns:
+            conn.execute('ALTER TABLE error_log ADD COLUMN message TEXT')
+        if 'created_at' not in columns:
+            conn.execute('ALTER TABLE error_log ADD COLUMN created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP')
+            conn.execute('UPDATE error_log SET created_at = COALESCE(created_at, CURRENT_TIMESTAMP)')
+        if 'error_date' not in columns:
+            conn.execute('ALTER TABLE error_log ADD COLUMN error_date TEXT NOT NULL DEFAULT CURRENT_DATE')
+        if 'error_count' not in columns:
+            conn.execute('ALTER TABLE error_log ADD COLUMN error_count INTEGER NOT NULL DEFAULT 1')
+        pk_rows = []
+        if pk_columns != {'id'}:
+            pk_rows = conn.execute(
+                "SELECT conname FROM pg_constraint WHERE conrelid = 'error_log'::regclass AND contype = 'p'"
+            ).fetchall()
+            for row in pk_rows:
+                conn.execute(f'ALTER TABLE error_log DROP CONSTRAINT IF EXISTS {quote_identifier(row["conname"])}')
+        conn.execute(
+            "ALTER TABLE error_log ALTER COLUMN word_id TYPE INTEGER USING NULLIF(regexp_replace(word_id::text, '[^0-9]', '', 'g'), '')::integer"
+        )
+        if pk_columns != {'id'}:
+            conn.execute('ALTER TABLE error_log ADD PRIMARY KEY (id)')
+        return
+
+    needs_rebuild = 'id' not in columns or 'message' not in columns or 'created_at' not in columns
+    if not needs_rebuild:
+        return
+    conn.execute('DROP TABLE IF EXISTS error_log_new')
+    conn.execute(
+        '''
+        CREATE TABLE error_log_new (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            word_id INTEGER,
+            message TEXT,
+            error_date TEXT NOT NULL,
+            error_count INTEGER NOT NULL DEFAULT 1,
+            created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+        )
+        '''
+    )
+    select_message = 'message' if 'message' in columns else "''"
+    select_created_at = 'created_at' if 'created_at' in columns else 'CURRENT_TIMESTAMP'
+    select_error_date = 'error_date' if 'error_date' in columns else 'CURRENT_DATE'
+    select_error_count = 'error_count' if 'error_count' in columns else '1'
+    conn.execute(
+        f'''
+        INSERT INTO error_log_new (word_id, message, error_date, error_count, created_at)
+        SELECT word_id, {select_message}, {select_error_date}, {select_error_count}, {select_created_at}
+        FROM error_log
+        '''
+    )
+    conn.execute('DROP TABLE error_log')
+    conn.execute('ALTER TABLE error_log_new RENAME TO error_log')
+
+
 def migrate_child_pets(conn):
     columns = {
         row[1]
@@ -2768,23 +2890,14 @@ def log_error(word_id):
     if not word_id:
         return
     today = get_today()
+    raw_word_id = str(word_id).strip()
+    normalized_word_id = int(raw_word_id) if raw_word_id.isdigit() else None
     conn = get_db_connection()
     try:
-        existing = conn.execute(
-            'SELECT error_count FROM error_log WHERE word_id = ?',
-            (word_id,)
-        ).fetchone()
-
-        if existing:
-            conn.execute(
-                'UPDATE error_log SET error_count = error_count + 1, error_date = ? WHERE word_id = ?',
-                (today, word_id)
-            )
-        else:
-            conn.execute(
-                'INSERT INTO error_log (word_id, error_date, error_count) VALUES (?, ?, ?)',
-                (word_id, today, 1)
-            )
+        conn.execute(
+            'INSERT INTO error_log (word_id, message, error_date, error_count, created_at) VALUES (?, ?, ?, ?, CURRENT_TIMESTAMP)',
+            (normalized_word_id, f'wrong answer for word_id={raw_word_id}', today, 1),
+        )
         conn.commit()
     finally:
         conn.close()
@@ -2857,7 +2970,14 @@ def get_review_list(child_id=None):
     conn = get_db_connection()
     try:
         rows = conn.execute(
-            'SELECT word_id, error_date, error_count FROM error_log WHERE error_count > 2 ORDER BY error_count DESC, error_date DESC'
+            '''
+            SELECT word_id, MAX(error_date) AS error_date, SUM(error_count) AS error_count
+            FROM error_log
+            WHERE word_id IS NOT NULL
+            GROUP BY word_id
+            HAVING SUM(error_count) > 2
+            ORDER BY error_count DESC, error_date DESC
+            '''
         ).fetchall()
     finally:
         conn.close()
@@ -2866,7 +2986,7 @@ def get_review_list(child_id=None):
     english_map = {v['English'].strip().lower(): v for v in vocab_list if v.get('English')}
     review_items = []
     for row in rows:
-        word_id = row['word_id']
+        word_id = str(row['word_id'])
         vocab = vocab_map.get(word_id.strip().lower()) or english_map.get(word_id.strip().lower())
         sentence_jp = get_context_sentence(vocab['English'] if vocab else word_id) if vocab else ''
         review_items.append({
@@ -3457,29 +3577,19 @@ def migrate_error_log_ids():
 
     conn = get_db_connection()
     try:
-        rows = conn.execute('SELECT word_id, error_date, error_count FROM error_log').fetchall()
+        rows = conn.execute('SELECT id, word_id FROM error_log').fetchall()
         if not rows:
             return
 
-        merged_rows = {}
         for row in rows:
-            old_key = row['word_id']
-            normalized = old_key.strip().lower()
-            vocab = vocab_by_id.get(old_key.strip()) or vocab_by_english.get(normalized)
-            key = vocab.get('ID', '').strip() if vocab and vocab.get('ID', '').strip() else old_key
-            current = merged_rows.get(key)
-            if current:
-                current['error_count'] += row['error_count']
-                current['error_date'] = max(current['error_date'], row['error_date'])
-            else:
-                merged_rows[key] = {'error_date': row['error_date'], 'error_count': row['error_count']}
-
-        conn.execute('DELETE FROM error_log')
-        for key, value in merged_rows.items():
-            conn.execute(
-                'INSERT INTO error_log (word_id, error_date, error_count) VALUES (?, ?, ?)',
-                (key, value['error_date'], value['error_count']),
-            )
+            old_key = str(row['word_id'] or '').strip()
+            if not old_key or old_key.isdigit():
+                continue
+            normalized = old_key.lower()
+            vocab = vocab_by_id.get(old_key) or vocab_by_english.get(normalized)
+            key = vocab.get('ID', '').strip() if vocab and vocab.get('ID', '').strip() else ''
+            if key and key.isdigit():
+                conn.execute('UPDATE error_log SET word_id = ? WHERE id = ?', (int(key), row['id']))
         conn.commit()
     finally:
         conn.close()
@@ -6909,6 +7019,8 @@ def api_flashcard():
         progress = load_progress()
         mastered_words = [w.strip() for w in progress.get('mastered_words', []) if w.strip()]
     entries = filter_vocab_entries(vocab_list, importance=importance, frequency=frequency)
+    if not entries and not vocab_list:
+        abort(404, '今日の単語がまだありません')
 
     if requested_word:
         vocab = resolve_vocab_entry(requested_word, entries) or resolve_vocab_entry(requested_word, vocab_list)
@@ -6916,19 +7028,22 @@ def api_flashcard():
         if child_id is not None:
             available = [v for v in entries if str(v.get('ID', '')).strip() not in mastered_vocab_ids]
         else:
-            available = [v for v in entries if v['English'].strip() not in mastered_words]
+            available = [v for v in entries if _clean_csv_value(v.get('English')) not in mastered_words]
         if not available:
             available = entries or vocab_list
         vocab = random.choice(available)
 
     if vocab is None:
-        abort(404, 'Word not found')
+        abort(404, 'word not found')
 
-    sentence_jp = get_context_sentence(vocab['English'])
+    word = _clean_csv_value(vocab.get('English'))
+    if not word:
+        abort(404, 'word not found')
+    sentence_jp = get_context_sentence(word)
     return jsonify(
         id=vocab.get('ID', ''),
-        word=vocab['English'],
-        jp=vocab['Japanese'],
+        word=word,
+        jp=vocab.get('Japanese', ''),
         cn=vocab.get('Chinese', ''),
         category=vocab.get('Category', ''),
         importance=vocab.get('Importance', ''),
@@ -6939,7 +7054,7 @@ def api_flashcard():
         antonyms=vocab.get('Antonyms', ''),
         antonyms_japanese=vocab.get('Antonyms_Japanese', ''),
         example_short=vocab.get('Example_English_Short', ''),
-        example=vocab['Example_English'],
+        example=vocab.get('Example_English', ''),
         example_jp=vocab.get('Example_Japanese', ''),
         example_cn=vocab.get('Example_Chinese', ''),
         sentence_jp=sentence_jp
@@ -7146,6 +7261,89 @@ def build_daily_word_payloads(entries, child_id=None):
     ]
 
 
+def get_database_host_for_debug():
+    database_url = get_database_url()
+    if not database_url:
+        return ''
+    parsed = urllib.parse.urlparse(database_url)
+    return parsed.hostname or ''
+
+
+def get_table_count_for_debug(conn, table_name):
+    try:
+        row = conn.execute(f'SELECT COUNT(*) AS count FROM {table_name}').fetchone()
+        return int(row['count'] or 0) if row else 0
+    except Exception as exc:
+        try:
+            conn.rollback()
+        except Exception:
+            pass
+        return {'error': str(exc)}
+
+
+@app.route('/debug/db')
+def debug_db():
+    child_id = request.args.get('child_id', '').strip()
+    resolved_child_id = None
+    if child_id:
+        try:
+            resolved_child_id = int(child_id)
+        except (TypeError, ValueError):
+            abort(400, 'child_id must be an integer')
+
+    payload = {
+        'database_type': 'postgres' if use_postgres() else 'sqlite',
+        'database_url_present': bool(get_database_url()),
+        'database_url_host': get_database_host_for_debug(),
+        'database_path': get_db_path() if not use_postgres() else '',
+        'csv_word_count': len(vocab_list),
+        'first_5_words': [
+            {
+                'id': entry.get('ID', ''),
+                'word': entry.get('English', ''),
+                'meaningJa': entry.get('Japanese', ''),
+            }
+            for entry in vocab_list[:5]
+        ],
+    }
+
+    try:
+        conn = get_db_connection()
+        try:
+            payload.update(
+                child_count=get_table_count_for_debug(conn, 'children'),
+                db_vocabulary_count=get_table_count_for_debug(conn, 'vocabulary'),
+                daily_study_log_count=get_table_count_for_debug(conn, 'daily_study_log'),
+            )
+        finally:
+            conn.close()
+    except Exception as exc:
+        app.logger.exception('Failed to inspect debug database')
+        payload.update(
+            child_count={'error': str(exc)},
+            db_vocabulary_count={'error': str(exc)},
+            daily_study_log_count={'error': str(exc)},
+        )
+
+    try:
+        daily_entries = select_daily_vocab_entries(20, resolved_child_id, 'normal')
+        payload['daily_words_count'] = len(daily_entries)
+        payload['daily_words_preview'] = [
+            {
+                'id': entry.get('ID', ''),
+                'word': entry.get('English', ''),
+                'meaningJa': entry.get('Japanese', ''),
+            }
+            for entry in daily_entries[:5]
+        ]
+    except Exception as exc:
+        app.logger.exception('Failed to build debug daily words')
+        payload['daily_words_count'] = {'error': str(exc)}
+        payload['daily_words_preview'] = []
+
+    return jsonify(payload)
+
+
 @app.route('/api/daily-words')
 def api_daily_words():
     child_id = request.args.get('child_id', '').strip()
@@ -7216,6 +7414,7 @@ def upsert_child_word_status(child_id, vocab_id, status, parent_marked=False):
     conn = get_db_connection()
     try:
         ensure_child_exists(conn, child_id)
+        ensure_vocab_entry_exists(str(vocab_id))
         conn.execute('INSERT OR IGNORE INTO vocabulary (id) VALUES (?)', (vocab_id,))
         conn.execute(
             '''
@@ -7332,6 +7531,7 @@ def api_mark_mastered():
             vocab_id = int(vocab_id)
         except (TypeError, ValueError):
             abort(400, 'child_id and vocab_id must be integers')
+        ensure_vocab_entry_exists(str(vocab_id))
 
         now = get_now_iso()
         today = get_today()
