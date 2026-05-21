@@ -2550,6 +2550,101 @@ def migrate_child_vocab_progress(conn):
         )
     if 'is_parent_marked_mastered' not in columns:
         conn.execute('ALTER TABLE child_vocab_progress ADD COLUMN is_parent_marked_mastered INTEGER NOT NULL DEFAULT 0')
+    dedupe_child_vocab_progress(conn)
+    conn.execute(
+        '''
+        CREATE UNIQUE INDEX IF NOT EXISTS idx_child_vocab_progress_child_vocab
+        ON child_vocab_progress (child_id, vocab_id)
+        '''
+    )
+
+
+def dedupe_child_vocab_progress(conn):
+    duplicate_keys = conn.execute(
+        '''
+        SELECT child_id, vocab_id, MIN(id) AS keep_id
+        FROM child_vocab_progress
+        GROUP BY child_id, vocab_id
+        HAVING COUNT(*) > 1
+        '''
+    ).fetchall()
+    for duplicate in duplicate_keys:
+        child_id = duplicate['child_id']
+        vocab_id = duplicate['vocab_id']
+        keep_id = duplicate['keep_id']
+        aggregate = conn.execute(
+            '''
+            SELECT
+                SUM(correct_count) AS correct_count,
+                SUM(wrong_count) AS wrong_count,
+                SUM(review_count) AS review_count,
+                MAX(memory_level) AS memory_level,
+                MAX(last_studied_at) AS last_studied_at,
+                MAX(mastered) AS mastered,
+                MIN(created_at) AS created_at,
+                MAX(updated_at) AS updated_at,
+                MAX(correct_streak) AS correct_streak,
+                MAX(mastery) AS mastery,
+                MAX(CASE status
+                    WHEN 'mastered' THEN 4
+                    WHEN 'review' THEN 3
+                    WHEN 'learning' THEN 2
+                    ELSE 1
+                END) AS status_rank,
+                MIN(mastered_at) AS mastered_at,
+                MAX(last_reviewed_at) AS last_reviewed_at,
+                MAX(is_parent_marked_mastered) AS is_parent_marked_mastered
+            FROM child_vocab_progress
+            WHERE child_id = ? AND vocab_id = ?
+            ''',
+            (child_id, vocab_id),
+        ).fetchone()
+        status_by_rank = {4: 'mastered', 3: 'review', 2: 'learning', 1: 'new'}
+        status = status_by_rank.get(int(aggregate['status_rank'] or 1), 'new')
+        conn.execute(
+            '''
+            UPDATE child_vocab_progress
+            SET correct_count = ?,
+                wrong_count = ?,
+                review_count = ?,
+                memory_level = ?,
+                last_studied_at = ?,
+                mastered = ?,
+                created_at = ?,
+                updated_at = ?,
+                correct_streak = ?,
+                mastery = ?,
+                status = ?,
+                mastered_at = ?,
+                last_reviewed_at = ?,
+                is_parent_marked_mastered = ?
+            WHERE id = ?
+            ''',
+            (
+                aggregate['correct_count'] or 0,
+                aggregate['wrong_count'] or 0,
+                aggregate['review_count'] or 0,
+                aggregate['memory_level'] or 0,
+                aggregate['last_studied_at'],
+                aggregate['mastered'] or 0,
+                aggregate['created_at'],
+                aggregate['updated_at'],
+                aggregate['correct_streak'] or 0,
+                aggregate['mastery'] or 0,
+                status,
+                aggregate['mastered_at'],
+                aggregate['last_reviewed_at'],
+                aggregate['is_parent_marked_mastered'] or 0,
+                keep_id,
+            ),
+        )
+        conn.execute(
+            '''
+            DELETE FROM child_vocab_progress
+            WHERE child_id = ? AND vocab_id = ? AND id <> ?
+            ''',
+            (child_id, vocab_id, keep_id),
+        )
 
 
 def migrate_vocabulary_word_columns(conn):
@@ -7178,6 +7273,7 @@ def api_mark_mastered():
         today = get_today()
         conn = get_db_connection()
         try:
+            ensure_child_exists(conn, child_id)
             conn.execute('INSERT OR IGNORE INTO vocabulary (id) VALUES (?)', (vocab_id,))
             existing_progress = conn.execute(
                 'SELECT mastery FROM child_vocab_progress WHERE child_id = ? AND vocab_id = ?',

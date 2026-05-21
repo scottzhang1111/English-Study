@@ -39,8 +39,16 @@ async function fetchJson(path, { method = 'GET', params, body } = {}) {
     cache: 'no-store',
   });
   if (!response.ok) {
-    const message = await response.text();
-    throw new Error(message || `Request failed: ${response.status}`);
+    const contentType = response.headers.get('content-type') || '';
+    let message = '';
+    if (contentType.includes('application/json')) {
+      const payload = await response.json().catch(() => null);
+      message = payload?.message || payload?.error || payload?.description || '';
+    } else {
+      const text = await response.text().catch(() => '');
+      message = text && !/<html[\s>]/i.test(text) ? text : '';
+    }
+    throw new Error(message || `Request failed: ${response.status} ${response.statusText}`.trim());
   }
   return response.json();
 }
