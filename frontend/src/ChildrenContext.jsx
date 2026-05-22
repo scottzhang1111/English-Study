@@ -55,6 +55,11 @@ export function ChildrenProvider({ children }) {
   }, []);
 
   useEffect(() => {
+    localStorage.removeItem('children');
+    localStorage.removeItem('settings');
+  }, []);
+
+  useEffect(() => {
     refreshChildren({ force: false });
   }, [refreshChildren]);
 

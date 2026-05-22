@@ -605,12 +605,80 @@ def build_vocab_expansion_question(mode=None, child_id=None):
 
 
 def load_vocabulary(filename=VOCAB_FILENAME):
+    if use_postgres():
+        database_vocab = load_vocabulary_from_postgres_words()
+        if database_vocab:
+            return database_vocab
+
     vocab = []
     for row in _read_csv_with_fallback(filename):
         normalized = normalize_vocab_row(row)
         if normalized:
             vocab.append(normalized)
     return vocab
+
+
+def load_vocabulary_from_postgres_words():
+    try:
+        conn = get_db_connection()
+        try:
+            table_row = conn.execute(
+                "SELECT to_regclass('public.words') AS table_name"
+            ).fetchone()
+            if not table_row or not table_row['table_name']:
+                return []
+            rows = conn.execute(
+                '''
+                SELECT id, word, level, frequency, part_of_speech, meaning_ja, meaning_cn,
+                       phrase, example_en, example_ja, example_cn, synonyms, antonyms
+                FROM words
+                ORDER BY frequency ASC, id ASC
+                '''
+            ).fetchall()
+        finally:
+            conn.close()
+    except Exception:
+        app.logger.exception('Failed to load vocabulary from PostgreSQL words table')
+        return []
+
+    def importance_for_frequency(value):
+        try:
+            frequency = int(value)
+        except (TypeError, ValueError):
+            return ''
+        if frequency <= 500:
+            return 'A'
+        if frequency <= 1000:
+            return 'B'
+        return 'C'
+
+    return [
+        {
+            'ID': str(row['id']),
+            'No': str(row['id']),
+            'English': _clean_csv_value(row['word']),
+            'Category': _clean_csv_value(row['part_of_speech']),
+            'Japanese': _clean_csv_value(row['meaning_ja']),
+            'Chinese': _clean_csv_value(row['meaning_cn']),
+            'Example_English_Short': _clean_csv_value(row['example_en']),
+            'Example_English': _clean_csv_value(row['example_en']),
+            'Example_Japanese': _clean_csv_value(row['example_ja']),
+            'Example_Chinese': _clean_csv_value(row['example_cn']),
+            'Phrase': _clean_csv_value(row['phrase']),
+            'Importance': importance_for_frequency(row['frequency']),
+            'Review_Count': '',
+            'Mistake_Time': '',
+            'Synonyms': _clean_csv_value(row['synonyms']),
+            'Synonyms_Japanese': '',
+            'Antonyms': _clean_csv_value(row['antonyms']),
+            'Antonyms_Japanese': '',
+            'Frequency_In_Test': _clean_csv_value(row['frequency']),
+            'Source': 'postgres.words',
+            'Eiken_Level': _clean_csv_value(row['level']),
+        }
+        for row in rows
+        if _clean_csv_value(row['word'])
+    ]
 
 
 def load_vocabulary_from_csv(filename):
@@ -2128,6 +2196,7 @@ def init_db(force=False):
         migrate_vocabulary_ids(conn)
         migrate_child_vocab_progress(conn)
         migrate_daily_study_log(conn)
+        sync_postgres_sequences(conn)
         conn.commit()
         _DB_INITIALIZED = True
         elapsed_ms = int((time.perf_counter() - started_at) * 1000)
@@ -2467,8 +2536,79 @@ def get_table_columns(conn, table_name):
     }
 
 
+def sync_postgres_sequences(conn):
+    if not use_postgres():
+        return
+    rows = conn.execute(
+        '''
+        SELECT
+            table_name,
+            column_name,
+            pg_get_serial_sequence(format('%I.%I', table_schema, table_name), column_name) AS sequence_name
+        FROM information_schema.columns
+        WHERE table_schema = 'public'
+          AND pg_get_serial_sequence(format('%I.%I', table_schema, table_name), column_name) IS NOT NULL
+        '''
+    ).fetchall()
+    for row in rows:
+        table_name = row['table_name']
+        column_name = row['column_name']
+        sequence_name = row['sequence_name']
+        if not sequence_name:
+            continue
+        conn.execute(
+            f'''
+            SELECT setval(
+                %s::regclass,
+                COALESCE((SELECT MAX("{column_name}") FROM "{table_name}"), 0) + 1,
+                false
+            )
+            ''',
+            (sequence_name,),
+        )
+
+
+def get_postgres_primary_key_columns(conn, table_name):
+    rows = conn.execute(
+        '''
+        SELECT a.attname AS column_name
+        FROM pg_index i
+        JOIN pg_attribute a ON a.attrelid = i.indrelid AND a.attnum = ANY(i.indkey)
+        WHERE i.indrelid = %s::regclass AND i.indisprimary
+        ORDER BY a.attnum
+        ''',
+        (table_name,),
+    ).fetchall()
+    return {row['column_name'] for row in rows}
+
+
+def get_postgres_single_column_unique_constraints(conn, table_name, column_name):
+    rows = conn.execute(
+        '''
+        SELECT c.conname AS constraint_name
+        FROM pg_constraint c
+        JOIN pg_attribute a ON a.attrelid = c.conrelid AND a.attnum = ANY(c.conkey)
+        WHERE c.conrelid = %s::regclass AND c.contype = 'u'
+        GROUP BY c.conname
+        HAVING COUNT(*) = 1 AND MIN(a.attname) = %s
+        ''',
+        (table_name, column_name),
+    ).fetchall()
+    return [row['constraint_name'] for row in rows]
+
+
 def migrate_error_log_schema(conn):
     if use_postgres():
+        columns = get_table_columns(conn, 'error_log')
+        primary_key_columns = get_postgres_primary_key_columns(conn, 'error_log')
+        required_columns = {'id', 'word_id', 'message', 'created_at'}
+        if required_columns.issubset(columns) and primary_key_columns == {'id'}:
+            conn.execute('ALTER TABLE error_log ALTER COLUMN word_id DROP NOT NULL')
+            for constraint_name in get_postgres_single_column_unique_constraints(conn, 'error_log', 'word_id'):
+                conn.execute(f'ALTER TABLE error_log DROP CONSTRAINT IF EXISTS "{constraint_name}"')
+            return
+
+        app.logger.warning('Rebuilding incompatible error_log schema for PostgreSQL startup safety.')
         conn.execute('DROP TABLE IF EXISTS error_log CASCADE')
         conn.execute(
             '''
@@ -2812,6 +2952,8 @@ def migrate_vocabulary_word_columns(conn):
 
 
 def migrate_vocabulary_ids(conn):
+    if use_postgres():
+        return
     existing_ids = {
         str(row[0]).strip()
         for row in conn.execute('SELECT id FROM vocabulary').fetchall()
@@ -8491,5 +8633,5 @@ def settings_redirect():
 
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(host="0.0.0.0", port=5000, debug=True)
 
