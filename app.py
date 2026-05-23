@@ -632,7 +632,8 @@ def load_vocabulary_from_postgres_words():
                 '''
                 SELECT id, word, level, frequency, part_of_speech, meaning_ja, meaning_cn,
                        phrase, example_en, example_ja, example_cn, synonyms, antonyms
-                FROM words
+                //FROM words
+                FROM vocabulary
                 ORDER BY frequency ASC, id ASC
                 '''
             ).fetchall()
