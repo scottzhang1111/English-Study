@@ -6114,3 +6114,82 @@ body,
   line-height: 1.65;
 }
 
+.eq-home-quest-card {
+  position: relative;
+  z-index: 6;
+  display: grid;
+  grid-template-columns: 78px minmax(0, 1fr) 54px;
+  align-items: center;
+  gap: 16px;
+  min-height: 132px;
+  margin-top: 22px;
+  padding: 20px;
+  border-radius: 30px;
+  border: 1.5px solid rgba(222, 166, 58, 0.92);
+  background:
+    radial-gradient(circle at 8% 50%, rgba(71, 174, 255, 0.22), transparent 36%),
+    rgba(4, 16, 50, 0.86);
+  color: #f7fbff;
+  text-align: left;
+  box-shadow:
+    0 0 22px rgba(255, 211, 90, 0.16),
+    inset 0 0 26px rgba(78, 169, 255, 0.1);
+}
+
+.eq-home-quest-icon {
+  display: grid;
+  width: 76px;
+  height: 76px;
+  place-items: center;
+  border-radius: 24px;
+  color: #9be8ff;
+  font-size: 44px;
+  font-weight: 950;
+  text-shadow: 0 0 20px rgba(69, 181, 255, 0.9);
+  background:
+    radial-gradient(circle, rgba(42, 203, 255, 0.38), rgba(4, 21, 54, 0.4));
+}
+
+.eq-home-quest-card strong {
+  display: block;
+  color: #ffe18c;
+  font-size: 22px;
+  font-weight: 950;
+}
+
+.eq-home-quest-card small {
+  display: block;
+  margin-top: 8px;
+  color: rgba(241, 247, 255, 0.94);
+  font-size: 17px;
+  font-weight: 850;
+  line-height: 1.55;
+}
+
+.eq-home-quest-card em {
+  display: grid;
+  width: 52px;
+  height: 52px;
+  place-items: center;
+  border: 1px solid rgba(255, 211, 90, 0.38);
+  border-radius: 999px;
+  background: rgba(255, 211, 90, 0.1);
+  color: #ffe18c;
+  font-size: 42px;
+  font-style: normal;
+  line-height: 1;
+}
+
+.eq-home-main-cta {
+  position: relative;
+  z-index: 6;
+  width: calc(100% - 36px);
+  min-height: 76px;
+  margin: 26px 18px 0;
+  border-radius: 999px;
+  color: #3b2504;
+  font-size: clamp(24px, 7vw, 32px);
+  font-weight: 950;
+  letter-spacing: 0.04em;
+  filter: drop-shadow(0 0 24px rgba(255, 198, 68, 0.42));
+}

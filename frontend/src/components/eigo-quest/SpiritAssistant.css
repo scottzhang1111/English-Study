@@ -245,3 +245,51 @@
     margin-right: 4px;
   }
 }
+
+.spirit-assistant--home-floating {
+  --spirit-size: clamp(136px, 34vw, 190px);
+  --spirit-bubble-width: min(55vw, 330px);
+  position: absolute;
+  right: 10px;
+  bottom: 52px;
+  z-index: 5;
+  width: min(100%, 430px);
+  display: flex;
+  align-items: flex-end;
+  justify-content: flex-end;
+  gap: 6px;
+  pointer-events: none;
+}
+
+.spirit-assistant--home-floating .spirit-assistant__bubble {
+  position: absolute;
+  right: 92px;
+  bottom: 140px;
+  width: var(--spirit-bubble-width);
+  max-width: min(58vw, 330px);
+  padding: 16px 20px;
+  border-radius: 24px;
+  background: rgba(4, 16, 44, 0.84);
+  border: 1.5px solid rgba(245, 202, 99, 0.86);
+  box-shadow:
+    0 0 26px rgba(75, 180, 255, 0.28),
+    0 14px 36px rgba(0, 0, 0, 0.4);
+}
+
+.spirit-assistant--home-floating .spirit-assistant__bubble p {
+  font-size: clamp(14px, 3.4vw, 18px);
+  line-height: 1.7;
+  -webkit-line-clamp: 4;
+  max-height: none;
+}
+
+.spirit-assistant--home-floating .spirit-assistant__button {
+  width: var(--spirit-size);
+  height: var(--spirit-size);
+}
+
+.spirit-assistant--home-floating .spirit-assistant__image {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
