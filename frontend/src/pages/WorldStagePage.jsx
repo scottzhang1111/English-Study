@@ -206,10 +206,17 @@ export default function WorldStagePage() {
   return (
     <div className="eq-world-stage-wrap">
       <EQMobileShell className="eq-world-stage-screen">
-   <header className="eq-world-stage-story-header">
+<header className="eq-world-stage-story-header">
+  <div className="eq-world-title-frame">
+    <span className="eq-world-title-gem eq-world-title-gem--top" aria-hidden="true" />
     <h1>{worldDisplay.nameJa.replace('世界', '国')}</h1>
-     <p>{worldDisplay.intro || 'さあ、冒険の旅に出よう！'}</p>
-    </header>
+    <span className="eq-world-title-gem eq-world-title-gem--bottom" aria-hidden="true" />
+  </div>
+
+  <p className="eq-world-stage-intro">
+    {worldDisplay.intro || 'さあ、冒険の旅に出よう！'}
+  </p>
+</header>
 
         {error ? <div className="eq-study-map-error">{error}</div> : null}
         {message ? <div className="eq-stage-toast">{message}</div> : null}

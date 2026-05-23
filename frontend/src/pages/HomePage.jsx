@@ -685,8 +685,10 @@ const handleHomeVideoPlay = async (event) => {
 </div>
           <div className="world-overlay-left" aria-hidden="true" />
           <div className="world-overlay-bottom" aria-hidden="true" />
-          <div className="eq-home-world-title-plate">
-            <span>風の国</span>
+          <div className="eq-home-title-plaque">
+            <span className="eq-home-title-gem eq-home-title-gem--top" aria-hidden="true" />
+            <h1>Eigo World</h1>
+            <span className="eq-home-title-gem eq-home-title-gem--bottom" aria-hidden="true" />
           </div>
           <div className="eq-home-hero-stack">
             <div className="eq-home-hero-copy world-card-content">
