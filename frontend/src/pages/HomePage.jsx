@@ -485,10 +485,7 @@ export default function HomePage() {
     ? '/assets/eigo-quest/cards/wind/wind-guardian1.png'
     : rewardCard?.image;
   const homeIntroVideo = '/assets/eigo-quest/home/wind-intro.mp4';
-  const handleHomeVideoPlay = () => {
-  setIsHomeVideoPlaying(true);
-  homeVideoRef.current?.play?.();
-};
+
    const homeIntroPoster = '/assets/eigo-quest/home/wind-intro-poster.png';
   const compactLearningItems = [
     { title: '単語', subtitle: '読む・聞く・例文', to: '/flashcard', icon: '単' },
