@@ -6331,3 +6331,194 @@ body,
     0 12px 28px rgba(0, 0, 0, 0.32),
     inset 0 0 18px rgba(255, 255, 255, 0.1);
 }
+
+/* =========================================================
+   Home Map Target Override
+   Put this at the VERY END of eigo-quest-mobile.css
+   ========================================================= */
+
+/* 1. 手机 Home 全屏地图化 */
+.eq-home-mobile-root {
+  height: 100dvh !important;
+  min-height: 100dvh !important;
+  position: relative !important;
+  overflow: hidden !important;
+  background: #020716 !important;
+}
+
+.eq-home-menu {
+  height: 100dvh !important;
+  min-height: 100dvh !important;
+  position: relative !important;
+  overflow: hidden !important;
+  padding: 0 20px calc(104px + env(safe-area-inset-bottom, 0px)) !important;
+  background: #020716 !important;
+}
+
+/* 2. 背景世界图全屏 */
+.eq-home-main-adventure.current-world-card,
+.eq-home-main-adventure {
+  position: fixed !important;
+  inset: 0 !important;
+  width: 100% !important;
+  max-width: var(--eq-mobile-max, 430px) !important;
+  height: 100dvh !important;
+  min-height: 100dvh !important;
+  margin: 0 auto !important;
+  left: 50% !important;
+  transform: translateX(-50%) !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  overflow: hidden !important;
+  background: #07142f !important;
+}
+
+.eq-home-adventure-bg,
+.eq-home-adventure-bg .world-bg {
+  position: absolute !important;
+  inset: 0 !important;
+}
+
+.eq-home-adventure-bg .world-bg {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover !important;
+  object-position: center 24% !important;
+  filter: brightness(1.02) saturate(1.16) contrast(1.02) !important;
+}
+
+/* 3. 遮罩别太黑，保留地图清晰感 */
+.world-overlay-left {
+  background:
+    linear-gradient(
+      180deg,
+      rgba(2, 8, 24, 0.00) 0%,
+      rgba(2, 8, 24, 0.02) 42%,
+      rgba(2, 8, 24, 0.18) 68%,
+      rgba(2, 8, 24, 0.48) 100%
+    ) !important;
+}
+
+.world-overlay-bottom {
+  background:
+    linear-gradient(
+      180deg,
+      rgba(2, 8, 24, 0) 0%,
+      rgba(2, 8, 24, 0.06) 50%,
+      rgba(2, 8, 24, 0.52) 100%
+    ) !important;
+}
+
+/* 4. 顶部标题牌：風の国 */
+.eq-home-world-title-plate {
+  position: fixed !important;
+  top: calc(58px + env(safe-area-inset-top, 0px)) !important;
+  left: 50% !important;
+  z-index: 80 !important;
+  transform: translateX(-50%) !important;
+
+  width: min(70vw, 360px) !important;
+  height: 60px !important;
+
+  display: grid !important;
+  place-items: center !important;
+
+  pointer-events: none !important;
+
+  color: #ffe8ae !important;
+  font-size: clamp(28px, 7vw, 40px) !important;
+  font-weight: 950 !important;
+  letter-spacing: 0.08em !important;
+
+  background:
+    linear-gradient(180deg, rgba(65, 78, 91, 0.96), rgba(25, 38, 55, 0.96)) !important;
+  border: 2px solid rgba(225, 185, 103, 0.95) !important;
+  border-radius: 14px !important;
+
+  text-shadow:
+    0 2px 0 rgba(65, 34, 6, 0.9),
+    0 0 16px rgba(255, 220, 118, 0.38) !important;
+
+  box-shadow:
+    0 0 0 2px rgba(7, 18, 42, 0.42),
+    0 12px 28px rgba(0, 0, 0, 0.32),
+    inset 0 0 18px rgba(255, 255, 255, 0.1) !important;
+}
+
+.eq-home-world-title-plate::before,
+.eq-home-world-title-plate::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  width: 32px;
+  height: 32px;
+  transform: translateY(-50%) rotate(45deg);
+  border: 2px solid rgba(225, 185, 103, 0.85);
+  background: rgba(25, 38, 55, 0.96);
+  z-index: -1;
+}
+
+.eq-home-world-title-plate::before {
+  left: -16px;
+}
+
+.eq-home-world-title-plate::after {
+  right: -16px;
+}
+
+/* 5. 隐藏 Home 里残留的任务/奖励/旧菜单区块 */
+.eq-home-daily-grid,
+.eq-home-reward-card-section,
+.eq-home-title-block,
+.eq-home-menu > .eq-brand-header:not(.eq-home-brand),
+.eq-home-menu > .eq-adventure-card:not(.eq-home-main-adventure),
+.eq-home-menu > .eq-learning-grid,
+.eq-home-menu > .eq-real-exam-card {
+  display: none !important;
+}
+
+/* 6. 覆盖旧规则：不要让精灵被 .eq-home-menu > .spirit-assistant 固定到右上 */
+.eq-home-menu > .spirit-assistant.spirit-assistant--home-floating {
+  position: fixed !important;
+  top: auto !important;
+  right: 10px !important;
+  bottom: calc(170px + env(safe-area-inset-bottom, 0px)) !important;
+  left: auto !important;
+  z-index: 70 !important;
+  width: min(100%, 430px) !important;
+  pointer-events: none !important;
+}
+
+/* 7. 金色按钮固定到底部 */
+.eq-home-main-cta.eq-home-main-cta--final {
+  position: fixed !important;
+  left: 50% !important;
+  bottom: calc(104px + env(safe-area-inset-bottom, 0px)) !important;
+  z-index: 75 !important;
+  transform: translateX(-50%) !important;
+
+  width: min(78vw, 430px) !important;
+  height: 62px !important;
+  min-height: 62px !important;
+  margin: 0 !important;
+  padding: 0 !important;
+
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: url("/assets/eigo-quest/ui/gold-button.png") center / 100% 100% no-repeat !important;
+  color: #201200 !important;
+  font-size: clamp(26px, 7vw, 38px) !important;
+  font-weight: 950 !important;
+  filter: drop-shadow(0 0 16px rgba(255, 210, 80, 0.38)) !important;
+}
+
+/* 8. BottomNav 固定最低层 */
+.eq-home-bottom-nav {
+  position: fixed !important;
+  left: max(22px, env(safe-area-inset-left)) !important;
+  right: max(22px, env(safe-area-inset-right)) !important;
+  bottom: calc(18px + env(safe-area-inset-bottom, 0px)) !important;
+  z-index: 90 !important;
+  height: 78px !important;
+  border-radius: 26px !important;
+}
