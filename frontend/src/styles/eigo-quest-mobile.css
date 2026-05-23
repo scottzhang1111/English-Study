@@ -6579,3 +6579,22 @@ body,
   pointer-events: auto !important;
   z-index: 9999 !important;
 }
+
+/* 冒険をつづける button: thicker + smaller text */
+.eq-home-main-cta.eq-home-main-cta--final {
+  height: 72px !important;
+  min-height: 72px !important;
+
+  width: min(82vw, 430px) !important;
+
+  font-size: clamp(22px, 5.8vw, 30px) !important;
+  font-weight: 950 !important;
+  line-height: 1 !important;
+  letter-spacing: 0.02em !important;
+
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+
+  background-size: 100% 100% !important;
+}
