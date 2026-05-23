@@ -59,7 +59,10 @@ function EQNavIcon({ icon }) {
 
 export default function EQBottomNav({ items = defaultItems, className = '' }) {
   return (
-    <nav className={`eq-bottom-nav ${className}`.trim()} aria-label="メインナビゲーション">
+    <nav
+  className={`eq-bottom-nav eq-app-bottom-nav ${className}`.trim()}
+  aria-label="メインナビゲーション"
+>
       {items.map((item) => (
         <NavLink
           key={`${item.to}-${item.label}`}

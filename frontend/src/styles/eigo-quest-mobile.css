@@ -7102,3 +7102,144 @@ body,
 .eq-world-stage-bottom-nav {
   bottom: calc(10px + env(safe-area-inset-bottom, 0px)) !important;
 }
+
+.eq-stage-select-node.is-boss {
+  width: 42px !important;
+  height: 42px !important;
+
+  border: 1.6px solid rgba(179, 119, 255, 0.36) !important;
+
+  background:
+    radial-gradient(circle at 35% 28%,
+      rgba(255, 255, 255, 0.22),
+      rgba(150, 140, 180, 0.12) 42%,
+      rgba(56, 50, 78, 0.16) 75%) !important;
+
+  box-shadow:
+    0 0 10px rgba(179, 119, 255, 0.12),
+    0 0 0 2px rgba(179, 119, 255, 0.05) !important;
+
+  backdrop-filter: blur(0.6px);
+}
+
+.eq-stage-select-node.is-boss strong {
+  position: absolute;
+  right: -14px;
+  bottom: -6px;
+
+  padding: 3px 8px;
+  border-radius: 999px;
+
+  background: rgba(160, 92, 235, 0.78);
+  border: 1px solid rgba(225, 190, 255, 0.34);
+
+  color: white;
+  font-size: 10px;
+  font-weight: 950;
+  white-space: nowrap;
+
+  box-shadow: 0 0 8px rgba(160, 92, 235, 0.18);
+}
+
+/* =========================================================
+   Global BottomNav - unified adventure map style
+   ========================================================= */
+
+.eq-app-bottom-nav {
+  position: fixed !important;
+  left: max(20px, env(safe-area-inset-left)) !important;
+  right: max(20px, env(safe-area-inset-right)) !important;
+  bottom: calc(14px + env(safe-area-inset-bottom, 0px)) !important;
+  z-index: 100 !important;
+
+  height: 78px !important;
+  padding: 6px !important;
+
+  display: grid !important;
+  grid-template-columns: repeat(5, minmax(0, 1fr)) !important;
+  align-items: center !important;
+
+  border-radius: 26px !important;
+  border: 1px solid rgba(139, 159, 205, 0.28) !important;
+
+  background:
+    linear-gradient(180deg, rgba(7, 16, 45, 0.92), rgba(3, 9, 29, 0.92)) !important;
+
+  box-shadow:
+    0 -8px 32px rgba(0, 0, 0, 0.35),
+    0 0 28px rgba(88, 76, 220, 0.22),
+    inset 0 0 18px rgba(92, 150, 255, 0.06) !important;
+
+  backdrop-filter: blur(16px) !important;
+}
+
+.eq-app-bottom-nav .eq-bottom-nav-link {
+  height: 100% !important;
+  min-width: 0 !important;
+
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 5px !important;
+
+  border-radius: 20px !important;
+
+  color: rgba(198, 210, 240, 0.62) !important;
+  text-decoration: none !important;
+
+  font-size: 11px !important;
+  font-weight: 850 !important;
+  letter-spacing: 0.02em !important;
+
+  transition:
+    color 140ms ease,
+    background 140ms ease,
+    box-shadow 140ms ease,
+    transform 120ms ease !important;
+}
+
+.eq-app-bottom-nav .eq-bottom-nav-icon {
+  display: grid !important;
+  place-items: center !important;
+  width: 26px !important;
+  height: 26px !important;
+}
+
+.eq-app-bottom-nav .eq-bottom-nav-icon svg,
+.eq-app-bottom-nav .eq-bottom-nav-icon img {
+  width: 24px !important;
+  height: 24px !important;
+}
+
+.eq-app-bottom-nav .eq-bottom-nav-link.is-active {
+  color: #ffd867 !important;
+
+  background:
+    radial-gradient(
+      circle at 50% 35%,
+      rgba(255, 216, 103, 0.18),
+      rgba(255, 216, 103, 0.06) 58%,
+      transparent 100%
+    ) !important;
+
+  box-shadow:
+    inset 0 0 18px rgba(255, 216, 103, 0.12),
+    inset 0 0 0 1px rgba(255, 211, 90, 0.24),
+    0 0 18px rgba(255, 216, 103, 0.16) !important;
+}
+
+.eq-app-bottom-nav .eq-bottom-nav-link:active {
+  transform: scale(0.96) !important;
+}
+
+.eq-mobile-shell,
+.eq-home-menu,
+.eq-world-stage-screen,
+.eq-study-screen,
+.eq-quiz-screen,
+.eq-grammar-screen,
+.eq-card-screen,
+.eq-settings-screen {
+  padding-bottom: calc(112px + env(safe-area-inset-bottom, 0px)) !important;
+}
