@@ -6283,3 +6283,51 @@ body,
 .eq-home-world-title-plate::after {
   right: -18px;
 }
+
+.eq-home-main-cta.eq-home-main-cta--final {
+  position: fixed !important;
+  left: 50%;
+  bottom: calc(112px + env(safe-area-inset-bottom, 0px));
+  z-index: 40;
+  transform: translateX(-50%);
+
+  width: min(78vw, 430px);
+  min-height: 62px;
+  margin: 0;
+
+  border-radius: 999px;
+  font-size: clamp(26px, 7vw, 38px);
+}
+
+.eq-home-world-title-plate {
+  position: fixed;
+  top: calc(58px + env(safe-area-inset-top, 0px));
+  left: 50%;
+  z-index: 35;
+  transform: translateX(-50%);
+
+  width: min(70vw, 360px);
+  height: 60px;
+
+  display: grid;
+  place-items: center;
+
+  color: #ffe8ae;
+  font-size: clamp(28px, 7vw, 40px);
+  font-weight: 950;
+  letter-spacing: 0.08em;
+
+  background:
+    linear-gradient(180deg, rgba(59, 72, 84, 0.94), rgba(26, 38, 55, 0.94));
+  border: 2px solid rgba(225, 185, 103, 0.92);
+  border-radius: 14px;
+
+  text-shadow:
+    0 2px 0 rgba(65, 34, 6, 0.9),
+    0 0 16px rgba(255, 220, 118, 0.35);
+
+  box-shadow:
+    0 0 0 2px rgba(7, 18, 42, 0.42),
+    0 12px 28px rgba(0, 0, 0, 0.32),
+    inset 0 0 18px rgba(255, 255, 255, 0.1);
+}
