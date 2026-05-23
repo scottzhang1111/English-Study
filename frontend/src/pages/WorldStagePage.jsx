@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getHomeData } from '../api';
-import { EQBackPill, EQCard, EQMobileShell } from '../components/eigo';
+import { EQBackPill, EQCard, EQMobileShell, EQBottomNav } from '../components/eigo';
 import { eigoQuestCards } from '../config/eigoQuestCards';
 import eigoQuestWorlds from '../config/eigoQuestWorlds';
 import SpiritAssistant from '../components/eigo-quest/SpiritAssistant';
@@ -315,6 +315,16 @@ export default function WorldStagePage() {
           </button>
         </EQCard>
         )}
+        <EQBottomNav
+          className="eq-world-stage-bottom-nav"
+          items={[
+            { label: 'ホーム', to: '/app', icon: 'home' },
+            { label: '世界地図', to: '/study-map', icon: 'map', active: true },
+            { label: '学習', to: '/daily-words', icon: 'study' },
+            { label: 'カード', to: '/cards', icon: 'cards' },
+            { label: 'その他', to: '/settings', icon: 'more' },
+          ]}
+        />
       </EQMobileShell>
     </div>
   );
