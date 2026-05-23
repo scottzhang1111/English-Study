@@ -138,6 +138,9 @@
   position: absolute;
   inset: 0;
   display: block;
+  right: 12px;
+  bottom: 76px;
+  z-index: 6;
 }
 
 .spirit-assistant__float {
