@@ -288,7 +288,7 @@ export default function FlashcardPage() {
     setStudyLoading(false);
   };
 
-  const handleNextStudy = async () => {
+/*   const handleNextStudy = async () => {
     if (!flashcard) return;
     try {
       const result = await markMastered({
@@ -323,7 +323,42 @@ export default function FlashcardPage() {
     } catch (err) {
       setStudyError(err.message);
     }
-  };
+  }; */
+  const handleNextStudy = async () => {
+  if (!flashcard) return;
+
+  try {
+    const result = await markMastered({
+      word: flashcard.word,
+      childId: selectedChildId,
+      vocabId: flashcard.id,
+    });
+
+    const dailyTarget = Number(result?.target ?? homeData?.target ?? DAILY_TARGET) || DAILY_TARGET;
+    const reportedProgress = Number(result?.progress);
+
+    const nextProgress =
+      Number.isFinite(reportedProgress) && reportedProgress > progressValue
+        ? reportedProgress
+        : progressValue + 1;
+
+    setHomeData((prev) => ({
+      ...(prev || {}),
+      progress: nextProgress,
+      target: dailyTarget,
+      remain: result?.remain ?? Math.max(0, dailyTarget - nextProgress),
+    }));
+
+    if (nextProgress >= dailyTarget) {
+      await loadReviewQuiz();
+      return;
+    }
+
+    await loadStudyWord();
+  } catch (err) {
+    setStudyError(err.message);
+  }
+};
 
   const handleSubmitFill = async () => {
     if (!flashcard) return;
