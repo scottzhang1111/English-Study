@@ -966,12 +966,45 @@ const handleHomeVideoPlay = async (event) => {
       <EQBottomNav
         className="eq-home-bottom-nav"
         items={[
+    {
+      label: 'ホーム',
+      to: '/app',
+      icon: 'home',
+      active: true,
+      iconNode: <img src="/assets/eigo-quest/nav/nav-home.png" alt="" />,
+    },
+    {
+      label: '地図',
+      to: '/study-map',
+      icon: 'map',
+      iconNode: <img src="/assets/eigo-quest/nav/nav-map.png" alt="" />,
+    },
+    {
+      label: '学習',
+      to: '/daily-words',
+      icon: 'study',
+      iconNode: <img src="/assets/eigo-quest/nav/nav-study.png" alt="" />,
+    },
+    {
+      label: 'カード',
+      to: '/cards',
+      icon: 'cards',
+      iconNode: <img src="/assets/eigo-quest/nav/nav-cards.png" alt="" />,
+    },
+    {
+      label: 'その他',
+      to: '/settings',
+      icon: 'more',
+      iconNode: <img src="/assets/eigo-quest/nav/nav-more.png" alt="" />,
+    },
+  ]}
+       /*  items={[
           { label: 'ホーム', to: '/app', icon: 'home', active: true },
           { label: '地図', to: '/study-map', icon: 'map' },
           { label: '学習', to: '/daily-words', icon: 'study' },
           { label: 'カード', to: '/cards', icon: 'cards' },
           { label: 'その他', to: '/settings', icon: 'more' },
-        ]}
+        ]} */
       />
     </div>
 
