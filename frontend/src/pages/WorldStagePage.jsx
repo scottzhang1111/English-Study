@@ -13,28 +13,76 @@ const WORDS_PER_STAGE = 20;
 const STAGES_PER_WORLD = 10;
 
 const WORLD_DISPLAY = {
-  wind: { nameJa: '風の世界', nameEn: 'WIND REALM', symbol: '風', color: '#45d7ff' },
-  fire: { nameJa: '火の世界', nameEn: 'FIRE REALM', symbol: '火', color: '#ff6b3d' },
-  thunder: { nameJa: '雷の世界', nameEn: 'THUNDER REALM', symbol: '雷', color: '#8b6bff' },
-  wood: { nameJa: '木の世界', nameEn: 'WOOD REALM', symbol: '木', color: '#67d96b' },
-  rock: { nameJa: '岩の世界', nameEn: 'ROCK REALM', symbol: '岩', color: '#d7a85b' },
-  shadow: { nameJa: '影の世界', nameEn: 'SHADOW REALM', symbol: '影', color: '#a569ff' },
-  water: { nameJa: '水の世界', nameEn: 'WATER REALM', symbol: '水', color: '#4ccfff' },
-  light: { nameJa: '光の世界', nameEn: 'LIGHT REALM', symbol: '光', color: '#ffd86b' },
+  wind: {
+    nameJa: '風の世界',
+    nameEn: 'WIND REALM',
+    symbol: '風',
+    color: '#45d7ff',
+    intro: '白雲と浮島がそびえ、自由な嵐が吹き抜ける天空の魔法世界。',
+  },
+  fire: {
+    nameJa: '火の世界',
+    nameEn: 'FIRE REALM',
+    symbol: '火',
+    color: '#ff6b3d',
+    intro: '滾る溶岩が地を刻み、灼熱の炎が年中燃え盛る情熱の火山世界。',
+  },
+  water: {
+    nameJa: '水の世界',
+    nameEn: 'WATER REALM',
+    symbol: '水',
+    color: '#4ccfff',
+    intro: '神秘の珊瑚が輝き、美しい深海が無限に広がる静謐な水の楽園。',
+  },
+  thunder: {
+    nameJa: '雷の世界',
+    nameEn: 'THUNDER REALM',
+    symbol: '雷',
+    color: '#8b6bff',
+    intro: '稲妻が激しく轟き、紫の電撃が縦横無尽に走るスリリングな世界。',
+  },
+  wood: {
+    nameJa: '木の世界',
+    nameEn: 'WOOD REALM',
+    symbol: '木',
+    color: '#67d96b',
+    intro: '千年樹が緑を広げ、可愛い精霊が暮らす神秘的な大自然の聖域。',
+  },
+  rock: {
+    nameJa: '岩の世界',
+    nameEn: 'ROCK REALM',
+    symbol: '岩',
+    color: '#d7a85b',
+    intro: '険しい岩山が連なり、輝く鉱石が地底に眠る堅牢な大地の世界。',
+  },
+  light: {
+    nameJa: '光の世界',
+    nameEn: 'LIGHT REALM',
+    symbol: '光',
+    color: '#ffd86b',
+    intro: '聖なる光が降り注ぎ、邪悪を優しく浄化する黄金の輝かしい世界。',
+  },
+  shadow: {
+    nameJa: '影の世界',
+    nameEn: 'SHADOW REALM',
+    symbol: '影',
+    color: '#a569ff',
+    intro: '漆黒の闇が支配し、妖しい影が蠢く静寂な常闇の王国。',
+  },
 };
 
 const WORLD_STAGE_POSITIONS = {
   fire: [
-    { x: 16, y: 72 },
-    { x: 28, y: 59 },
-    { x: 42, y: 48 },
-    { x: 55, y: 37 },
-    { x: 76, y: 28 },
-    { x: 62, y: 52 },
-    { x: 47, y: 65 },
-    { x: 58, y: 78 },
-    { x: 34, y: 84 },
-    { x: 82, y: 82 },
+ { x: 14, y: 72 }, // 1 current
+  { x: 27, y: 60 }, // 2 左中
+  { x: 40, y: 50 }, // 3 中左
+  { x: 53, y: 41 }, // 4 上中
+  { x: 73, y: 31 }, // 5 右上
+  { x: 58, y: 54 }, // 6 中右
+  { x: 45, y: 66 }, // 7 中下
+  { x: 56, y: 79 }, // 8 下中右
+  { x: 33, y: 84 }, // 9 左下
+  { x: 83, y: 82 }, // 10 boss
   ],
 
   wind: [
@@ -52,8 +100,7 @@ const WORLD_STAGE_POSITIONS = {
 };
 const WORLD_STAGE_PATHS = {
   fire:
-    'M 16 72 C 24 62, 34 64, 28 52 C 22 38, 42 33, 55 37 C 70 42, 83 34, 76 28 C 66 45, 68 58, 62 52 C 52 48, 44 58, 47 65 C 50 75, 62 76, 58 78 C 48 82, 40 86, 34 84 C 52 88, 68 86, 82 82',
-
+  'M 14 72 C 19 68, 23 65, 28 62 C 32 58, 36 55, 41 52 C 46 48, 50 45, 54 43 C 61 39, 68 35, 73 32 C 70 41, 66 49, 61 55 C 57 59, 52 63, 48 66 C 51 72, 55 76, 58 78 C 50 81, 42 83, 34 84 C 50 84, 67 83, 82 82',
   wind:
     'M 18 78 C 28 68, 38 70, 31 64 C 20 54, 18 46, 24 49 C 35 54, 32 40, 42 38 C 56 35, 66 22, 62 32 C 58 48, 75 35, 78 45 C 82 58, 66 54, 64 60 C 60 72, 48 72, 48 72 C 42 80, 34 84, 32 84 C 52 90, 68 88, 78 82',
 };
@@ -225,12 +272,14 @@ export default function WorldStagePage() {
     </p>
   </div>
 
-  <SpiritAssistant
-    worldName={worldDisplay.nameJa}
-    mood="idle"
-    position="stage-map"
-    messages={[]}
-  />
+<SpiritAssistant
+  worldName={worldDisplay.nameJa.replace('世界', '国')}
+  mood="idle"
+  position="stage-map"
+  messages={[
+    `ここは「${worldDisplay.nameJa.replace('世界', '国')}」だよ。\nStage ${currentStage} に挑戦しよう！`,
+  ]}
+/>
 </section>
 
 <button
