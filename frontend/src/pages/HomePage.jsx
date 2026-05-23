@@ -685,6 +685,7 @@ const handleHomeVideoPlay = async (event) => {
 </div>
           <div className="world-overlay-left" aria-hidden="true" />
           <div className="world-overlay-bottom" aria-hidden="true" />
+       
           <div className="eq-home-title-plaque">
             <span className="eq-home-title-gem eq-home-title-gem--top" aria-hidden="true" />
             <h1>Eigo World</h1>
