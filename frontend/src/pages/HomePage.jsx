@@ -277,6 +277,12 @@ export default function HomePage() {
   const [hasNoChildren, setHasNoChildren] = useState(false);
   const [homeWorldImageFailed, setHomeWorldImageFailed] = useState(false);
   const [homeRewardImageFailed, setHomeRewardImageFailed] = useState(false);
+  const [isHomeVideoPlaying, setIsHomeVideoPlaying] = useState(false);
+  const homeVideoRef = useRef(null);
+  const handleHomeVideoPlay = () => {
+  setIsHomeVideoPlaying(true);
+  homeVideoRef.current?.play?.();
+};
   const { children, childrenLoading, childrenError, selectedChildId, setSelectedChildId, refreshChildren } = useChildren();
   const navigate = useNavigate();
   const { mood: petMood, triggerPetMood, wakePet } = usePetMood();
@@ -478,6 +484,12 @@ export default function HomePage() {
   const rewardCardImage = questProgress.currentWorld.id === 'wind'
     ? '/assets/eigo-quest/cards/wind/wind-guardian1.png'
     : rewardCard?.image;
+  const homeIntroVideo = '/assets/eigo-quest/home/wind-intro.mp4';
+  const handleHomeVideoPlay = () => {
+  setIsHomeVideoPlaying(true);
+  homeVideoRef.current?.play?.();
+};
+   const homeIntroPoster = '/assets/eigo-quest/home/wind-intro-poster.png';
   const compactLearningItems = [
     { title: '単語', subtitle: '読む・聞く・例文', to: '/flashcard', icon: '単' },
     { title: 'クイズ', subtitle: '覚えた単語を確認', to: '/quiz', icon: 'Q' },
@@ -617,7 +629,7 @@ export default function HomePage() {
 
 
         <EQCard className="eq-adventure-card eq-home-main-adventure current-world-card">
-          <div className="eq-home-adventure-bg" aria-hidden="true">
+          {/* <div className="eq-home-adventure-bg" aria-hidden="true">
             {!homeWorldImageFailed && questProgress.currentWorld.backgroundImage ? (
               <img
                 className="world-bg"
@@ -629,7 +641,32 @@ export default function HomePage() {
             ) : (
               <span>{questProgress.currentWorld.icon || '✨'}</span>
             )}
-          </div>
+          </div> */}
+          <div className="eq-home-adventure-bg eq-home-video-bg">
+  <video
+    ref={homeVideoRef}
+    className="world-bg eq-home-bg-video"
+    src={homeIntroVideo}
+    poster={homeIntroPoster || questProgress.currentWorld.backgroundImage}
+    playsInline
+    muted
+    loop
+    preload="metadata"
+    onPlay={() => setIsHomeVideoPlaying(true)}
+    onPause={() => setIsHomeVideoPlaying(false)}
+  />
+
+  {!isHomeVideoPlaying && (
+    <button
+      type="button"
+      className="eq-home-video-play-button"
+      onClick={handleHomeVideoPlay}
+      aria-label="動画を再生"
+    >
+      ▶
+    </button>
+  )}
+</div>
           <div className="world-overlay-left" aria-hidden="true" />
           <div className="world-overlay-bottom" aria-hidden="true" />
           <div className="eq-home-world-title-plate">
@@ -766,14 +803,14 @@ export default function HomePage() {
          )}
         </EQCard>
 
-        <button
+    {/*     <button
           type="button"
           onClick={() => navigate('/world-stage')}
           className="eq-gold-button eq-home-primary-cta eq-home-main-cta eq-home-main-cta--legacy"
           style={{ '--eq-gold-button-image': `url(${eigoQuestAssets.ui.goldButton})` }}
         >
           冒険をつづける
-        </button>
+        </button> */}
 
         <SpiritAssistant
           worldName="風の国"

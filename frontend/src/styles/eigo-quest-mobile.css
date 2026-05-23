@@ -6522,3 +6522,46 @@ body,
   height: 78px !important;
   border-radius: 26px !important;
 }
+
+/* =========================================================
+   Home video background - minimal change
+   ========================================================= */
+
+.eq-home-video-bg {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+
+.eq-home-bg-video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 24%;
+  display: block;
+}
+
+.eq-home-video-play-button {
+  position: absolute;
+  left: 50%;
+  top: 42%;
+  z-index: 25;
+  width: 64px;
+  height: 64px;
+  transform: translate(-50%, -50%);
+  border: 2px solid rgba(255, 235, 164, 0.9);
+  border-radius: 999px;
+  background: rgba(3, 12, 36, 0.62);
+  color: #fff3c4;
+  font-size: 24px;
+  font-weight: 950;
+  line-height: 1;
+  box-shadow:
+    0 0 24px rgba(255, 211, 90, 0.36),
+    inset 0 0 18px rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(8px);
+}
+
+.eq-home-video-play-button:active {
+  transform: translate(-50%, -50%) scale(0.94);
+}
