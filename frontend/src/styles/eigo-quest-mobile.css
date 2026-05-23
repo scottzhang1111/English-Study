@@ -7060,3 +7060,45 @@ body,
   height: 60px !important;
   margin: 0 !important;
 }
+
+/* World Stage header compact */
+.eq-world-stage-screen {
+  padding-top: calc(22px + env(safe-area-inset-top, 0px)) !important;
+}
+
+.eq-world-stage-story-header {
+  margin: 0 0 12px !important;
+  padding: 0 !important;
+  text-align: center;
+}
+
+.eq-world-stage-story-header h1 {
+  margin: 0 !important;
+  font-size: clamp(30px, 7.5vw, 42px) !important;
+  line-height: 1.05 !important;
+  opacity: 0.42;
+}
+
+.eq-world-stage-story-header p {
+  margin: 8px auto 0 !important;
+  max-width: 92%;
+  font-size: clamp(14px, 3.7vw, 17px) !important;
+  line-height: 1.45 !important;
+  font-weight: 850 !important;
+  color: rgba(255, 255, 255, 0.92) !important;
+}
+
+.eq-world-stage-route-shadow {
+  stroke: rgba(255, 214, 110, 0.12) !important;
+  stroke-width: 2.4 !important;
+  filter: blur(1.2px) !important;
+}
+
+.eq-world-stage-route-line {
+  stroke: rgba(255, 232, 142, 0.44) !important;
+  stroke-width: 1.1 !important;
+}
+
+.eq-world-stage-bottom-nav {
+  bottom: calc(10px + env(safe-area-inset-bottom, 0px)) !important;
+}

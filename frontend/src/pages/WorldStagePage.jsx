@@ -73,15 +73,15 @@ const WORLD_DISPLAY = {
 
 const WORLD_STAGE_POSITIONS = {
 fire: [
-  { x: 14, y: 72 }, // 1 current
-  { x: 24, y: 58 }, // 2 左上
-  { x: 35, y: 48 }, // 3 左上
-  { x: 48, y: 39 }, // 4 左上
-  { x: 70, y: 31 }, // 5 右上
-  { x: 57, y: 53 }, // 6 中右
-  { x: 47, y: 65 }, // 7 中下
-  { x: 57, y: 78 }, // 8 下中右
-  { x: 34, y: 84 }, // 9 左下
+ { x: 14, y: 72 }, // 1 current
+  { x: 25, y: 58 }, // 2 左上平台
+  { x: 35, y: 48 }, // 3 左上中平台
+  { x: 48, y: 39 }, // 4 中上平台
+  { x: 68, y: 31 }, // 5 右上平台
+  { x: 59, y: 53 }, // 6 中右平台
+  { x: 46, y: 65 }, // 7 中下平台
+  { x: 56, y: 78 }, // 8 下中右
+  { x: 33, y: 84 }, // 9 左下
   { x: 82, y: 82 }, // 10 boss
 ],
 
@@ -100,7 +100,7 @@ fire: [
 };
 const WORLD_STAGE_PATHS = {
   fire:
-  'M 14 72 C 17 66, 20 61, 24 58 C 28 54, 31 51, 35 48 C 39 44, 43 41, 48 39 C 55 35, 63 33, 70 31 C 67 40, 62 47, 57 53 C 53 58, 50 62, 47 65 C 50 71, 54 75, 57 78 C 50 81, 42 83, 34 84 C 50 84, 67 83, 82 82',
+  'M 14 72 C 17 66, 21 61, 25 58 C 29 54, 32 51, 35 48 C 39 44, 43 41, 48 39 C 55 35, 62 33, 68 31 C 66 40, 63 47, 59 53 C 54 58, 50 62, 46 65 C 49 71, 53 75, 56 78 C 49 81, 41 83, 33 84 C 50 84, 67 83, 82 82',
   wind:
     'M 18 78 C 28 68, 38 70, 31 64 C 20 54, 18 46, 24 49 C 35 54, 32 40, 42 38 C 56 35, 66 22, 62 32 C 58 48, 75 35, 78 45 C 82 58, 66 54, 64 60 C 60 72, 48 72, 48 72 C 42 80, 34 84, 32 84 C 52 90, 68 88, 78 82',
 };
@@ -207,10 +207,8 @@ export default function WorldStagePage() {
     <div className="eq-world-stage-wrap">
       <EQMobileShell className="eq-world-stage-screen">
    <header className="eq-world-stage-story-header">
-      <h1>{worldDisplay.nameJa.replace('世界', '国')}</h1>
-      <p>
-      {worldDisplay.intro ? 'さあ、冒険の旅に出よう！' : 'しかし、世界は闇に包まれ、精霊たちは力を失ってしまった。'}<br />
-     </p>
+    <h1>{worldDisplay.nameJa.replace('世界', '国')}</h1>
+     <p>{worldDisplay.intro || 'さあ、冒険の旅に出よう！'}</p>
     </header>
 
         {error ? <div className="eq-study-map-error">{error}</div> : null}
@@ -265,10 +263,7 @@ export default function WorldStagePage() {
         <section className="eq-world-stage-guide-area">
   <div className="eq-world-stage-bubble">
     <span>{worldDisplay.nameJa.replace('世界', '国')}</span>
-    <p>
-      Stage {currentStage} に挑戦しよう！<br />
-      まずは今日のミッションを進めよう。
-    </p>
+
   </div>
 
 <SpiritAssistant
@@ -281,13 +276,13 @@ export default function WorldStagePage() {
 />
 </section>
 
-<button
+{/* <button
   type="button"
   className="eq-gold-button eq-stage-start-button eq-stage-start-button-main"
   onClick={startCurrentStage}
 >
   Stage {currentStage} 挑戦
-</button>
+</button> */}
 {false && (
         <EQCard className="eq-stage-mission-panel">
           <h2>Stage {currentStage} のミッション</h2>
