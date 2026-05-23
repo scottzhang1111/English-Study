@@ -549,6 +549,7 @@ export default function HomePage() {
     <>
     <div className="eq-home-mobile-root lg:hidden" onPointerDown={wakePet}>
       <EQMobileShell className="eq-home-menu">
+        {false && (
         <section className="eq-home-brand-panel">
           <EQBrandHeader
             iconSrc={eigoQuestAssets.logo}
@@ -573,7 +574,10 @@ export default function HomePage() {
             <span>コイン {coins}</span>
           </div>
         </section>
+        )}
 
+       
+       {false && (
         <EQCard className="eq-home-status-card">
           <div>
             <HomeAssetIcon
@@ -603,11 +607,14 @@ export default function HomePage() {
             <strong>{coins}</strong>
           </div>
         </EQCard>
-
+             )}
+        {false && (
         <section className="eq-home-greeting">
           <h1>Hello, {selectedChild.name} 👋</h1>
           <p>今日も冒険しよう！</p>
         </section>
+          )}
+
 
         <EQCard className="eq-adventure-card eq-home-main-adventure current-world-card">
           <div className="eq-home-adventure-bg" aria-hidden="true">
@@ -705,10 +712,12 @@ export default function HomePage() {
               </div>
             </div>
 
-            <button type="button" onClick={() => navigate('/world-stage')} className="eq-gold-button eq-home-primary-cta">
+        {/*     <button type="button" onClick={() => navigate('/world-stage')} className="eq-gold-button eq-home-primary-cta">
               冒険をつづける <span aria-hidden="true">→</span>
-            </button>
+            </button> */}
           </div>
+       {false && (
+  <>
           <div className="eq-adventure-content">
             <div className="eq-adventure-copy">
               <p className="eq-caption">現在の冒険</p>
@@ -747,9 +756,11 @@ export default function HomePage() {
             <strong>{rewardCard?.nameJa || '風の精霊'}</strong>
           </div>
 
-          <button type="button" onClick={() => navigate('/world-stage')} className="eq-gold-button eq-home-primary-cta">
+  {/*         <button type="button" onClick={() => navigate('/world-stage')} className="eq-gold-button eq-home-primary-cta">
             冒険をつづける
-          </button>
+          </button> */}
+          </>
+         )}
         </EQCard>
 
         <button
