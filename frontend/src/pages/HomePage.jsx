@@ -632,23 +632,26 @@ export default function HomePage() {
           </div>
           <div className="world-overlay-left" aria-hidden="true" />
           <div className="world-overlay-bottom" aria-hidden="true" />
+          <div className="eq-home-world-title-plate">
+            <span>風の国</span>
+          </div>
           <div className="eq-home-hero-stack">
             <div className="eq-home-hero-copy world-card-content">
-              <div className="world-card-top">
+        {/*       <div className="world-card-top">
                 <span className="eq-home-hero-label current-badge">現在の冒険</span>
                 <button type="button" className="eq-home-map-pill world-list-button" onClick={() => navigate('/study-map')}>
                   <span>世界一覧</span>
                   <span className="world-list-arrow" aria-hidden="true">&gt;</span>
                 </button>
-              </div>
+              </div> */}
 
-              <div className="world-main-info">
+           {/*    <div className="world-main-info">
                 <h2>{worldDisplayName}</h2>
                 <p className="eq-home-world-en world-en">{worldEnglishLabel}</p>
                 <p className="eq-home-world-description world-desc">
                   風が導く、自由への旅。単語と文法を少しずつ覚える冒険
                 </p>
-              </div>
+              </div> */}
 
               <div className="world-progress-row">
                 <div className="eq-home-hero-meta stage-panel" aria-label={`${currentWorldStage} / 10 stages, ${currentWorldProgressLabel}`}>
@@ -775,19 +778,20 @@ export default function HomePage() {
         <SpiritAssistant
           worldName="風の国"
           mood="idle"
+         position="home-floating"
           messages={[
-            '風の国へようこそ！\n今日は単語を5つ覚えよう！\nできたらクイズに進もう！',
-          ]}
+            '風の世界へようこそ！\n今日のミッションを説明します。',
+         ]}
         />
 
-        <button type="button" onClick={() => navigate('/daily-words')} className="eq-home-quest-card">
+  {/*       <button type="button" onClick={() => navigate('/daily-words')} className="eq-home-quest-card">
           <span className="eq-home-quest-icon" aria-hidden="true">風</span>
           <span>
             <strong>風の国</strong>
             <small>今日は単語を5つ覚えよう！<br />できたらクイズに進もう！</small>
           </span>
           <em aria-hidden="true">›</em>
-        </button>
+        </button> */}
 
         <button
           type="button"

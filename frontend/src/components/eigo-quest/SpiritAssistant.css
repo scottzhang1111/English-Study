@@ -247,3 +247,103 @@
   }
 }
 
+/* ================================
+   Home Map Floating Spirit
+   Target: 精灵在右下，气泡在左侧
+   ================================ */
+
+.spirit-assistant--home-floating {
+  --spirit-size: clamp(150px, 34vw, 190px);
+  --spirit-bubble-width: min(62vw, 330px);
+
+  position: absolute;
+  right: 16px;
+  bottom: calc(178px + env(safe-area-inset-bottom, 0px));
+  z-index: 30;
+
+  width: min(100%, 420px);
+  min-height: var(--spirit-size);
+
+  display: flex;
+  align-items: flex-end;
+  justify-content: flex-end;
+  gap: 0;
+
+  pointer-events: none;
+}
+
+.spirit-assistant--home-floating .spirit-assistant__button {
+  width: var(--spirit-size);
+  height: var(--spirit-size);
+  pointer-events: auto;
+  z-index: 2;
+}
+
+.spirit-assistant--home-floating .spirit-assistant__float,
+.spirit-assistant--home-floating .spirit-assistant__image-stack,
+.spirit-assistant--home-floating .spirit-assistant__image,
+.spirit-assistant--home-floating .spirit-assistant__image--full {
+  width: 100%;
+  height: 100%;
+}
+
+.spirit-assistant--home-floating .spirit-assistant__image {
+  object-fit: contain;
+}
+
+.spirit-assistant--home-floating .spirit-assistant__bubble {
+  position: absolute;
+  right: calc(var(--spirit-size) * 0.62);
+  bottom: calc(var(--spirit-size) * 0.18);
+
+  width: var(--spirit-bubble-width);
+  max-width: min(62vw, 330px);
+  min-height: 118px;
+
+  padding: 18px 22px;
+  border-radius: 28px;
+
+  background:
+    linear-gradient(180deg, rgba(9, 31, 58, 0.82), rgba(4, 15, 38, 0.82));
+  border: 2px solid rgba(137, 230, 255, 0.58);
+
+  box-shadow:
+    0 0 22px rgba(103, 218, 255, 0.26),
+    inset 0 0 18px rgba(124, 205, 255, 0.10),
+    0 14px 34px rgba(0, 0, 0, 0.34);
+
+  transform: none;
+  pointer-events: auto;
+}
+
+.spirit-assistant--home-floating .spirit-assistant__bubble::after {
+  right: -8px;
+  bottom: 34px;
+  width: 14px;
+  height: 14px;
+  border-top: 2px solid rgba(137, 230, 255, 0.58);
+  border-right: 2px solid rgba(137, 230, 255, 0.58);
+  background: rgba(5, 19, 44, 0.92);
+}
+
+.spirit-assistant--home-floating .spirit-assistant__bubble span {
+  margin-bottom: 8px;
+  color: #ffe18c;
+  font-size: clamp(14px, 3.4vw, 18px);
+  font-weight: 950;
+}
+
+.spirit-assistant--home-floating .spirit-assistant__bubble p {
+  display: block;
+  max-height: none;
+  overflow: visible;
+  -webkit-box-orient: initial;
+
+
+  color: #f8fbff;
+  font-size: clamp(17px, 4.4vw, 24px);
+  font-weight: 950;
+  line-height: 1.55;
+  white-space: pre-line;
+}
+

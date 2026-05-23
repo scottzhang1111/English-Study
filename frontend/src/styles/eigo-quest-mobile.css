@@ -64,6 +64,7 @@ body,
   --eq-bottom-nav-height: 74px;
   height: 100dvh;
   min-height: 100dvh;
+  position: relative;
   overflow: hidden;
   background:
     radial-gradient(circle at 30% 0%, rgba(92, 42, 145, 0.34), transparent 36%),
@@ -6112,4 +6113,173 @@ body,
   font-size: 17px;
   font-weight: 750;
   line-height: 1.65;
+}
+
+.eq-home-quest-card {
+  position: relative;
+  z-index: 6;
+  display: grid;
+  grid-template-columns: 78px minmax(0, 1fr) 54px;
+  align-items: center;
+  gap: 16px;
+  min-height: 132px;
+  margin-top: 22px;
+  padding: 20px;
+  border-radius: 30px;
+  border: 1.5px solid rgba(222, 166, 58, 0.92);
+  background:
+    radial-gradient(circle at 8% 50%, rgba(71, 174, 255, 0.22), transparent 36%),
+    rgba(4, 16, 50, 0.86);
+  color: #f7fbff;
+  text-align: left;
+  box-shadow:
+    0 0 22px rgba(255, 211, 90, 0.16),
+    inset 0 0 26px rgba(78, 169, 255, 0.1);
+}
+
+.eq-home-quest-icon {
+  display: grid;
+  width: 76px;
+  height: 76px;
+  place-items: center;
+  border-radius: 24px;
+  color: #9be8ff;
+  font-size: 44px;
+  font-weight: 950;
+  text-shadow: 0 0 20px rgba(69, 181, 255, 0.9);
+  background:
+    radial-gradient(circle, rgba(42, 203, 255, 0.38), rgba(4, 21, 54, 0.4));
+}
+
+.eq-home-quest-card strong {
+  display: block;
+  color: #ffe18c;
+  font-size: 22px;
+  font-weight: 950;
+}
+
+.eq-home-quest-card small {
+  display: block;
+  margin-top: 8px;
+  color: rgba(241, 247, 255, 0.94);
+  font-size: 17px;
+  font-weight: 850;
+  line-height: 1.55;
+}
+
+.eq-home-quest-card em {
+  display: grid;
+  width: 52px;
+  height: 52px;
+  place-items: center;
+  border: 1px solid rgba(255, 211, 90, 0.38);
+  border-radius: 999px;
+  background: rgba(255, 211, 90, 0.1);
+  color: #ffe18c;
+  font-size: 42px;
+  font-style: normal;
+  line-height: 1;
+}
+
+.eq-home-main-cta {
+  position: relative;
+  z-index: 6;
+  width: calc(100% - 36px);
+  min-height: 76px;
+  margin: 26px 18px 0;
+  border-radius: 999px;
+  color: #3b2504;
+  font-size: clamp(24px, 7vw, 32px);
+  font-weight: 950;
+  letter-spacing: 0.04em;
+  filter: drop-shadow(0 0 24px rgba(255, 198, 68, 0.42));
+}
+
+/* Home target style: full map background */
+.eq-home-mobile-root {
+  min-height: 100dvh;
+  height: 100dvh;
+  overflow: hidden;
+  background: #020716;
+}
+
+.eq-home-menu {
+  min-height: 100dvh;
+  height: 100dvh;
+  padding: 0 20px calc(102px + env(safe-area-inset-bottom, 0px));
+  overflow: hidden;
+  background: #020716;
+}
+
+.eq-home-main-adventure.current-world-card,
+.eq-home-main-adventure {
+  position: absolute;
+  inset: 0;
+  height: 100dvh;
+  min-height: 100dvh;
+  margin: 0;
+  border-radius: 0;
+  border: 0;
+  overflow: hidden;
+  background: #07142f;
+}
+
+.eq-home-adventure-bg,
+.eq-home-adventure-bg .world-bg {
+  position: absolute;
+  inset: 0;
+}
+
+.eq-home-adventure-bg .world-bg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 18%;
+  filter: brightness(0.98) saturate(1.18) contrast(1.04);
+}
+
+
+.eq-home-world-title-plate {
+  position: absolute;
+  top: calc(54px + env(safe-area-inset-top, 0px));
+  left: 50%;
+  z-index: 7;
+  transform: translateX(-50%);
+  width: min(72vw, 380px);
+  height: 64px;
+  display: grid;
+  place-items: center;
+  color: #ffe8ae;
+  font-size: clamp(28px, 7vw, 40px);
+  font-weight: 950;
+  letter-spacing: 0.08em;
+  text-shadow: 0 2px 0 rgba(65, 34, 6, 0.9), 0 0 16px rgba(255, 220, 118, 0.35);
+  background:
+    linear-gradient(180deg, rgba(57, 74, 88, 0.92), rgba(28, 39, 55, 0.92));
+  border: 2px solid rgba(225, 185, 103, 0.92);
+  border-radius: 14px;
+  box-shadow:
+    0 0 0 2px rgba(7, 18, 42, 0.5),
+    0 12px 28px rgba(0, 0, 0, 0.32),
+    inset 0 0 18px rgba(255, 255, 255, 0.10);
+}
+
+.eq-home-world-title-plate::before,
+.eq-home-world-title-plate::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  width: 36px;
+  height: 36px;
+  transform: translateY(-50%) rotate(45deg);
+  border: 2px solid rgba(225, 185, 103, 0.85);
+  background: rgba(20, 36, 58, 0.96);
+}
+
+.eq-home-world-title-plate::before {
+  left: -18px;
+}
+
+.eq-home-world-title-plate::after {
+  right: -18px;
 }
