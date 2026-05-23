@@ -891,15 +891,6 @@ export default function HomePage() {
         </Link>
       </EQMobileShell>
       <EQBottomNav
-        items={[
-          { label: 'ホーム', to: '/app', icon: 'home', active: true },
-          { label: '地図', to: '/study-map', icon: 'map' },
-          { label: '学習', to: '/daily-words', icon: 'study' },
-          { label: 'カード', to: '/flashcard', icon: 'cards' },
-          { label: 'その他', to: '/settings', icon: 'more' },
-        ]}
-      />
-      <EQBottomNav
         className="eq-home-bottom-nav"
         items={[
           { label: 'ホーム', to: '/app', icon: 'home', active: true },

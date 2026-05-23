@@ -609,6 +609,7 @@ def load_vocabulary(filename=VOCAB_FILENAME):
         database_vocab = load_vocabulary_from_postgres_words()
         if database_vocab:
             return database_vocab
+        raise RuntimeError("DATABASE_URL is set, but no vocabulary was loaded from PostgreSQL words table.")
 
     vocab = []
     for row in _read_csv_with_fallback(filename):
