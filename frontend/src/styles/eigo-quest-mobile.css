@@ -7989,3 +7989,106 @@ body,
 .eq-settings-screen {
   padding-bottom: calc(116px + env(safe-area-inset-bottom, 0px)) !important;
 }
+
+/* =========================================================
+   Global BottomNav - restore original dark blue / purple style
+   ========================================================= */
+
+.eq-app-bottom-nav {
+  position: fixed !important;
+  left: max(10px, env(safe-area-inset-left)) !important;
+  right: max(10px, env(safe-area-inset-right)) !important;
+  bottom: 0 !important;
+  z-index: 100 !important;
+
+  width: auto !important;
+  max-width: var(--eq-mobile-max) !important;
+  height: calc(var(--eq-bottom-nav-height, 74px) + env(safe-area-inset-bottom, 0px)) !important;
+
+  margin: 0 auto !important;
+  padding: 6px 6px calc(6px + env(safe-area-inset-bottom, 0px)) !important;
+
+  display: grid !important;
+  grid-template-columns: repeat(5, minmax(0, 1fr)) !important;
+  align-items: stretch !important;
+  gap: 4px !important;
+
+  border: 1px solid rgba(132, 95, 255, 0.34) !important;
+  border-radius: 23px 23px 0 0 !important;
+
+  background: rgba(8, 10, 34, 0.82) !important;
+
+  box-shadow:
+    0 16px 42px rgba(0, 0, 0, 0.42),
+    0 0 24px rgba(123, 85, 255, 0.45) !important;
+
+  backdrop-filter: blur(18px) !important;
+  overflow: hidden !important;
+}
+
+.eq-app-bottom-nav::before,
+.eq-app-bottom-nav::after {
+  display: none !important;
+  content: none !important;
+}
+
+.eq-app-bottom-nav .eq-bottom-nav-link {
+  height: 100% !important;
+  min-width: 0 !important;
+
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 3px !important;
+
+  border-radius: 16px !important;
+
+  background: transparent !important;
+  box-shadow: none !important;
+
+  color: #737d9f !important;
+  font-size: 11px !important;
+  font-weight: 850 !important;
+  line-height: 1 !important;
+  text-decoration: none !important;
+}
+
+.eq-app-bottom-nav .eq-bottom-nav-link.is-active {
+  color: #9ee8ff !important;
+
+  background:
+    radial-gradient(
+      circle at 50% 36%,
+      rgba(53, 217, 255, 0.18),
+      rgba(123, 85, 255, 0.12) 56%,
+      transparent 100%
+    ) !important;
+
+  box-shadow:
+    inset 0 0 0 1px rgba(53, 217, 255, 0.22),
+    0 0 18px rgba(53, 217, 255, 0.18),
+    0 0 24px rgba(123, 85, 255, 0.16) !important;
+}
+.eq-app-bottom-nav .eq-bottom-nav-icon {
+  width: 38px !important;
+  height: 38px !important;
+  display: grid !important;
+  place-items: center !important;
+}
+
+.eq-app-bottom-nav .eq-bottom-nav-icon img {
+  width: 36px !important;
+  height: 36px !important;
+  object-fit: contain !important;
+  display: block !important;
+
+  filter:
+    drop-shadow(0 4px 8px rgba(0, 0, 0, 0.42)) !important;
+}
+
+.eq-app-bottom-nav .eq-bottom-nav-link.is-active .eq-bottom-nav-icon img {
+  filter:
+    drop-shadow(0 0 10px rgba(53, 217, 255, 0.42))
+    drop-shadow(0 4px 8px rgba(0, 0, 0, 0.42)) !important;
+}

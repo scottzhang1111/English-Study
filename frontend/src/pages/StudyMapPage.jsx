@@ -96,11 +96,13 @@ export default function StudyMapPage() {
     });
   }
 
-  function handleWorldClick(world) {
-    if (world.status === 'current') {
-      navigate('/app');
-    }
+function handleWorldClick(world) {
+  if (world.status === 'future') {
+    return;
   }
+
+  navigate(`/world-stage?world=${world.id}`);
+}
 
   return (
     <div className="eq-study-map-wrap">
