@@ -32,7 +32,7 @@ except ImportError:
 app = Flask(__name__)
 _DB_INITIALIZED = False
 
-DB_FILENAME = 'practice_data.db'
+DB_FILENAME = 'eigo_quest_local_v1.sqlite'
 VOCAB_FILENAME = os.path.join('data', 'eiken', 'eiken_pre2', 'eiken_pre2_web_ready_db', 'eiken_vocab_database_with_synonyms_utf8_bom.csv')
 EIKEN_PRE2_BANK_FILENAME = os.path.join('data', 'eiken', 'eiken_pre2', 'eiken_pre2_web_ready_db', 'eiken_pre2_web_ready.sqlite')
 EIKEN_REAL_EXAM_DIR = os.path.join('data', 'eiken', 'eiken real exam', 'Listening', 'www.cloudsemi.com', 'member', 'eiken', 'eikenj2')
@@ -632,8 +632,7 @@ def load_vocabulary_from_postgres_words():
                 '''
                 SELECT id, word, level, frequency, part_of_speech, meaning_ja, meaning_cn,
                        phrase, example_en, example_ja, example_cn, synonyms, antonyms
-                //FROM words
-                FROM vocabulary
+                FROM words
                 ORDER BY frequency ASC, id ASC
                 '''
             ).fetchall()
@@ -4783,8 +4782,14 @@ def master_battle_wrong_question(wrong_id):
     finally:
         conn.close()
 
-
 def get_grammar_lesson_db_connection():
+    return get_db_connection()
+
+
+def get_grammar_form_test_db_connection():
+    return get_db_connection()
+
+""" def get_grammar_lesson_db_connection():
     path = data_path(GRAMMAR_LESSON_DB_FILENAME)
     if not os.path.exists(path):
         raise FileNotFoundError('grammar lesson database not found')
@@ -4799,7 +4804,7 @@ def get_grammar_form_test_db_connection():
         raise FileNotFoundError('grammar form test database not found')
     conn = sqlite3.connect(path)
     conn.row_factory = sqlite3.Row
-    return conn
+    return conn """
 
 
 def require_child_id(value):
@@ -5125,8 +5130,10 @@ def _grammar_lesson_payload(row, progress=None, quiz_count=0, correct_quiz_count
         'level': row['level'],
         'category': row['category'],
         'title': row['title'],
-        'grammarPoint': row['grammar_point'],
-        'jpExplanation': row['jp_explanation'],
+        """ 'grammarPoint': row['grammar_point'], """
+        'grammarPoint': _row_value(row, 'grammar_point') or _row_value(row, 'target_grammar') or '',
+       """  'jpExplanation': row['jp_explanation'], """
+        'jpExplanation':_row_value(row, 'jp_explanation') or _row_value(row, 'explanation_ja') or '',
         'jpExample': row['jp_example'],
         'enExample': row['en_example'],
         'learningGoal': row['learning_goal'] or '',
@@ -5168,13 +5175,18 @@ def get_grammar_lessons_for_child(child_id):
     correct_counts = _grammar_correct_quiz_count_map(child_id)
     lesson_conn = get_grammar_lesson_db_connection()
     try:
+        lesson_columns = _sqlite_table_columns(lesson_conn, 'grammar_lessons')
+
+        where_sql = 'WHERE l.is_active = 1' if 'is_active' in lesson_columns else ''
+        order_sql = 'l.display_order ASC, l.lesson_id ASC' if 'display_order' in lesson_columns else 'l.lesson_id ASC'
+
         rows = lesson_conn.execute(
-            '''
+            f'''
             SELECT l.*,
-                   (SELECT COUNT(*) FROM grammar_quizzes q WHERE q.lesson_id = l.lesson_id) AS quiz_count
+                (SELECT COUNT(*) FROM grammar_quizzes q WHERE q.lesson_id = l.lesson_id) AS quiz_count
             FROM grammar_lessons l
-            WHERE l.is_active = 1
-            ORDER BY l.display_order ASC, l.lesson_id ASC
+            {where_sql}
+            ORDER BY {order_sql}
             '''
         ).fetchall()
     finally:
@@ -8040,6 +8052,7 @@ def api_battle_wrong_question_master(wrong_id):
     return jsonify(result)
 
 
+@app.route('/api/grammar-lessons')
 @app.route('/api/grammar/lessons')
 def api_grammar_lessons():
     child_id = request.args.get('child_id') or request.args.get('childId')
