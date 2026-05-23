@@ -279,9 +279,25 @@ export default function HomePage() {
   const [homeRewardImageFailed, setHomeRewardImageFailed] = useState(false);
   const [isHomeVideoPlaying, setIsHomeVideoPlaying] = useState(false);
   const homeVideoRef = useRef(null);
-  const handleHomeVideoPlay = () => {
-  setIsHomeVideoPlaying(true);
-  homeVideoRef.current?.play?.();
+const handleHomeVideoPlay = async (event) => {
+  event?.stopPropagation?.();
+
+  const video = homeVideoRef.current;
+  if (!video) {
+    console.warn('Home video ref is null');
+    return;
+  }
+
+  try {
+    video.muted = true;
+    video.playsInline = true;
+    video.currentTime = 0;
+    await video.play();
+    setIsHomeVideoPlaying(true);
+  } catch (err) {
+    console.error('Home video play failed:', err);
+    setIsHomeVideoPlaying(false);
+  }
 };
   const { children, childrenLoading, childrenError, selectedChildId, setSelectedChildId, refreshChildren } = useChildren();
   const navigate = useNavigate();
@@ -648,9 +664,12 @@ export default function HomePage() {
     playsInline
     muted
     loop
-    preload="metadata"
+    preload="auto"
     onPlay={() => setIsHomeVideoPlaying(true)}
     onPause={() => setIsHomeVideoPlaying(false)}
+    onError={(event) => {
+    console.error('Home video error:', event.currentTarget.error);
+  }}
   />
 
   {!isHomeVideoPlaying && (

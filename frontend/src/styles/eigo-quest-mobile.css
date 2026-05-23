@@ -2056,6 +2056,7 @@ body,
   inset: 0;
   z-index: 1;
   pointer-events: none;
+  pointer-events: none !important;
 }
 
 .world-overlay-left {
@@ -6564,4 +6565,17 @@ body,
 
 .eq-home-video-play-button:active {
   transform: translate(-50%, -50%) scale(0.94);
+}
+
+.eq-home-video-bg {
+  pointer-events: auto !important;
+}
+
+.eq-home-bg-video {
+  pointer-events: none !important;
+}
+
+.eq-home-video-play-button {
+  pointer-events: auto !important;
+  z-index: 9999 !important;
 }
