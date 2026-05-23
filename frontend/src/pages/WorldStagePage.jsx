@@ -4,6 +4,7 @@ import { getHomeData } from '../api';
 import { EQBackPill, EQCard, EQMobileShell } from '../components/eigo';
 import { eigoQuestCards } from '../config/eigoQuestCards';
 import eigoQuestWorlds from '../config/eigoQuestWorlds';
+import SpiritAssistant from '../components/eigo-quest/SpiritAssistant';
 
 const CHILD_STORAGE_KEY = 'selected_child_id';
 const MOCK_LEARNED_WORDS = 35;
@@ -22,18 +23,40 @@ const WORLD_DISPLAY = {
   light: { nameJa: '光の世界', nameEn: 'LIGHT REALM', symbol: '光', color: '#ffd86b' },
 };
 
-const STAGE_POSITIONS = [
-  { x: 52, y: 16 },
-  { x: 45, y: 28 },
-  { x: 38, y: 41 },
-  { x: 56, y: 50 },
-  { x: 42, y: 61 },
-  { x: 58, y: 69 },
-  { x: 45, y: 78 },
-  { x: 62, y: 84 },
-  { x: 35, y: 88 },
-  { x: 55, y: 89 },
-];
+const WORLD_STAGE_POSITIONS = {
+  fire: [
+    { x: 16, y: 72 },
+    { x: 28, y: 59 },
+    { x: 42, y: 48 },
+    { x: 55, y: 37 },
+    { x: 76, y: 28 },
+    { x: 62, y: 52 },
+    { x: 47, y: 65 },
+    { x: 58, y: 78 },
+    { x: 34, y: 84 },
+    { x: 82, y: 82 },
+  ],
+
+  wind: [
+    { x: 18, y: 78 },
+    { x: 31, y: 64 },
+    { x: 24, y: 49 },
+    { x: 42, y: 38 },
+    { x: 62, y: 32 },
+    { x: 78, y: 45 },
+    { x: 64, y: 60 },
+    { x: 48, y: 72 },
+    { x: 32, y: 84 },
+    { x: 78, y: 82 },
+  ],
+};
+const WORLD_STAGE_PATHS = {
+  fire:
+    'M 16 72 C 24 62, 34 64, 28 52 C 22 38, 42 33, 55 37 C 70 42, 83 34, 76 28 C 66 45, 68 58, 62 52 C 52 48, 44 58, 47 65 C 50 75, 62 76, 58 78 C 48 82, 40 86, 34 84 C 52 88, 68 86, 82 82',
+
+  wind:
+    'M 18 78 C 28 68, 38 70, 31 64 C 20 54, 18 46, 24 49 C 35 54, 32 40, 42 38 C 56 35, 66 22, 62 32 C 58 48, 75 35, 78 45 C 82 58, 66 54, 64 60 C 60 72, 48 72, 48 72 C 42 80, 34 84, 32 84 C 52 90, 68 88, 78 82',
+};
 
 function clamp(value, min, max) {
   return Math.max(min, Math.min(max, value));
@@ -103,6 +126,9 @@ export default function WorldStagePage() {
     { icon: '？', label: 'クイズ', ...missionProgress(quizDone, quizTarget) },
     { icon: '🔎', label: 'まちがい直し', ...missionProgress(wrongReviewDone, wrongReviewTarget) },
   ];
+  const stagePositions =
+  WORLD_STAGE_POSITIONS[currentWorld.id] ||
+  WORLD_STAGE_POSITIONS.fire;
 
   const stageNodes = Array.from({ length: STAGES_PER_WORLD }, (_, index) => {
     const stage = index + 1;
@@ -111,7 +137,7 @@ export default function WorldStagePage() {
       stage,
       status,
       isBoss: stage === STAGES_PER_WORLD,
-      position: STAGE_POSITIONS[index],
+      position: stagePositions[index],
     };
   });
 
@@ -133,17 +159,13 @@ export default function WorldStagePage() {
   return (
     <div className="eq-world-stage-wrap">
       <EQMobileShell className="eq-world-stage-screen">
-        <EQBackPill to="/app">← ホームに戻る</EQBackPill>
-
-        <header className="eq-world-stage-header">
-          <h1>{worldDisplay.nameJa}</h1>
-          <p>{worldDisplay.nameEn}</p>
-          <div className="eq-world-stage-progress-line">
-            <span>Stage {currentStage} / {STAGES_PER_WORLD}</span>
-            <strong>{learnedWordsInWorld} / {WORDS_PER_WORLD} words</strong>
-          </div>
-          <div className="eq-progress-bar" style={{ '--eq-progress': `${worldProgressPercent}%` }} />
-        </header>
+   <header className="eq-world-stage-story-header">
+      <h1>{worldDisplay.nameJa.replace('世界', '国')}</h1>
+      <p>
+        遥か昔、ことばの力で動く魔法の世界があった。<br />
+        Lexoria。
+      </p>
+    </header>
 
         {error ? <div className="eq-study-map-error">{error}</div> : null}
         {message ? <div className="eq-stage-toast">{message}</div> : null}
@@ -161,7 +183,21 @@ export default function WorldStagePage() {
               <span>{worldDisplay.symbol}</span>
             )}
           </div>
-          <div className="eq-world-stage-path" aria-hidden="true" />
+          <svg
+            className="eq-world-stage-route-svg"
+            viewBox="0 0 100 100"
+            preserveAspectRatio="none"
+            aria-hidden="true"
+          >
+            <path
+              className="eq-world-stage-route-shadow"
+              d={WORLD_STAGE_PATHS[currentWorld.id] || WORLD_STAGE_PATHS.fire}
+            />
+            <path
+              className="eq-world-stage-route-line"
+              d={WORLD_STAGE_PATHS[currentWorld.id] || WORLD_STAGE_PATHS.fire}
+            />
+          </svg>
           {stageNodes.map((node) => (
             <button
               key={node.stage}
@@ -179,8 +215,32 @@ export default function WorldStagePage() {
               {node.isBoss ? <strong>Boss</strong> : null}
             </button>
           ))}
-        </section>
+        </section>  
+        <section className="eq-world-stage-guide-area">
+  <div className="eq-world-stage-bubble">
+    <span>{worldDisplay.nameJa.replace('世界', '国')}</span>
+    <p>
+      Stage {currentStage} に挑戦しよう！<br />
+      まずは今日のミッションを進めよう。
+    </p>
+  </div>
 
+  <SpiritAssistant
+    worldName={worldDisplay.nameJa}
+    mood="idle"
+    position="stage-map"
+    messages={[]}
+  />
+</section>
+
+<button
+  type="button"
+  className="eq-gold-button eq-stage-start-button eq-stage-start-button-main"
+  onClick={startCurrentStage}
+>
+  Stage {currentStage} 挑戦
+</button>
+{false && (
         <EQCard className="eq-stage-mission-panel">
           <h2>Stage {currentStage} のミッション</h2>
           <div className="eq-stage-mission-list">
@@ -206,6 +266,7 @@ export default function WorldStagePage() {
             {stageCtaLabel}
           </button>
         </EQCard>
+        )}
       </EQMobileShell>
     </div>
   );

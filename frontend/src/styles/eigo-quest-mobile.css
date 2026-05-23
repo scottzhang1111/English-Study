@@ -6598,3 +6598,153 @@ body,
 
   background-size: 100% 100% !important;
 }
+
+/* World Stage target layout */
+.eq-world-stage-wrap {
+  min-height: 100dvh;
+  background:
+    radial-gradient(circle at 50% 0%, rgba(134, 215, 255, 0.34), transparent 42%),
+    linear-gradient(180deg, #7fb7df 0%, #1f385f 52%, #071024 100%);
+}
+
+.eq-world-stage-screen {
+  position: relative;
+  min-height: 100dvh;
+  height: 100dvh;
+  overflow: hidden;
+  padding:
+    calc(44px + env(safe-area-inset-top, 0px))
+    18px
+    calc(92px + env(safe-area-inset-bottom, 0px));
+}
+
+.eq-world-stage-story-header {
+  position: relative;
+  z-index: 5;
+  text-align: center;
+  color: #fff4dc;
+  text-shadow: 0 3px 16px rgba(0, 0, 0, 0.42);
+}
+
+.eq-world-stage-story-header h1 {
+  margin: 0;
+  font-size: clamp(38px, 10vw, 56px);
+  font-weight: 950;
+  letter-spacing: 0.08em;
+}
+
+.eq-world-stage-story-header p {
+  margin: 14px 0 0;
+  color: rgba(255, 255, 255, 0.94);
+  font-size: clamp(15px, 4vw, 20px);
+  font-weight: 900;
+  line-height: 1.5;
+}
+
+.eq-world-stage-map-card {
+  position: relative;
+  height: min(50dvh, 480px);
+  margin-top: 24px;
+  overflow: hidden;
+  border-radius: 30px;
+  border: 1.5px solid rgba(255, 214, 118, 0.62);
+  box-shadow:
+    0 18px 42px rgba(0, 0, 0, 0.32),
+    inset 0 0 26px rgba(255, 255, 255, 0.08);
+}
+
+.eq-world-stage-map-bg img {
+  filter: brightness(0.92) saturate(1.12) contrast(1.02);
+}
+
+.eq-stage-mission-panel {
+  display: none !important;
+}
+
+.eq-world-stage-route-svg {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+}
+
+.eq-world-stage-route-shadow {
+  fill: none;
+  stroke: rgba(255, 155, 40, 0.48);
+  stroke-width: 5.2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  filter: blur(1px);
+}
+
+.eq-world-stage-route-line {
+  fill: none;
+  stroke: #ffe174;
+  stroke-width: 2.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.eq-stage-select-node {
+  position: absolute;
+  left: var(--node-x);
+  top: var(--node-y);
+  z-index: 5;
+  transform: translate(-50%, -50%);
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 235, 168, 0.9);
+  background:
+    radial-gradient(circle at 35% 28%, #ffffff, #55d6ff 34%, #0d4678 70%, #09213e);
+  color: white;
+  font-size: 18px;
+  font-weight: 950;
+  box-shadow:
+    0 0 16px rgba(78, 218, 255, 0.65),
+    0 6px 16px rgba(0, 0, 0, 0.35);
+}
+
+.eq-stage-select-node.is-current {
+  width: 68px;
+  height: 68px;
+  border: 3px solid #48eaff;
+  font-size: 30px;
+  box-shadow:
+    0 0 24px rgba(72, 234, 255, 0.9),
+    0 0 0 8px rgba(72, 234, 255, 0.16);
+}
+
+.eq-stage-select-node.is-completed {
+  background:
+    radial-gradient(circle at 35% 28%, #fff7c4, #ffd766 42%, #8d4c00);
+  color: #3b2504;
+}
+
+.eq-stage-select-node.is-completed::before {
+  content: "CLEAR!";
+  position: absolute;
+  left: 50%;
+  bottom: 36px;
+  transform: translateX(-50%);
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: rgba(70, 38, 5, 0.78);
+  color: #fff0a8;
+  font-size: 11px;
+  font-weight: 950;
+  white-space: nowrap;
+}
+
+.eq-stage-select-node.is-locked {
+  border-color: rgba(220, 230, 245, 0.45);
+  background:
+    radial-gradient(circle at 35% 28%, #ffffff, #8c98a8 42%, #343b48);
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.eq-stage-select-node.is-boss {
+  width: 76px;
+  height: 76px;
+  border-color: #b56cff;
+}
