@@ -389,3 +389,93 @@
 .spirit-assistant__pager em {
   display: none !important;
 }
+/* ================================
+   Home Spirit Dialogue Final Layout
+   气泡偏左，精灵偏右，右侧尖角
+   ================================ */
+
+.spirit-assistant--home-floating {
+  --spirit-size: clamp(130px, 30vw, 166px);
+  --spirit-bubble-width: min(68vw, 390px);
+
+  right: 2px !important;
+  bottom: calc(198px + env(safe-area-inset-bottom, 0px)) !important;
+
+  width: 100% !important;
+  min-height: 180px !important;
+}
+
+.spirit-assistant--home-floating .spirit-assistant__button {
+  width: var(--spirit-size) !important;
+  height: var(--spirit-size) !important;
+  transform: translate(26px, 8px) !important;
+  z-index: 4 !important;
+}
+
+.spirit-assistant--home-floating .spirit-assistant__bubble {
+  right: calc(var(--spirit-size) * 0.86) !important;
+  bottom: calc(var(--spirit-size) * 0.12) !important;
+
+  width: var(--spirit-bubble-width) !important;
+  max-width: min(68vw, 390px) !important;
+  min-height: 132px !important;
+
+  padding: 18px 24px 16px !important;
+  border-radius: 28px !important;
+
+  border: 2px solid rgba(232, 191, 91, 0.9) !important;
+  background:
+    linear-gradient(180deg, rgba(8, 25, 64, 0.92), rgba(4, 12, 38, 0.95)) !important;
+
+  box-shadow:
+    0 0 24px rgba(56, 170, 255, 0.24),
+    inset 0 0 18px rgba(108, 180, 255, 0.08),
+    0 14px 34px rgba(0, 0, 0, 0.34) !important;
+
+  z-index: 3 !important;
+}
+
+.spirit-assistant--home-floating .spirit-assistant__bubble::after {
+  content: "" !important;
+  position: absolute !important;
+
+  right: -14px !important;
+  bottom: 42px !important;
+
+  width: 26px !important;
+  height: 26px !important;
+
+  background:
+    linear-gradient(135deg, rgba(8, 25, 64, 0.96), rgba(4, 12, 38, 0.98)) !important;
+
+  border-top: 2px solid rgba(232, 191, 91, 0.9) !important;
+  border-right: 2px solid rgba(232, 191, 91, 0.9) !important;
+
+  transform: rotate(45deg) !important;
+  border-radius: 4px !important;
+  z-index: 2 !important;
+}
+
+.spirit-assistant--home-floating .spirit-assistant__bubble span {
+  margin-bottom: 8px !important;
+  color: #ffe18c !important;
+  font-size: clamp(14px, 3.4vw, 18px) !important;
+  font-weight: 950 !important;
+}
+
+.spirit-assistant--home-floating .spirit-assistant__bubble p {
+  color: #f8fbff !important;
+  font-size: clamp(18px, 4.3vw, 23px) !important;
+  font-weight: 950 !important;
+  line-height: 1.5 !important;
+  white-space: pre-line !important;
+}
+
+.spirit-assistant--home-floating .spirit-assistant__pager {
+  margin-top: 12px !important;
+  gap: 10px !important;
+}
+
+.spirit-assistant--home-floating .spirit-assistant__pager em {
+  display: none !important;
+}
