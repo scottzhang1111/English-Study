@@ -399,7 +399,37 @@ const handleNextStudy = async () => {
   }
 };
 
+const handlePreviousStudy = async () => {
+  if (studyIndex <= 0 || !studyWords.length) return;
 
+  const prevIndex = studyIndex - 1;
+  const prevWord = studyWords[prevIndex];
+
+  if (!prevWord?.word) return;
+
+  try {
+    setStudyLoading(true);
+
+    const detailPayload = await getFlashcardData({
+      word: prevWord.word,
+      childId: selectedChildId,
+    });
+
+    const mergedWord = {
+      ...prevWord,
+      ...detailPayload,
+    };
+
+    const nextWords = [...studyWords];
+    nextWords[prevIndex] = mergedWord;
+
+    showStudyWord(mergedWord, prevIndex, nextWords);
+  } catch (err) {
+    showStudyWord(prevWord, prevIndex, studyWords);
+  } finally {
+    setStudyLoading(false);
+  }
+};
 
   const handleSubmitFill = async () => {
     if (!flashcard) return;
@@ -611,7 +641,7 @@ const mobilePartOfSpeech =
               >
                 <h1 className="eq-word-title">{flashcard.word}</h1>
                 <div className="eq-word-card-head">
-                  <span className="eq-word-pos-badge">品詞 / {mobilePartOfSpeech}</span>
+                  <span className="eq-word-pos-badge"> {mobilePartOfSpeech}</span>
                 </div>
 
                 <div className="eq-word-meaning-block">
@@ -644,7 +674,17 @@ const mobilePartOfSpeech =
                 </div>
               </MagicPanel>
 
-              <div className="eq-word-actions">
+              <div className="eq-word-actions quest-word-actions-two">
+                {studyIndex > 0 ? (
+                  <button
+                    type="button"
+                    onClick={handlePreviousStudy}
+                    className="quest-word-prev-button"
+                  >
+                    ← 前の単語へ
+                  </button>
+                ) : null}
+
                 <GoldQuestButton onClick={handleNextStudy} className="quest-word-next-button">
                   つぎへ
                 </GoldQuestButton>

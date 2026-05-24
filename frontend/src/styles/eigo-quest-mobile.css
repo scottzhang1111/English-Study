@@ -7623,3 +7623,32 @@ body,
 .eq-app-bottom-nav .eq-bottom-nav-link > span:not(.eq-bottom-nav-icon) {
   display: none !important;
 }
+
+.quest-word-actions-two {
+  display: grid;
+  grid-template-columns: minmax(0, 0.75fr) minmax(0, 1.25fr);
+  gap: 12px;
+  align-items: center;
+}
+
+.quest-word-prev-button {
+  min-height: 54px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 218, 105, 0.45);
+  background: linear-gradient(180deg, rgba(9, 26, 68, 0.92), rgba(4, 10, 34, 0.96));
+  color: #ffe38a;
+  font-weight: 900;
+  font-size: 15px;
+  letter-spacing: 0.02em;
+  box-shadow:
+    inset 0 0 14px rgba(91, 166, 255, 0.12),
+    0 0 18px rgba(53, 179, 255, 0.12);
+}
+
+.quest-word-prev-button:active {
+  transform: translateY(1px) scale(0.99);
+}
+
+.quest-word-actions-two .quest-word-next-button {
+  width: 100%;
+}
