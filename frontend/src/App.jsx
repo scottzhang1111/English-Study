@@ -125,7 +125,8 @@ function App() {
         <ChildrenProvider>
           <div className="app-shell min-h-screen">
             <AnimatePresence mode="wait" initial={false}>
-              <Routes location={location} key={location.pathname}>
+              <RouteDebugBadge />
+            <Routes location={location} key={location.pathname}>
             <Route path="/" element={<AnimatedPage><StartupGate /></AnimatedPage>} />
             <Route path="/app" element={<AnimatedPage><StartupGate /></AnimatedPage>} />
             <Route path="/select-child" element={<AnimatedPage><ChildSelectPage /></AnimatedPage>} />
@@ -167,9 +168,7 @@ function App() {
             <Route path="/settings/children" element={<AnimatedPage><SettingsPage /></AnimatedPage>} />
             <Route path="/settings/add-child" element={<AnimatedPage><AddChildPage /></AnimatedPage>} />
             <Route path="*" element={<Navigate replace to="/" />} />
-             <RouteDebugBadge />
-    {/* 你原来的 routes */}
-              </Routes>
+             </Routes>
             </AnimatePresence>
 {/*             {hideBottomNav ? (
               null
