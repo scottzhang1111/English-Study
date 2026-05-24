@@ -76,6 +76,10 @@ const LEXORIA_INTRO_MESSAGES = [
   'さあ、言葉の守護者「Words Keeper」よ！今日の冒険へ、出発だ！',
 ];
 
+const LEXORIA_INTRO_VOICE_URLS = LEXORIA_INTRO_MESSAGES.map(
+  (_, index) => `/assets/eigo-quest/voice/intro-${String(index + 1).padStart(2, '0')}.wav`,
+);
+
 function HomeAssetIcon({ src, fallback, className = '', imageClassName = '' }) {
   const [imageFailed, setImageFailed] = useState(false);
 
@@ -291,7 +295,45 @@ export default function HomePage() {
   const [homeWorldImageFailed, setHomeWorldImageFailed] = useState(false);
   const [homeRewardImageFailed, setHomeRewardImageFailed] = useState(false);
   const [isHomeVideoPlaying, setIsHomeVideoPlaying] = useState(false);
+  const [homeIntroLineIndex, setHomeIntroLineIndex] = useState(0);
   const homeVideoRef = useRef(null);
+  const homeIntroAudioRef = useRef(null);
+  const homeIntroVoiceRunRef = useRef(0);
+
+function stopHomeIntroVoice() {
+  homeIntroVoiceRunRef.current += 1;
+
+  if (homeIntroAudioRef.current) {
+    homeIntroAudioRef.current.pause();
+    homeIntroAudioRef.current.src = '';
+    homeIntroAudioRef.current = null;
+  }
+}
+
+function playHomeIntroVoiceFrom(startIndex = 0) {
+  stopHomeIntroVoice();
+
+  const runId = homeIntroVoiceRunRef.current;
+
+  function playLine(index) {
+    if (runId !== homeIntroVoiceRunRef.current) return;
+    if (!homeVideoRef.current || homeVideoRef.current.paused) return;
+    if (index >= LEXORIA_INTRO_VOICE_URLS.length) return;
+
+    setHomeIntroLineIndex(index);
+
+    const audio = new Audio(LEXORIA_INTRO_VOICE_URLS[index]);
+    homeIntroAudioRef.current = audio;
+    audio.onended = () => playLine(index + 1);
+    audio.onerror = () => playLine(index + 1);
+    audio.play().catch((err) => {
+      console.error('Home intro voice play failed:', err);
+    });
+  }
+
+  playLine(startIndex);
+}
+
 const handleHomeVideoPlay = async (event) => {
   event?.stopPropagation?.();
 
@@ -307,11 +349,15 @@ const handleHomeVideoPlay = async (event) => {
     video.currentTime = 0;
     await video.play();
     setIsHomeVideoPlaying(true);
+    setHomeIntroLineIndex(0);
+    playHomeIntroVoiceFrom(0);
   } catch (err) {
     console.error('Home video play failed:', err);
     setIsHomeVideoPlaying(false);
   }
 };
+  useEffect(() => () => stopHomeIntroVoice(), []);
+
   const { children, childrenLoading, childrenError, selectedChildId, setSelectedChildId, refreshChildren } = useChildren();
   const navigate = useNavigate();
   const { mood: petMood, triggerPetMood, wakePet } = usePetMood();
@@ -679,7 +725,10 @@ const handleHomeVideoPlay = async (event) => {
     loop
     preload="auto"
     onPlay={() => setIsHomeVideoPlaying(true)}
-    onPause={() => setIsHomeVideoPlaying(false)}
+    onPause={() => {
+      setIsHomeVideoPlaying(false);
+      stopHomeIntroVoice();
+    }}
     onError={(event) => {
     console.error('Home video error:', event.currentTarget.error);
   }}
@@ -851,8 +900,7 @@ const handleHomeVideoPlay = async (event) => {
            mood="talk"
            position="home-floating"
            messages={LEXORIA_INTRO_MESSAGES}
-           autoPlayMessages={isHomeVideoPlaying}
-          autoPlayMs={2500}
+           messageIndex={homeIntroLineIndex}
         />
 
   {/*       <button type="button" onClick={() => navigate('/daily-words')} className="eq-home-quest-card">

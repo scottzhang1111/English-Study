@@ -17,6 +17,7 @@ import {
 } from '../components/eigo';
 import { getDailyWords, getFlashcardData, getHomeData, getLearnedWords, getTodayReviewQuiz, markMastered } from '../api';
 import eigoQuestWorlds from '../config/eigoQuestWorlds';
+import { createMissionReward } from '../helpers/eigoQuestRewards';
 
 const DAILY_TARGET = 20;
 const CHILD_STORAGE_KEY = 'selected_child_id';
@@ -111,6 +112,7 @@ export default function FlashcardPage() {
   const [reviewLocked, setReviewLocked] = useState(false);
   const [reviewScore, setReviewScore] = useState(0);
   const [reviewStreak, setReviewStreak] = useState(0);
+  const [reviewResult, setReviewResult] = useState(null);
   const audioRef = useRef(null);
   const navigate = useNavigate();
   const location = useLocation();
@@ -288,6 +290,7 @@ export default function FlashcardPage() {
       setReviewLocked(false);
       setReviewScore(0);
       setReviewStreak(0);
+      setReviewResult(null);
       setMode('review');
     } catch (err) {
       setReviewError(err.message);
@@ -460,7 +463,10 @@ const handlePreviousStudy = async () => {
       setReviewLocked(false);
       return;
     }
-    navigate('/progress');
+    const finalScore = reviewScore;
+    const passed = reviewTotal > 0 && finalScore >= reviewTotal;
+    setReviewResult({ passed, score: finalScore, total: reviewTotal });
+    setMode('review-result');
   };
 
   const progressWidth = mode === 'list'
@@ -714,7 +720,56 @@ const mobilePartOfSpeech =
         }}
       />
     )}
-   <div className={mode === 'study' || mode === 'complete' || mode === 'review' ? 'hidden lg:block' : ''}>
+    {mode === 'review-result' && reviewResult && (
+      <div className="eq-purify-page lg:hidden">
+        <EQMobileShell className="eq-purify-screen">
+          <section
+            className="eq-purify-card"
+            style={{
+              '--quest-color': reviewResult.passed ? '#9fffdc' : '#ff9a9a',
+              '--quest-glow': reviewResult.passed ? 'rgba(110, 255, 210, 0.45)' : 'rgba(255, 120, 140, 0.42)',
+              backgroundImage: `linear-gradient(rgba(4,8,24,.42), rgba(4,8,24,.78)), url(${questWorld?.backgroundImage || '/assets/eigo-quest/worlds/wind.png'})`,
+            }}
+          >
+            <div className="eq-purify-header">
+              <span>Day {dayLabel.replace('Day ', '')}</span>
+              <h1>{reviewResult.passed ? 'CLEAR!' : 'TRY AGAIN'}</h1>
+              <p>{reviewResult.passed ? 'よくできました！' : 'もう一度チャレンジ'}</p>
+              <strong>{reviewResult.score} / {reviewResult.total}</strong>
+            </div>
+
+            <div className="eq-purify-prompt">
+              <h2>
+                {reviewResult.passed
+                  ? '復習クイズをクリアしました。報酬カードを受け取りましょう。'
+                  : 'まちがえた単語をもう一度見てから進みましょう。'}
+              </h2>
+            </div>
+
+            <button
+              type="button"
+              className="eq-purify-next"
+              onClick={() => {
+                if (reviewResult.passed) {
+                  createMissionReward({
+                    childId: selectedChildId,
+                    learnedWordsCount: Number(homeData?.progress || DAILY_TARGET),
+                  });
+                  navigate('/card-reward');
+                } else {
+                  navigate(`${routePrefix}/daily-words`);
+                }
+              }}
+            >
+              {reviewResult.passed ? 'カードを受け取る' : '単語リストへ'}
+            </button>
+          </section>
+        </EQMobileShell>
+
+        <EQBottomNav />
+      </div>
+    )}
+   <div className={mode === 'study' || mode === 'complete' || mode === 'review' || mode === 'review-result' ? 'hidden lg:block' : ''}>
     <WebLearningLayout title="単語カード" subtitle="単語リストとカード学習" rightPanel={rightPanel}>
 
       <motion.section

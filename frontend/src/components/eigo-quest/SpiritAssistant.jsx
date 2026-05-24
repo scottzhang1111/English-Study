@@ -53,6 +53,7 @@ export default function SpiritAssistant({
   mistakeCount = 0,
   autoPlayMessages = false,
   autoPlayMs = 2000,
+  messageIndex,
   onClick,
 }) {
   const safeMessages = messages?.length ? messages : DEFAULT_MESSAGES;
@@ -69,7 +70,11 @@ export default function SpiritAssistant({
   const spiritSrc = failedAssets[SPIRIT_STATES[displayState]]
     ? SPIRIT_STATES.idle
     : SPIRIT_STATES[displayState] || SPIRIT_STATES.idle;
-  const currentMessage = shouldShowMistakeState ? MISTAKE_MESSAGE : safeMessages[lineIndex];
+  const controlledLineIndex = Number.isInteger(messageIndex)
+    ? Math.max(0, Math.min(safeMessages.length - 1, messageIndex))
+    : null;
+  const displayLineIndex = controlledLineIndex ?? lineIndex;
+  const currentMessage = shouldShowMistakeState ? MISTAKE_MESSAGE : safeMessages[displayLineIndex];
 
   useEffect(() => {
     if (shouldShowMistakeState || reaction) return undefined;
@@ -148,12 +153,12 @@ function handleSpiritClick(event) {
           {safeMessages.map((_, index) => (
             <i
               key={index}
-              className={index === lineIndex ? 'is-active' : ''}
+              className={index === displayLineIndex ? 'is-active' : ''}
             />
           ))}
         </div>
 
-  <strong>{lineIndex + 1}/{safeMessages.length}</strong>
+  <strong>{displayLineIndex + 1}/{safeMessages.length}</strong>
   <em>タップでつぎへ</em>
 </div>
       </motion.div>
