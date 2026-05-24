@@ -4,12 +4,14 @@ import { addPetExp, getDailyWords, getHomeData, markMastered, submitPracticeAnsw
 import { useChildren } from '../ChildrenContext';
 import { getPartner } from '../utils/childStorage';
 import { createMissionReward } from '../helpers/eigoQuestRewards';
+
 import {
   EQBottomNav,
   EQMobileShell,
   GoldQuestButton,
   QuestHeader,
   SpiritGuide,
+  PurificationQuizMobile,
 } from '../components/eigo';
 
 const DEFAULT_DAILY_WORD_TARGET = 20;
@@ -607,79 +609,123 @@ export default function DailyWordUnitPage() {
         </section>
       )}
 
-      {!error && stage === 'quiz' && currentQuestion && (
-        <section className="panel px-6 py-6 sm:px-8">
-          <div className="mb-4 flex items-center justify-between text-sm font-black text-[#6f7da8]">
-            <span>{quizIndex + 1} / {quizQuestions.length}</span>
-            <span>正解 {correctCount}</span>
+{!error && stage === 'quiz' && currentQuestion && (
+  <>
+    <PurificationQuizMobile
+      worldId="wind"
+      day={unitIndex + 1}
+      question={currentQuestion}
+      questionIndex={quizIndex}
+      questionTotal={quizQuestions.length}
+      selectedChoice={selectedChoice}
+      correctCount={correctCount}
+      onChoose={chooseAnswer}
+      onNext={nextQuiz}
+      quizSaving={quizSaving}
+      onPlayAudio={(quizQuestion) => {
+        const audioText =
+          quizQuestion?.audio_text ||
+          quizQuestion?.word?.word ||
+          quizQuestion?.word ||
+          '';
+        speak(audioText);
+      }}
+    />
+
+    <section className="panel hidden px-6 py-6 sm:px-8 lg:block">
+      <div className="mb-4 flex items-center justify-between text-sm font-black text-[#6f7da8]">
+        <span>{quizIndex + 1} / {quizQuestions.length}</span>
+        <span>正解 {correctCount}</span>
+      </div>
+
+      <div className="rounded-[30px] bg-[linear-gradient(180deg,#eef8ff_0%,#fffdf7_100%)] p-6">
+        <p className="text-sm font-black text-[#6f7da8]">小テスト</p>
+        <h2 className="display-font mt-4 whitespace-pre-line text-3xl font-extrabold text-[#354172]">
+          {currentQuestion.question}
+        </h2>
+
+        <div className="mt-5 flex flex-wrap items-center justify-between gap-3">
+          <div className="flex flex-wrap gap-3">
+            <button
+              type="button"
+              onClick={() => speak(currentQuestion.word.word)}
+              disabled={!selectedChoice}
+              className="ghost-button px-5 py-3 text-sm disabled:cursor-not-allowed disabled:opacity-45"
+            >
+              単語を聞く
+            </button>
+
+            {currentQuestion.word.exampleEn && (
+              <button
+                type="button"
+                onClick={() => speak(currentQuestion.word.exampleEn)}
+                disabled={!selectedChoice}
+                className="ghost-button px-5 py-3 text-sm disabled:cursor-not-allowed disabled:opacity-45"
+              >
+                例文を聞く
+              </button>
+            )}
           </div>
-          <div className="rounded-[30px] bg-[linear-gradient(180deg,#eef8ff_0%,#fffdf7_100%)] p-6">
-            <p className="text-sm font-black text-[#6f7da8]">小テスト</p>
-            <h2 className="display-font mt-4 whitespace-pre-line text-3xl font-extrabold text-[#354172]">{currentQuestion.question}</h2>
-            <div className="mt-5 flex flex-wrap items-center justify-between gap-3">
-              <div className="flex flex-wrap gap-3">
-                <button
-                  type="button"
-                  onClick={() => speak(currentQuestion.word.word)}
-                  disabled={!selectedChoice}
-                  className="ghost-button px-5 py-3 text-sm disabled:cursor-not-allowed disabled:opacity-45"
-                >
-                  単語を聞く
-                </button>
-                {currentQuestion.word.exampleEn && (
-                  <button
-                    type="button"
-                    onClick={() => speak(currentQuestion.word.exampleEn)}
-                    disabled={!selectedChoice}
-                    className="ghost-button px-5 py-3 text-sm disabled:cursor-not-allowed disabled:opacity-45"
-                  >
-                    例文を聞く
-                  </button>
-                )}
-              </div>
-              {selectedChoice && (
-                <button type="button" onClick={nextQuiz} disabled={quizSaving} className="pill-button px-5 py-3 text-sm disabled:opacity-50">
-                  {quizIndex >= quizQuestions.length - 1 ? '結果へ' : '次へ'}
-                </button>
-              )}
-            </div>
-          </div>
-          <div className="mt-6 grid grid-cols-2 gap-3 lg:grid-cols-4">
-            {currentQuestion.choices.map((choice) => {
-              const isCorrect = selectedChoice && choice === currentQuestion.correct;
-              const isWrong = selectedChoice === choice && choice !== currentQuestion.correct;
-              return (
-                <button
-                  key={choice}
-                  type="button"
-                  onClick={() => chooseAnswer(choice)}
-                  disabled={!!selectedChoice}
-                  className={`flex min-h-[76px] items-center justify-center rounded-[24px] border px-4 py-4 text-center text-base font-bold transition sm:text-lg ${
-                    isCorrect
-                      ? 'border-[#ffcf48] bg-[#fff4bf] text-[#5e4e76]'
-                      : isWrong
-                        ? 'border-rose-200 bg-rose-50 text-rose-700'
-                        : 'border-white/80 bg-white/78 text-[#34406f] hover:bg-[#f6fbff]'
-                  }`}
-                >
-                  {choice}
-                </button>
-              );
-            })}
-          </div>
+
           {selectedChoice && (
-            <div className="mt-5 rounded-[24px] bg-[#f9fcff] p-5 text-sm font-bold leading-7 text-[#60709d]">
-              <p className="text-base font-black text-[#354172]">
-                {selectedChoice === currentQuestion.correct ? '正解！' : `答え: ${currentQuestion.correct}`}
-              </p>
-              <p className="mt-1">
-                {currentQuestion.word.word} / {currentQuestion.word.meaningJa}
-              </p>
-              {currentQuestion.word.exampleEn && <p className="mt-1">{currentQuestion.word.exampleEn}</p>}
-            </div>
+            <button
+              type="button"
+              onClick={nextQuiz}
+              disabled={quizSaving}
+              className="pill-button px-5 py-3 text-sm disabled:opacity-50"
+            >
+              {quizIndex >= quizQuestions.length - 1 ? '結果へ' : '次へ'}
+            </button>
           )}
-        </section>
+        </div>
+      </div>
+
+      <div className="mt-6 grid grid-cols-2 gap-3 lg:grid-cols-4">
+        {currentQuestion.choices.map((choice) => {
+          const isCorrect = selectedChoice && choice === currentQuestion.correct;
+          const isWrong = selectedChoice === choice && choice !== currentQuestion.correct;
+
+          return (
+            <button
+              key={choice}
+              type="button"
+              onClick={() => chooseAnswer(choice)}
+              disabled={!!selectedChoice}
+              className={`flex min-h-[76px] items-center justify-center rounded-[24px] border px-4 py-4 text-center text-base font-bold transition sm:text-lg ${
+                isCorrect
+                  ? 'border-[#ffcf48] bg-[#fff4bf] text-[#5e4e76]'
+                  : isWrong
+                    ? 'border-rose-200 bg-rose-50 text-rose-700'
+                    : 'border-white/80 bg-white/78 text-[#34406f] hover:bg-[#f6fbff]'
+              }`}
+            >
+              {choice}
+            </button>
+          );
+        })}
+      </div>
+
+      {selectedChoice && (
+        <div className="mt-5 rounded-[24px] bg-[#f9fcff] p-5 text-sm font-bold leading-7 text-[#60709d]">
+          <p className="text-base font-black text-[#354172]">
+            {selectedChoice === currentQuestion.correct
+              ? '正解！'
+              : `答え: ${currentQuestion.correct}`}
+          </p>
+
+          <p className="mt-1">
+            {currentQuestion.word.word} / {currentQuestion.word.meaningJa}
+          </p>
+
+          {currentQuestion.word.exampleEn && (
+            <p className="mt-1">{currentQuestion.word.exampleEn}</p>
+          )}
+        </div>
       )}
+    </section>
+  </>
+)}
+
 
       {!error && stage === 'result' && (
         <section className="panel px-6 py-6 sm:px-8">

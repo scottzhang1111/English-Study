@@ -5,6 +5,7 @@ export { default as EQCard } from './EQCard';
 export { default as EQChoiceButton } from './EQChoiceButton';
 export { default as EQMobileShell } from './EQMobileShell';
 export { default as FantasyMenuTile } from './FantasyMenuTile';
+export { default as PurificationQuizMobile } from './PurificationQuizMobile';
 export {
   AudioButton,
   GoldQuestButton,
