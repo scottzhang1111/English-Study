@@ -288,43 +288,7 @@ export default function FlashcardPage() {
     setStudyLoading(false);
   };
 
-/*   const handleNextStudy = async () => {
-    if (!flashcard) return;
-    try {
-      const result = await markMastered({
-        word: flashcard.word,
-        childId: selectedChildId,
-        vocabId: flashcard.id,
-      });
-      const nextProgress = Number(result?.progress ?? progressValue + 1);
-      setHomeData((prev) => ({
-        ...(prev || {}),
-        progress: nextProgress,
-        target: result?.target ?? DAILY_TARGET,
-        remain: result?.remain ?? Math.max(0, DAILY_TARGET - nextProgress),
-      }));
-
-      const nextIndex = studyIndex + 1;
-      if (studyWords.length > 0 && nextIndex < studyWords.length) {
-        const nextWord = studyWords[nextIndex];
-        if (!nextWord?.word) {
-          showStudyComplete();
-          return;
-        }
-        if (requestedWord) {
-          const total = safeRequestedWordTotal || studyWords.length;
-          navigate(`${routePrefix}/flashcard?word=${encodeURIComponent(nextWord.word)}&index=${nextIndex}&total=${total}`);
-          return;
-        }
-        showStudyWord(nextWord, nextIndex, studyWords);
-        return;
-      }
-      showStudyComplete();
-    } catch (err) {
-      setStudyError(err.message);
-    }
-  }; */
-  const handleNextStudy = async () => {
+const handleNextStudy = async () => {
   if (!flashcard) return;
 
   try {
@@ -336,9 +300,8 @@ export default function FlashcardPage() {
 
     const dailyTarget = Number(result?.target ?? homeData?.target ?? DAILY_TARGET) || DAILY_TARGET;
     const reportedProgress = Number(result?.progress);
-
     const nextProgress =
-      Number.isFinite(reportedProgress) && reportedProgress > progressValue
+      Number.isFinite(reportedProgress)
         ? reportedProgress
         : progressValue + 1;
 
@@ -349,10 +312,22 @@ export default function FlashcardPage() {
       remain: result?.remain ?? Math.max(0, dailyTarget - nextProgress),
     }));
 
-if (nextProgress >= dailyTarget) {
-  await loadReviewQuiz();
-  return;
-}
+    const nextIndex = studyIndex + 1;
+
+    if (studyWords.length > 0 && nextIndex < studyWords.length) {
+      const nextWord = studyWords[nextIndex];
+
+      if (nextWord?.word) {
+        showStudyWord(nextWord, nextIndex, studyWords);
+        return;
+      }
+    }
+
+    await loadReviewQuiz();
+  } catch (err) {
+    setStudyError(err.message);
+  }
+};
 
 const nextIndex = studyIndex + 1;
 
@@ -495,7 +470,15 @@ showStudyComplete();
     : Number.isFinite(requestedWordIndex) && requestedWordIndex >= 0
       ? requestedWordIndex + 1
       : 1;
-  const mobilePartOfSpeech = flashcard?.part_of_speech || flashcard?.pos || flashcard?.speech || 'word';
+const mobilePartOfSpeech =
+  flashcard?.part_of_speech ||
+  flashcard?.partOfSpeech ||
+  flashcard?.pos ||
+  flashcard?.speech ||
+  flashcard?.category ||
+  flashcard?.Category ||
+  flashcard?.type ||
+  '品詞';
   const mobileExampleTranslation = flashcard?.sentence_jp || flashcard?.example_jp || '日本語訳を読み込み中...';
   const mobileMeaning = flashcard?.jp || flashcard?.meaningJa || flashcard?.japanese || '意味を読み込み中...';
   const mobilePhrase = flashcard?.phrase || flashcard?.collocation || flashcard?.chunk || (
@@ -559,7 +542,7 @@ showStudyComplete();
               >
                 <h1 className="eq-word-title">{flashcard.word}</h1>
                 <div className="eq-word-card-head">
-                  <span className="eq-word-pos-badge">word / {mobilePartOfSpeech}</span>
+                  <span className="eq-word-pos-badge">品詞 / {mobilePartOfSpeech}</span>
                 </div>
 
                 <div className="eq-word-meaning-block">
