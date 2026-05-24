@@ -1,4 +1,4 @@
-import { NavLink } from 'react-router-dom';
+import { NavLink, useLocation } from 'react-router-dom';
 
 const NAV_ICON_BASE = '/assets/eigo-quest/nav';
 
@@ -18,7 +18,16 @@ const defaultItems = [
   {
     label: '学習',
     to: '/daily-words',
-    match: ['/daily-words', '/flashcard', '/quiz', '/grammar', '/grammar-practice', '/review'],
+    match: [
+      '/daily-words',
+      '/flashcard',
+      '/quiz',
+      '/grammar',
+      '/grammar-practice',
+      '/review',
+      '/today-review-quiz',
+      '/vocab-expansion',
+    ],
     iconSrc: `${NAV_ICON_BASE}/nav-study.png`,
   },
   {
@@ -30,11 +39,18 @@ const defaultItems = [
   {
     label: 'その他',
     to: '/settings',
-    match: ['/settings', '/settings/children', '/settings/add-child', '/progress', '/pokedex', '/pets', '/petroom'],
+    match: [
+      '/settings',
+      '/settings/children',
+      '/settings/add-child',
+      '/progress',
+      '/pokedex',
+      '/pets',
+      '/petroom',
+    ],
     iconSrc: `${NAV_ICON_BASE}/nav-more.png`,
   },
 ];
-
 
 function EQNavIcon({ icon }) {
   const common = {
@@ -53,6 +69,7 @@ function EQNavIcon({ icon }) {
           <path d="M9 4.5v13M15 6.5v13" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" />
         </svg>
       );
+
     case 'study':
       return (
         <svg {...common}>
@@ -61,6 +78,7 @@ function EQNavIcon({ icon }) {
           <path d="M8.5 10H13M8.5 13.5H13" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" />
         </svg>
       );
+
     case 'cards':
     case 'card':
       return (
@@ -69,12 +87,14 @@ function EQNavIcon({ icon }) {
           <path d="m6.5 12 5.5 3 5.5-3M6.5 16.5l5.5 3 5.5-3" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" />
         </svg>
       );
+
     case 'more':
       return (
         <svg {...common}>
           <path d="M6 13a1.25 1.25 0 1 0 0-2.5A1.25 1.25 0 0 0 6 13ZM12 13a1.25 1.25 0 1 0 0-2.5A1.25 1.25 0 0 0 12 13ZM18 13a1.25 1.25 0 1 0 0-2.5A1.25 1.25 0 0 0 18 13Z" fill="currentColor" />
         </svg>
       );
+
     case 'home':
     default:
       return (
@@ -85,29 +105,43 @@ function EQNavIcon({ icon }) {
   }
 }
 
+function isItemActive(item, pathname, navLinkActive) {
+  if (typeof item.active === 'boolean') {
+    return item.active;
+  }
+
+  if (Array.isArray(item.match)) {
+    return item.match.some((path) => pathname === path || pathname.startsWith(`${path}/`));
+  }
+
+  return navLinkActive;
+}
+
 export default function EQBottomNav({ items = defaultItems, className = '' }) {
+  const location = useLocation();
+
   return (
     <nav
-  className={`eq-bottom-nav eq-app-bottom-nav ${className}`.trim()}
-  aria-label="メインナビゲーション"
->
+      className={`eq-bottom-nav eq-app-bottom-nav ${className}`.trim()}
+      aria-label="メインナビゲーション"
+    >
       {items.map((item) => (
         <NavLink
           key={`${item.to}-${item.label}`}
           to={item.to}
           className={({ isActive }) =>
-            `eq-bottom-nav-link ${item.active ?? isActive ? 'is-active' : ''}`.trim()
+            `eq-bottom-nav-link ${isItemActive(item, location.pathname, isActive) ? 'is-active' : ''}`.trim()
           }
           aria-label={item.label}
           end={item.end}
         >
-        <span className="eq-bottom-nav-icon">
-          {item.iconSrc ? (
-            <img src={item.iconSrc} alt="" aria-hidden="true" />
-          ) : (
-            item.iconNode || <EQNavIcon icon={item.icon} />
-          )}
-        </span>
+          <span className="eq-bottom-nav-icon">
+            {item.iconSrc ? (
+              <img src={item.iconSrc} alt="" aria-hidden="true" />
+            ) : (
+              item.iconNode || <EQNavIcon icon={item.icon} />
+            )}
+          </span>
         </NavLink>
       ))}
     </nav>
