@@ -16,9 +16,11 @@ import {
     PurificationQuizMobile,
 } from '../components/eigo';
 import {  getDailyWords, getFlashcardData, getHomeData, getLearnedWords, getTodayReviewQuiz, markMastered } from '../api';
+import eigoQuestWorlds from '../config/eigoQuestWorlds';
 
 const DAILY_TARGET = 20;
 const CHILD_STORAGE_KEY = 'selected_child_id';
+const WORDS_PER_WORLD = 200;
 
 const RECALL_OPTIONS = [
   { key: 'know', label: 'わかる' },
@@ -75,6 +77,17 @@ function MasteryStars({ count }) {
   );
 }
 
+function getQuestWorldByLearnedWords(learnedWordsCount = 0) {
+  const learnedWords = Number(learnedWordsCount);
+  const safeLearnedWords = Number.isFinite(learnedWords) ? Math.max(0, learnedWords) : 0;
+  const worldIndex = Math.min(
+    eigoQuestWorlds.length - 1,
+    Math.max(0, Math.floor(safeLearnedWords / WORDS_PER_WORLD))
+  );
+
+  return eigoQuestWorlds[worldIndex] || eigoQuestWorlds[0];
+}
+
 export default function FlashcardPage() {
   const [homeData, setHomeData] = useState(null);
   const [flashcard, setFlashcard] = useState(null);
@@ -110,6 +123,9 @@ export default function FlashcardPage() {
   const requestedWordTotal = Number(searchParams.get('total'));
   const shouldLoadReviewQuiz = location.pathname.includes('today-review-quiz');
   const progressValue = Math.min(DAILY_TARGET, Number(homeData?.progress || 0));
+  const questWorld = getQuestWorldByLearnedWords(
+    homeData?.mastered_words ?? homeData?.learned_words ?? homeData?.progress ?? 0
+  );
   const progressPercent = `${(progressValue / DAILY_TARGET) * 100}%`;
   const dayLabel = `Day ${Math.floor(progressValue / DAILY_TARGET) + 1}`;
   const studyProgressPercent = studyWords.length ? `${((studyIndex + 1) / studyWords.length) * 100}%` : '0%';
@@ -598,12 +614,13 @@ const mobilePartOfSpeech =
           />
 
           <WorldMiniBanner
+            worldId={questWorld?.id || 'wind'}
             day={Math.floor(progressValue / DAILY_TARGET) + 1}
             learned={mobileCurrentNumber}
             total={mobileTotalWords}
           />
           <SpiritGuide
-            worldName="風の精霊"
+            worldName={`${questWorld?.icon || '風'}の精霊`}
             messages={['いいね！意味と例文を見てみよう！']}
             className="quest-word-spirit"
           />
@@ -699,7 +716,7 @@ const mobilePartOfSpeech =
     )}
         {mode === 'review' && currentReviewQuestion && (
       <PurificationQuizMobile
-        worldId="wind"
+        worldId={questWorld?.id || 'wind'}
         day={dayLabel.replace('Day ', '')}
         question={currentReviewQuestion}
         questionIndex={reviewIndex}

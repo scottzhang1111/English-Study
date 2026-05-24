@@ -4,6 +4,7 @@ import { getDailyWords, getHomeData, markMastered, submitPracticeAnswer } from '
 import { useChildren } from '../ChildrenContext';
 import { getPartner } from '../utils/childStorage';
 import { createMissionReward } from '../helpers/eigoQuestRewards';
+import eigoQuestWorlds from '../config/eigoQuestWorlds';
 
 import {
   EQBottomNav,
@@ -17,6 +18,7 @@ import {
 const DEFAULT_DAILY_WORD_TARGET = 20;
 /* const DAILY_PASS_EXP = 20; */
 const DAILY_WORD_POOL_UNITS = 10;
+const WORDS_PER_WORLD = 200;
 
 /* const PARTNER_JA = {
   bulbasaur: 'フシギダネ',
@@ -81,6 +83,17 @@ function compareReviewOrder(a, b) {
     getPartOfSpeechRank(a) - getPartOfSpeechRank(b) ||
     Number(a.id) - Number(b.id)
   );
+}
+
+function getQuestWorldByLearnedWords(learnedWordsCount = 0) {
+  const learnedWords = Number(learnedWordsCount);
+  const safeLearnedWords = Number.isFinite(learnedWords) ? Math.max(0, learnedWords) : 0;
+  const worldIndex = Math.min(
+    eigoQuestWorlds.length - 1,
+    Math.max(0, Math.floor(safeLearnedWords / WORDS_PER_WORLD))
+  );
+
+  return eigoQuestWorlds[worldIndex] || eigoQuestWorlds[0];
 }
 
 function selectBaseWords(allWords) {
@@ -210,6 +223,7 @@ export default function DailyWordUnitPage() {
   const [partnerExp, setPartnerExp] = useState(0); */
   const [quizSaving, setQuizSaving] = useState(false);
   const [dailyTarget, setDailyTarget] = useState(DEFAULT_DAILY_WORD_TARGET);
+  const [questWorld, setQuestWorld] = useState(() => eigoQuestWorlds[0]);
   const [error, setError] = useState('');
   const { children, childrenLoading, childrenError } = useChildren();
 
@@ -243,6 +257,9 @@ export default function DailyWordUnitPage() {
         if (cancelled || !result) return;
         const { dailyPayload, homePayload, target } = result;
         setDailyTarget(Math.max(1, Number(homePayload?.target || target) || DEFAULT_DAILY_WORD_TARGET));
+        setQuestWorld(getQuestWorldByLearnedWords(
+          homePayload?.mastered_words ?? homePayload?.learned_words ?? homePayload?.progress ?? 0
+        ));
         const words = selectBaseWords(dailyPayload.words || []);
         setAllWords(words);
  /*        setPartnerExp(Number(homePayload?.pet?.total_exp ?? homePayload?.pet?.exp ?? 0)); */
@@ -466,12 +483,12 @@ export default function DailyWordUnitPage() {
           />
 
           <section className="eq-daily-world-card">
-            <img src="/assets/eigo-quest/worlds/wind.png" alt="" />
+            <img src={questWorld?.backgroundImage || '/assets/eigo-quest/worlds/wind.png'} alt="" />
             <div className="eq-daily-world-shade" aria-hidden="true" />
-            <div className="eq-daily-world-icon" aria-hidden="true">風</div>
+            <div className="eq-daily-world-icon" aria-hidden="true">{questWorld?.icon || '風'}</div>
             <div className="eq-daily-world-copy">
-              <h2>風の世界</h2>
-              <p>WIND REALM</p>
+              <h2>{questWorld?.nameJa || '風の世界'}</h2>
+              <p>{String(questWorld?.id || 'wind').toUpperCase()} REALM</p>
               <div>
                 <span>Day {unitIndex + 1}</span>
                 <strong>今日の単語 <b>{todayWords.length}</b> / {targetCount} words</strong>
@@ -480,7 +497,7 @@ export default function DailyWordUnitPage() {
           </section>
 
           <SpiritGuide
-            worldName="風の精霊"
+            worldName={`${questWorld?.icon || '風'}の精霊`}
             messages={[`今日は${targetCount}個の単語を集めよう！`]}
             className="eq-daily-words-spirit"
           />
@@ -539,7 +556,7 @@ export default function DailyWordUnitPage() {
 
     {!error && stage === 'quiz' && currentQuestion && (
       <PurificationQuizMobile
-        worldId="wind"
+        worldId={questWorld?.id || 'wind'}
         day={unitIndex + 1}
         question={currentQuestion}
         questionIndex={quizIndex}
