@@ -396,7 +396,7 @@ export default function DailyWordUnitPage() {
     setEarnedExp(0);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
-
+  const shouldHideDesktopOnMobile = stage === 'preview' || stage === 'quiz';
   if (!child) return null;
 
   return (
@@ -483,7 +483,34 @@ export default function DailyWordUnitPage() {
       </div>
     )}
 
-    <div className={`mx-auto max-w-6xl px-4 pb-32 pt-4 sm:px-6 ${stage === 'preview' ? 'max-lg:hidden' : ''}`}>
+    {!error && stage === 'quiz' && currentQuestion && (
+      <PurificationQuizMobile
+        worldId="wind"
+        day={unitIndex + 1}
+        question={currentQuestion}
+        questionIndex={quizIndex}
+        questionTotal={quizQuestions.length}
+        selectedChoice={selectedChoice}
+        correctCount={correctCount}
+        onChoose={chooseAnswer}
+        onNext={nextQuiz}
+        quizSaving={quizSaving}
+        onPlayAudio={(quizQuestion) => {
+          const audioText =
+            quizQuestion?.audio_text ||
+            quizQuestion?.word?.word ||
+            quizQuestion?.word ||
+            '';
+          speak(audioText);
+        }}
+      />
+    )}
+
+    <div
+      className={`mx-auto max-w-6xl px-4 pb-32 pt-4 sm:px-6 ${
+        shouldHideDesktopOnMobile ? 'max-lg:hidden' : ''
+      }`}
+    >
       <header className="panel mb-4 overflow-hidden px-4 py-4 sm:px-6">
         <div className="flex items-center justify-between gap-4 rounded-[34px] bg-[linear-gradient(135deg,#fffef8_0%,#eef7ff_55%,#f8fbff_100%)] px-5 py-5 sm:px-7">
           <div className="flex min-w-0 items-center gap-4">
@@ -610,29 +637,7 @@ export default function DailyWordUnitPage() {
       )}
 
 {!error && stage === 'quiz' && currentQuestion && (
-  <>
-    <PurificationQuizMobile
-      worldId="wind"
-      day={unitIndex + 1}
-      question={currentQuestion}
-      questionIndex={quizIndex}
-      questionTotal={quizQuestions.length}
-      selectedChoice={selectedChoice}
-      correctCount={correctCount}
-      onChoose={chooseAnswer}
-      onNext={nextQuiz}
-      quizSaving={quizSaving}
-      onPlayAudio={(quizQuestion) => {
-        const audioText =
-          quizQuestion?.audio_text ||
-          quizQuestion?.word?.word ||
-          quizQuestion?.word ||
-          '';
-        speak(audioText);
-      }}
-    />
-
-    <section className="panel hidden px-6 py-6 sm:px-8 lg:block">
+  <section className="panel hidden px-6 py-6 sm:px-8 lg:block">
       <div className="mb-4 flex items-center justify-between text-sm font-black text-[#6f7da8]">
         <span>{quizIndex + 1} / {quizQuestions.length}</span>
         <span>正解 {correctCount}</span>
@@ -722,8 +727,7 @@ export default function DailyWordUnitPage() {
           )}
         </div>
       )}
-    </section>
-  </>
+  </section>
 )}
 
 
