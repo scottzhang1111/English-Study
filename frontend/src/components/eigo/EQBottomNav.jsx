@@ -1,12 +1,40 @@
 import { NavLink } from 'react-router-dom';
 
+const NAV_ICON_BASE = '/assets/eigo-quest/nav';
+
 const defaultItems = [
-  { label: 'ホーム', to: '/app', icon: 'home' },
-  { label: '地図', to: '/study-map', icon: 'map' },
-  { label: '学習', to: '/daily-words', icon: 'study' },
-  { label: 'カード', to: '/flashcard', icon: 'cards' },
-  { label: 'その他', to: '/settings', icon: 'more' },
+  {
+    label: 'ホーム',
+    to: '/app',
+    match: ['/', '/app'],
+    iconSrc: `${NAV_ICON_BASE}/nav-home.png`,
+  },
+  {
+    label: '地図',
+    to: '/study-map',
+    match: ['/study-map', '/world-stage'],
+    iconSrc: `${NAV_ICON_BASE}/nav-map.png`,
+  },
+  {
+    label: '学習',
+    to: '/daily-words',
+    match: ['/daily-words', '/flashcard', '/quiz', '/grammar', '/grammar-practice', '/review'],
+    iconSrc: `${NAV_ICON_BASE}/nav-study.png`,
+  },
+  {
+    label: 'カード',
+    to: '/cards',
+    match: ['/cards', '/card-reward', '/heroes'],
+    iconSrc: `${NAV_ICON_BASE}/nav-cards.png`,
+  },
+  {
+    label: 'その他',
+    to: '/settings',
+    match: ['/settings', '/settings/children', '/settings/add-child', '/progress', '/pokedex', '/pets', '/petroom'],
+    iconSrc: `${NAV_ICON_BASE}/nav-more.png`,
+  },
 ];
+
 
 function EQNavIcon({ icon }) {
   const common = {
@@ -73,10 +101,13 @@ export default function EQBottomNav({ items = defaultItems, className = '' }) {
           aria-label={item.label}
           end={item.end}
         >
-          <span className="eq-bottom-nav-icon">
-            {item.iconNode || <EQNavIcon icon={item.icon} />}
-          </span>
-          <span>{item.label}</span>
+        <span className="eq-bottom-nav-icon">
+          {item.iconSrc ? (
+            <img src={item.iconSrc} alt="" aria-hidden="true" />
+          ) : (
+            item.iconNode || <EQNavIcon icon={item.icon} />
+          )}
+        </span>
         </NavLink>
       ))}
     </nav>
