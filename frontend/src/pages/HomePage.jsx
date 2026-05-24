@@ -63,6 +63,19 @@ const AIR_RABBIT_IMAGES = {
   sleep: '/pets/AIR_RABBIT1_Sleep.png',
 };
 
+const LEXORIA_INTRO_MESSAGES = [
+  'ここは、言葉が魔法になる世界――「Eigo」。',
+  'ひとつひとつのことばが、世界を動かす魔法の種なんだ。',
+  '正しい発音を口にすれば風が吹き、文法を操れば、古の神殿が目を覚ます！',
+  '世界を支えるのは、8つの元素の精霊と、頼れる英雄たち。',
+  '……だけど、平和は長くは続かなかった。',
+  '突如現れた「忘却の霧」が、みんなの記憶と言葉を奪い去ってしまったんだ！',
+  '英雄たちは力を失い、冷たいカードの中に閉じ込められてしまった……。',
+  '世界が闇に沈むその前に、選ばれたのは――そう、君だ！',
+  '君の学ぶ英単語が光となり、クイズの正解が、英雄たちの封印を打ち砕く！',
+  'さあ、言葉の守護者「Words Keeper」よ！今日の冒険へ、出発だ！',
+];
+
 function HomeAssetIcon({ src, fallback, className = '', imageClassName = '' }) {
   const [imageFailed, setImageFailed] = useState(false);
 
@@ -834,12 +847,10 @@ const handleHomeVideoPlay = async (event) => {
         </button> */}
 
         <SpiritAssistant
-          worldName="風の国"
-          mood="idle"
-         position="home-floating"
-          messages={[
-            '風の世界へようこそ！\n今日のミッションを説明します。',
-         ]}
+           worldName="風の精霊"
+           mood="talk"
+           position="home-floating"
+           messages={LEXORIA_INTRO_MESSAGES}
         />
 
   {/*       <button type="button" onClick={() => navigate('/daily-words')} className="eq-home-quest-card">

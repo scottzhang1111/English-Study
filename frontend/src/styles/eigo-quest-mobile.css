@@ -7786,3 +7786,104 @@ body,
   font-weight: 1000;
   box-shadow: 0 0 24px rgba(255, 204, 84, 0.36);
 }
+
+.eq-spirit-dialogue-wrap {
+  position: relative;
+  width: min(88vw, 640px);
+  margin: 0 auto 16px;
+  min-height: 156px;
+}
+
+.eq-spirit-dialogue {
+  position: relative;
+  width: 72%;
+  min-height: 138px;
+  padding: 20px 22px 16px;
+  border-radius: 24px;
+  border: 2px solid rgba(232, 191, 91, 0.85);
+  background:
+    linear-gradient(180deg, rgba(9, 28, 70, 0.92), rgba(4, 12, 40, 0.94));
+  box-shadow:
+    0 0 26px rgba(52, 154, 255, 0.22),
+    inset 0 0 18px rgba(108, 180, 255, 0.08);
+  color: white;
+  text-align: left;
+  overflow: visible;
+}
+
+/* 右侧尖角 */
+.eq-spirit-dialogue::after {
+  content: "";
+  position: absolute;
+  right: -17px;
+  top: 48%;
+  width: 30px;
+  height: 30px;
+  background:
+    linear-gradient(135deg, rgba(9, 28, 70, 0.94), rgba(4, 12, 40, 0.96));
+  border-top: 2px solid rgba(232, 191, 91, 0.85);
+  border-right: 2px solid rgba(232, 191, 91, 0.85);
+  transform: rotate(45deg);
+  border-radius: 4px;
+}
+
+.eq-spirit-dialogue-title {
+  color: #ffe38a;
+  font-size: 16px;
+  font-weight: 900;
+  margin-bottom: 8px;
+}
+
+.eq-spirit-dialogue-message {
+  font-size: 24px;
+  line-height: 1.38;
+  font-weight: 950;
+  letter-spacing: 0.02em;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.7);
+}
+
+.eq-spirit-dialogue-footer {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 14px;
+  font-size: 13px;
+  font-weight: 800;
+  color: rgba(255, 231, 160, 0.88);
+}
+
+.eq-spirit-dialogue-dots {
+  display: flex;
+  gap: 8px;
+}
+
+.eq-spirit-dialogue-dots span {
+  width: 9px;
+  height: 9px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.25);
+}
+
+.eq-spirit-dialogue-dots span.is-active {
+  background: #42d8ff;
+  box-shadow: 0 0 12px rgba(66, 216, 255, 0.9);
+}
+
+.eq-spirit-dialogue-count {
+  color: #ffe38a;
+}
+
+.eq-spirit-dialogue-hint {
+  margin-left: auto;
+  opacity: 0.9;
+}
+
+.eq-spirit-dialogue-character {
+  position: absolute;
+  right: -6px;
+  bottom: 0;
+  width: 142px;
+  height: auto;
+  filter: drop-shadow(0 0 18px rgba(86, 206, 255, 0.45));
+  pointer-events: none;
+}

@@ -347,3 +347,42 @@
   white-space: pre-line;
 }
 
+.spirit-assistant__pager {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 12px;
+  color: rgba(255, 231, 160, 0.92);
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.spirit-assistant__dots {
+  display: flex;
+  gap: 7px;
+}
+
+.spirit-assistant__dots i {
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.28);
+}
+
+.spirit-assistant__dots i.is-active {
+  background: #45d8ff;
+  box-shadow: 0 0 12px rgba(69, 216, 255, 0.95);
+}
+
+.spirit-assistant__pager strong {
+  color: #ffe38a;
+  font-weight: 950;
+}
+
+.spirit-assistant__pager em {
+  margin-left: auto;
+  color: rgba(255, 231, 160, 0.88);
+  font-style: normal;
+  white-space: nowrap;
+}
+

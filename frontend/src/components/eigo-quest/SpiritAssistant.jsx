@@ -88,16 +88,15 @@ export default function SpiritAssistant({
     setFailedAssets((current) => ({ ...current, [src]: true }));
   }
 
-  function handleSpiritClick(event) {
-    const nextReaction = Math.random() > 0.5 ? 'happy' : 'dance';
-    const nextLine = Math.floor(Math.random() * safeMessages.length);
+function handleSpiritClick(event) {
+  const nextReaction = Math.random() > 0.5 ? 'happy' : 'dance';
 
-    setBubbleTalk(false);
-    setReaction(nextReaction);
-    setLineIndex(nextLine);
-    setSparkleBurst((value) => value + 1);
-    onClick?.(event);
-  }
+  setBubbleTalk(true);
+  setReaction(nextReaction);
+  setLineIndex((index) => (index + 1) % safeMessages.length);
+  setSparkleBurst((value) => value + 1);
+  onClick?.(event);
+}
 
   const rootStyle = typeof position === 'object' ? position : undefined;
   const positionClass =
@@ -111,14 +110,35 @@ export default function SpiritAssistant({
       style={rootStyle}
       aria-label="精霊アシスタント"
     >
-      <motion.div
+    <motion.div
         className="spirit-assistant__bubble"
+        role="button"
+        tabIndex={0}
+        onClick={handleSpiritClick}
+        onKeyDown={(event) => {
+          if (event.key === 'Enter' || event.key === ' ') {
+            handleSpiritClick(event);
+          }
+        }}
         initial={{ opacity: 0, y: 8, scale: 0.96 }}
         animate={{ opacity: 1, y: 0, scale: 1 }}
         transition={{ duration: 0.28 }}
-      >
+     >
         <span>{worldName}</span>
         <p>{currentMessage}</p>
+        <div className="spirit-assistant__pager">
+        <div className="spirit-assistant__dots" aria-hidden="true">
+          {safeMessages.map((_, index) => (
+            <i
+              key={index}
+              className={index === lineIndex ? 'is-active' : ''}
+            />
+          ))}
+        </div>
+
+  <strong>{lineIndex + 1}/{safeMessages.length}</strong>
+  <em>タップでつぎへ</em>
+</div>
       </motion.div>
 
       <motion.button
