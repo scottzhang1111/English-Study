@@ -7945,19 +7945,19 @@ body,
 }
 
 .spirit-assistant--home-floating .spirit-assistant__bubble {
-  right: calc(var(--spirit-size) * 0.58);
+  right: calc(var(--spirit-size) * 0.9);
   bottom: calc(var(--spirit-size) * 0.16);
   min-height: 132px;
-  padding: 18px 22px 16px;
+  padding: 16px 20px 14px;
 }
 
 .spirit-assistant--home-floating .spirit-assistant__bubble p {
-  font-size: clamp(18px, 4.4vw, 23px);
-  line-height: 1.55;
+  font-size: clamp(14px, 3.5vw, 18px);
+  line-height: 1.45;
 }
 
 .spirit-assistant--home-floating .spirit-assistant__pager {
-  margin-top: 12px;
+  display: none !important;
 }
 
 .spirit-assistant--home-floating .spirit-assistant__pager em {
