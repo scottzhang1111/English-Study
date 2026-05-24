@@ -51,6 +51,8 @@ export default function SpiritAssistant({
   position = 'home',
   hasMistakes = false,
   mistakeCount = 0,
+  autoPlayMessages = false,
+  autoPlayMs = 2000,
   onClick,
 }) {
   const safeMessages = messages?.length ? messages : DEFAULT_MESSAGES;
@@ -77,12 +79,27 @@ export default function SpiritAssistant({
     return () => window.clearTimeout(timer);
   }, [lineIndex, reaction, shouldShowMistakeState]);
 
-  useEffect(() => {
+/*   useEffect(() => {
     if (!reaction) return undefined;
 
     const timer = window.setTimeout(() => setReaction(null), 1600);
     return () => window.clearTimeout(timer);
-  }, [reaction]);
+  }, [reaction]); */
+
+useEffect(() => {
+  if (!autoPlayMessages || shouldShowMistakeState || safeMessages.length <= 1) {
+    return undefined;
+  }
+
+  setBubbleTalk(true);
+
+  const timer = window.setInterval(() => {
+    setLineIndex((index) => (index + 1) % safeMessages.length);
+    setBubbleTalk(true);
+  }, autoPlayMs);
+
+  return () => window.clearInterval(timer);
+}, [autoPlayMessages, autoPlayMs, safeMessages.length, shouldShowMistakeState]);
 
   function handleMissing(src) {
     setFailedAssets((current) => ({ ...current, [src]: true }));
