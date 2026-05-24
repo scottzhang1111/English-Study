@@ -317,7 +317,7 @@ export default function WorldStagePage() {
           </button>
         </EQCard>
         )}
-        <EQBottomNav
+{/*         <EQBottomNav
           className="eq-world-stage-bottom-nav"
           items={[
             { label: 'ホーム', to: '/app', icon: 'home' },
@@ -326,7 +326,8 @@ export default function WorldStagePage() {
             { label: 'カード', to: '/cards', icon: 'cards' },
             { label: 'その他', to: '/settings', icon: 'more' },
           ]}
-        />
+        /> */}
+        <EQBottomNav className="eq-world-stage-bottom-nav" />
       </EQMobileShell>
     </div>
   );

@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { EQBottomNav, EQCard, EQMobileShell } from '../components/eigo';
+import { EQBackPill, EQCard, EQMobileShell, EQBottomNav } from '../components/eigo';
 import eigoQuestWorlds from '../config/eigoQuestWorlds';
 
 const WORLD_DISPLAY = {
@@ -77,7 +77,7 @@ export default function WorldHomePage() {
         </EQCard>
       </EQMobileShell>
 
-      <EQBottomNav
+{/*       <EQBottomNav
         items={[
           { label: 'ホーム', to: '/app', icon: 'home' },
           { label: '地図', to: '/study-map', icon: 'map', active: true },
@@ -85,7 +85,8 @@ export default function WorldHomePage() {
           { label: 'カード', to: '/cards', icon: 'cards' },
           { label: 'その他', to: '/settings', icon: 'more' },
         ]}
-      />
+      /> */}
+      <EQBottomNav className="eq-home-bottom-nav" />
     </div>
   );
 }

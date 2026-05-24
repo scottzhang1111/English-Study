@@ -604,7 +604,7 @@ def build_vocab_expansion_question(mode=None, child_id=None):
     }
 
 
-def load_vocabulary(filename=VOCAB_FILENAME):
+""" def load_vocabulary(filename=VOCAB_FILENAME):
     if use_postgres():
         database_vocab = load_vocabulary_from_postgres_words()
         if database_vocab:
@@ -616,10 +616,113 @@ def load_vocabulary(filename=VOCAB_FILENAME):
         normalized = normalize_vocab_row(row)
         if normalized:
             vocab.append(normalized)
+    return vocab """
+
+def load_vocabulary(filename=VOCAB_FILENAME):
+    database_vocab = load_vocabulary_from_database_words()
+
+    if database_vocab:
+        return database_vocab
+
+    if use_postgres():
+        raise RuntimeError(
+            "DATABASE_URL is set, but no vocabulary was loaded from PostgreSQL words table."
+        )
+
+    app.logger.warning(
+        "No vocabulary was loaded from SQLite words table. Falling back to CSV: %s",
+        filename,
+    )
+
+    vocab = []
+    for row in _read_csv_with_fallback(filename):
+        normalized = normalize_vocab_row(row)
+        if normalized:
+            vocab.append(normalized)
     return vocab
+def load_vocabulary_from_database_words():
+    try:
+        conn = get_db_connection()
+        try:
+            if use_postgres():
+                table_row = conn.execute(
+                    "SELECT to_regclass('public.words') AS table_name"
+                ).fetchone()
+                if not table_row or not table_row['table_name']:
+                    return []
+            else:
+                table_row = conn.execute(
+                    "SELECT name FROM sqlite_master WHERE type='table' AND name='words'"
+                ).fetchone()
+                if not table_row:
+                    return []
 
+            rows = conn.execute(
+                '''
+                SELECT
+                    id,
+                    word,
+                    level,
+                    frequency,
+                    part_of_speech,
+                    meaning_ja,
+                    meaning_cn,
+                    phrase,
+                    example_en,
+                    example_ja,
+                    example_cn,
+                    synonyms,
+                    antonyms
+                FROM words
+                ORDER BY frequency ASC, id ASC
+                '''
+            ).fetchall()
+        finally:
+            conn.close()
+    except Exception:
+        app.logger.exception('Failed to load vocabulary from database words table')
+        return []
 
-def load_vocabulary_from_postgres_words():
+    def importance_for_frequency(value):
+        try:
+            frequency = int(value)
+        except (TypeError, ValueError):
+            return ''
+        if frequency <= 500:
+            return 'A'
+        if frequency <= 1000:
+            return 'B'
+        return 'C'
+
+    return [
+        {
+            'ID': str(row['id']),
+            'No': str(row['id']),
+            'English': _clean_csv_value(row['word']),
+            'Category': _clean_csv_value(row['part_of_speech']),
+            'Japanese': _clean_csv_value(row['meaning_ja']),
+            'Chinese': _clean_csv_value(row['meaning_cn']),
+            'Example_English_Short': _clean_csv_value(row['example_en']),
+            'Example_English': _clean_csv_value(row['example_en']),
+            'Example_Japanese': _clean_csv_value(row['example_ja']),
+            'Example_Chinese': _clean_csv_value(row['example_cn']),
+            'Phrase': _clean_csv_value(row['phrase']),
+            'Importance': importance_for_frequency(row['frequency']),
+            'Review_Count': '',
+            'Mistake_Time': '',
+            'Synonyms': _clean_csv_value(row['synonyms']),
+            'Synonyms_Japanese': '',
+            'Antonyms': _clean_csv_value(row['antonyms']),
+            'Antonyms_Japanese': '',
+            'Frequency_In_Test': _clean_csv_value(row['frequency']),
+            'Source': 'database.words',
+            'Eiken_Level': _clean_csv_value(row['level']),
+        }
+        for row in rows
+        if _clean_csv_value(row['word'])
+    ]
+
+""" def load_vocabulary_from_postgres_words():
     try:
         conn = get_db_connection()
         try:
@@ -680,7 +783,10 @@ def load_vocabulary_from_postgres_words():
         for row in rows
         if _clean_csv_value(row['word'])
     ]
+ """
 
+def load_vocabulary_from_postgres_words():
+    return load_vocabulary_from_database_words()
 
 def load_vocabulary_from_csv(filename):
     return load_vocabulary(filename)

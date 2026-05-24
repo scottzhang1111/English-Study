@@ -349,12 +349,23 @@ export default function FlashcardPage() {
       remain: result?.remain ?? Math.max(0, dailyTarget - nextProgress),
     }));
 
-    if (nextProgress >= dailyTarget) {
-      await loadReviewQuiz();
-      return;
-    }
+if (nextProgress >= dailyTarget) {
+  await loadReviewQuiz();
+  return;
+}
 
-    await loadStudyWord();
+const nextIndex = studyIndex + 1;
+
+if (studyWords.length > 0 && nextIndex < studyWords.length) {
+  const nextWord = studyWords[nextIndex];
+
+  if (nextWord?.word) {
+    showStudyWord(nextWord, nextIndex, studyWords);
+    return;
+  }
+}
+
+showStudyComplete();
   } catch (err) {
     setStudyError(err.message);
   }
@@ -404,13 +415,13 @@ export default function FlashcardPage() {
     : mode === 'review-complete' || progressValue >= DAILY_TARGET
       ? '100%'
       : progressPercent;
-  const questNavItems = [
+/*   const questNavItems = [
     { label: '\u30db\u30fc\u30e0', to: '/app', icon: 'home' },
     { label: '\u5730\u56f3', to: '/study-map', icon: 'map' },
     { label: '\u5b66\u7fd2', to: `${routePrefix}/daily-words`, icon: 'study', active: true },
     { label: '\u30ab\u30fc\u30c9', to: `${routePrefix}/flashcard`, icon: 'cards' },
     { label: '\u305d\u306e\u4ed6', to: '/settings', icon: 'more' },
-  ];
+  ]; */
   const rightPanel = (
     <div className="rounded-3xl border border-white/80 bg-white/86 p-5 shadow-[0_16px_36px_rgba(129,164,199,0.14)] backdrop-blur">
       <p className="text-xs font-bold text-[#8fa0c2]">今日の単語</p>
@@ -449,7 +460,7 @@ export default function FlashcardPage() {
             </EQCard>
             <QuestProgressStepper current="words" />
           </EQMobileShell>
-          <EQBottomNav items={questNavItems} />
+          <EQBottomNav />
         </div>
         <div className="hidden lg:block">
           <WebLearningLayout title="単語カード" subtitle="覚えた単語を広く確認" rightPanel={rightPanel}>
@@ -590,7 +601,7 @@ export default function FlashcardPage() {
           )}
           <QuestProgressStepper current="words" />
         </EQMobileShell>
-        <EQBottomNav items={questNavItems} />
+        <EQBottomNav />
       </div>
     )}
     <div className={mode === 'study' || mode === 'complete' ? 'hidden lg:block' : ''}>
