@@ -7887,3 +7887,87 @@ body,
   filter: drop-shadow(0 0 18px rgba(86, 206, 255, 0.45));
   pointer-events: none;
 }
+
+/* Bottom nav icon: make PNG fill the button frame */
+.eq-app-bottom-nav .eq-bottom-nav-link {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 0 !important;
+}
+
+.eq-app-bottom-nav .eq-bottom-nav-icon {
+  width: 74px !important;
+  height: 74px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+.eq-app-bottom-nav .eq-bottom-nav-icon img {
+  width: 72px !important;
+  height: 72px !important;
+  object-fit: contain !important;
+  display: block !important;
+}
+
+/* active button frame should match icon size */
+.eq-app-bottom-nav .eq-bottom-nav-link.is-active {
+  width: 92px !important;
+  height: 92px !important;
+  border-radius: 28px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+/* active icon a little larger */
+.eq-app-bottom-nav .eq-bottom-nav-link.is-active .eq-bottom-nav-icon {
+  width: 82px !important;
+  height: 82px !important;
+}
+
+.eq-app-bottom-nav .eq-bottom-nav-link.is-active .eq-bottom-nav-icon img {
+  width: 80px !important;
+  height: 80px !important;
+}
+
+.eq-app-bottom-nav .eq-bottom-nav-icon img {
+  transform: scale(1.18);
+}
+
+.eq-app-bottom-nav .eq-bottom-nav-link.is-active .eq-bottom-nav-icon img {
+  transform: scale(1.22);
+}
+
+/* Home spirit dialogue final tuning */
+.spirit-assistant--home-floating {
+  --spirit-size: clamp(138px, 31vw, 172px);
+  --spirit-bubble-width: min(70vw, 390px);
+  bottom: calc(198px + env(safe-area-inset-bottom, 0px));
+  right: 10px;
+}
+
+.spirit-assistant--home-floating .spirit-assistant__button {
+  transform: translate(22px, 12px);
+}
+
+.spirit-assistant--home-floating .spirit-assistant__bubble {
+  right: calc(var(--spirit-size) * 0.58);
+  bottom: calc(var(--spirit-size) * 0.16);
+  min-height: 132px;
+  padding: 18px 22px 16px;
+}
+
+.spirit-assistant--home-floating .spirit-assistant__bubble p {
+  font-size: clamp(18px, 4.4vw, 23px);
+  line-height: 1.55;
+}
+
+.spirit-assistant--home-floating .spirit-assistant__pager {
+  margin-top: 12px;
+}
+
+.spirit-assistant--home-floating .spirit-assistant__pager em {
+  display: none;
+}

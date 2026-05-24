@@ -386,3 +386,6 @@
   white-space: nowrap;
 }
 
+.spirit-assistant__pager em {
+  display: none !important;
+}
