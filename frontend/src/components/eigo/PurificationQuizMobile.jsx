@@ -1,4 +1,6 @@
-import { EQBottomNav, EQMobileShell } from './index';
+
+import EQBottomNav from './EQBottomNav';
+import EQMobileShell from './EQMobileShell';
 import { quizThemes } from '../../config/eigoQuestQuizThemes';
 
 export default function PurificationQuizMobile({

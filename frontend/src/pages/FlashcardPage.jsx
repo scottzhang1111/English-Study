@@ -13,6 +13,7 @@ import {
   QuestProgressStepper,
   SpiritGuide,
   WorldMiniBanner,
+    PurificationQuizMobile,
 } from '../components/eigo';
 import { addPetExp, getDailyWords, getFlashcardData, getHomeData, getLearnedWords, getTodayReviewQuiz, markMastered } from '../api';
 
@@ -597,7 +598,7 @@ const mobilePartOfSpeech =
           />
 
           <WorldMiniBanner
-            day={dayLabel}
+            day={Math.floor(progressValue / DAILY_TARGET) + 1}
             learned={mobileCurrentNumber}
             total={mobileTotalWords}
           />
@@ -676,12 +677,13 @@ const mobilePartOfSpeech =
 
               <div className="eq-word-actions quest-word-actions-two">
                 {studyIndex > 0 ? (
-                  <GoldQuestButton
+                  <button
+                    type="button"
                     onClick={handlePreviousStudy}
                     className="quest-word-prev-button"
                   >
-                    まえへ
-                  </GoldQuestButton>
+                    ← まえへ
+                  </button>
                 ) : null}
 
                 <GoldQuestButton onClick={handleNextStudy} className="quest-word-next-button">
@@ -695,7 +697,29 @@ const mobilePartOfSpeech =
         <EQBottomNav />
       </div>
     )}
-    <div className={mode === 'study' || mode === 'complete' ? 'hidden lg:block' : ''}>
+        {mode === 'review' && currentReviewQuestion && (
+      <PurificationQuizMobile
+        worldId="wind"
+        day={dayLabel.replace('Day ', '')}
+        question={currentReviewQuestion}
+        questionIndex={reviewIndex}
+        questionTotal={reviewTotal}
+        selectedChoice={reviewAnswer}
+        onChoose={handleReviewChoice}
+        onNext={handleReviewNext}
+        quizSaving={reviewLoading}
+        onPlayAudio={(quizQuestion) => {
+          playAudio(
+            quizQuestion?.audio_text ||
+              quizQuestion?.word?.word ||
+              quizQuestion?.word ||
+              '',
+            audioRef
+          );
+        }}
+      />
+    )}
+   <div className={mode === 'study' || mode === 'complete' || mode === 'review' ? 'hidden lg:block' : ''}>
     <WebLearningLayout title="単語カード" subtitle="単語リストとカード学習" rightPanel={rightPanel}>
 
       <motion.section
