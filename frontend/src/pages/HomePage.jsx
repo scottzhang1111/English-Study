@@ -79,6 +79,9 @@ const LEXORIA_INTRO_MESSAGES = [
 const LEXORIA_INTRO_VOICE_URLS = LEXORIA_INTRO_MESSAGES.map(
   (_, index) => `/assets/eigo-quest/voice/intro-${String(index + 1).padStart(2, '0')}.wav`,
 );
+const HOME_BGM_URL = '/assets/eigo-quest/home/home.mp3';
+const HOME_BGM_VOLUME = 0.26;
+const HOME_BGM_DUCKED_VOLUME = 0.11;
 
 function HomeAssetIcon({ src, fallback, className = '', imageClassName = '' }) {
   const [imageFailed, setImageFailed] = useState(false);
@@ -298,7 +301,41 @@ export default function HomePage() {
   const [homeIntroLineIndex, setHomeIntroLineIndex] = useState(0);
   const homeVideoRef = useRef(null);
   const homeIntroAudioRef = useRef(null);
+  const homeBgmAudioRef = useRef(null);
   const homeIntroVoiceRunRef = useRef(0);
+
+function getHomeBgmAudio() {
+  if (!homeBgmAudioRef.current) {
+    const audio = new Audio(HOME_BGM_URL);
+    audio.loop = true;
+    audio.volume = HOME_BGM_VOLUME;
+    audio.preload = 'auto';
+    homeBgmAudioRef.current = audio;
+  }
+
+  return homeBgmAudioRef.current;
+}
+
+function setHomeBgmVolume(volume) {
+  if (homeBgmAudioRef.current) {
+    homeBgmAudioRef.current.volume = volume;
+  }
+}
+
+function playHomeBgm() {
+  const audio = getHomeBgmAudio();
+  audio.volume = HOME_BGM_VOLUME;
+  return audio.play().catch((err) => {
+    console.error('Home background music play failed:', err);
+  });
+}
+
+function stopHomeBgm() {
+  if (homeBgmAudioRef.current) {
+    homeBgmAudioRef.current.pause();
+    homeBgmAudioRef.current.currentTime = 0;
+  }
+}
 
 function stopHomeIntroVoice() {
   homeIntroVoiceRunRef.current += 1;
@@ -308,6 +345,8 @@ function stopHomeIntroVoice() {
     homeIntroAudioRef.current.src = '';
     homeIntroAudioRef.current = null;
   }
+
+  setHomeBgmVolume(HOME_BGM_VOLUME);
 }
 
 function playHomeIntroVoiceFrom(startIndex = 0) {
@@ -324,10 +363,22 @@ function playHomeIntroVoiceFrom(startIndex = 0) {
 
     const audio = new Audio(LEXORIA_INTRO_VOICE_URLS[index]);
     homeIntroAudioRef.current = audio;
-    audio.onended = () => playLine(index + 1);
-    audio.onerror = () => playLine(index + 1);
+    setHomeBgmVolume(HOME_BGM_DUCKED_VOLUME);
+    audio.onended = () => {
+      if (index + 1 >= LEXORIA_INTRO_VOICE_URLS.length) {
+        setHomeBgmVolume(HOME_BGM_VOLUME);
+      }
+      playLine(index + 1);
+    };
+    audio.onerror = () => {
+      if (index + 1 >= LEXORIA_INTRO_VOICE_URLS.length) {
+        setHomeBgmVolume(HOME_BGM_VOLUME);
+      }
+      playLine(index + 1);
+    };
     audio.play().catch((err) => {
       console.error('Home intro voice play failed:', err);
+      setHomeBgmVolume(HOME_BGM_VOLUME);
     });
   }
 
@@ -350,13 +401,17 @@ const handleHomeVideoPlay = async (event) => {
     await video.play();
     setIsHomeVideoPlaying(true);
     setHomeIntroLineIndex(0);
+    void playHomeBgm();
     playHomeIntroVoiceFrom(0);
   } catch (err) {
     console.error('Home video play failed:', err);
     setIsHomeVideoPlaying(false);
   }
 };
-  useEffect(() => () => stopHomeIntroVoice(), []);
+  useEffect(() => () => {
+    stopHomeIntroVoice();
+    stopHomeBgm();
+  }, []);
 
   const { children, childrenLoading, childrenError, selectedChildId, setSelectedChildId, refreshChildren } = useChildren();
   const navigate = useNavigate();
@@ -728,6 +783,7 @@ const handleHomeVideoPlay = async (event) => {
     onPause={() => {
       setIsHomeVideoPlaying(false);
       stopHomeIntroVoice();
+      stopHomeBgm();
     }}
     onError={(event) => {
     console.error('Home video error:', event.currentTarget.error);
