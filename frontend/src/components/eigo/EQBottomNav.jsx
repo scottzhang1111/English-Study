@@ -20,13 +20,20 @@ const defaultItems = [
     to: '/daily-words',
     match: [
       '/daily-words',
+      '/app/daily-words',
       '/flashcard',
+      '/app/flashcard',
       '/quiz',
+      '/app/quiz',
       '/grammar',
       '/grammar-practice',
       '/review',
       '/today-review-quiz',
       '/vocab-expansion',
+      '/cards',
+      '/app/cards',
+      '/card-reward', 
+      '/heroes'
     ],
     iconSrc: `${NAV_ICON_BASE}/nav-study.png`,
   },
@@ -105,6 +112,20 @@ function EQNavIcon({ icon }) {
   }
 }
 
+function resolveIconSrc(item) {
+  if (item.iconSrc) return item.iconSrc;
+
+  const key = item.icon || item.label;
+
+  if (key === 'home' || key === 'ホーム') return `${NAV_ICON_BASE}/nav-home.png`;
+  if (key === 'map' || key === '地図' || key === '世界地図') return `${NAV_ICON_BASE}/nav-map.png`;
+  if (key === 'study' || key === '学習') return `${NAV_ICON_BASE}/nav-study.png`;
+  if (key === 'cards' || key === 'card' || key === 'カード') return `${NAV_ICON_BASE}/nav-cards.png`;
+  if (key === 'more' || key === 'その他' || key === '設定') return `${NAV_ICON_BASE}/nav-more.png`;
+
+  return '';
+}
+
 function isItemActive(item, pathname, navLinkActive) {
   if (typeof item.active === 'boolean') {
     return item.active;
@@ -125,7 +146,10 @@ export default function EQBottomNav({ items = defaultItems, className = '' }) {
       className={`eq-bottom-nav eq-app-bottom-nav ${className}`.trim()}
       aria-label="メインナビゲーション"
     >
-      {items.map((item) => (
+    {items.map((item) => {
+      const iconSrc = resolveIconSrc(item);
+
+      return (
         <NavLink
           key={`${item.to}-${item.label}`}
           to={item.to}
@@ -136,14 +160,15 @@ export default function EQBottomNav({ items = defaultItems, className = '' }) {
           end={item.end}
         >
           <span className="eq-bottom-nav-icon">
-            {item.iconSrc ? (
-              <img src={item.iconSrc} alt="" aria-hidden="true" />
+            {iconSrc ? (
+              <img src={iconSrc} alt="" aria-hidden="true" />
             ) : (
               item.iconNode || <EQNavIcon icon={item.icon} />
             )}
           </span>
         </NavLink>
-      ))}
+      );
+    })}
     </nav>
   );
 }

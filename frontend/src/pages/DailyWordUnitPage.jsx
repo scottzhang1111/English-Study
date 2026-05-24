@@ -476,15 +476,8 @@ export default function DailyWordUnitPage() {
           </section>
         </EQMobileShell>
 
-        <EQBottomNav
-          items={[
-            { label: 'ホーム', to: '/app', icon: 'home' },
-            { label: '地図', to: '/study-map', icon: 'map' },
-            { label: '学習', to: '/daily-words', icon: 'study', active: true },
-            { label: 'カード', to: '/flashcard', icon: 'cards' },
-            { label: '設定', to: '/settings', icon: 'more' },
-          ]}
-        />
+      <EQBottomNav className="eq-daily-words-bottom-nav" />
+   
       </div>
     )}
 

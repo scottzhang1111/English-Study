@@ -179,7 +179,7 @@ function handleWorldClick(world) {
         <p className="eq-map-bottom-message">各世界で 200 words + 文法練習 を学べるよ！</p>
       </EQMobileShell>
 
-      <EQBottomNav
+{/*       <EQBottomNav
         items={[
           { label: 'ホーム', to: '/app', icon: 'home' },
           { label: '地図', to: '/study-map', icon: 'map', active: true },
@@ -187,7 +187,8 @@ function handleWorldClick(world) {
           { label: 'カード', to: '/cards', icon: 'cards' },
           { label: 'その他', to: '/settings', icon: 'more' },
         ]}
-      />
+      /> */}
+      <EQBottomNav className="eq-study-map-bottom-nav" />
     </div>
   );
 }
