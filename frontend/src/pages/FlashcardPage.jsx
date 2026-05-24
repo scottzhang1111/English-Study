@@ -676,18 +676,18 @@ const mobilePartOfSpeech =
 
               <div className="eq-word-actions quest-word-actions-two">
                 {studyIndex > 0 ? (
-                  <GoldQuestButton
+                  <button
                     type="button"
                     onClick={handlePreviousStudy}
                     className="quest-word-prev-button"
                   >
-                    ← まえへ
-                  </GoldQuestButton>
+                    まえ
+                  </button>
                 ) : null}
 
-                <GoldQuestButton onClick={handleNextStudy} className="quest-word-next-button">
-                  つぎへ
-                </GoldQuestButton>
+                <button onClick={handleNextStudy} className="quest-word-next-button">
+                  つぎ
+                </button>
               </div>
             </>
           )}
