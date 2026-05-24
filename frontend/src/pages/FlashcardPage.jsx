@@ -125,9 +125,17 @@ export default function FlashcardPage() {
   const reviewTotal = reviewData?.questions?.length || 0;
   const safeRequestedWordIndex = Number.isFinite(requestedWordIndex) && requestedWordIndex >= 0 ? requestedWordIndex : 0;
   const safeRequestedWordTotal = Number.isFinite(requestedWordTotal) && requestedWordTotal > 0 ? requestedWordTotal : 0;
+  const flashcardExampleText =
+    flashcard?.example ||
+    flashcard?.exampleEn ||
+    flashcard?.example_en ||
+    flashcard?.exampleEnglish ||
+    flashcard?.Example_English ||
+    '';
+
   const clozeSentence = useMemo(
-    () => buildCloze(flashcard?.example || '', flashcard?.word || ''),
-    [flashcard?.example, flashcard?.word],
+    () => buildCloze(flashcardExampleText || '', flashcard?.word || ''),
+    [flashcardExampleText, flashcard?.word],
   );
 
   const showWordList = (words = studyWords) => {
@@ -146,12 +154,55 @@ export default function FlashcardPage() {
       setStudyLoading(false);
       return;
     }
+
+    const normalizedWord = {
+      ...wordItem,
+
+      jp:
+        wordItem.jp ||
+        wordItem.meaningJa ||
+        wordItem.meaning_ja ||
+        wordItem.japanese ||
+        wordItem.Japanese ||
+        '',
+
+      example:
+        wordItem.example ||
+        wordItem.exampleEn ||
+        wordItem.example_en ||
+        wordItem.exampleEnglish ||
+        wordItem.Example_English ||
+        '',
+
+      sentence_jp:
+        wordItem.sentence_jp ||
+        wordItem.example_jp ||
+        wordItem.exampleJa ||
+        wordItem.example_ja ||
+        wordItem.sentenceJa ||
+        wordItem.Example_Japanese ||
+        '',
+
+      part_of_speech:
+        wordItem.part_of_speech ||
+        wordItem.partOfSpeech ||
+        wordItem.category ||
+        wordItem.Category ||
+        wordItem.pos ||
+        wordItem.speech ||
+        '',
+
+      phrase:
+        wordItem.phrase ||
+        wordItem.Phrase ||
+        wordItem.collocation ||
+        wordItem.chunk ||
+        '',
+    };
+
     setStudyWords(words);
     setStudyIndex(index);
-    setFlashcard({
-      ...wordItem,
-      sentence_jp: wordItem.sentence_jp || wordItem.example_jp,
-    });
+    setFlashcard(normalizedWord);
     setStep(1);
     setRecallChoice('');
     setFillAnswer('');
@@ -319,8 +370,26 @@ const handleNextStudy = async () => {
       const nextWord = studyWords[nextIndex];
 
       if (nextWord?.word) {
-        showStudyWord(nextWord, nextIndex, studyWords);
-        return;
+        try {
+          const detailPayload = await getFlashcardData({
+            word: nextWord.word,
+            childId: selectedChildId,
+          });
+
+          const mergedWord = {
+            ...nextWord,
+            ...detailPayload,
+          };
+
+          const nextWords = [...studyWords];
+          nextWords[nextIndex] = mergedWord;
+
+          showStudyWord(mergedWord, nextIndex, nextWords);
+          return;
+        } catch (detailErr) {
+          showStudyWord(nextWord, nextIndex, studyWords);
+          return;
+        }
       }
     }
 
@@ -465,8 +534,22 @@ const mobilePartOfSpeech =
   flashcard?.Category ||
   flashcard?.type ||
   '品詞';
-  const mobileExampleTranslation = flashcard?.sentence_jp || flashcard?.example_jp || '日本語訳を読み込み中...';
-  const mobileMeaning = flashcard?.jp || flashcard?.meaningJa || flashcard?.japanese || '意味を読み込み中...';
+  const mobileExample = flashcardExampleText;
+  const mobileExampleTranslation =
+    flashcard?.sentence_jp ||
+    flashcard?.example_jp ||
+    flashcard?.exampleJa ||
+    flashcard?.example_ja ||
+    flashcard?.sentenceJa ||
+    flashcard?.Example_Japanese ||
+    '日本語訳を読み込み中...';
+  const mobileMeaning =
+    flashcard?.jp ||
+    flashcard?.meaningJa ||
+    flashcard?.meaning_ja ||
+    flashcard?.japanese ||
+    flashcard?.Japanese ||
+    '意味を読み込み中...';
   const mobilePhrase = flashcard?.phrase || flashcard?.collocation || flashcard?.chunk || (
     flashcard?.word ? `${flashcard.word} a person` : '-'
   );
@@ -543,7 +626,7 @@ const mobilePartOfSpeech =
 
                 <div className="eq-word-example-block">
                   <p className="eq-word-label">例文</p>
-                  <p className="eq-word-example-en">{flashcard.example || '-'}</p>
+                  <p className="eq-word-example-en">{mobileExample || '-'}</p>
                 </div>
                 <div className="eq-word-translation-block">
                   <p className="eq-word-label">日本語訳</p>
@@ -553,8 +636,8 @@ const mobilePartOfSpeech =
                   <AudioButton type="button" onClick={() => playAudio(flashcard.word, audioRef)}>
                     単語を聞く
                   </AudioButton>
-                  {flashcard.example ? (
-                    <AudioButton type="button" onClick={() => playAudio(flashcard.example, audioRef)} tone="purple">
+                  {mobileExample ? (
+                    <AudioButton type="button" onClick={() => playAudio(mobileExample, audioRef)} tone="purple">
                       例文を聞く
                     </AudioButton>
                   ) : null}
