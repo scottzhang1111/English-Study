@@ -30,11 +30,40 @@ import StudyMapPage from './pages/StudyMapPage';
 import WorldStagePage from './pages/WorldStagePage';
 import SettingsPage from './pages/SettingsPage';
 import ParentWordManagerPage from './pages/ParentWordManagerPage';
-import BottomNav from './components/BottomNav';
+/* import BottomNav from './components/BottomNav'; */
 import StartupGate, { RequireCurrentChild } from './components/StartupGate';
 import { LanguageProvider } from './LanguageContext';
 import { ChildrenProvider } from './ChildrenContext';
 import { ThemeSchemeProvider } from './ThemeContext';
+
+import { useLocation } from 'react-router-dom';
+
+function RouteDebugBadge() {
+  const location = useLocation();
+
+  return (
+    <div
+      style={{
+        position: 'fixed',
+        top: 8,
+        left: 8,
+        zIndex: 99999,
+        padding: '6px 10px',
+        borderRadius: 8,
+        background: 'rgba(0,0,0,0.72)',
+        color: '#00ffcc',
+        fontSize: 12,
+        fontWeight: 800,
+        maxWidth: '90vw',
+        wordBreak: 'break-all',
+        pointerEvents: 'none',
+      }}
+    >
+      {location.pathname}
+      {location.search}
+    </div>
+  );
+}
 
 function AnimatedPage({ children }) {
   return (
@@ -50,6 +79,7 @@ function AnimatedPage({ children }) {
     </motion.div>
   );
 }
+
 
 function ChildRequiredPage({ children }) {
   return <RequireCurrentChild>{children}</RequireCurrentChild>;
@@ -84,10 +114,10 @@ function isStudyRoute(pathname) {
 
 function App() {
   const location = useLocation();
-  const hideBottomNav = isStudyRoute(location.pathname);
+  /* const hideBottomNav = isStudyRoute(location.pathname);
   const hideBottomNavOnMobile = location.pathname === '/grammar';
   const pageOwnsMobileStudyChrome = location.pathname === '/eiken-real';
-  const isDashboardRoute = location.pathname === '/' || location.pathname === '/app';
+  const isDashboardRoute = location.pathname === '/' || location.pathname === '/app'; */
 
   return (
     <ThemeSchemeProvider>
@@ -137,9 +167,11 @@ function App() {
             <Route path="/settings/children" element={<AnimatedPage><SettingsPage /></AnimatedPage>} />
             <Route path="/settings/add-child" element={<AnimatedPage><AddChildPage /></AnimatedPage>} />
             <Route path="*" element={<Navigate replace to="/" />} />
+             <RouteDebugBadge />
+    {/* 你原来的 routes */}
               </Routes>
             </AnimatePresence>
-            {hideBottomNav ? (
+{/*             {hideBottomNav ? (
               null
             ) : hideBottomNavOnMobile ? (
               <div className="max-md:hidden">
@@ -151,7 +183,7 @@ function App() {
               </div>
             ) : (
               <BottomNav />
-            )}
+            )} */}
           </div>
         </ChildrenProvider>
       </LanguageProvider>

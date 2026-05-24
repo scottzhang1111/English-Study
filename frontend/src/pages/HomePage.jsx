@@ -847,12 +847,12 @@ const handleHomeVideoPlay = async (event) => {
         </button> */}
 
         <SpiritAssistant
-           worldName="風の精霊"
+           worldName="Eigoの精霊"
            mood="talk"
            position="home-floating"
            messages={LEXORIA_INTRO_MESSAGES}
            autoPlayMessages={isHomeVideoPlaying}
-          autoPlayMs={2000}
+          autoPlayMs={2500}
         />
 
   {/*       <button type="button" onClick={() => navigate('/daily-words')} className="eq-home-quest-card">
