@@ -15,7 +15,7 @@ import {
   WorldMiniBanner,
     PurificationQuizMobile,
 } from '../components/eigo';
-import {  getDailyWords, getFlashcardData, getHomeData, getLearnedWords, getTodayReviewQuiz, markMastered } from '../api';
+import { getDailyWords, getFlashcardData, getHomeData, getLearnedWords, getTodayReviewQuiz, markMastered } from '../api';
 import eigoQuestWorlds from '../config/eigoQuestWorlds';
 
 const DAILY_TARGET = 20;
@@ -159,7 +159,6 @@ export default function FlashcardPage() {
     setStudyWords(words);
     setFlashcard(null);
     setStep(1);
-    setEarnedExp(0);
     setStudyEmpty(words.length === 0);
     setMode('list');
   };
@@ -225,7 +224,6 @@ export default function FlashcardPage() {
     setFillAnswer('');
     setFillFeedback('');
     setFillCorrect(false);
-    setEarnedExp(0);
     setMode('study');
     setStudyEmpty(false);
   };
@@ -290,7 +288,6 @@ export default function FlashcardPage() {
       setReviewLocked(false);
       setReviewScore(0);
       setReviewStreak(0);
-      setEarnedExp(0);
       setMode('review');
     } catch (err) {
       setReviewError(err.message);
@@ -329,20 +326,6 @@ export default function FlashcardPage() {
     };
   }, [selectedChildId, requestedWord, shouldLoadReviewQuiz]);
 
-  const awardPetExp = async (expAmount) => {
-    if (!selectedChildId) return;
-    try {
-      const payload = await addPetExp(selectedChildId, expAmount);
-      setEarnedExp(expAmount);
-      setHomeData((prev) => ({
-        ...(prev || {}),
-        pet: payload.pet,
-      }));
-    } catch (err) {
-      setStudyError(err.message);
-    }
-  };
-
   const showStudyComplete = () => {
     setMode('complete');
     setFlashcard(null);
@@ -351,7 +334,6 @@ export default function FlashcardPage() {
     setFillAnswer('');
     setFillFeedback('');
     setFillCorrect(false);
-    setEarnedExp(0);
     setStudyEmpty(false);
     setStudyLoading(false);
   };
@@ -453,10 +435,8 @@ const handlePreviousStudy = async () => {
     const correct = (flashcard.word || '').trim().toLowerCase();
     const answer = fillAnswer.trim().toLowerCase();
     const isCorrect = Boolean(correct) && correct === answer;
-    const expAmount = isCorrect ? 10 : 2;
     setFillCorrect(isCorrect);
     setFillFeedback(isCorrect ? 'せいかい！' : `こたえ: ${flashcard.word}`);
-    await awardPetExp(expAmount);
     setStep(5);
   };
 
@@ -471,7 +451,6 @@ const handlePreviousStudy = async () => {
     } else {
       setReviewStreak(0);
     }
-    await awardPetExp(isCorrect ? 10 : 2);
   };
 
   const handleReviewNext = () => {
@@ -479,7 +458,6 @@ const handlePreviousStudy = async () => {
       setReviewIndex((index) => index + 1);
       setReviewAnswer('');
       setReviewLocked(false);
-      setEarnedExp(0);
       return;
     }
     navigate('/progress');
@@ -1009,12 +987,6 @@ const mobilePartOfSpeech =
                           {fillCorrect ? 'よくできました！' : 'ここまでできたね！'}
                         </h2>
                         <p className="text-lg font-bold text-[#7081ab]">{fillFeedback || '単語と例文を確認できました。'}</p>
-                        {earnedExp > 0 && (
-                          <div className="rounded-[24px] bg-[#fff2bb] px-4 py-3 text-sm font-black text-[#6b5a2d]">
-                            ペット EXP +{earnedExp}
-                          </div>
-                        )}
-
                         <div className="flex flex-wrap gap-3">
                           <button type="button" onClick={handleNextStudy} className="pill-button px-6 py-3">
                             次の単語
@@ -1150,11 +1122,6 @@ const mobilePartOfSpeech =
                           <span className="rounded-full bg-[#fff2bb] px-3 py-1 text-xs font-black text-[#69557e]">
                             連続 {reviewStreak}
                           </span>
-                          {earnedExp > 0 && (
-                            <span className="rounded-full bg-[#e8f8ee] px-3 py-1 text-xs font-black text-[#2c7d4f]">
-                              ポケモン EXP +{earnedExp}
-                            </span>
-                          )}
                         </div>
                         <p className="mt-3 leading-6">
                           {reviewAnswer === currentReviewQuestion.correct ? 'よくできました！' : `こたえ: ${currentReviewQuestion.correct}`}
