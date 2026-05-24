@@ -300,6 +300,7 @@ const handleNextStudy = async () => {
 
     const dailyTarget = Number(result?.target ?? homeData?.target ?? DAILY_TARGET) || DAILY_TARGET;
     const reportedProgress = Number(result?.progress);
+
     const nextProgress =
       Number.isFinite(reportedProgress)
         ? reportedProgress
