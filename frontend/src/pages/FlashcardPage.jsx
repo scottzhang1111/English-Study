@@ -330,22 +330,7 @@ const handleNextStudy = async () => {
   }
 };
 
-const nextIndex = studyIndex + 1;
 
-if (studyWords.length > 0 && nextIndex < studyWords.length) {
-  const nextWord = studyWords[nextIndex];
-
-  if (nextWord?.word) {
-    showStudyWord(nextWord, nextIndex, studyWords);
-    return;
-  }
-}
-
-showStudyComplete();
-  } catch (err) {
-    setStudyError(err.message);
-  }
-};
 
   const handleSubmitFill = async () => {
     if (!flashcard) return;
