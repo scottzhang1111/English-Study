@@ -8092,3 +8092,23 @@ body,
     drop-shadow(0 0 10px rgba(53, 217, 255, 0.42))
     drop-shadow(0 4px 8px rgba(0, 0, 0, 0.42)) !important;
 }
+
+/* BottomNav: icon image already contains label text, so hide extra text */
+.eq-app-bottom-nav .eq-bottom-nav-link > span:not(.eq-bottom-nav-icon) {
+  display: none !important;
+}
+
+.eq-app-bottom-nav .eq-bottom-nav-link {
+  gap: 0 !important;
+}
+
+.eq-app-bottom-nav .eq-bottom-nav-icon {
+  width: 58px !important;
+  height: 58px !important;
+}
+
+.eq-app-bottom-nav .eq-bottom-nav-icon img {
+  width: 56px !important;
+  height: 56px !important;
+  object-fit: contain !important;
+}
