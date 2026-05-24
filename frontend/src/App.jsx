@@ -36,7 +36,7 @@ import { LanguageProvider } from './LanguageContext';
 import { ChildrenProvider } from './ChildrenContext';
 import { ThemeSchemeProvider } from './ThemeContext';
 
-import { useLocation } from 'react-router-dom';
+
 
 function RouteDebugBadge() {
   const location = useLocation();
@@ -124,8 +124,9 @@ function App() {
       <LanguageProvider>
         <ChildrenProvider>
           <div className="app-shell min-h-screen">
+               <RouteDebugBadge />
             <AnimatePresence mode="wait" initial={false}>
-              <RouteDebugBadge />
+           
             <Routes location={location} key={location.pathname}>
             <Route path="/" element={<AnimatedPage><StartupGate /></AnimatedPage>} />
             <Route path="/app" element={<AnimatedPage><StartupGate /></AnimatedPage>} />
