@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { getHomeData } from '../api';
 import { EQBackPill, EQCard, EQMobileShell, EQBottomNav } from '../components/eigo';
 import { eigoQuestCards } from '../config/eigoQuestCards';
@@ -120,6 +120,7 @@ function missionProgress(done, target, suffix = '') {
 
 export default function WorldStagePage() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const childId = useMemo(() => localStorage.getItem(CHILD_STORAGE_KEY) || '', []);
   const [homeData, setHomeData] = useState(null);
   const [error, setError] = useState('');
@@ -142,7 +143,11 @@ export default function WorldStagePage() {
 
   const learnedWords = Number(homeData?.mastered_words ?? homeData?.learned_words ?? homeData?.progress ?? MOCK_LEARNED_WORDS);
   const safeLearnedWords = Number.isFinite(learnedWords) ? Math.max(0, learnedWords) : MOCK_LEARNED_WORDS;
-  const worldIndex = clamp(Math.floor(safeLearnedWords / WORDS_PER_WORLD), 0, eigoQuestWorlds.length - 1);
+  const progressWorldIndex = clamp(Math.floor(safeLearnedWords / WORDS_PER_WORLD), 0, eigoQuestWorlds.length - 1);
+  const requestedWorldId = searchParams.get('world');
+  const requestedWorldIndex = eigoQuestWorlds.findIndex((world) => world.id === requestedWorldId);
+  const canOpenRequestedWorld = requestedWorldIndex >= 0 && requestedWorldIndex <= progressWorldIndex;
+  const worldIndex = canOpenRequestedWorld ? requestedWorldIndex : progressWorldIndex;
   const currentWorld = eigoQuestWorlds[worldIndex] || eigoQuestWorlds[0];
   const worldDisplay = WORLD_DISPLAY[currentWorld.id] || {
     nameJa: currentWorld.nameJa || '風の世界',
@@ -153,7 +158,10 @@ export default function WorldStagePage() {
 
   const rawWorldWords = safeLearnedWords - worldIndex * WORDS_PER_WORLD;
   const learnedWordsInWorld = clamp(rawWorldWords, 0, WORDS_PER_WORLD);
-  const currentStage = clamp(Math.floor(learnedWordsInWorld / WORDS_PER_STAGE) + 1, 1, STAGES_PER_WORLD);
+  const isSelectedWorldComplete = learnedWordsInWorld >= WORDS_PER_WORLD;
+  const currentStage = isSelectedWorldComplete
+    ? STAGES_PER_WORLD
+    : clamp(Math.floor(learnedWordsInWorld / WORDS_PER_STAGE) + 1, 1, STAGES_PER_WORLD);
   const worldProgressPercent = Math.round((learnedWordsInWorld / WORDS_PER_WORLD) * 100);
   const todayWordsDone = Number(homeData?.progress ?? 6);
   const todayWordsTarget = Number(homeData?.target ?? 20);
@@ -177,9 +185,19 @@ export default function WorldStagePage() {
   WORLD_STAGE_POSITIONS[currentWorld.id] ||
   WORLD_STAGE_POSITIONS.fire;
 
+  useEffect(() => {
+    setImageFailed(false);
+  }, [currentWorld.id]);
+
   const stageNodes = Array.from({ length: STAGES_PER_WORLD }, (_, index) => {
     const stage = index + 1;
-    const status = stage < currentStage ? 'completed' : stage === currentStage ? 'current' : 'locked';
+    const status = isSelectedWorldComplete
+      ? 'completed'
+      : stage < currentStage
+        ? 'completed'
+        : stage === currentStage
+          ? 'current'
+          : 'locked';
     return {
       stage,
       status,

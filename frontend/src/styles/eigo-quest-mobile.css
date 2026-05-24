@@ -7574,18 +7574,8 @@ body,
 }
 
 .eq-app-bottom-nav .eq-bottom-nav-link.is-active {
-  background:
-    radial-gradient(
-      circle at 50% 42%,
-      rgba(53, 217, 255, 0.2),
-      rgba(123, 85, 255, 0.13) 58%,
-      transparent 100%
-    ) !important;
-
-  box-shadow:
-    inset 0 0 0 1px rgba(70, 220, 255, 0.22),
-    inset 0 0 22px rgba(53, 217, 255, 0.1),
-    0 0 22px rgba(53, 217, 255, 0.18) !important;
+  background: transparent !important;
+  box-shadow: none !important;
 }
 
 .eq-app-bottom-nav .eq-bottom-nav-icon {
@@ -7897,47 +7887,49 @@ body,
 }
 
 .eq-app-bottom-nav .eq-bottom-nav-icon {
-  width: 74px !important;
-  height: 74px !important;
+  width: 80px !important;
+  height: 80px !important;
   display: flex !important;
   align-items: center !important;
   justify-content: center !important;
 }
 
 .eq-app-bottom-nav .eq-bottom-nav-icon img {
-  width: 72px !important;
-  height: 72px !important;
+  width: 78px !important;
+  height: 78px !important;
   object-fit: contain !important;
   display: block !important;
 }
 
-/* active button frame should match icon size */
+/* active icon keeps size emphasis without a button frame */
 .eq-app-bottom-nav .eq-bottom-nav-link.is-active {
-  width: 92px !important;
-  height: 92px !important;
-  border-radius: 28px !important;
+  width: auto !important;
+  height: 76px !important;
+  border-radius: 22px !important;
   display: flex !important;
   align-items: center !important;
   justify-content: center !important;
+  background: transparent !important;
+  box-shadow: none !important;
 }
 
 /* active icon a little larger */
 .eq-app-bottom-nav .eq-bottom-nav-link.is-active .eq-bottom-nav-icon {
-  width: 82px !important;
-  height: 82px !important;
+  width: 88px !important;
+  height: 88px !important;
 }
 
 .eq-app-bottom-nav .eq-bottom-nav-link.is-active .eq-bottom-nav-icon img {
-  width: 80px !important;
-  height: 80px !important;
+  width: 86px !important;
+  height: 86px !important;
 }
 
 .eq-app-bottom-nav .eq-bottom-nav-icon img {
-  transform: scale(1.18);
+  transform: scale(1.2);
 }
 
 .eq-app-bottom-nav .eq-bottom-nav-link.is-active .eq-bottom-nav-icon img {
-  transform: scale(1.22);
+  transform: scale(1.24);
 }
 
 /* Home spirit dialogue final tuning */

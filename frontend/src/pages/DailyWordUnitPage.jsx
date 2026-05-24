@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { addPetExp, getDailyWords, getHomeData, markMastered, submitPracticeAnswer } from '../api';
+import { getDailyWords, getHomeData, markMastered, submitPracticeAnswer } from '../api';
 import { useChildren } from '../ChildrenContext';
 import { getPartner } from '../utils/childStorage';
 import { createMissionReward } from '../helpers/eigoQuestRewards';
@@ -15,14 +15,14 @@ import {
 } from '../components/eigo';
 
 const DEFAULT_DAILY_WORD_TARGET = 20;
-const DAILY_PASS_EXP = 20;
+/* const DAILY_PASS_EXP = 20; */
 const DAILY_WORD_POOL_UNITS = 10;
 
-const PARTNER_JA = {
+/* const PARTNER_JA = {
   bulbasaur: 'フシギダネ',
   charmander: 'ヒトカゲ',
   squirtle: 'ゼニガメ',
-};
+}; */
 
 const CHILD_STORAGE_KEY = 'selected_child_id';
 
@@ -39,13 +39,13 @@ function speak(text, lang = 'en-US') {
   window.speechSynthesis.speak(utterance);
 }
 
-function getPartnerName(child, partner) {
+/* function getPartnerName(child, partner) {
   return PARTNER_JA[child?.partnerMonsterId] || partner?.name || 'パートナー';
 }
 
 function getPartnerImage(child, partner) {
   return partner?.imageUrl || partner?.image_url || '';
-}
+} */
 
 const IMPORTANCE_ORDER = { A: 0, B: 1, C: 2 };
 const PART_OF_SPEECH_ORDER = [
@@ -196,7 +196,7 @@ export default function DailyWordUnitPage() {
   const routePrefix = location.pathname.startsWith('/app/') ? '/app' : '';
   const selectedChildId = useMemo(() => localStorage.getItem(CHILD_STORAGE_KEY) || '', []);
   const [child, setChild] = useState(null);
-  const partner = child ? getPartner(child.partnerMonsterId || child.starter_pokemon_id) : null;
+/*   const partner = child ? getPartner(child.partnerMonsterId || child.starter_pokemon_id) : null; */
   const [stage, setStage] = useState('preview');
   const [allWords, setAllWords] = useState([]);
   const [unitIndex, setUnitIndex] = useState(0);
@@ -206,8 +206,8 @@ export default function DailyWordUnitPage() {
   const [answers, setAnswers] = useState([]);
   const [selectedChoice, setSelectedChoice] = useState('');
   const [resultStatus, setResultStatus] = useState('');
-  const [earnedExp, setEarnedExp] = useState(0);
-  const [partnerExp, setPartnerExp] = useState(0);
+/*   const [earnedExp, setEarnedExp] = useState(0);
+  const [partnerExp, setPartnerExp] = useState(0); */
   const [quizSaving, setQuizSaving] = useState(false);
   const [dailyTarget, setDailyTarget] = useState(DEFAULT_DAILY_WORD_TARGET);
   const [error, setError] = useState('');
@@ -245,7 +245,7 @@ export default function DailyWordUnitPage() {
         setDailyTarget(Math.max(1, Number(homePayload?.target || target) || DEFAULT_DAILY_WORD_TARGET));
         const words = selectBaseWords(dailyPayload.words || []);
         setAllWords(words);
-        setPartnerExp(Number(homePayload?.pet?.total_exp ?? homePayload?.pet?.exp ?? 0));
+ /*        setPartnerExp(Number(homePayload?.pet?.total_exp ?? homePayload?.pet?.exp ?? 0)); */
       })
       .catch((err) => {
         setError(err.message || '単語データを読み込めませんでした。');
@@ -262,8 +262,8 @@ export default function DailyWordUnitPage() {
   const wrongAnswers = answers.filter((answer) => !answer.correct);
   const targetCount = todayWords.length || dailyTarget;
   const hasNextUnit = (unitIndex + 1) * dailyTarget < allWords.length;
-  const partnerName = getPartnerName(child, partner);
-  const partnerImage = getPartnerImage(child, partner);
+/*   const partnerName = getPartnerName(child, partner);
+  const partnerImage = getPartnerImage(child, partner); */
   const progressPercent = todayWords.length ? ((studyIndex + 1) / todayWords.length) * 100 : 0;
 
   const startStudy = () => {
@@ -304,6 +304,58 @@ export default function DailyWordUnitPage() {
   };
 
   const finishQuiz = async () => {
+  const passed = correctCount === quizQuestions.length;
+
+  setResultStatus(passed ? 'passed' : 'failed');
+  setStage('result');
+  setQuizSaving(true);
+
+  try {
+    await Promise.all(
+      answers.map((answer) => {
+        const payload = {
+          id: answer.wordId,
+          word: answer.word,
+          selected: answer.selected,
+          correct: answer.correctAnswer,
+          childId: child.id,
+        };
+
+        return answer.correct
+          ? markMastered({
+              word: answer.word,
+              childId: child.id,
+              vocabId: answer.wordId,
+            })
+          : submitPracticeAnswer(payload);
+      })
+    );
+  } catch (err) {
+    setError(err.message || '学習結果を保存できませんでした。');
+    setQuizSaving(false);
+    return;
+  }
+
+  setQuizSaving(false);
+
+  if (passed) {
+    const latestHomeData = await getHomeData(child.id).catch(() => null);
+
+    createMissionReward({
+      childId: child.id,
+      learnedWordsCount: Number(
+        latestHomeData?.mastered_words ??
+          latestHomeData?.learned_words ??
+          latestHomeData?.progress ??
+          targetCount
+      ),
+    });
+
+    navigate('/card-reward');
+  }
+};
+
+ /*  const finishQuiz = async () => {
     const passed = correctCount === quizQuestions.length;
     const exp = passed ? DAILY_PASS_EXP : 0;
     let nextPartnerExp = partnerExp;
@@ -338,9 +390,9 @@ export default function DailyWordUnitPage() {
         setQuizSaving(false);
         return;
       }
-    }
+    } */
 
-    setPartnerExp(nextPartnerExp);
+/*     setPartnerExp(nextPartnerExp);
     setQuizSaving(false);
     if (passed) {
       const latestHomeData = await getHomeData(child.id).catch(() => null);
@@ -351,7 +403,7 @@ export default function DailyWordUnitPage() {
       navigate('/card-reward');
     }
   };
-
+ */
   const nextQuiz = () => {
     if (quizIndex >= quizQuestions.length - 1) {
       finishQuiz();
@@ -370,7 +422,7 @@ export default function DailyWordUnitPage() {
     setSelectedChoice('');
     setQuizSaving(false);
     setResultStatus('');
-    setEarnedExp(0);
+/*     setEarnedExp(0); */
     setStage('quiz');
   };
 
@@ -393,10 +445,12 @@ export default function DailyWordUnitPage() {
     setSelectedChoice('');
     setQuizSaving(false);
     setResultStatus('');
-    setEarnedExp(0);
+/*     setEarnedExp(0); */
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
-  const shouldHideDesktopOnMobile = stage === 'preview' || stage === 'quiz';
+/*   const shouldHideDesktopOnMobile = stage === 'preview' || stage === 'quiz'; */
+  const shouldHideDesktopOnMobile =
+  stage === 'preview' || stage === 'quiz' || stage === 'result';
   if (!child) return null;
 
   return (
@@ -541,7 +595,7 @@ export default function DailyWordUnitPage() {
             <div className="mt-4 flex flex-wrap gap-2 text-xs font-bold text-[#61759e]">
               <span className="rounded-full bg-white/82 px-3 py-1">{child.name} さん</span>
               <span className="rounded-full bg-white/82 px-3 py-1">目標: {child.targetLevel}</span>
-              <span className="rounded-full bg-[#fff7d6] px-3 py-1">{partnerName} Lv.1</span>
+     {/*          <span className="rounded-full bg-[#fff7d6] px-3 py-1">{partnerName} Lv.1</span> */}
             </div>
           </div>
 
@@ -613,24 +667,24 @@ export default function DailyWordUnitPage() {
             <aside className="rounded-[34px] bg-white/82 p-5 text-center shadow-[0_14px_34px_rgba(145,177,209,0.14)]">
               <p className="text-xs font-black text-[#8fa0c2]">今の子ども</p>
               <p className="mt-2 text-lg font-black text-[#354172]">{child.name} さん</p>
-              <div className="mt-6 rounded-[30px] bg-[#eef8ff] p-4">
+              {/* <div className="mt-6 rounded-[30px] bg-[#eef8ff] p-4">
                 {partnerImage ? (
                   <img src={partnerImage} alt={partnerName} className="mx-auto h-[250px] w-[250px] max-w-full object-contain" />
                 ) : (
                   <div className="mx-auto flex h-48 w-48 items-center justify-center rounded-[28px] bg-white text-4xl font-black text-[#354172]">PT</div>
                 )}
-              </div>
-              <h3 className="display-font mt-4 text-3xl font-black text-[#354172]">{partnerName}</h3>
+              </div> */}
+           {/*    <h3 className="display-font mt-4 text-3xl font-black text-[#354172]">{partnerName}</h3> */}
               <p className="mt-3 rounded-full bg-[#f3f7ff] px-4 py-2 text-sm font-bold text-[#51688f]">今日もいっしょにがんばろう</p>
-              <div className="mt-5 rounded-[24px] bg-[#f8fbff] px-4 py-4">
+          {/*     <div className="mt-5 rounded-[24px] bg-[#f8fbff] px-4 py-4">
                 <div className="flex justify-between text-sm font-bold text-[#6f7da8]">
-                  <span>EXP</span>
-                  <span>{partnerExp} / 100</span>
+              <span>EXP</span>
+                  <span>{partnerExp} / 100</span> 
                 </div>
                 <div className="mt-3 h-2 overflow-hidden rounded-full bg-[#e6f4ff]">
                   <div className="h-full rounded-full bg-[linear-gradient(90deg,#bdefff,#83d7ff)]" style={{ width: `${Math.min(100, partnerExp % 100)}%` }} />
                 </div>
-              </div>
+              </div> */}
             </aside>
           </div>
         </section>
@@ -744,8 +798,8 @@ export default function DailyWordUnitPage() {
             </p>
             <div className="mt-5 flex flex-wrap justify-center gap-2 text-sm font-black text-[#61759e]">
               <span className="rounded-full bg-white/82 px-4 py-2">正解数: {correctCount} / {quizQuestions.length}</span>
-              <span className="rounded-full bg-[#fff7d6] px-4 py-2">獲得EXP: {earnedExp}</span>
-              <span className="rounded-full bg-white/82 px-4 py-2">{partnerName} EXP: {partnerExp}</span>
+{/*               <span className="rounded-full bg-[#fff7d6] px-4 py-2">獲得EXP: {earnedExp}</span>
+              <span className="rounded-full bg-white/82 px-4 py-2">{partnerName} EXP: {partnerExp}</span> */}
             </div>
             {quizSaving && <p className="mt-4 text-sm font-bold text-[#6f7da8]">学習結果を保存中...</p>}
           </div>

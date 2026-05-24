@@ -15,7 +15,7 @@ import {
   WorldMiniBanner,
     PurificationQuizMobile,
 } from '../components/eigo';
-import { addPetExp, getDailyWords, getFlashcardData, getHomeData, getLearnedWords, getTodayReviewQuiz, markMastered } from '../api';
+import {  getDailyWords, getFlashcardData, getHomeData, getLearnedWords, getTodayReviewQuiz, markMastered } from '../api';
 
 const DAILY_TARGET = 20;
 const CHILD_STORAGE_KEY = 'selected_child_id';
@@ -85,7 +85,7 @@ export default function FlashcardPage() {
   const [fillAnswer, setFillAnswer] = useState('');
   const [fillFeedback, setFillFeedback] = useState('');
   const [fillCorrect, setFillCorrect] = useState(false);
-  const [earnedExp, setEarnedExp] = useState(0);
+
   const [mode, setMode] = useState('study');
   const [studyWords, setStudyWords] = useState([]);
   const [studyIndex, setStudyIndex] = useState(0);
