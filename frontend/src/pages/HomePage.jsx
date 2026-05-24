@@ -851,6 +851,8 @@ const handleHomeVideoPlay = async (event) => {
            mood="talk"
            position="home-floating"
            messages={LEXORIA_INTRO_MESSAGES}
+           autoPlayMessages={isHomeVideoPlaying}
+          autoPlayMs={2000}
         />
 
   {/*       <button type="button" onClick={() => navigate('/daily-words')} className="eq-home-quest-card">
