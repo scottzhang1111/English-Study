@@ -71,7 +71,9 @@ export const getFlashcardData = async ({ word, importance, frequency, childId } 
 export const getDailyWords = async (options = 20) => {
   const limit = typeof options === 'object' ? options.limit : options;
   const childId = typeof options === 'object' ? options.childId : undefined;
-  return fetchJson('/api/daily-words', { params: { child_id: childId, limit } });
+  const world = typeof options === 'object' ? options.world : undefined;
+  const stage = typeof options === 'object' ? options.stage : undefined;
+  return fetchJson('/api/daily-words', { params: { child_id: childId, limit, world, stage } });
 };
 
 export const getChildWordStatus = async ({ childId, level, search } = {}) => {

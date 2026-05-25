@@ -206,13 +206,17 @@ export default function WorldStagePage() {
     };
   });
 
+  function openStageWords(stageNumber = currentStage) {
+    navigate(`/daily-words?world=${encodeURIComponent(currentWorld.id)}&stage=${encodeURIComponent(stageNumber)}`);
+  }
+
   function startCurrentStage() {
-    navigate('/daily-words');
+    openStageWords(currentStage);
   }
 
   function handleStageTap(stage) {
-    if (stage.status === 'current') {
-      startCurrentStage();
+    if (stage.status === 'current' || stage.status === 'completed') {
+      openStageWords(stage.stage);
       return;
     }
     if (stage.status === 'locked') {

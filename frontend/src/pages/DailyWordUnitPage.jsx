@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import { getDailyWords, getHomeData, markMastered, submitPracticeAnswer } from '../api';
 import { useChildren } from '../ChildrenContext';
 import { getPartner } from '../utils/childStorage';
@@ -206,7 +206,14 @@ function buildQuizQuestions(words, choiceSource = words) {
 export default function DailyWordUnitPage() {
   const navigate = useNavigate();
   const location = useLocation();
+  const [searchParams] = useSearchParams();
   const routePrefix = location.pathname.startsWith('/app/') ? '/app' : '';
+  const requestedWorldId = searchParams.get('world') || '';
+  const requestedStage = Number(searchParams.get('stage'));
+  const hasRequestedStage = requestedWorldId && Number.isFinite(requestedStage) && requestedStage > 0;
+  const flashcardStageQuery = hasRequestedStage
+    ? `&world=${encodeURIComponent(requestedWorldId)}&stage=${encodeURIComponent(requestedStage)}`
+    : '';
   const selectedChildId = useMemo(() => localStorage.getItem(CHILD_STORAGE_KEY) || '', []);
   const [child, setChild] = useState(null);
 /*   const partner = child ? getPartner(child.partnerMonsterId || child.starter_pokemon_id) : null; */
@@ -248,19 +255,27 @@ export default function DailyWordUnitPage() {
           setDailyTarget(Math.max(1, Number(selected.daily_target || selected.dailyTarget) || DEFAULT_DAILY_WORD_TARGET));
         }
         const target = Math.max(1, Number(selected.daily_target || selected.dailyTarget) || DEFAULT_DAILY_WORD_TARGET);
+        const wordLimit = hasRequestedStage ? target : target * DAILY_WORD_POOL_UNITS;
         return Promise.all([
-          getDailyWords({ childId: selected.id, limit: target * DAILY_WORD_POOL_UNITS }),
+          getDailyWords({
+            childId: selected.id,
+            limit: wordLimit,
+            world: requestedWorldId,
+            stage: hasRequestedStage ? requestedStage : undefined,
+          }),
           getHomeData(selected.id).catch(() => null),
         ]).then(([dailyPayload, homePayload]) => ({ dailyPayload, homePayload, target }));
       })
       .then((result) => {
         if (cancelled || !result) return;
         const { dailyPayload, homePayload, target } = result;
-        setDailyTarget(Math.max(1, Number(homePayload?.target || target) || DEFAULT_DAILY_WORD_TARGET));
-        setQuestWorld(getQuestWorldByLearnedWords(
-          homePayload?.mastered_words ?? homePayload?.learned_words ?? homePayload?.progress ?? 0
-        ));
         const words = selectBaseWords(dailyPayload.words || []);
+        const targetCount = hasRequestedStage ? (words.length || DEFAULT_DAILY_WORD_TARGET) : Math.max(1, Number(homePayload?.target || target) || DEFAULT_DAILY_WORD_TARGET);
+        setDailyTarget(targetCount);
+        setQuestWorld(
+          eigoQuestWorlds.find((world) => world.id === requestedWorldId) ||
+          getQuestWorldByLearnedWords(homePayload?.mastered_words ?? homePayload?.learned_words ?? homePayload?.progress ?? 0)
+        );
         setAllWords(words);
  /*        setPartnerExp(Number(homePayload?.pet?.total_exp ?? homePayload?.pet?.exp ?? 0)); */
       })
@@ -270,7 +285,7 @@ export default function DailyWordUnitPage() {
     return () => {
       cancelled = true;
     };
-  }, [children, childrenError, childrenLoading, navigate, selectedChildId]);
+  }, [children, childrenError, childrenLoading, hasRequestedStage, navigate, requestedStage, requestedWorldId, selectedChildId]);
 
   const todayWords = useMemo(() => getUnitWords(allWords, unitIndex, dailyTarget), [allWords, unitIndex, dailyTarget]);
   const currentWord = todayWords[studyIndex] || null;
@@ -278,7 +293,7 @@ export default function DailyWordUnitPage() {
   const correctCount = answers.filter((answer) => answer.correct).length;
   const wrongAnswers = answers.filter((answer) => !answer.correct);
   const targetCount = todayWords.length || dailyTarget;
-  const hasNextUnit = (unitIndex + 1) * dailyTarget < allWords.length;
+  const hasNextUnit = !hasRequestedStage && (unitIndex + 1) * dailyTarget < allWords.length;
 /*   const partnerName = getPartnerName(child, partner);
   const partnerImage = getPartnerImage(child, partner); */
   const progressPercent = todayWords.length ? ((studyIndex + 1) / todayWords.length) * 100 : 0;
@@ -510,7 +525,7 @@ export default function DailyWordUnitPage() {
                   key={`${word.id}-${index}`}
                   type="button"
                   onClick={() => {
-                    navigate(`${routePrefix}/flashcard?word=${encodeURIComponent(word.word)}&index=${index}&total=${targetCount}`);
+                    navigate(`${routePrefix}/flashcard?word=${encodeURIComponent(word.word)}&index=${index}&total=${targetCount}${flashcardStageQuery}`);
                   }}
                   className="eq-daily-word-row"
                 >
@@ -539,7 +554,7 @@ export default function DailyWordUnitPage() {
 
             <GoldQuestButton
               onClick={() => {
-                if (todayWords[0]?.word) navigate(`${routePrefix}/flashcard?word=${encodeURIComponent(todayWords[0].word)}&index=0&total=${targetCount}`);
+                if (todayWords[0]?.word) navigate(`${routePrefix}/flashcard?word=${encodeURIComponent(todayWords[0].word)}&index=0&total=${targetCount}${flashcardStageQuery}`);
               }}
               disabled={!todayWords.length}
               className="eq-daily-start-button"

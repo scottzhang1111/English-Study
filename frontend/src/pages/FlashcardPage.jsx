@@ -123,6 +123,10 @@ export default function FlashcardPage() {
   const requestedWord = searchParams.get('word') || '';
   const requestedWordIndex = Number(searchParams.get('index'));
   const requestedWordTotal = Number(searchParams.get('total'));
+  const requestedWorldId = searchParams.get('world') || '';
+  const requestedStage = Number(searchParams.get('stage'));
+  const hasRequestedStage = requestedWorldId && Number.isFinite(requestedStage) && requestedStage > 0;
+  const dailyWordsPath = `${routePrefix}/daily-words${hasRequestedStage ? `?world=${encodeURIComponent(requestedWorldId)}&stage=${encodeURIComponent(requestedStage)}` : ''}`;
   const shouldLoadReviewQuiz = location.pathname.includes('today-review-quiz');
   const progressValue = Math.min(DAILY_TARGET, Number(homeData?.progress || 0));
   const questWorld = getQuestWorldByLearnedWords(
@@ -255,7 +259,12 @@ export default function FlashcardPage() {
       const [payload, dailyPayload] = await Promise.all([
         getFlashcardData({ word, childId: selectedChildId }),
         requestedWord
-          ? getDailyWords({ childId: selectedChildId, limit: safeRequestedWordTotal || DAILY_TARGET }).catch(() => null)
+          ? getDailyWords({
+              childId: selectedChildId,
+              limit: safeRequestedWordTotal || DAILY_TARGET,
+              world: requestedWorldId,
+              stage: hasRequestedStage ? requestedStage : undefined,
+            }).catch(() => null)
           : Promise.resolve(null),
       ]);
       const dailyWords = dailyPayload?.words || [];
@@ -327,7 +336,7 @@ export default function FlashcardPage() {
     return () => {
       cancelled = true;
     };
-  }, [selectedChildId, requestedWord, shouldLoadReviewQuiz]);
+  }, [selectedChildId, requestedWord, requestedWorldId, requestedStage, shouldLoadReviewQuiz]);
 
   const showStudyComplete = () => {
     setMode('complete');
@@ -613,7 +622,7 @@ const mobilePartOfSpeech =
             <EQCard className="eq-word-card eq-word-empty-card">
               <h1>{'\u4eca\u65e5\u306e\u5358\u8a9e\u306f\u5b8c\u4e86\u3057\u307e\u3057\u305f'}</h1>
               <p>{'\u3053\u306e\u307e\u307e\u5fa9\u7fd2\u3059\u308b\u304b\u3001\u5358\u8a9e\u30ea\u30b9\u30c8\u306b\u623b\u3063\u3066\u6b21\u306e\u5192\u967a\u3092\u9078\u3079\u307e\u3059\u3002'}</p>
-              <button type="button" onClick={() => navigate(`${routePrefix}/daily-words`)} className="eq-gold-button">
+              <button type="button" onClick={() => navigate(dailyWordsPath)} className="eq-gold-button">
                 {'\u5358\u8a9e\u30ea\u30b9\u30c8\u3078'}
               </button>
               <button type="button" onClick={() => navigate(`${routePrefix}/quiz`)} className="eq-gold-button">
@@ -624,7 +633,7 @@ const mobilePartOfSpeech =
             <EQCard className="eq-word-card eq-word-empty-card">
               <h1>学習できる単語がありません</h1>
               <p>今日の学習から単語を進めよう。</p>
-              <button type="button" onClick={() => navigate('/daily-words')} className="eq-gold-button">
+              <button type="button" onClick={() => navigate(dailyWordsPath)} className="eq-gold-button">
                 学習へ
               </button>
             </EQCard>
@@ -757,7 +766,7 @@ const mobilePartOfSpeech =
                   });
                   navigate('/card-reward');
                 } else {
-                  navigate(`${routePrefix}/daily-words`);
+                  navigate(dailyWordsPath);
                 }
               }}
             >
@@ -820,7 +829,7 @@ const mobilePartOfSpeech =
                   >
                     <h2 className="display-font text-2xl font-extrabold text-[#354172]">まだ復習できる単語がありません</h2>
                     <p className="mt-3 text-sm font-bold leading-7">まず今日の学習で単語を覚えてから、ここに単語リストを作りましょう。</p>
-                    <button type="button" onClick={() => navigate('/daily-words')} className="pill-button mt-6 px-6 py-3">
+                    <button type="button" onClick={() => navigate(dailyWordsPath)} className="pill-button mt-6 px-6 py-3">
                       今日の学習へ
                     </button>
                   </motion.div>
@@ -878,7 +887,7 @@ const mobilePartOfSpeech =
                   >
                     <h2 className="display-font text-2xl font-extrabold text-[#354172]">まだ復習できる単語がありません</h2>
                     <p className="mt-3 text-sm font-bold leading-7">まず今日の学習で単語を覚えてから、ここで順番に復習しましょう。</p>
-                    <button type="button" onClick={() => navigate('/daily-words')} className="pill-button mt-6 px-6 py-3">
+                    <button type="button" onClick={() => navigate(dailyWordsPath)} className="pill-button mt-6 px-6 py-3">
                       今日の学習へ
                     </button>
                   </motion.div>
@@ -1072,7 +1081,7 @@ const mobilePartOfSpeech =
                   {'\u3053\u306e\u307e\u307e\u5fa9\u7fd2\u3059\u308b\u304b\u3001\u5358\u8a9e\u30ea\u30b9\u30c8\u306b\u623b\u3063\u3066\u6b21\u306e\u5192\u967a\u3092\u9078\u3079\u307e\u3059\u3002'}
                 </p>
                 <div className="mt-6 flex flex-wrap justify-center gap-3">
-                  <button type="button" onClick={() => navigate(`${routePrefix}/daily-words`)} className="ghost-button px-6 py-3">
+                  <button type="button" onClick={() => navigate(dailyWordsPath)} className="ghost-button px-6 py-3">
                     {'\u5358\u8a9e\u30ea\u30b9\u30c8\u3078'}
                   </button>
                   <button type="button" onClick={() => navigate(`${routePrefix}/quiz`)} className="pill-button px-6 py-3">

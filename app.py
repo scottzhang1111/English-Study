@@ -7483,6 +7483,25 @@ def build_daily_word_payloads(entries, child_id=None):
     ]
 
 
+def select_stage_vocab_entries(world_id=None, stage=None, limit=20):
+    world_ids = ['wind', 'fire', 'water', 'thunder', 'wood', 'rock', 'light', 'shadow']
+    try:
+        stage_number = int(stage)
+    except (TypeError, ValueError):
+        return None
+    if stage_number < 1 or stage_number > 10:
+        return None
+    normalized_world_id = str(world_id or '').strip().lower()
+    if normalized_world_id not in world_ids:
+        return None
+    words_per_stage = 20
+    safe_limit = max(1, min(words_per_stage, int(limit or words_per_stage)))
+    world_index = world_ids.index(normalized_world_id)
+    start = world_index * 200 + (stage_number - 1) * words_per_stage
+    end = start + safe_limit
+    return vocab_list[start:end]
+
+
 def get_database_host_for_debug():
     database_url = get_database_url()
     if not database_url:
@@ -7570,6 +7589,8 @@ def debug_db():
 def api_daily_words():
     child_id = request.args.get('child_id', '').strip()
     requested_limit = request.args.get('limit')
+    requested_world = request.args.get('world', '').strip()
+    requested_stage = request.args.get('stage', '').strip()
     resolved_child_id = None
     child_row = None
     if child_id:
@@ -7593,6 +7614,17 @@ def api_daily_words():
             limit = int(child_row['daily_target'])
     limit = max(1, min(200, limit))
     study_mode = normalize_study_mode(child_row['study_mode'] if child_row else 'normal')
+    stage_entries = select_stage_vocab_entries(requested_world, requested_stage, limit)
+    if stage_entries is not None:
+        words = build_daily_word_payloads(stage_entries, resolved_child_id)
+        return jsonify(
+            words=words,
+            targetWordCount=len(words),
+            studyMode=study_mode,
+            world=requested_world,
+            stage=int(requested_stage),
+            reviewMode='stage',
+        )
     words = build_daily_word_payloads(select_daily_vocab_entries(limit, resolved_child_id, study_mode), resolved_child_id)
     return jsonify(words=words, targetWordCount=limit, studyMode=study_mode)
 
