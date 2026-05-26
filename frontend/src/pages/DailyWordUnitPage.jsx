@@ -10,8 +10,6 @@ import {
   EQBottomNav,
   EQMobileShell,
   GoldQuestButton,
-  QuestHeader,
-  SpiritGuide,
   PurificationQuizMobile,
 } from '../components/eigo';
 
@@ -293,6 +291,7 @@ export default function DailyWordUnitPage() {
   const correctCount = answers.filter((answer) => answer.correct).length;
   const wrongAnswers = answers.filter((answer) => !answer.correct);
   const targetCount = todayWords.length || dailyTarget;
+  const previewProgressPercent = Math.min(100, Math.round((todayWords.length / Math.max(1, targetCount)) * 100));
   const hasNextUnit = !hasRequestedStage && (unitIndex + 1) * dailyTarget < allWords.length;
 /*   const partnerName = getPartnerName(child, partner);
   const partnerImage = getPartnerImage(child, partner); */
@@ -489,32 +488,54 @@ export default function DailyWordUnitPage() {
     {!error && stage === 'preview' && (
       <div className="eq-daily-words-preview lg:hidden">
         <EQMobileShell className="eq-daily-words-shell">
-          <QuestHeader
-            title="単語一覧"
-            subtitle={`今日の${targetCount}語を確認しよう`}
-            backTo="/app"
-            className="eq-daily-words-header"
-          />
-
-          <section className={`eq-daily-world-card is-${questWorld?.id || 'wind'}`}>
-            <img src={questWorld?.backgroundImage || '/assets/eigo-quest/worlds/wind.png'} alt="" />
-            <div className="eq-daily-world-shade" aria-hidden="true" />
-            <div className="eq-daily-world-icon" aria-hidden="true">{questWorld?.icon || '風'}</div>
-            <div className="eq-daily-world-copy">
-              <h2>{questWorld?.nameJa || '風の世界'}</h2>
-              <p>{String(questWorld?.id || 'wind').toUpperCase()} REALM</p>
+          <section className={`eq-daily-learning-hero is-${questWorld?.id || 'wind'}`}>
+            <img
+              className="eq-daily-learning-hero-bg"
+              src={questWorld?.backgroundImage || '/assets/eigo-quest/worlds/wind.png'}
+              alt=""
+              aria-hidden="true"
+            />
+            <div className="eq-daily-learning-hero-shade" aria-hidden="true" />
+            <header className="eq-daily-learning-title">
+              <span aria-hidden="true">✦</span>
               <div>
-                <span>Day {unitIndex + 1}</span>
-                <strong>今日の単語 <b>{todayWords.length}</b> / {targetCount} words</strong>
+                <h1>学習</h1>
+                <p>今日の{targetCount}語を確認しよう</p>
               </div>
+              <span aria-hidden="true">✦</span>
+            </header>
+            <div className="eq-daily-learning-world">
+              <div className="eq-daily-learning-emblem" aria-hidden="true">{questWorld?.icon || '風'}</div>
+              <div className="eq-daily-learning-world-copy">
+                <h2>{questWorld?.nameJa || '風の世界'}</h2>
+                <p>風の封印を解放しよう！</p>
+              </div>
+            </div>
+            <img
+              className="eq-daily-learning-spirit"
+              src="/assets/eigo-quest/spirit_assets/happy.png"
+              alt=""
+              aria-hidden="true"
+            />
+            <div className="eq-daily-learning-goal">
+              <strong>今日の目標：<b>{targetCount}</b>語</strong>
+              <div className="eq-daily-learning-progress" aria-hidden="true">
+                <span style={{ width: `${previewProgressPercent}%` }} />
+              </div>
+            </div>
+            <div className="eq-daily-learning-bubble">
+              あと少しで<br />封印が解けるよ！
             </div>
           </section>
 
-          <SpiritGuide
-            worldName={`${questWorld?.icon || '風'}の精霊`}
-            messages={[`今日は${targetCount}個の単語を集めよう！`]}
-            className="eq-daily-words-spirit"
-          />
+          <section className={`eq-daily-spirit-message is-${questWorld?.id || 'wind'}`}>
+            <span className="eq-daily-spirit-message-icon" aria-hidden="true">{questWorld?.icon || '風'}</span>
+            <div>
+              <strong>風の精霊からのメッセージ</strong>
+              <p>今日は{targetCount}個の単語を集めよう！</p>
+            </div>
+            <em>1 / 1</em>
+          </section>
 
           <section className="eq-daily-word-list-panel">
             <h2>✦ 今日の単語リスト ✦</h2>
