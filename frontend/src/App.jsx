@@ -36,35 +36,6 @@ import { LanguageProvider } from './LanguageContext';
 import { ChildrenProvider } from './ChildrenContext';
 import { ThemeSchemeProvider } from './ThemeContext';
 
-
-
-function RouteDebugBadge() {
-  const location = useLocation();
-
-  return (
-    <div
-      style={{
-        position: 'fixed',
-        top: 8,
-        left: 8,
-        zIndex: 99999,
-        padding: '6px 10px',
-        borderRadius: 8,
-        background: 'rgba(0,0,0,0.72)',
-        color: '#00ffcc',
-        fontSize: 12,
-        fontWeight: 800,
-        maxWidth: '90vw',
-        wordBreak: 'break-all',
-        pointerEvents: 'none',
-      }}
-    >
-      {location.pathname}
-      {location.search}
-    </div>
-  );
-}
-
 function AnimatedPage({ children }) {
   return (
     <motion.div
@@ -126,7 +97,6 @@ function App() {
       <LanguageProvider>
         <ChildrenProvider>
           <div className="app-shell min-h-screen">
-               <RouteDebugBadge />
             <AnimatePresence mode="wait" initial={false}>
            
             <Routes location={location} key={location.pathname}>

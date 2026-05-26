@@ -17,6 +17,18 @@ const DEFAULT_DAILY_WORD_TARGET = 20;
 /* const DAILY_PASS_EXP = 20; */
 const DAILY_WORD_POOL_UNITS = 10;
 const WORDS_PER_WORLD = 200;
+const SPIRIT_IMAGE = '/assets/eigo-quest/spirit_assets/happy.png';
+
+const DAILY_WORLD_DISPLAY = {
+  wind: { nameJa: '風の世界', nameEn: 'WIND', icon: '風', themeColor: '#35d9ff', backgroundImage: '/assets/eigo-quest/worlds/wind.png' },
+  fire: { nameJa: '火の世界', nameEn: 'FIRE', icon: '火', themeColor: '#ff8a36', backgroundImage: '/assets/eigo-quest/worlds/fire.png' },
+  thunder: { nameJa: '雷の世界', nameEn: 'THUNDER', icon: '雷', themeColor: '#b45cff', backgroundImage: '/assets/eigo-quest/worlds/thunder.png' },
+  wood: { nameJa: '木の世界', nameEn: 'WOOD', icon: '木', themeColor: '#7ee86f', backgroundImage: '/assets/eigo-quest/worlds/wood.png' },
+  rock: { nameJa: '岩の世界', nameEn: 'ROCK', icon: '岩', themeColor: '#ffc14d', backgroundImage: '/assets/eigo-quest/worlds/rock.png' },
+  water: { nameJa: '水の世界', nameEn: 'WATER', icon: '水', themeColor: '#42c8ff', backgroundImage: '/assets/eigo-quest/worlds/water.png' },
+  light: { nameJa: '光の世界', nameEn: 'LIGHT', icon: '光', themeColor: '#ffe071', backgroundImage: '/assets/eigo-quest/worlds/light.png' },
+  shadow: { nameJa: '影の世界', nameEn: 'SHADOW', icon: '影', themeColor: '#b45cff', backgroundImage: '/assets/eigo-quest/worlds/shadow.png' },
+};
 
 /* const PARTNER_JA = {
   bulbasaur: 'フシギダネ',
@@ -92,6 +104,15 @@ function getQuestWorldByLearnedWords(learnedWordsCount = 0) {
   );
 
   return eigoQuestWorlds[worldIndex] || eigoQuestWorlds[0];
+}
+
+function getDailyWorldDisplay(world) {
+  if (!world?.id) return DAILY_WORLD_DISPLAY.wind;
+  return {
+    ...DAILY_WORLD_DISPLAY.wind,
+    ...world,
+    ...(DAILY_WORLD_DISPLAY[world.id] || {}),
+  };
 }
 
 function selectBaseWords(allWords) {
@@ -482,56 +503,62 @@ export default function DailyWordUnitPage() {
   const shouldHideDesktopOnMobile =
   stage === 'preview' || stage === 'quiz' || stage === 'result';
   if (!child) return null;
+  const dailyWorldDisplay = getDailyWorldDisplay(questWorld);
 
   return (
     <>
     {!error && stage === 'preview' && (
       <div className="eq-daily-words-preview lg:hidden">
         <EQMobileShell className="eq-daily-words-shell">
-          <section className={`eq-daily-learning-hero is-${questWorld?.id || 'wind'}`}>
+          <section
+            className={`eq-daily-learning-hero is-${questWorld?.id || 'wind'}`}
+            style={{ '--eq-daily-world-color': dailyWorldDisplay.themeColor }}
+          >
             <img
               className="eq-daily-learning-hero-bg"
-              src={questWorld?.backgroundImage || '/assets/eigo-quest/worlds/wind.png'}
+              src={dailyWorldDisplay.backgroundImage}
               alt=""
               aria-hidden="true"
             />
             <div className="eq-daily-learning-hero-shade" aria-hidden="true" />
             <header className="eq-daily-learning-title">
-              <span aria-hidden="true">✦</span>
-              <div>
-                <h1>学習</h1>
-                <p>今日の{targetCount}語を確認しよう</p>
+              <div className="eq-daily-adventure-plaque">
+                <span className="eq-daily-plaque-icon" aria-label={dailyWorldDisplay.icon} aria-hidden="true">{dailyWorldDisplay.icon}</span>
+                <h1>本日の冒険</h1>
+                <p>今日の{targetCount}語を集めて<br />封印を解放しよう！</p>
               </div>
-              <span aria-hidden="true">✦</span>
             </header>
             <div className="eq-daily-learning-world">
-              <div className="eq-daily-learning-emblem" aria-hidden="true">{questWorld?.icon || '風'}</div>
-              <div className="eq-daily-learning-world-copy">
-                <h2>{questWorld?.nameJa || '風の世界'}</h2>
-                <p>風の封印を解放しよう！</p>
+              <div className="eq-daily-learning-emblem" aria-hidden="true">
+                <span>{dailyWorldDisplay.icon}</span>
+                <small>{dailyWorldDisplay.nameEn}</small>
+              </div>
+              <div className="eq-daily-learning-world-copy" aria-hidden="true">
+                <h2>{dailyWorldDisplay.nameJa}</h2>
               </div>
             </div>
             <img
               className="eq-daily-learning-spirit"
-              src="/assets/eigo-quest/spirit_assets/happy.png"
+              src={SPIRIT_IMAGE}
               alt=""
               aria-hidden="true"
             />
             <div className="eq-daily-learning-goal">
-              <strong>今日の目標：<b>{targetCount}</b>語</strong>
+              <div className="eq-daily-goal-copy">
+                <strong>今日の目標：<b>{targetCount}</b>語</strong>
+                <p>あと少しで封印が解けるよ！</p>
+              </div>
               <div className="eq-daily-learning-progress" aria-hidden="true">
                 <span style={{ width: `${previewProgressPercent}%` }} />
+                <em>{todayWords.length} / {targetCount}</em>
               </div>
-            </div>
-            <div className="eq-daily-learning-bubble">
-              あと少しで<br />封印が解けるよ！
             </div>
           </section>
 
           <section className={`eq-daily-spirit-message is-${questWorld?.id || 'wind'}`}>
-            <span className="eq-daily-spirit-message-icon" aria-hidden="true">{questWorld?.icon || '風'}</span>
+            <span className="eq-daily-spirit-message-icon" aria-hidden="true">{dailyWorldDisplay.icon}</span>
             <div>
-              <strong>風の精霊からのメッセージ</strong>
+              <strong>精霊からのメッセージ</strong>
               <p>今日は{targetCount}個の単語を集めよう！</p>
             </div>
             <em>1 / 1</em>
