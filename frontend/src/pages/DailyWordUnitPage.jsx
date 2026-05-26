@@ -523,7 +523,7 @@ export default function DailyWordUnitPage() {
             <div className="eq-daily-learning-hero-shade" aria-hidden="true" />
             <header className="eq-daily-learning-title">
               <div className="eq-daily-adventure-plaque">
-                <span className="eq-daily-plaque-icon" aria-label={dailyWorldDisplay.icon} aria-hidden="true">{dailyWorldDisplay.icon}</span>
+                <span className="eq-daily-plaque-icon" aria-label={dailyWorldDisplay.icon} aria-hidden="true" />
                 <h1>本日の冒険</h1>
                 <p>今日の{targetCount}語を集めて<br />封印を解放しよう！</p>
               </div>

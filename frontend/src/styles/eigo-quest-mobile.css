@@ -9501,3 +9501,387 @@ body,
     grid-template-columns: 42px minmax(92px, 1fr) minmax(0, 0.82fr) 40px !important;
   }
 }
+
+/* =========================================================
+   Daily words premium mobile refinement
+   Final layout-only pass for hero hierarchy and readable rows
+   ========================================================= */
+
+.eq-daily-words-preview {
+  background:
+    radial-gradient(circle at 50% 12%, rgba(255, 130, 58, 0.18), transparent 34%),
+    linear-gradient(180deg, #030719 0%, #061028 56%, #02040f 100%) !important;
+}
+
+.eq-daily-words-preview .eq-daily-words-shell {
+  gap: 16px !important;
+  padding: 0 14px calc(122px + env(safe-area-inset-bottom, 0px)) !important;
+  overflow: visible !important;
+  background: transparent !important;
+}
+
+.eq-daily-learning-hero {
+  min-height: clamp(560px, 72dvh, 650px) !important;
+  margin: 0 -14px !important;
+  padding: 0 !important;
+  overflow: hidden !important;
+  border-radius: 0 0 30px 30px !important;
+  background: #050916 !important;
+  box-shadow: 0 24px 42px rgba(0, 0, 0, 0.28) !important;
+}
+
+.eq-daily-learning-hero-bg {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover !important;
+  object-position: center top !important;
+  transform: none !important;
+  filter: saturate(1.18) contrast(1.04) brightness(0.96) !important;
+}
+
+.eq-daily-learning-hero-shade {
+  background:
+    linear-gradient(180deg, rgba(2, 4, 15, 0.04) 0%, rgba(2, 4, 15, 0.1) 42%, rgba(2, 6, 20, 0.42) 100%),
+    radial-gradient(circle at 50% 48%, rgba(5, 12, 28, 0.08), rgba(5, 10, 25, 0.34) 72%) !important;
+}
+
+.eq-daily-learning-title {
+  position: absolute !important;
+  top: clamp(178px, 25dvh, 218px) !important;
+  left: 50% !important;
+  z-index: 5 !important;
+  width: min(76vw, 330px) !important;
+  transform: translateX(-50%) !important;
+}
+
+.eq-daily-adventure-plaque {
+  min-height: 158px !important;
+  padding: 38px 24px 24px !important;
+  display: grid !important;
+  align-content: start !important;
+  justify-items: center !important;
+  row-gap: 12px !important;
+  border: 1px solid rgba(229, 174, 90, 0.62) !important;
+  border-radius: 20px !important;
+  background:
+    linear-gradient(180deg, rgba(4, 13, 31, 0.76), rgba(2, 8, 24, 0.72)) !important;
+  box-shadow:
+    0 16px 28px rgba(0, 0, 0, 0.22),
+    inset 0 0 24px rgba(63, 180, 255, 0.05) !important;
+}
+
+.eq-daily-plaque-icon {
+  top: -39px !important;
+  width: 74px !important;
+  height: 74px !important;
+  display: grid !important;
+  place-items: center !important;
+  color: transparent !important;
+  font-size: 0 !important;
+  border-width: 2px !important;
+  box-shadow:
+    0 0 16px color-mix(in srgb, var(--eq-daily-world-color, #ff8a36) 42%, transparent),
+    inset 0 0 18px rgba(255, 235, 168, 0.12) !important;
+}
+
+.eq-daily-plaque-icon::before {
+  content: attr(aria-label) !important;
+  position: static !important;
+  display: block !important;
+  width: auto !important;
+  height: auto !important;
+  color: #fff0b8 !important;
+  font-size: clamp(27px, 7vw, 34px) !important;
+  font-weight: 900 !important;
+  line-height: 1 !important;
+  text-shadow: 0 0 12px color-mix(in srgb, var(--eq-daily-world-color, #ff8a36) 58%, transparent) !important;
+}
+
+.eq-daily-plaque-icon::after {
+  display: none !important;
+  content: none !important;
+}
+
+.eq-daily-adventure-plaque h1 {
+  margin: 0 !important;
+  color: #fff0b8 !important;
+  font-size: clamp(21px, 5.2vw, 27px) !important;
+  font-weight: 850 !important;
+  line-height: 1.2 !important;
+  letter-spacing: 0.02em !important;
+  white-space: nowrap !important;
+}
+
+.eq-daily-adventure-plaque p {
+  max-width: 230px !important;
+  margin: 0 !important;
+  color: rgba(255, 244, 202, 0.94) !important;
+  font-size: clamp(16px, 4.1vw, 20px) !important;
+  font-weight: 700 !important;
+  line-height: 1.48 !important;
+  letter-spacing: 0 !important;
+  text-align: center !important;
+}
+
+.eq-daily-learning-world {
+  left: clamp(24px, 7vw, 36px) !important;
+  bottom: 156px !important;
+  z-index: 6 !important;
+  width: 108px !important;
+  pointer-events: none !important;
+}
+
+.eq-daily-learning-emblem {
+  width: 108px !important;
+  height: 108px !important;
+  gap: 3px !important;
+  border-width: 2px !important;
+  background:
+    radial-gradient(circle at 50% 40%, color-mix(in srgb, var(--eq-daily-world-color, #ff8a36) 22%, transparent), rgba(4, 8, 22, 0.82) 66%) !important;
+  box-shadow:
+    0 0 18px color-mix(in srgb, var(--eq-daily-world-color, #ff8a36) 42%, transparent),
+    inset 0 0 18px rgba(255, 226, 146, 0.1) !important;
+}
+
+.eq-daily-learning-emblem::before,
+.eq-daily-learning-world-copy {
+  display: none !important;
+  content: none !important;
+}
+
+.eq-daily-learning-emblem span {
+  color: #fff0b8 !important;
+  font-size: clamp(42px, 11vw, 52px) !important;
+  font-weight: 900 !important;
+  line-height: 1 !important;
+}
+
+.eq-daily-learning-emblem small {
+  color: rgba(255, 255, 255, 0.92) !important;
+  font-size: clamp(12px, 3.4vw, 15px) !important;
+  font-weight: 800 !important;
+  letter-spacing: 0.02em !important;
+}
+
+.eq-daily-learning-spirit {
+  right: clamp(22px, 7vw, 38px) !important;
+  bottom: 142px !important;
+  z-index: 6 !important;
+  width: clamp(112px, 33vw, 142px) !important;
+  max-height: 178px !important;
+  object-fit: contain !important;
+  filter:
+    drop-shadow(0 0 14px rgba(80, 210, 255, 0.42))
+    drop-shadow(0 12px 14px rgba(0, 0, 0, 0.34)) !important;
+}
+
+.eq-daily-learning-goal {
+  left: 24px !important;
+  right: 24px !important;
+  bottom: 20px !important;
+  z-index: 7 !important;
+  min-height: 112px !important;
+  padding: 17px 20px 18px !important;
+  border: 1px solid rgba(199, 134, 82, 0.62) !important;
+  border-radius: 22px !important;
+  background:
+    linear-gradient(180deg, rgba(4, 14, 34, 0.68), rgba(2, 9, 26, 0.7)) !important;
+  box-shadow:
+    0 16px 28px rgba(0, 0, 0, 0.2),
+    inset 0 0 18px rgba(67, 180, 255, 0.05) !important;
+}
+
+.eq-daily-goal-copy {
+  grid-template-columns: minmax(0, 0.92fr) minmax(0, 1.08fr) !important;
+  gap: 12px !important;
+  align-items: center !important;
+}
+
+.eq-daily-learning-goal strong {
+  font-size: clamp(13px, 3.5vw, 17px) !important;
+  font-weight: 800 !important;
+  line-height: 1.22 !important;
+}
+
+.eq-daily-learning-goal b {
+  display: inline-block !important;
+  margin-right: 4px !important;
+  font-size: clamp(38px, 9.4vw, 50px) !important;
+  font-weight: 900 !important;
+  line-height: 0.95 !important;
+}
+
+.eq-daily-goal-copy p {
+  font-size: clamp(12px, 3.2vw, 15px) !important;
+  font-weight: 700 !important;
+  line-height: 1.38 !important;
+}
+
+.eq-daily-learning-progress {
+  margin-top: 13px !important;
+  gap: 10px !important;
+}
+
+.eq-daily-learning-progress::before,
+.eq-daily-learning-progress span {
+  height: 14px !important;
+}
+
+.eq-daily-learning-progress em {
+  font-size: clamp(15px, 4vw, 20px) !important;
+  font-weight: 800 !important;
+}
+
+.eq-daily-word-list-panel {
+  overflow: visible !important;
+  padding: 22px 14px 24px !important;
+  border: 1px solid rgba(185, 127, 78, 0.68) !important;
+  border-radius: 26px !important;
+  background:
+    radial-gradient(circle at 50% 0%, rgba(35, 144, 255, 0.12), transparent 30%),
+    rgba(2, 11, 30, 0.82) !important;
+  box-shadow:
+    0 18px 28px rgba(0, 0, 0, 0.24),
+    inset 0 0 20px rgba(66, 174, 255, 0.05) !important;
+}
+
+.eq-daily-word-list-panel h2 {
+  margin: 0 0 18px !important;
+  color: #ffe28a !important;
+  font-size: clamp(22px, 5.6vw, 28px) !important;
+  font-weight: 850 !important;
+  line-height: 1.18 !important;
+  letter-spacing: 0.01em !important;
+}
+
+.eq-daily-word-list {
+  overflow: visible !important;
+  gap: 10px !important;
+  padding-right: 0 !important;
+}
+
+.eq-daily-word-row {
+  display: grid !important;
+  grid-template-columns: 38px minmax(0, 1.15fr) minmax(0, 0.9fr) 34px !important;
+  gap: 10px !important;
+  align-items: center !important;
+  min-height: 68px !important;
+  height: auto !important;
+  padding: 10px 10px !important;
+  border-radius: 17px !important;
+  background: rgba(2, 10, 28, 0.74) !important;
+  box-shadow:
+    inset 0 0 16px rgba(67, 159, 255, 0.045),
+    0 8px 16px rgba(0, 0, 0, 0.12) !important;
+}
+
+.eq-daily-word-number {
+  width: 32px !important;
+  height: 32px !important;
+  font-size: clamp(16px, 4.4vw, 20px) !important;
+}
+
+.eq-daily-word-row strong {
+  min-width: 0 !important;
+  flex: 1 1 auto !important;
+  overflow: visible !important;
+  color: #f8fbff !important;
+  font-size: clamp(20px, 5.2vw, 26px) !important;
+  font-weight: 850 !important;
+  line-height: 1.16 !important;
+  overflow-wrap: anywhere !important;
+  text-overflow: clip !important;
+  white-space: normal !important;
+}
+
+.eq-daily-word-row em {
+  display: none !important;
+}
+
+.eq-daily-word-row small {
+  min-width: 0 !important;
+  overflow: hidden !important;
+  color: rgba(255, 255, 255, 0.86) !important;
+  font-size: clamp(13px, 3.5vw, 16px) !important;
+  font-weight: 700 !important;
+  line-height: 1.32 !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+}
+
+.eq-daily-word-audio {
+  width: 34px !important;
+  height: 34px !important;
+  justify-self: end !important;
+  font-size: 0.68rem !important;
+}
+
+@media (max-width: 390px) {
+  .eq-daily-words-preview .eq-daily-words-shell {
+    padding-right: 12px !important;
+    padding-left: 12px !important;
+  }
+
+  .eq-daily-learning-hero {
+    min-height: clamp(540px, 70dvh, 600px) !important;
+    margin-right: -12px !important;
+    margin-left: -12px !important;
+  }
+
+  .eq-daily-learning-title {
+    top: clamp(168px, 24dvh, 198px) !important;
+    width: min(78vw, 300px) !important;
+  }
+
+  .eq-daily-adventure-plaque {
+    min-height: 148px !important;
+    padding: 35px 18px 20px !important;
+    row-gap: 10px !important;
+  }
+
+  .eq-daily-plaque-icon {
+    top: -36px !important;
+    width: 68px !important;
+    height: 68px !important;
+  }
+
+  .eq-daily-adventure-plaque p {
+    max-width: 205px !important;
+  }
+
+  .eq-daily-learning-world {
+    left: 22px !important;
+    bottom: 148px !important;
+    width: 96px !important;
+  }
+
+  .eq-daily-learning-emblem {
+    width: 96px !important;
+    height: 96px !important;
+  }
+
+  .eq-daily-learning-spirit {
+    right: 18px !important;
+    bottom: 138px !important;
+    width: clamp(104px, 31vw, 124px) !important;
+  }
+
+  .eq-daily-learning-goal {
+    left: 18px !important;
+    right: 18px !important;
+    min-height: 104px !important;
+    padding: 15px 16px 16px !important;
+  }
+
+  .eq-daily-word-row {
+    grid-template-columns: 36px minmax(0, 1.12fr) minmax(0, 0.86fr) 32px !important;
+    gap: 9px !important;
+    min-height: 66px !important;
+  }
+
+  .eq-daily-word-number,
+  .eq-daily-word-audio {
+    width: 30px !important;
+    height: 30px !important;
+  }
+}
