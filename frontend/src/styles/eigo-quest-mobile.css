@@ -7239,6 +7239,153 @@ body,
   right: -18px;
 }
 
+/* World stage header - reference plaque */
+.eq-world-stage-story-header {
+  margin: 0 0 14px !important;
+  padding-top: 2px !important;
+}
+
+.eq-world-stage-story-header .eq-world-title-frame {
+  width: min(76vw, 354px) !important;
+  height: 82px !important;
+  margin: 0 auto !important;
+  display: grid !important;
+  place-items: center !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  isolation: isolate;
+}
+
+.eq-world-stage-story-header .eq-world-title-frame::before {
+  left: 20px !important;
+  right: 20px !important;
+  top: 50% !important;
+  z-index: 1 !important;
+  width: auto !important;
+  height: 50px !important;
+  transform: translateY(-50%) !important;
+  border: 2px solid rgba(238, 198, 118, 0.86) !important;
+  border-radius: 22px !important;
+  background:
+    linear-gradient(180deg, rgba(137, 158, 165, 0.98) 0%, rgba(49, 69, 86, 0.98) 42%, rgba(25, 42, 66, 0.98) 100%) !important;
+  box-shadow:
+    0 0 0 2px rgba(21, 11, 6, 0.72),
+    0 10px 18px rgba(0, 0, 0, 0.48),
+    inset 0 2px 0 rgba(255, 255, 255, 0.34),
+    inset 0 -8px 18px rgba(0, 0, 0, 0.28) !important;
+}
+
+.eq-world-stage-story-header .eq-world-title-frame::after {
+  left: 0 !important;
+  right: 0 !important;
+  top: 50% !important;
+  z-index: 0 !important;
+  width: auto !important;
+  height: 72px !important;
+  transform: translateY(-50%) !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background:
+    radial-gradient(ellipse at 10% 50%, rgba(255, 104, 44, 0.92) 0 18px, transparent 19px),
+    radial-gradient(ellipse at 90% 50%, rgba(255, 104, 44, 0.92) 0 18px, transparent 19px),
+    linear-gradient(90deg, transparent 0 3%, rgba(238, 198, 118, 0.92) 3% 10%, transparent 10% 90%, rgba(238, 198, 118, 0.92) 90% 97%, transparent 97%),
+    radial-gradient(circle at 8% 50%, rgba(255, 211, 96, 0.8), rgba(116, 42, 16, 0.92) 34%, transparent 35%),
+    radial-gradient(circle at 92% 50%, rgba(255, 211, 96, 0.8), rgba(116, 42, 16, 0.92) 34%, transparent 35%) !important;
+  box-shadow: none !important;
+}
+
+.eq-world-stage-story-header .eq-world-title-gem {
+  display: none !important;
+}
+
+.eq-world-stage-story-header .eq-world-title-frame h1 {
+  position: relative !important;
+  z-index: 2 !important;
+  margin: 0 !important;
+  min-width: 0;
+  font-size: 0 !important;
+  line-height: 1 !important;
+  letter-spacing: 0 !important;
+  opacity: 1 !important;
+}
+
+.eq-world-stage-story-header .eq-world-title-frame h1::before {
+  position: static !important;
+  display: block !important;
+  width: auto !important;
+  height: auto !important;
+  background: none !important;
+  color: #ffd88a !important;
+  font-size: clamp(26px, 7.1vw, 34px) !important;
+  font-weight: 950 !important;
+  letter-spacing: 0 !important;
+  line-height: 1 !important;
+  text-shadow:
+    0 2px 0 rgba(74, 31, 9, 0.96),
+    0 0 10px rgba(255, 214, 118, 0.42),
+    0 3px 8px rgba(0, 0, 0, 0.62) !important;
+}
+
+.eq-world-stage-story-header .eq-world-title-frame h1::after {
+  display: none !important;
+}
+
+.eq-world-stage-story-header.is-wind .eq-world-title-frame h1::before { content: "風の国"; }
+.eq-world-stage-story-header.is-fire .eq-world-title-frame h1::before { content: "火の国"; }
+.eq-world-stage-story-header.is-water .eq-world-title-frame h1::before { content: "水の国"; }
+.eq-world-stage-story-header.is-thunder .eq-world-title-frame h1::before { content: "雷の国"; }
+.eq-world-stage-story-header.is-wood .eq-world-title-frame h1::before { content: "木の国"; }
+.eq-world-stage-story-header.is-rock .eq-world-title-frame h1::before { content: "岩の国"; }
+.eq-world-stage-story-header.is-light .eq-world-title-frame h1::before { content: "光の国"; }
+.eq-world-stage-story-header.is-shadow .eq-world-title-frame h1::before { content: "影の国"; }
+
+.eq-world-stage-story-header .eq-world-stage-intro {
+  position: absolute !important;
+  left: 50%;
+  top: 47px;
+  z-index: 2;
+  width: max-content;
+  max-width: calc(100% - 120px) !important;
+  margin: 0 !important;
+  transform: translateX(-50%);
+  overflow: hidden;
+  color: #e8eef5 !important;
+  font-size: 0 !important;
+  line-height: 1 !important;
+  white-space: nowrap;
+  text-shadow: 0 2px 5px rgba(0, 0, 0, 0.7) !important;
+}
+
+.eq-world-stage-story-header .eq-world-stage-intro::before {
+  display: inline-block;
+  overflow: hidden;
+  max-width: 100%;
+  font-size: clamp(12px, 3.4vw, 15px);
+  font-weight: 900;
+  text-overflow: ellipsis;
+}
+
+.eq-world-stage-story-header.is-wind .eq-world-stage-intro::before { content: "💨（第1世界：風）"; }
+.eq-world-stage-story-header.is-fire .eq-world-stage-intro::before { content: "🔥（第2世界：火）"; }
+.eq-world-stage-story-header.is-water .eq-world-stage-intro::before { content: "💧（第3世界：水）"; }
+.eq-world-stage-story-header.is-thunder .eq-world-stage-intro::before { content: "⚡（第4世界：雷）"; }
+.eq-world-stage-story-header.is-wood .eq-world-stage-intro::before { content: "🌿（第5世界：木）"; }
+.eq-world-stage-story-header.is-rock .eq-world-stage-intro::before { content: "◆（第6世界：岩）"; }
+.eq-world-stage-story-header.is-light .eq-world-stage-intro::before { content: "✦（第7世界：光）"; }
+.eq-world-stage-story-header.is-shadow .eq-world-stage-intro::before { content: "☾（第8世界：影）"; }
+
+@media (max-width: 360px) {
+  .eq-world-stage-story-header .eq-world-title-frame {
+    width: min(82vw, 330px) !important;
+  }
+
+  .eq-world-stage-story-header .eq-world-stage-intro {
+    max-width: calc(100% - 96px) !important;
+  }
+}
+
 .eq-home-title-plaque h1 {
   margin: 0;
 

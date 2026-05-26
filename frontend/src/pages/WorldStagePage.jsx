@@ -228,7 +228,7 @@ export default function WorldStagePage() {
   return (
     <div className="eq-world-stage-wrap">
       <EQMobileShell className="eq-world-stage-screen">
-<header className="eq-world-stage-story-header">
+<header className={`eq-world-stage-story-header is-${currentWorld.id}`} style={{ '--world-color': worldDisplay.color }}>
   <div className="eq-world-title-frame">
     <span className="eq-world-title-gem eq-world-title-gem--top" aria-hidden="true" />
     <h1>{worldDisplay.nameJa.replace('世界', '国')}</h1>
