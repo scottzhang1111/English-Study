@@ -297,7 +297,6 @@ export default function DailyWordUnitPage() {
 /*   const partnerName = getPartnerName(child, partner);
   const partnerImage = getPartnerImage(child, partner); */
   const progressPercent = todayWords.length ? ((studyIndex + 1) / todayWords.length) * 100 : 0;
-
   const startStudy = () => {
     setStage('study');
     setStudyIndex(0);
@@ -497,7 +496,7 @@ export default function DailyWordUnitPage() {
             className="eq-daily-words-header"
           />
 
-          <section className="eq-daily-world-card">
+          <section className={`eq-daily-world-card is-${questWorld?.id || 'wind'}`}>
             <img src={questWorld?.backgroundImage || '/assets/eigo-quest/worlds/wind.png'} alt="" />
             <div className="eq-daily-world-shade" aria-hidden="true" />
             <div className="eq-daily-world-icon" aria-hidden="true">{questWorld?.icon || '風'}</div>

@@ -8110,3 +8110,183 @@ body,
 .spirit-assistant--home-floating .spirit-assistant__pager em {
   display: none;
 }
+
+/* Daily words header and world-card reference layout */
+.eq-daily-words-header {
+  grid-template-columns: 64px minmax(0, 1fr) 64px !important;
+  align-items: center !important;
+  margin: 4px 0 12px !important;
+}
+
+.eq-daily-words-header .quest-back-button {
+  width: 58px !important;
+  height: 58px !important;
+}
+
+.eq-daily-words-header .quest-back-button span {
+  font-size: 0 !important;
+}
+
+.eq-daily-words-header .quest-back-button::before {
+  content: "";
+  width: 18px;
+  height: 18px;
+  border-left: 7px solid #ffd768;
+  border-bottom: 7px solid #ffd768;
+  transform: rotate(45deg);
+  filter: drop-shadow(0 0 8px rgba(255, 211, 90, 0.45));
+}
+
+.eq-daily-words-header .quest-header-copy {
+  display: grid !important;
+  justify-items: center !important;
+  text-align: center !important;
+}
+
+.eq-daily-words-header .quest-header-copy h1 {
+  display: inline-grid !important;
+  grid-template-columns: auto auto;
+  align-items: center;
+  justify-content: center;
+  gap: 22px;
+  margin: 0 !important;
+  color: transparent !important;
+  font-size: 0 !important;
+  line-height: 1 !important;
+  letter-spacing: 0 !important;
+  text-shadow: none !important;
+}
+
+.eq-daily-words-header .quest-header-copy h1::before {
+  position: static !important;
+  width: auto !important;
+  height: auto !important;
+  margin: 0 !important;
+  background: none !important;
+  color: #ffe997 !important;
+  content: "✦" !important;
+  font-size: 24px !important;
+  line-height: 1 !important;
+  text-shadow: 0 0 16px rgba(255, 211, 90, 0.72) !important;
+}
+
+.eq-daily-words-header .quest-header-copy h1::after {
+  position: static !important;
+  width: auto !important;
+  height: auto !important;
+  margin: 0 !important;
+  background: none !important;
+  color: #fff0b5 !important;
+  content: "学習" !important;
+  font-size: clamp(40px, 11vw, 56px) !important;
+  font-weight: 950 !important;
+  letter-spacing: 0.12em !important;
+  line-height: 1 !important;
+  text-shadow:
+    0 2px 0 rgba(78, 44, 10, 0.95),
+    0 0 18px rgba(255, 211, 90, 0.48) !important;
+}
+
+.eq-daily-words-header .quest-header-star {
+  color: #ffe997 !important;
+  font-size: 24px !important;
+  text-shadow: 0 0 16px rgba(255, 211, 90, 0.72) !important;
+}
+
+.eq-daily-words-header .quest-header-copy p {
+  margin-top: -2px !important;
+  color: transparent !important;
+  font-size: 0 !important;
+}
+
+.eq-daily-words-header .quest-header-copy p::before {
+  color: rgba(220, 229, 255, 0.82);
+  content: "今日の20語を確認しよう";
+  font-size: clamp(17px, 4.4vw, 22px);
+  font-weight: 900;
+  line-height: 1.2;
+}
+
+.eq-daily-world-card {
+  min-height: 136px;
+  grid-template-columns: 86px minmax(0, 1fr);
+  gap: 18px;
+  border-color: rgba(255, 211, 90, 0.68);
+  border-radius: 24px;
+  padding: 18px;
+}
+
+.eq-daily-world-icon {
+  width: 74px;
+  height: 74px;
+  border-radius: 999px;
+  font-size: 0 !important;
+}
+
+.eq-daily-world-icon::before {
+  color: #9be8ff;
+  font-size: 34px;
+  font-weight: 950;
+  line-height: 1;
+  text-shadow: 0 0 14px rgba(88, 220, 255, 0.72);
+}
+
+.eq-daily-world-card.is-wind .eq-daily-world-icon::before { content: "風"; }
+.eq-daily-world-card.is-fire .eq-daily-world-icon::before { content: "火"; }
+.eq-daily-world-card.is-water .eq-daily-world-icon::before { content: "水"; }
+.eq-daily-world-card.is-thunder .eq-daily-world-icon::before { content: "雷"; }
+.eq-daily-world-card.is-wood .eq-daily-world-icon::before { content: "木"; }
+.eq-daily-world-card.is-rock .eq-daily-world-icon::before { content: "岩"; }
+.eq-daily-world-card.is-light .eq-daily-world-icon::before { content: "光"; }
+.eq-daily-world-card.is-shadow .eq-daily-world-icon::before { content: "影"; }
+
+.eq-daily-world-copy h2 {
+  font-size: 0 !important;
+}
+
+.eq-daily-world-copy h2::before {
+  color: #f8fbff;
+  font-size: clamp(36px, 8.8vw, 52px);
+  font-weight: 950;
+  line-height: 1;
+  text-shadow: 0 3px 14px rgba(0, 0, 0, 0.58);
+}
+
+.eq-daily-world-card.is-wind .eq-daily-world-copy h2::before { content: "風の世界"; }
+.eq-daily-world-card.is-fire .eq-daily-world-copy h2::before { content: "火の世界"; }
+.eq-daily-world-card.is-water .eq-daily-world-copy h2::before { content: "水の世界"; }
+.eq-daily-world-card.is-thunder .eq-daily-world-copy h2::before { content: "雷の世界"; }
+.eq-daily-world-card.is-wood .eq-daily-world-copy h2::before { content: "木の世界"; }
+.eq-daily-world-card.is-rock .eq-daily-world-copy h2::before { content: "岩の世界"; }
+.eq-daily-world-card.is-light .eq-daily-world-copy h2::before { content: "光の世界"; }
+.eq-daily-world-card.is-shadow .eq-daily-world-copy h2::before { content: "影の世界"; }
+
+.eq-daily-world-copy p,
+.eq-daily-world-copy div > span {
+  display: none !important;
+}
+
+.eq-daily-world-copy div {
+  justify-content: flex-end;
+  margin-top: 14px;
+}
+
+.eq-daily-world-copy strong {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 16px;
+  color: #f8fbff;
+  font-size: 0 !important;
+  font-weight: 950;
+}
+
+.eq-daily-world-copy strong::before {
+  content: "今日の単語";
+  font-size: clamp(17px, 4.5vw, 22px);
+}
+
+.eq-daily-world-copy b {
+  color: #ffdc69;
+  font-size: clamp(36px, 9vw, 48px);
+  line-height: 1;
+}
