@@ -9885,3 +9885,158 @@ body,
     height: 30px !important;
   }
 }
+
+/* =========================================================
+   Daily word list first viewport compression
+   Keep the hero, but let the list start above the fold.
+   ========================================================= */
+
+.eq-daily-words-preview .eq-daily-words-shell {
+  gap: 8px !important;
+  padding-top: 0 !important;
+}
+
+.eq-daily-learning-hero {
+  min-height: clamp(380px, 54dvh, 510px) !important;
+  border-radius: 0 0 24px 24px !important;
+}
+
+.eq-daily-learning-hero-bg {
+  object-fit: cover !important;
+  object-position: center top !important;
+}
+
+.eq-daily-learning-title {
+  top: clamp(108px, 17dvh, 154px) !important;
+  width: min(72vw, 310px) !important;
+}
+
+.eq-daily-adventure-plaque {
+  min-height: 126px !important;
+  padding: 30px 18px 17px !important;
+  row-gap: 8px !important;
+  border-radius: 18px !important;
+}
+
+.eq-daily-plaque-icon {
+  top: -30px !important;
+  width: 58px !important;
+  height: 58px !important;
+}
+
+.eq-daily-plaque-icon::before {
+  font-size: clamp(23px, 6vw, 29px) !important;
+}
+
+.eq-daily-adventure-plaque h1 {
+  font-size: clamp(18px, 4.8vw, 24px) !important;
+}
+
+.eq-daily-adventure-plaque p {
+  max-width: 210px !important;
+  font-size: clamp(13px, 3.5vw, 17px) !important;
+  line-height: 1.36 !important;
+}
+
+.eq-daily-learning-world {
+  display: none !important;
+}
+
+.eq-daily-learning-spirit {
+  right: clamp(18px, 6vw, 32px) !important;
+  bottom: 106px !important;
+  width: clamp(94px, 28vw, 124px) !important;
+  max-height: 142px !important;
+}
+
+.eq-daily-learning-goal {
+  left: 18px !important;
+  right: 18px !important;
+  bottom: 14px !important;
+  min-height: 82px !important;
+  padding: 11px 14px 12px !important;
+  border-radius: 18px !important;
+}
+
+.eq-daily-goal-copy {
+  gap: 8px !important;
+}
+
+.eq-daily-learning-goal strong {
+  font-size: clamp(12px, 3.2vw, 15px) !important;
+}
+
+.eq-daily-learning-goal b {
+  font-size: clamp(28px, 7.4vw, 40px) !important;
+}
+
+.eq-daily-goal-copy p {
+  font-size: clamp(11px, 2.9vw, 13px) !important;
+  line-height: 1.25 !important;
+}
+
+.eq-daily-learning-progress {
+  margin-top: 8px !important;
+}
+
+.eq-daily-learning-progress::before,
+.eq-daily-learning-progress span {
+  height: 10px !important;
+}
+
+.eq-daily-learning-progress em {
+  font-size: clamp(13px, 3.5vw, 17px) !important;
+}
+
+.eq-daily-word-list-panel {
+  margin-top: 0 !important;
+  padding: 16px 12px 18px !important;
+  border-radius: 22px !important;
+}
+
+.eq-daily-word-list-panel h2 {
+  margin-bottom: 12px !important;
+  font-size: clamp(19px, 5vw, 25px) !important;
+}
+
+.eq-daily-word-list {
+  gap: 8px !important;
+}
+
+.eq-daily-word-row {
+  min-height: 58px !important;
+  padding: 8px 9px !important;
+  border-radius: 15px !important;
+}
+
+@media (max-width: 390px) {
+  .eq-daily-learning-hero {
+    min-height: clamp(360px, 52dvh, 470px) !important;
+  }
+
+  .eq-daily-learning-title {
+    top: clamp(100px, 16dvh, 138px) !important;
+    width: min(76vw, 288px) !important;
+  }
+
+  .eq-daily-adventure-plaque {
+    min-height: 118px !important;
+    padding: 28px 16px 15px !important;
+  }
+
+  .eq-daily-learning-spirit {
+    bottom: 100px !important;
+    width: clamp(86px, 26vw, 112px) !important;
+  }
+
+  .eq-daily-learning-goal {
+    left: 14px !important;
+    right: 14px !important;
+    min-height: 78px !important;
+    padding: 10px 12px 11px !important;
+  }
+
+  .eq-daily-word-row {
+    min-height: 56px !important;
+  }
+}
