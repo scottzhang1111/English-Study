@@ -5565,6 +5565,242 @@ body,
   text-align: center;
 }
 
+.eq-world-overview-screen {
+  --eq-mobile-max: 520px;
+  gap: 10px;
+  min-height: 100dvh;
+  padding: max(8px, env(safe-area-inset-top, 0px)) 12px calc(92px + env(safe-area-inset-bottom, 0px));
+  background:
+    radial-gradient(circle at 72% 4%, rgba(53, 217, 255, 0.18), transparent 26%),
+    radial-gradient(circle at 16% 0%, rgba(123, 85, 255, 0.3), transparent 34%),
+    linear-gradient(180deg, #050629 0%, #090428 44%, #05030d 100%);
+}
+
+.eq-map-hero-header {
+  position: relative;
+  min-height: 108px;
+  align-items: center;
+  padding: 12px 132px 12px 8px;
+  overflow: hidden;
+}
+
+.eq-map-hero-header::before {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at 20% 22%, rgba(255, 211, 90, 0.7) 0 1px, transparent 2px),
+    radial-gradient(circle at 62% 18%, rgba(53, 217, 255, 0.8) 0 1px, transparent 2px),
+    radial-gradient(circle at 48% 48%, rgba(255, 255, 255, 0.85) 0 1px, transparent 2px);
+  background-size: 94px 72px, 122px 86px, 70px 54px;
+  opacity: 0.7;
+  content: "";
+}
+
+.eq-map-hero-copy {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+
+.eq-map-hero-compass {
+  display: grid;
+  width: 52px;
+  height: 52px;
+  flex: 0 0 auto;
+  place-items: center;
+  color: #e6d8ff;
+  font-size: 42px;
+  line-height: 1;
+  text-shadow:
+    0 0 12px rgba(190, 125, 255, 0.9),
+    0 0 22px rgba(53, 217, 255, 0.46);
+}
+
+.eq-map-hero-header h1 {
+  font-size: 34px;
+  text-shadow:
+    0 4px 18px rgba(123, 85, 255, 0.82),
+    0 0 2px #fff;
+}
+
+.eq-map-hero-header p {
+  margin-top: 6px;
+  color: rgba(247, 247, 255, 0.86);
+  font-size: 12px;
+  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.72);
+}
+
+.eq-map-hero-spirit {
+  position: absolute;
+  right: 0;
+  bottom: -4px;
+  z-index: 1;
+  width: 128px;
+  max-height: 118px;
+  object-fit: contain;
+  filter: drop-shadow(0 0 16px rgba(53, 217, 255, 0.72));
+  pointer-events: none;
+}
+
+.eq-map-summary-card {
+  gap: 11px;
+  padding: 15px 18px;
+  border-color: rgba(97, 159, 255, 0.68);
+  border-radius: 24px;
+  background:
+    linear-gradient(135deg, rgba(11, 15, 75, 0.9), rgba(16, 12, 86, 0.84)),
+    rgba(19, 24, 68, 0.9);
+  box-shadow:
+    0 0 0 1px rgba(123, 85, 255, 0.24) inset,
+    0 0 22px rgba(53, 217, 255, 0.28),
+    0 18px 34px rgba(0, 0, 0, 0.36);
+}
+
+.eq-map-summary-row {
+  gap: 0;
+}
+
+.eq-map-summary-row div {
+  padding: 0 18px 0 0;
+}
+
+.eq-map-summary-row div + div {
+  padding: 0 0 0 18px;
+  border-left: 1px solid rgba(247, 247, 255, 0.42);
+}
+
+.eq-map-summary-row span {
+  color: rgba(247, 247, 255, 0.9);
+  font-size: 12px;
+}
+
+.eq-map-summary-row strong {
+  font-size: 22px;
+}
+
+.eq-map-summary-row div:last-child strong {
+  font-size: 24px;
+}
+
+.eq-map-total-progress,
+.eq-world-card-progress {
+  height: 8px;
+  background: rgba(183, 192, 221, 0.28);
+}
+
+.eq-world-overview-grid {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.eq-world-overview-card {
+  min-height: 156px;
+  border-radius: 15px;
+  border-color: color-mix(in srgb, var(--world-color, var(--eq-primary)) 82%, rgba(255, 255, 255, 0.2));
+  box-shadow:
+    0 0 16px color-mix(in srgb, var(--world-color, var(--eq-primary)) 34%, transparent),
+    0 12px 26px rgba(0, 0, 0, 0.38);
+}
+
+.eq-world-overview-bg::after {
+  background:
+    linear-gradient(180deg, rgba(5, 10, 35, 0.06) 0%, rgba(5, 10, 35, 0.3) 42%, rgba(5, 10, 35, 0.92) 100%),
+    radial-gradient(circle at 50% 20%, transparent 0%, rgba(7, 9, 31, 0.18) 62%, rgba(7, 9, 31, 0.7) 100%);
+}
+
+.eq-world-overview-content {
+  min-height: 156px;
+  gap: 4px;
+  padding: 8px;
+}
+
+.eq-world-symbol-row {
+  top: 8px;
+  right: 8px;
+  left: 8px;
+}
+
+.eq-world-symbol {
+  width: 35px;
+  height: 35px;
+  border-color: color-mix(in srgb, var(--world-color, var(--eq-primary)) 72%, rgba(255, 255, 255, 0.2));
+  background: rgba(7, 9, 31, 0.66);
+  font-size: 16px;
+  box-shadow: 0 0 14px color-mix(in srgb, var(--world-color, var(--eq-primary)) 48%, transparent);
+}
+
+.eq-world-symbol-row em {
+  max-width: calc(100% - 38px);
+  padding: 5px 7px;
+  background: rgba(7, 9, 31, 0.72);
+  color: var(--eq-gold);
+  font-size: 9px;
+}
+
+.eq-world-overview-title h2 {
+  font-size: 15px;
+}
+
+.eq-world-overview-meta {
+  gap: 2px;
+}
+
+.eq-world-overview-meta strong {
+  font-size: 11px;
+}
+
+.eq-world-overview-meta span {
+  color: rgba(247, 247, 255, 0.86);
+  font-size: 10px;
+}
+
+.eq-map-bottom-message {
+  display: none;
+}
+
+@media (max-width: 390px) {
+  .eq-map-hero-header {
+    min-height: 96px;
+    padding-right: 104px;
+  }
+
+  .eq-map-hero-compass {
+    width: 42px;
+    height: 42px;
+    font-size: 34px;
+  }
+
+  .eq-map-hero-header h1 {
+    font-size: 28px;
+  }
+
+  .eq-map-hero-spirit {
+    width: 104px;
+  }
+
+  .eq-world-overview-grid {
+    gap: 8px;
+  }
+
+  .eq-world-overview-card,
+  .eq-world-overview-content {
+    min-height: 145px;
+  }
+
+  .eq-world-overview-title h2 {
+    font-size: 13px;
+  }
+
+  .eq-world-overview-meta strong,
+  .eq-world-overview-meta span {
+    font-size: 9px;
+  }
+}
+
 .eq-world-stage-wrap {
   min-height: 100dvh;
   background: var(--eq-fantasy-bg);
@@ -8289,4 +8525,13 @@ body,
   color: #ffdc69;
   font-size: clamp(36px, 9vw, 48px);
   line-height: 1;
+}
+
+/* Study map target-layout overrides must come after the shared mobile shell rules. */
+.eq-world-overview-screen {
+  padding-bottom: calc(92px + env(safe-area-inset-bottom, 0px)) !important;
+}
+
+.eq-study-map-bottom-nav {
+  max-width: 520px !important;
 }

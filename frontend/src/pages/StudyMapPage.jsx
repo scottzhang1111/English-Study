@@ -108,11 +108,19 @@ function handleWorldClick(world) {
     <div className="eq-study-map-wrap">
       <EQMobileShell className="eq-study-map-screen eq-world-overview-screen">
         <header className="eq-map-hero-header">
-          <div>
-            <h1>冒険マップ</h1>
-            <p>8つの世界から学習するエリアを選ぼう</p>
+          <div className="eq-map-hero-copy">
+            <span className="eq-map-hero-compass" aria-hidden="true">✦</span>
+            <div>
+              <h1>学習マップ</h1>
+              <p>8つの世界から学習するエリアを選ぼう</p>
+            </div>
           </div>
-          <button type="button" className="eq-map-rank-pill">ランキング</button>
+          <img
+            className="eq-map-hero-spirit"
+            src="/assets/eigo-quest/spirit_assets/happy.png"
+            alt=""
+            aria-hidden="true"
+          />
         </header>
 
         {error ? <div className="eq-study-map-error">{error}</div> : null}
@@ -162,7 +170,6 @@ function handleWorldClick(world) {
                 </div>
                 <div className="eq-world-overview-title">
                   <h2>{world.nameJa}</h2>
-                  <p>{world.nameEn}</p>
                 </div>
                 <div className="eq-world-overview-meta">
                   <strong>{world.stageLabel}</strong>

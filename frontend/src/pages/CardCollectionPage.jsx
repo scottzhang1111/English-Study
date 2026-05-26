@@ -1,8 +1,14 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { getHomeData } from '../api';
 import { EQBackPill, EQBottomNav, EQCard, EQMobileShell } from '../components/eigo';
 import eigoQuestCards from '../config/eigoQuestCards';
-import { getOwnedCardIds } from '../helpers/eigoQuestRewards';
+import eigoQuestWorlds from '../config/eigoQuestWorlds';
+
+const CHILD_STORAGE_KEY = 'selected_child_id';
+const WORDS_PER_WORLD = 200;
+const WORDS_PER_STAGE = 20;
+const STAGES_PER_WORLD = 10;
 
 const WORLD_META = {
   all: { label: 'すべて', name: 'すべて', color: '#ffd35a', symbol: '★' },
@@ -72,6 +78,27 @@ function getCardReviewPath(card) {
   return `/review?${params.toString()}`;
 }
 
+function getLearnedWordsFromHomeData(homeData) {
+  const learnedWords = Number(homeData?.mastered_words ?? homeData?.learned_words ?? homeData?.progress ?? 0);
+  return Number.isFinite(learnedWords) ? Math.max(0, learnedWords) : 0;
+}
+
+function getProgressOwnedCardIds(learnedWordsCount) {
+  const learnedWords = Math.max(0, Number(learnedWordsCount) || 0);
+  const ownedIds = [];
+
+  eigoQuestWorlds.forEach((world, worldIndex) => {
+    const worldWords = Math.max(0, Math.min(WORDS_PER_WORLD, learnedWords - worldIndex * WORDS_PER_WORLD));
+    const clearedStages = Math.max(0, Math.min(STAGES_PER_WORLD, Math.floor(worldWords / WORDS_PER_STAGE)));
+    if (clearedStages <= 0) return;
+
+    const worldCards = eigoQuestCards.filter((card) => card.worldId === world.id);
+    worldCards.slice(0, clearedStages).forEach((card) => ownedIds.push(card.id));
+  });
+
+  return ownedIds;
+}
+
 function CardImage({ card, large = false }) {
   const [index, setIndex] = useState(0);
   const candidates = useMemo(
@@ -105,12 +132,32 @@ function CardImage({ card, large = false }) {
 export default function CardCollectionPage() {
   const [activeFilter, setActiveFilter] = useState('all');
   const [detailCard, setDetailCard] = useState(null);
+  const [homeData, setHomeData] = useState(null);
+  const [error, setError] = useState('');
   const navigate = useNavigate();
-  const storedOwnedCardIds = useMemo(() => getOwnedCardIds(), []);
+  const childId = useMemo(() => localStorage.getItem(CHILD_STORAGE_KEY) || '', []);
+
+  useEffect(() => {
+    if (!childId) {
+      navigate('/select-child', { replace: true });
+      return;
+    }
+
+    getHomeData(childId)
+      .then((payload) => {
+        setHomeData(payload);
+        setError('');
+      })
+      .catch((err) => {
+        setHomeData({ mastered_words: 0 });
+        setError(err.message || 'カードの進捗データを読み込めませんでした。');
+      });
+  }, [childId, navigate]);
+
+  const learnedWordsCount = getLearnedWordsFromHomeData(homeData);
   const ownedCardIds = useMemo(() => {
-    if (storedOwnedCardIds.length > 0) return new Set(storedOwnedCardIds);
-    return new Set(eigoQuestCards.filter((card) => card.worldId === 'wind').slice(0, 3).map((card) => card.id));
-  }, [storedOwnedCardIds]);
+    return new Set(getProgressOwnedCardIds(learnedWordsCount));
+  }, [learnedWordsCount]);
   const cards = useMemo(
     () => eigoQuestCards.map((card) => ({ ...card, owned: ownedCardIds.has(card.id) })),
     [ownedCardIds],
@@ -144,6 +191,8 @@ export default function CardCollectionPage() {
             </div>
           </EQCard>
         </header>
+
+        {error ? <div className="eq-study-map-error">{error}</div> : null}
 
         <div className="eq-card-filter-tabs" role="tablist" aria-label="カード属性">
           {CARD_FILTERS.map((filter) => {
