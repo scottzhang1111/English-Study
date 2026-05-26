@@ -11,8 +11,6 @@ import {
   MagicPanel,
   QuestHeader,
   QuestProgressStepper,
-  SpiritGuide,
-  WorldMiniBanner,
     PurificationQuizMobile,
 } from '../components/eigo';
 import { getDailyWords, getFlashcardData, getHomeData, getLearnedWords, getTodayReviewQuiz, markMastered } from '../api';
@@ -22,6 +20,66 @@ import { createMissionReward } from '../helpers/eigoQuestRewards';
 const DAILY_TARGET = 20;
 const CHILD_STORAGE_KEY = 'selected_child_id';
 const WORDS_PER_WORLD = 200;
+const SPIRIT_IMAGE = '/assets/eigo-quest/spirit_assets/happy.png';
+
+const WORLD_STUDY_DISPLAY = {
+  wind: {
+    nameJa: '風の世界',
+    nameEn: 'WIND REALM',
+    icon: '風',
+    themeColor: '#35d9ff',
+    backgroundImage: '/assets/eigo-quest/worlds/wind.png',
+  },
+  fire: {
+    nameJa: '火の世界',
+    nameEn: 'FIRE REALM',
+    icon: '火',
+    themeColor: '#ff8a36',
+    backgroundImage: '/assets/eigo-quest/worlds/fire.png',
+  },
+  thunder: {
+    nameJa: '雷の世界',
+    nameEn: 'THUNDER REALM',
+    icon: '雷',
+    themeColor: '#b45cff',
+    backgroundImage: '/assets/eigo-quest/worlds/thunder.png',
+  },
+  wood: {
+    nameJa: '木の世界',
+    nameEn: 'WOOD REALM',
+    icon: '木',
+    themeColor: '#7ee86f',
+    backgroundImage: '/assets/eigo-quest/worlds/wood.png',
+  },
+  rock: {
+    nameJa: '岩の世界',
+    nameEn: 'ROCK REALM',
+    icon: '岩',
+    themeColor: '#ffc14d',
+    backgroundImage: '/assets/eigo-quest/worlds/rock.png',
+  },
+  water: {
+    nameJa: '水の世界',
+    nameEn: 'WATER REALM',
+    icon: '水',
+    themeColor: '#42c8ff',
+    backgroundImage: '/assets/eigo-quest/worlds/water.png',
+  },
+  light: {
+    nameJa: '光の世界',
+    nameEn: 'LIGHT REALM',
+    icon: '光',
+    themeColor: '#ffe071',
+    backgroundImage: '/assets/eigo-quest/worlds/light.png',
+  },
+  shadow: {
+    nameJa: '影の世界',
+    nameEn: 'SHADOW REALM',
+    icon: '影',
+    themeColor: '#b45cff',
+    backgroundImage: '/assets/eigo-quest/worlds/shadow.png',
+  },
+};
 
 const RECALL_OPTIONS = [
   { key: 'know', label: 'わかる' },
@@ -89,6 +147,15 @@ function getQuestWorldByLearnedWords(learnedWordsCount = 0) {
   return eigoQuestWorlds[worldIndex] || eigoQuestWorlds[0];
 }
 
+function getStudyWorldDisplay(world) {
+  if (!world?.id) return WORLD_STUDY_DISPLAY.wind;
+  return {
+    ...WORLD_STUDY_DISPLAY.wind,
+    ...world,
+    ...(WORLD_STUDY_DISPLAY[world.id] || {}),
+  };
+}
+
 export default function FlashcardPage() {
   const [homeData, setHomeData] = useState(null);
   const [flashcard, setFlashcard] = useState(null);
@@ -132,6 +199,7 @@ export default function FlashcardPage() {
   const questWorld = getQuestWorldByLearnedWords(
     homeData?.mastered_words ?? homeData?.learned_words ?? homeData?.progress ?? 0
   );
+  const studyWorldDisplay = getStudyWorldDisplay(questWorld);
   const progressPercent = `${(progressValue / DAILY_TARGET) * 100}%`;
   const dayLabel = `Day ${Math.floor(progressValue / DAILY_TARGET) + 1}`;
   const studyProgressPercent = studyWords.length ? `${((studyIndex + 1) / studyWords.length) * 100}%` : '0%';
@@ -599,24 +667,43 @@ const mobilePartOfSpeech =
     {(mode === 'study' || mode === 'complete') && (
       <div className="quest-word-page-wrap lg:hidden">
         <EQMobileShell className="eq-word-study-screen">
-          <QuestHeader
-            title="単語詳細"
-            subtitle="ことばを深く覚えよう"
-            backTo="/app"
-            className="quest-word-header"
-          />
-
-          <WorldMiniBanner
-            worldId={questWorld?.id || 'wind'}
-            day={Math.floor(progressValue / DAILY_TARGET) + 1}
-            learned={mobileCurrentNumber}
-            total={mobileTotalWords}
-          />
-          <SpiritGuide
-            worldName={`${questWorld?.icon || '風'}の精霊`}
-            messages={['いいね！意味と例文を見てみよう！']}
-            className="quest-word-spirit"
-          />
+          <section
+            className={`quest-word-world-hero is-${questWorld?.id || 'wind'}`}
+            style={{ '--quest-word-world-color': studyWorldDisplay.themeColor }}
+          >
+            <img
+              className="quest-word-world-bg"
+              src={studyWorldDisplay.backgroundImage}
+              alt=""
+              aria-hidden="true"
+            />
+            <div className="quest-word-world-scrim" aria-hidden="true" />
+            <div className="quest-word-world-icon" aria-hidden="true">
+              {studyWorldDisplay.icon}
+            </div>
+            <div className="quest-word-world-title">
+              <h1>{studyWorldDisplay.nameJa}</h1>
+              <p>{studyWorldDisplay.nameEn}</p>
+            </div>
+            <div className="quest-word-world-count">
+              <span>{Math.floor(progressValue / DAILY_TARGET) + 1}</span>
+              <strong>学習中の単語</strong>
+              <b>{mobileStudyCount}</b>
+            </div>
+            <div className="quest-word-world-progress" aria-hidden="true">
+              <span style={{ width: mobileStudyProgress }} />
+            </div>
+            <img
+              className="quest-word-world-spirit"
+              src={SPIRIT_IMAGE}
+              alt=""
+              aria-hidden="true"
+            />
+            <div className="quest-word-world-message">
+              <strong>精霊</strong>
+              <p>いいね！意味と例文を見てみよう！</p>
+            </div>
+          </section>
 
           {mode === 'complete' ? (
             <EQCard className="eq-word-card eq-word-empty-card">
@@ -685,7 +772,7 @@ const mobilePartOfSpeech =
                 </div>
               </MagicPanel>
 
-              <div className="eq-word-actions quest-word-actions-two">
+              <div className={`eq-word-actions quest-word-actions-two ${studyIndex > 0 ? '' : 'is-first-word'}`}>
                 {studyIndex > 0 ? (
                   <button
                     type="button"

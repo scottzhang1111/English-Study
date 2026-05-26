@@ -3304,6 +3304,204 @@ body,
   --spirit-size: clamp(92px, 26vw, 122px);
 }
 
+.quest-word-world-hero {
+  --quest-word-world-color: #35d9ff;
+  position: relative;
+  min-height: 232px;
+  overflow: hidden;
+  border: 1.5px solid color-mix(in srgb, var(--quest-word-world-color) 78%, #ffe58e 22%);
+  border-radius: 24px;
+  background: #07132f;
+  box-shadow:
+    inset 0 0 28px rgba(255, 255, 255, 0.08),
+    0 0 24px color-mix(in srgb, var(--quest-word-world-color) 34%, transparent);
+  isolation: isolate;
+}
+
+.quest-word-world-bg,
+.quest-word-world-scrim {
+  position: absolute;
+  inset: 0;
+}
+
+.quest-word-world-bg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  transform: scale(1.03);
+  z-index: -3;
+}
+
+.quest-word-world-scrim {
+  background:
+    linear-gradient(90deg, rgba(4, 7, 25, 0.9) 0%, rgba(11, 17, 45, 0.58) 46%, rgba(6, 10, 29, 0.46) 100%),
+    linear-gradient(180deg, rgba(2, 4, 18, 0.34) 0%, rgba(2, 4, 18, 0.74) 100%);
+  z-index: -2;
+}
+
+.quest-word-world-icon {
+  position: absolute;
+  top: 28px;
+  left: 22px;
+  display: grid;
+  width: 84px;
+  height: 84px;
+  place-items: center;
+  border: 2px solid color-mix(in srgb, var(--quest-word-world-color) 72%, #ffe58e 28%);
+  border-radius: 999px;
+  background:
+    radial-gradient(circle, color-mix(in srgb, var(--quest-word-world-color) 34%, transparent) 0%, rgba(6, 14, 39, 0.78) 68%);
+  color: #fff6c8;
+  font-size: 34px;
+  font-weight: 950;
+  text-shadow: 0 0 18px var(--quest-word-world-color);
+  box-shadow:
+    inset 0 0 18px color-mix(in srgb, var(--quest-word-world-color) 28%, transparent),
+    0 0 18px color-mix(in srgb, var(--quest-word-world-color) 30%, transparent);
+}
+
+.quest-word-world-title {
+  position: absolute;
+  top: 42px;
+  left: 126px;
+  right: 132px;
+  min-width: 0;
+}
+
+.quest-word-world-title h1 {
+  margin: 0;
+  color: #fff;
+  font-size: clamp(30px, 8vw, 48px);
+  font-weight: 950;
+  line-height: 1.02;
+  text-shadow: 0 0 18px rgba(255, 255, 255, 0.28), 0 4px 14px rgba(0, 0, 0, 0.42);
+}
+
+.quest-word-world-title p {
+  margin: 8px 0 0;
+  color: rgba(255, 255, 255, 0.78);
+  font-size: clamp(13px, 3.5vw, 18px);
+  font-weight: 950;
+  letter-spacing: 0.02em;
+}
+
+.quest-word-world-count {
+  position: absolute;
+  left: 24px;
+  right: 180px;
+  bottom: 64px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  color: #fff;
+}
+
+.quest-word-world-count span {
+  display: grid;
+  width: 38px;
+  height: 38px;
+  flex: 0 0 auto;
+  place-items: center;
+  border: 1.5px solid rgba(232, 240, 255, 0.78);
+  border-radius: 999px;
+  background: rgba(14, 18, 56, 0.72);
+  color: #fff;
+  font-size: 18px;
+  font-weight: 950;
+}
+
+.quest-word-world-count strong {
+  flex: 0 1 auto;
+  min-width: 0;
+  color: rgba(255, 255, 255, 0.92);
+  font-size: clamp(13px, 3.4vw, 18px);
+  font-weight: 950;
+  white-space: nowrap;
+}
+
+.quest-word-world-count b {
+  color: #fff;
+  font-size: clamp(22px, 6vw, 34px);
+  font-weight: 950;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.quest-word-world-progress {
+  position: absolute;
+  left: 52px;
+  right: 220px;
+  bottom: 34px;
+  height: 10px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 211, 90, 0.36);
+  border-radius: 999px;
+  background: rgba(3, 6, 24, 0.78);
+}
+
+.quest-word-world-progress::before {
+  position: absolute;
+  left: -18px;
+  top: 50%;
+  width: 14px;
+  height: 14px;
+  border-radius: 4px;
+  background: #ffd35a;
+  box-shadow: 0 0 14px #ffd35a;
+  content: "";
+  transform: translateY(-50%) rotate(45deg);
+}
+
+.quest-word-world-progress span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #ffd35a, var(--quest-word-world-color));
+  box-shadow: 0 0 16px var(--quest-word-world-color);
+}
+
+.quest-word-world-spirit {
+  position: absolute;
+  right: 8px;
+  top: 20px;
+  width: clamp(112px, 34vw, 158px);
+  height: auto;
+  filter: drop-shadow(0 14px 18px rgba(0, 0, 0, 0.38));
+}
+
+.quest-word-world-message {
+  position: absolute;
+  right: 18px;
+  bottom: 18px;
+  width: min(46%, 246px);
+  min-height: 62px;
+  padding: 10px 14px;
+  border: 1.5px solid color-mix(in srgb, var(--quest-word-world-color) 58%, #ffe58e 42%);
+  border-radius: 16px;
+  background: rgba(9, 13, 48, 0.84);
+  box-shadow:
+    inset 0 0 18px rgba(53, 217, 255, 0.08),
+    0 10px 22px rgba(0, 0, 0, 0.28);
+}
+
+.quest-word-world-message strong {
+  display: block;
+  margin-bottom: 4px;
+  color: #ffe066;
+  font-size: 13px;
+  font-weight: 950;
+}
+
+.quest-word-world-message p {
+  margin: 0;
+  color: #fff;
+  font-size: clamp(12px, 3.2vw, 15px);
+  font-weight: 850;
+  line-height: 1.35;
+}
+
 .eq-word-study-top {
   display: grid;
   gap: 12px;
@@ -7999,20 +8197,27 @@ body,
 
 .quest-word-actions-two {
   display: grid;
-  grid-template-columns: minmax(0, 0.75fr) minmax(0, 1.25fr);
-  gap: 12px;
+  grid-template-columns: minmax(112px, 0.82fr) minmax(168px, 1.18fr);
+  gap: 14px;
   align-items: center;
+  width: 100%;
+  margin-top: 14px;
+}
+
+.quest-word-actions-two.is-first-word {
+  grid-template-columns: minmax(0, 1fr);
 }
 
 .quest-word-prev-button {
-  min-height: 54px;
+  min-height: 62px;
+  padding: 0 18px;
   border-radius: 999px;
   border: 1px solid rgba(255, 218, 105, 0.45);
   background: linear-gradient(180deg, rgba(9, 26, 68, 0.92), rgba(4, 10, 34, 0.96));
   color: #ffe38a;
   font-weight: 900;
-  font-size: 15px;
-  letter-spacing: 0.02em;
+  font-size: clamp(17px, 4.6vw, 22px);
+  letter-spacing: 0;
   box-shadow:
     inset 0 0 14px rgba(91, 166, 255, 0.12),
     0 0 18px rgba(53, 179, 255, 0.12);
@@ -8024,6 +8229,13 @@ body,
 
 .quest-word-actions-two .quest-word-next-button {
   width: 100%;
+  min-height: 62px;
+  font-size: clamp(22px, 6.2vw, 30px);
+}
+
+.quest-word-actions-two.is-first-word .quest-word-next-button {
+  justify-self: end;
+  width: min(100%, 320px);
 }
 
 .eq-purify-page {
