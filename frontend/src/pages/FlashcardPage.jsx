@@ -487,7 +487,7 @@ const handlePreviousStudy = async () => {
       : progressPercent;
 /*   const questNavItems = [
     { label: '\u30db\u30fc\u30e0', to: '/app', icon: 'home' },
-    { label: '\u5730\u56f3', to: '/study-map', icon: 'map' },
+    { label: '\u5730\u56f3', to: '/app/study-map', icon: 'map' },
     { label: '\u5b66\u7fd2', to: `${routePrefix}/daily-words`, icon: 'study', active: true },
     { label: '\u30ab\u30fc\u30c9', to: `${routePrefix}/flashcard`, icon: 'cards' },
     { label: '\u305d\u306e\u4ed6', to: '/settings', icon: 'more' },

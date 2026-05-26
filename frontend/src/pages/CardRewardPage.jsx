@@ -62,7 +62,7 @@ export default function CardRewardPage() {
   const handleClaim = () => {
     if (rewardCard?.id) addOwnedCardId(rewardCard.id);
     clearPendingReward();
-    navigate('/world-stage');
+    navigate('/app/world-stage');
   };
 
   return (

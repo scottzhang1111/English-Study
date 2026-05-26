@@ -815,7 +815,7 @@ const handleHomeVideoPlay = async (event) => {
             <div className="eq-home-hero-copy world-card-content">
         {/*       <div className="world-card-top">
                 <span className="eq-home-hero-label current-badge">現在の冒険</span>
-                <button type="button" className="eq-home-map-pill world-list-button" onClick={() => navigate('/study-map')}>
+                <button type="button" className="eq-home-map-pill world-list-button" onClick={() => navigate('/app/study-map')}>
                   <span>世界一覧</span>
                   <span className="world-list-arrow" aria-hidden="true">&gt;</span>
                 </button>
@@ -944,7 +944,7 @@ const handleHomeVideoPlay = async (event) => {
 
     {/*     <button
           type="button"
-          onClick={() => navigate('/world-stage')}
+          onClick={() => navigate('/app/world-stage')}
           className="eq-gold-button eq-home-primary-cta eq-home-main-cta eq-home-main-cta--legacy"
           style={{ '--eq-gold-button-image': `url(${eigoQuestAssets.ui.goldButton})` }}
         >

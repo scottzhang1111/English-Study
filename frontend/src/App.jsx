@@ -105,7 +105,9 @@ const STUDY_ROUTE_PREFIXES = [
   '/cards',
   '/card-reward',
   '/study-map',
+  '/app/study-map',
   '/world-stage',
+  '/app/world-stage',
 ];
 
 function isStudyRoute(pathname) {
@@ -156,7 +158,9 @@ function App() {
             <Route path="/cards" element={<AnimatedPage><ChildRequiredPage><CardCollectionPage /></ChildRequiredPage></AnimatedPage>} />
             <Route path="/card-reward" element={<AnimatedPage><ChildRequiredPage><CardRewardPage /></ChildRequiredPage></AnimatedPage>} />
             <Route path="/study-map" element={<AnimatedPage><ChildRequiredPage><StudyMapPage /></ChildRequiredPage></AnimatedPage>} />
+            <Route path="/app/study-map" element={<AnimatedPage><ChildRequiredPage><StudyMapPage /></ChildRequiredPage></AnimatedPage>} />
             <Route path="/world-stage" element={<AnimatedPage><ChildRequiredPage><WorldStagePage /></ChildRequiredPage></AnimatedPage>} />
+            <Route path="/app/world-stage" element={<AnimatedPage><ChildRequiredPage><WorldStagePage /></ChildRequiredPage></AnimatedPage>} />
             <Route path="/pokedex" element={<AnimatedPage><ChildRequiredPage><PokedexPage /></ChildRequiredPage></AnimatedPage>} />
             <Route path="/pets" element={<AnimatedPage><ChildRequiredPage><PokedexPage /></ChildRequiredPage></AnimatedPage>} />
             <Route path="/petroom" element={<AnimatedPage><ChildRequiredPage><PetRoomPage /></ChildRequiredPage></AnimatedPage>} />

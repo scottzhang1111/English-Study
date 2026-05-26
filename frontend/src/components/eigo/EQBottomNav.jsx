@@ -11,8 +11,8 @@ const defaultItems = [
   },
   {
     label: '地図',
-    to: '/study-map',
-    match: ['/study-map', '/world-stage'],
+    to: '/app/study-map',
+    match: ['/study-map', '/app/study-map', '/world-stage', '/app/world-stage'],
     iconSrc: `${NAV_ICON_BASE}/nav-map.png`,
   },
   {

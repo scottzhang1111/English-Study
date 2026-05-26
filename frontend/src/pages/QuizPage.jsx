@@ -338,7 +338,7 @@ export default function QuizPage() {
       <EQBottomNav
         items={[
           { label: 'ホーム', to: '/app', icon: 'home' },
-          { label: '地図', to: '/study-map', icon: 'map' },
+          { label: '地図', to: '/app/study-map', icon: 'map' },
           { label: '学習', to: '/daily-words', icon: 'study', active: true },
           { label: 'カード', to: '/flashcard', icon: 'cards' },
           { label: 'その他', to: '/settings', icon: 'more' },

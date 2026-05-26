@@ -101,7 +101,7 @@ function handleWorldClick(world) {
     return;
   }
 
-  navigate(`/world-stage?world=${world.id}`);
+  navigate(`/app/world-stage?world=${world.id}`);
 }
 
   return (
@@ -189,7 +189,7 @@ function handleWorldClick(world) {
 {/*       <EQBottomNav
         items={[
           { label: 'ホーム', to: '/app', icon: 'home' },
-          { label: '地図', to: '/study-map', icon: 'map', active: true },
+          { label: '地図', to: '/app/study-map', icon: 'map', active: true },
           { label: '学習', to: '/daily-words', icon: 'study' },
           { label: 'カード', to: '/cards', icon: 'cards' },
           { label: 'その他', to: '/settings', icon: 'more' },

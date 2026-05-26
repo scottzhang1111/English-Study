@@ -37,7 +37,7 @@ export default function WorldHomePage() {
     <div className="eq-world-home-wrap">
       <EQMobileShell className="eq-world-home-screen">
         <header className="eq-world-home-header" style={{ '--world-color': world.color }}>
-          <button type="button" onClick={() => navigate('/study-map')}>
+          <button type="button" onClick={() => navigate('/app/study-map')}>
             ← マップへ
           </button>
 
@@ -80,7 +80,7 @@ export default function WorldHomePage() {
 {/*       <EQBottomNav
         items={[
           { label: 'ホーム', to: '/app', icon: 'home' },
-          { label: '地図', to: '/study-map', icon: 'map', active: true },
+          { label: '地図', to: '/app/study-map', icon: 'map', active: true },
           { label: '学習', to: '/daily-words', icon: 'study' },
           { label: 'カード', to: '/cards', icon: 'cards' },
           { label: 'その他', to: '/settings', icon: 'more' },
