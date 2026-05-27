@@ -1,144 +1,117 @@
 import { Link } from 'react-router-dom';
-import {
-  EQBadge,
-  EQBottomNav,
-  EQMobileShell,
-  EQPageHeader,
-  EQPanel,
-  EQPrimaryButton,
-  EQQuestCard,
-} from '../components/eigo';
+import { EQBottomNav, EQMobileShell } from '../components/eigo';
+
+const ASSET_BASE = '/assets/eigo-quest/learning-hub';
 
 const mainEntry = {
-  title: '単語学習',
-  subtitle: '単語テスト、文法の神殿へ進もう',
-  status: '未完了',
-  reward: '英語カード収集',
+  title: '今日の冒険',
+  subtitle: '20語を学んで、クイズに挑戦',
+  action: '冒険をはじめる',
   to: '/daily-words',
-  icon: '20',
-  tone: 'gold',
+  image: `${ASSET_BASE}/上の背景.png`,
 };
 
 const moduleEntries = [
   {
     title: 'まちがい復習',
-    subtitle: '苦手な単語をもう一度',
-    status: '12問',
-    reward: '弱点クリア',
+    subtitle: 'まちがえた問題をもう一度チェック',
+    badge: '復習',
     to: '/review',
-    icon: '!',
-    tone: 'rose',
+    image: `${ASSET_BASE}/まちがい復習.png`,
   },
   {
     title: '今日の復習クイズ',
-    subtitle: '今日の記録をチェック',
-    status: '20問',
-    reward: '復習ボーナス',
+    subtitle: '今日の学びをクイズで確認しよう',
+    badge: '復習',
     to: '/today-review-quiz',
-    icon: '?',
-    tone: 'cyan',
+    image: `${ASSET_BASE}/今日の復習クイズ.png`,
   },
   {
     title: '文法の神殿',
-    subtitle: '文法ルールを学ぶ',
-    status: '今日の文法あり',
-    reward: '知恵のかけら',
+    subtitle: '基礎から学べる文法のレッスン',
+    badge: '文法',
     to: '/grammar',
-    icon: '文',
-    tone: 'purple',
+    image: `${ASSET_BASE}/文法の神殿.png`,
   },
   {
     title: '文法練習',
-    subtitle: '使える形に鍛える',
-    status: '8問',
-    reward: '練習スタンプ',
+    subtitle: '問題を解いて文法を定着させよう',
+    badge: '文法',
     to: '/grammar-practice',
-    icon: 'G',
-    tone: 'green',
+    image: `${ASSET_BASE}/文法練習.png`,
   },
   {
     title: '英検クエスト',
-    subtitle: '英検対策に挑戦',
-    status: '挑戦可能',
-    reward: '英検メダル',
+    subtitle: '級ごとの学習でステップアップ！',
+    badge: '英検',
     to: '/eiken',
-    icon: 'E',
-    tone: 'amber',
+    image: `${ASSET_BASE}/英検クエスト.png`,
   },
   {
     title: '英検本番形式',
-    subtitle: '本番と同じ流れで練習',
-    status: '模試あり',
-    reward: '試験バッジ',
+    subtitle: '本番そっくりの問題で実力をチェック！',
+    badge: '英検',
     to: '/eiken-real',
-    icon: 'Ex',
-    tone: 'blue',
+    image: `${ASSET_BASE}/英検本番形式.png`,
   },
   {
-    title: '単語辞書館',
-    subtitle: '覚えた単語を見返す',
-    status: '378 words',
-    reward: 'コレクション',
+    title: '単語図書館',
+    subtitle: '語彙をふやして表現の幅を広げよう',
+    badge: '単語',
     to: '/learned-words',
-    icon: '本',
-    tone: 'sky',
+    image: `${ASSET_BASE}/単語図書館.png`,
+  },
+  {
+    title: 'AI先生',
+    subtitle: 'AI先生と会話して英語を楽しもう！',
+    badge: 'AI',
+    to: '/ai-practice',
+    image: `${ASSET_BASE}/AI先生.png`,
   },
 ];
-
-function EntryBadges({ entry }) {
-  return (
-    <>
-      <EQBadge tone={entry.tone}>{entry.status}</EQBadge>
-      <EQBadge tone={entry.tone}>{entry.reward}</EQBadge>
-    </>
-  );
-}
 
 export default function LearningHubPage() {
   return (
     <div className="eq-learning-hub-page">
-      <EQMobileShell className="eq-learning-hub-screen">
-        <EQPageHeader
-          eyebrow="Learning Hub"
-          title="学習"
-          subtitle="今日のクエストを選ぼう"
-          icon="★"
-        />
+      <EQMobileShell className="eq-learning-hub-screen eq-learning-hub-rpg-screen">
+        <header className="eq-learning-hub-rpg-header">
+          <span>Learning Menu</span>
+          <h1>学習メニュー</h1>
+          <p>今日の学びをえらぼう</p>
+        </header>
 
-        <EQQuestCard
-          as={Link}
+        <Link
           to={mainEntry.to}
-          featured
-          tone={mainEntry.tone}
-          icon={mainEntry.icon}
-          title={mainEntry.title}
-          subtitle={mainEntry.subtitle}
-          badges={<EntryBadges entry={mainEntry} />}
-          action={
-            <EQPrimaryButton as="span" fullWidth>
-              Start
-            </EQPrimaryButton>
-          }
+          className="eq-learning-hub-rpg-main"
+          style={{ '--hub-card-image': `url("${mainEntry.image}")` }}
           aria-label={`${mainEntry.title}へ`}
-        />
+        >
+          <span className="eq-learning-hub-rpg-main-copy">
+            <strong>{mainEntry.title}</strong>
+            <small>{mainEntry.subtitle}</small>
+            <em>{mainEntry.action}</em>
+          </span>
+          <span className="eq-learning-hub-rpg-arrow" aria-hidden="true">›</span>
+        </Link>
 
-        <EQPanel className="eq-learning-hub-module-panel" title="クエスト" eyebrow="Choose Path">
-          <section className="eq-learning-hub-grid" aria-label="学習メニュー">
-            {moduleEntries.map((entry) => (
-              <EQQuestCard
-                key={entry.to}
-                as={Link}
-                to={entry.to}
-                tone={entry.tone}
-                icon={entry.icon}
-                title={entry.title}
-                subtitle={entry.subtitle}
-                badges={<EntryBadges entry={entry} />}
-                aria-label={`${entry.title}へ`}
-              />
-            ))}
-          </section>
-        </EQPanel>
+        <section className="eq-learning-hub-rpg-grid" aria-label="学習メニュー">
+          {moduleEntries.map((entry) => (
+            <Link
+              key={entry.to}
+              to={entry.to}
+              className="eq-learning-hub-rpg-card"
+              style={{ '--hub-card-image': `url("${entry.image}")` }}
+              aria-label={`${entry.title}へ`}
+            >
+              <span className="eq-learning-hub-rpg-card-copy">
+                <span className="eq-learning-hub-rpg-badge">{entry.badge}</span>
+                <strong>{entry.title}</strong>
+                <small>{entry.subtitle}</small>
+              </span>
+              <span className="eq-learning-hub-rpg-arrow" aria-hidden="true">›</span>
+            </Link>
+          ))}
+        </section>
       </EQMobileShell>
       <EQBottomNav className="eq-learning-hub-bottom-nav" />
     </div>

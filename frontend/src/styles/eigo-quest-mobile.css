@@ -10437,3 +10437,256 @@ body,
   width: 0 !important;
   height: 0 !important;
 }
+
+/* =========================================================
+   Learning Hub RPG Menu
+   ========================================================= */
+
+.eq-learning-hub-rpg-screen {
+  gap: 18px;
+  padding: max(18px, env(safe-area-inset-top, 0px)) 14px calc(118px + env(safe-area-inset-bottom, 0px));
+  background:
+    radial-gradient(circle at 50% -4%, rgba(255, 213, 103, 0.22), transparent 28%),
+    radial-gradient(circle at 0% 12%, rgba(66, 137, 255, 0.26), transparent 34%),
+    radial-gradient(circle at 100% 24%, rgba(139, 83, 255, 0.22), transparent 36%),
+    linear-gradient(180deg, #06143d 0%, #060922 42%, #02040e 100%);
+}
+
+.eq-learning-hub-rpg-header {
+  display: grid;
+  gap: 8px;
+  padding: 8px 4px 2px;
+  text-align: center;
+  text-shadow:
+    0 2px 0 rgba(63, 36, 10, 0.82),
+    0 0 20px rgba(255, 211, 90, 0.36);
+}
+
+.eq-learning-hub-rpg-header span {
+  color: #cfe9ff;
+  font-size: 12px;
+  font-weight: 950;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.eq-learning-hub-rpg-header h1 {
+  margin: 0;
+  color: #fff0b5;
+  font-size: 40px;
+  font-weight: 950;
+  letter-spacing: 0;
+  line-height: 1;
+}
+
+.eq-learning-hub-rpg-header p {
+  margin: 0;
+  color: rgba(245, 249, 255, 0.9);
+  font-size: 16px;
+  font-weight: 900;
+}
+
+.eq-learning-hub-rpg-main,
+.eq-learning-hub-rpg-card {
+  position: relative;
+  isolation: isolate;
+  display: flex;
+  overflow: hidden;
+  align-items: flex-end;
+  border: 2px solid rgba(255, 211, 90, 0.82);
+  color: #fff8df;
+  text-decoration: none;
+  touch-action: manipulation;
+  background:
+    linear-gradient(90deg, rgba(4, 8, 28, 0.88), rgba(4, 8, 28, 0.42)),
+    var(--hub-card-image) center / cover no-repeat;
+  box-shadow:
+    0 0 22px rgba(255, 211, 90, 0.26),
+    0 16px 34px rgba(0, 0, 0, 0.38),
+    inset 0 0 24px rgba(255, 255, 255, 0.05);
+}
+
+.eq-learning-hub-rpg-main::before,
+.eq-learning-hub-rpg-card::before {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background:
+    radial-gradient(circle at 22% 18%, rgba(255, 239, 176, 0.22), transparent 24%),
+    linear-gradient(180deg, rgba(3, 6, 22, 0.08), rgba(2, 4, 15, 0.48));
+  content: "";
+}
+
+.eq-learning-hub-rpg-main::after,
+.eq-learning-hub-rpg-card::after {
+  position: absolute;
+  inset: 7px;
+  z-index: -1;
+  border: 1px solid rgba(255, 229, 153, 0.46);
+  border-radius: inherit;
+  content: "";
+  pointer-events: none;
+}
+
+.eq-learning-hub-rpg-main:active,
+.eq-learning-hub-rpg-card:active {
+  transform: scale(0.985);
+}
+
+.eq-learning-hub-rpg-main {
+  min-height: 216px;
+  padding: 22px;
+  border-radius: 24px;
+}
+
+.eq-learning-hub-rpg-main-copy,
+.eq-learning-hub-rpg-card-copy {
+  display: grid;
+  min-width: 0;
+  gap: 8px;
+  text-shadow: 0 3px 12px rgba(0, 0, 0, 0.72);
+}
+
+.eq-learning-hub-rpg-main-copy {
+  max-width: 72%;
+}
+
+.eq-learning-hub-rpg-main-copy strong {
+  color: #ffe7a1;
+  font-size: 30px;
+  font-weight: 950;
+  line-height: 1.05;
+}
+
+.eq-learning-hub-rpg-main-copy small {
+  color: rgba(255, 255, 255, 0.92);
+  font-size: 17px;
+  font-weight: 850;
+  line-height: 1.35;
+}
+
+.eq-learning-hub-rpg-main-copy em {
+  display: inline-flex;
+  width: fit-content;
+  min-height: 46px;
+  align-items: center;
+  justify-content: center;
+  margin-top: 8px;
+  padding: 11px 28px;
+  border: 1px solid rgba(117, 73, 14, 0.44);
+  border-radius: 999px;
+  background:
+    linear-gradient(180deg, #fff0b5 0%, #f4c75a 46%, #b9781d 100%);
+  color: #2f1c04;
+  font-size: 18px;
+  font-style: normal;
+  font-weight: 950;
+  box-shadow:
+    0 0 18px rgba(255, 211, 90, 0.42),
+    inset 0 2px 0 rgba(255, 255, 255, 0.42);
+}
+
+.eq-learning-hub-rpg-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.eq-learning-hub-rpg-card {
+  min-height: 174px;
+  padding: 13px;
+  border-radius: 20px;
+  background:
+    linear-gradient(90deg, rgba(4, 8, 28, 0.86), rgba(4, 8, 28, 0.26)),
+    var(--hub-card-image) center / cover no-repeat;
+}
+
+.eq-learning-hub-rpg-card-copy {
+  width: calc(100% - 22px);
+  align-self: stretch;
+  align-content: end;
+}
+
+.eq-learning-hub-rpg-badge {
+  display: inline-flex;
+  width: fit-content;
+  min-height: 24px;
+  align-items: center;
+  padding: 5px 12px;
+  border: 1px solid rgba(255, 226, 147, 0.36);
+  border-radius: 999px;
+  background: linear-gradient(180deg, rgba(132, 82, 255, 0.94), rgba(63, 97, 232, 0.86));
+  color: #fff8df;
+  font-size: 11px;
+  font-weight: 950;
+  line-height: 1;
+}
+
+.eq-learning-hub-rpg-card strong {
+  color: #fff0b5;
+  font-size: 20px;
+  font-weight: 950;
+  line-height: 1.12;
+}
+
+.eq-learning-hub-rpg-card small {
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 13px;
+  font-weight: 850;
+  line-height: 1.35;
+}
+
+.eq-learning-hub-rpg-arrow {
+  position: absolute;
+  right: 14px;
+  bottom: 20px;
+  color: #ffd35a;
+  font-size: 38px;
+  font-weight: 950;
+  line-height: 1;
+  text-shadow:
+    0 0 12px rgba(255, 211, 90, 0.66),
+    0 2px 6px rgba(0, 0, 0, 0.72);
+}
+
+.eq-learning-hub-rpg-card .eq-learning-hub-rpg-arrow {
+  right: 10px;
+  bottom: 14px;
+  font-size: 30px;
+}
+
+@media (max-width: 380px) {
+  .eq-learning-hub-rpg-header h1 {
+    font-size: 34px;
+  }
+
+  .eq-learning-hub-rpg-main {
+    min-height: 196px;
+    padding: 18px;
+  }
+
+  .eq-learning-hub-rpg-main-copy {
+    max-width: 78%;
+  }
+
+  .eq-learning-hub-rpg-main-copy strong {
+    font-size: 26px;
+  }
+
+  .eq-learning-hub-rpg-main-copy small {
+    font-size: 15px;
+  }
+
+  .eq-learning-hub-rpg-card {
+    min-height: 154px;
+    padding: 11px;
+  }
+
+  .eq-learning-hub-rpg-card strong {
+    font-size: 17px;
+  }
+
+  .eq-learning-hub-rpg-card small {
+    font-size: 12px;
+  }
+}
