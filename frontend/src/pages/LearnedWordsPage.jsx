@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
 import {
   EQBadge,
+  EQBottomNav,
   EQInfoCard,
   EQMobileShell,
   EQPageHeader,
@@ -126,6 +127,7 @@ export default function LearnedWordsPage() {
           )}
         </EQPanel>
       </EQMobileShell>
+      <EQBottomNav />
     </div>
   );
 }

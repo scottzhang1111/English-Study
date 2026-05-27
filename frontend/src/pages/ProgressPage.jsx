@@ -3,6 +3,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import TtsButton from '../components/TtsButton';
 import {
   EQBadge,
+  EQBottomNav,
   EQInfoCard,
   EQMobileShell,
   EQPageHeader,
@@ -127,6 +128,7 @@ export default function ProgressPage() {
             <p className="eq-caption">{error}</p>
           </EQPanel>
         </EQMobileShell>
+        <EQBottomNav />
       </div>
     );
   }
@@ -201,6 +203,7 @@ export default function ProgressPage() {
           </div>
         </section>
       </EQMobileShell>
+      <EQBottomNav />
     </div>
   );
 }

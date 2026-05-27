@@ -21,7 +21,7 @@ Goals:
 - Help children understand word usage through example sentences
 - Make learning feel like a fantasy quest mobile game
 - Encourage daily study habits
-- Use a Pokémon-style reward and collection system
+- Use a card-based reward and collection system
 - Support child-specific learning progress, review, and rewards
 
 ## Product Direction
@@ -34,8 +34,8 @@ The core learning flow should be:
 4. Run a small quiz after the target words
 5. Record correct and wrong answers
 6. Prioritize wrong or weak words in future review
-7. Award Pokémon EXP after learning or quiz progress
-8. Unlock new Pokémon when the current Pokémon reaches max level
+7. Award card-based quest rewards after learning or quiz progress
+8. Unlock or upgrade cards through child-specific reward flows
 
 Keep this flow stable before adding large new features.
 
@@ -133,8 +133,7 @@ Flask backend should handle:
 - vocabulary selection
 - mastered / wrong word records
 - quiz result persistence
-- Pokémon / pet EXP
-- Pokémon unlock logic
+- card rewards, upgrade materials, badges, and unlock logic
 - Eiken attempt records
 - AI question generation / answer checking
 - database migrations and persistence
@@ -148,7 +147,7 @@ Use backend database tables such as:
 - children
 - daily_study_log
 - child_vocab_progress
-- child_pokemon_collection
+- child card / reward collection tables
 - ai_study_records
 - ai_wrong_answers
 - eiken_pre2_attempts
@@ -171,8 +170,7 @@ Avoid using localStorage for:
 - vocabulary progress
 - mastered words
 - wrong answers
-- pet EXP
-- Pokémon unlock state
+- card reward unlock state
 - Eiken attempt results
 
 If existing pages use localStorage for these items, gradually migrate them to backend APIs instead of expanding the localStorage logic.
@@ -181,7 +179,7 @@ Important:
 
 Do not solve state problems by adding more localStorage state.
 
-If a feature needs persistence, child-specific progress, pet EXP, wrong answers, or learning history, implement or use a backend API instead of storing it only in the browser.
+If a feature needs persistence, child-specific progress, rewards, wrong answers, or learning history, implement or use a backend API instead of storing it only in the browser.
 
 ## Child ID Rule
 
@@ -194,9 +192,7 @@ Examples:
 - getFlashcardData({ childId, word })
 - markMastered({ childId, vocabId, word })
 - submitPracticeAnswer({ childId, ... })
-- addPokemonExp(childId, exp)
 - getProgressData({ childId })
-- getPetsData(childId)
 - getEikenQuestions({ childId, ... })
 - getReviewList(childId)
 
@@ -210,8 +206,9 @@ Do not maintain two parallel systems for:
 - daily progress
 - vocabulary mastery
 - wrong answer history
-- pet EXP
-- Pokémon collection
+- card rewards
+- upgrade materials
+- badge collection
 
 Prefer backend API + database over localStorage.
 
@@ -223,28 +220,15 @@ If a page currently uses utility files such as:
 
 do not expand those systems. Migrate them gradually to backend-backed APIs.
 
-## Pokémon System
+## Card Reward System
 
-- Pokémon are rewards for studying.
-- Every child can own multiple Pokémon.
-- Studying and quizzes can give EXP.
-- Max-level Pokémon should unlock a new Pokémon.
-- The active Pokémon should be child-specific.
-- Use local/backend cache for PokeAPI data.
-- Do not call PokeAPI repeatedly from the frontend.
-- Pokémon display names should avoid mojibake or corrupted text.
-- Prefer Japanese Pokémon names when available.
-- If PokeAPI is unavailable, use cached or fallback data.
-
-The Pokémon system should be backed by the backend database, especially:
-
-- owned Pokémon
-- active Pokémon
-- EXP
-- level
-- unlock state
-
-Do not store Pokémon progress only in localStorage.
+- The reward system is card-based, not pet EXP based.
+- Daily quests can reward hero cards.
+- Grammar quests can reward skill cards.
+- Wrong review can reward upgrade materials.
+- Eiken can reward badges or rare cards.
+- Rewards, badges, materials, ownership, upgrades, and unlock state should be child-specific and backend-backed.
+- Do not add pet EXP, Pokémon EXP, or `addPetExp` to new flows unless explicitly asked.
 
 ## API and Data Rules
 
@@ -314,14 +298,6 @@ Recommended verification after changes:
 5. Switch to child B.
 6. Child B progress is separate.
 7. Complete a quiz.
-8. Pokémon EXP increases for the selected child.
+8. Card rewards, badges, or materials update for the selected child when applicable.
 9. Wrong answers appear in review for the selected child only.
 10. Refresh the browser and confirm progress still comes from backend data.
-
-# Pet PNG
-1. transparent background
-2. solid body
-3. clean silhouette
-4. NO transparent fur
-5. NO cutout holes
-6. full opaque character

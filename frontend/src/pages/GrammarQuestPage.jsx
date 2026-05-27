@@ -7,7 +7,12 @@ import {
   GoldQuestButton,
   MagicPanel,
 } from '../components/eigo';
-import { getHomeData } from '../api';
+import {
+  getGrammarLesson,
+  getGrammarLessons,
+  getHomeData,
+  submitGrammarQuizAnswer,
+} from '../api';
 import { useChildren } from '../ChildrenContext';
 import { createMissionReward } from '../helpers/eigoQuestRewards';
 
@@ -42,11 +47,62 @@ const MOCK_QUESTIONS = [
   },
 ];
 
+function buildFallbackLesson() {
+  return {
+    title: MOCK_LESSON.title,
+    subtitle: MOCK_LESSON.subtitle,
+    rule: MOCK_LESSON.rule,
+    examples: MOCK_LESSON.examples,
+  };
+}
+
+function buildFallbackQuestions() {
+  return MOCK_QUESTIONS.map((question, index) => ({
+    id: `mock-${index}`,
+    prompt: question.prompt,
+    answer: question.answer,
+    choices: question.choices,
+    isMock: true,
+  }));
+}
+
+function normalizeLesson(apiLesson) {
+  if (!apiLesson) return buildFallbackLesson();
+
+  const examples = [apiLesson.enExample, apiLesson.jpExample].filter(Boolean);
+
+  return {
+    title: apiLesson.title || MOCK_LESSON.title,
+    subtitle: apiLesson.category || apiLesson.learningGoal || MOCK_LESSON.subtitle,
+    rule: apiLesson.grammarPoint || apiLesson.jpExplanation || MOCK_LESSON.rule,
+    examples: examples.length ? examples : MOCK_LESSON.examples,
+  };
+}
+
+function normalizeQuestions(apiLesson) {
+  const quizzes = Array.isArray(apiLesson?.quizzes) ? apiLesson.quizzes : [];
+  if (!quizzes.length) return [];
+
+  return quizzes
+    .map((quiz, index) => ({
+      id: quiz.quizId || `api-${index}`,
+      quizId: quiz.quizId,
+      prompt: quiz.questionJp || quiz.prompt || MOCK_QUESTIONS[index % MOCK_QUESTIONS.length].prompt,
+      choices: (quiz.choices || []).filter(Boolean),
+      isMock: false,
+    }))
+    .filter((question) => question.choices.length > 0);
+}
+
 export default function GrammarQuestPage() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const { selectedChildId } = useChildren();
   const [homeData, setHomeData] = useState(null);
+  const [lesson, setLesson] = useState(() => buildFallbackLesson());
+  const [questions, setQuestions] = useState(() => buildFallbackQuestions());
+  const [usingMockFallback, setUsingMockFallback] = useState(true);
+  const [lessonLoading, setLessonLoading] = useState(true);
   const [mode, setMode] = useState('lesson');
   const [questionIndex, setQuestionIndex] = useState(0);
   const [selectedChoice, setSelectedChoice] = useState('');
@@ -62,7 +118,41 @@ export default function GrammarQuestPage() {
       .catch(() => setHomeData(null));
   }, [selectedChildId]);
 
-  const currentQuestion = MOCK_QUESTIONS[questionIndex];
+  useEffect(() => {
+    if (!selectedChildId) {
+      setLesson(buildFallbackLesson());
+      setQuestions(buildFallbackQuestions());
+      setUsingMockFallback(true);
+      setLessonLoading(false);
+      return;
+    }
+
+    setLessonLoading(true);
+    getGrammarLessons(selectedChildId)
+      .then((payload) => {
+        const lessons = payload.lessons || [];
+        const lessonId = payload.todayLesson?.lessonId || lessons[0]?.lessonId;
+        if (!lessonId) throw new Error('No grammar lesson found.');
+        return getGrammarLesson({ childId: selectedChildId, lessonId });
+      })
+      .then((payload) => {
+        const apiLesson = payload.lesson;
+        const nextQuestions = normalizeQuestions(apiLesson);
+        if (!apiLesson || !nextQuestions.length) throw new Error('No grammar quiz found.');
+        setLesson(normalizeLesson(apiLesson));
+        setQuestions(nextQuestions);
+        setUsingMockFallback(false);
+        setError('');
+      })
+      .catch(() => {
+        setLesson(buildFallbackLesson());
+        setQuestions(buildFallbackQuestions());
+        setUsingMockFallback(true);
+      })
+      .finally(() => setLessonLoading(false));
+  }, [selectedChildId]);
+
+  const currentQuestion = questions[questionIndex] || questions[0];
   const score = useMemo(
     () => answers.filter((answer) => answer.correct).length,
     [answers],
@@ -77,21 +167,42 @@ export default function GrammarQuestPage() {
     setError('');
   };
 
-  const submitAnswer = () => {
+  const submitAnswer = async () => {
     if (!selectedChoice) return;
-    const nextAnswers = [
-      ...answers,
-      {
-        prompt: currentQuestion.prompt,
-        selected: selectedChoice,
-        correctAnswer: currentQuestion.answer,
-        correct: selectedChoice === currentQuestion.answer,
-      },
-    ];
+    const selectedIndex = currentQuestion.choices.findIndex((choice) => choice === selectedChoice);
+    if (selectedIndex < 0) return;
+
+    let answerPayload = {
+      prompt: currentQuestion.prompt,
+      selected: selectedChoice,
+      correctAnswer: currentQuestion.answer,
+      correct: selectedChoice === currentQuestion.answer,
+    };
+
+    if (!currentQuestion.isMock && currentQuestion.quizId) {
+      try {
+        const result = await submitGrammarQuizAnswer({
+          childId: selectedChildId,
+          quizId: currentQuestion.quizId,
+          selectedIndex,
+        });
+        answerPayload = {
+          prompt: currentQuestion.prompt,
+          selected: selectedChoice,
+          correctAnswer: currentQuestion.choices[result.correctIndex] || '',
+          correct: Boolean(result.isCorrect),
+        };
+      } catch (err) {
+        setError(err.message || 'Answer could not be saved.');
+        return;
+      }
+    }
+
+    const nextAnswers = [...answers, answerPayload];
     setAnswers(nextAnswers);
     setSelectedChoice('');
 
-    if (questionIndex >= MOCK_QUESTIONS.length - 1) {
+    if (questionIndex >= questions.length - 1) {
       setMode('result');
       return;
     }
@@ -141,20 +252,25 @@ export default function GrammarQuestPage() {
           <>
             <MagicPanel className="quest-grammar-learn-panel">
               <span className="quest-grammar-label">LESSON</span>
-              <h2>{MOCK_LESSON.title}</h2>
-              <p className="quest-grammar-rule">{MOCK_LESSON.rule}</p>
+              <h2>{lessonLoading ? 'Loading grammar...' : lesson.title}</h2>
+              <p className="quest-grammar-rule">
+                {lessonLoading ? 'Grammar quest is preparing the next lesson.' : lesson.rule}
+              </p>
+              {usingMockFallback && !lessonLoading && (
+                <p className="text-xs font-bold text-amber-200">Fallback lesson</p>
+              )}
             </MagicPanel>
 
             <EQCard className="quest-grammar-point-card">
               <span>例文</span>
               <ul>
-                {MOCK_LESSON.examples.map((example) => (
+                {lesson.examples.map((example) => (
                   <li key={example}>{example}</li>
                 ))}
               </ul>
             </EQCard>
 
-            <GoldQuestButton onClick={startQuiz} className="quest-grammar-next">
+            <GoldQuestButton onClick={startQuiz} disabled={lessonLoading || !questions.length} className="quest-grammar-next">
               クイズへ
             </GoldQuestButton>
           </>
@@ -164,7 +280,7 @@ export default function GrammarQuestPage() {
           <MagicPanel className="quest-grammar-test-panel">
             <div className="quest-grammar-test-meta">
               <span className="quest-grammar-test-label">
-                {questionIndex + 1} / {MOCK_QUESTIONS.length}
+                {questionIndex + 1} / {questions.length}
               </span>
             </div>
             <h2 className="quest-grammar-test-question">{currentQuestion.prompt}</h2>
@@ -194,7 +310,7 @@ export default function GrammarQuestPage() {
           <MagicPanel className="eq-grammar-state-card quest-grammar-test-state">
             <span className="quest-grammar-test-label">RESULT</span>
             <h1>{passed ? 'CLEAR!' : 'TRY AGAIN'}</h1>
-            <p>{score} / {MOCK_QUESTIONS.length}</p>
+            <p>{score} / {questions.length}</p>
             <p>
               {passed
                 ? '文法の魔法をクリアしました。カード報酬へ進みましょう。'

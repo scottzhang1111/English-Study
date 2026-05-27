@@ -4,6 +4,7 @@ import PetDisplay from '../components/PetDisplay';
 import TtsButton from '../components/TtsButton';
 import {
   EQBadge,
+  EQBottomNav,
   EQInfoCard,
   EQMobileShell,
   EQPageHeader,
@@ -320,6 +321,7 @@ export default function EikenPage() {
           )}
         </motion.div>
       </EQMobileShell>
+      <EQBottomNav />
     </div>
   );
 }
