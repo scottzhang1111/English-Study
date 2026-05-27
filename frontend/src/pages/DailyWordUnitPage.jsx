@@ -126,6 +126,15 @@ function getUnitWords(baseWords, unitIndex, targetCount = DEFAULT_DAILY_WORD_TAR
   return [];
 }
 
+function getDailyWordListFontSize(word) {
+  const length = String(word || '').replace(/[^A-Za-z]/g, '').length;
+  if (length >= 18) return '10px';
+  if (length >= 15) return '11px';
+  if (length >= 12) return '12px';
+  if (length >= 10) return '13px';
+  return '';
+}
+
 const CLOZE_IRREGULAR_FORMS = {
   be: ['am', 'is', 'are', 'was', 'were', 'been', 'being'],
   become: ['became', 'become', 'becoming'],
@@ -554,7 +563,10 @@ export default function DailyWordUnitPage() {
           <section className="eq-daily-word-list-panel">
             <h2>✦ 今日の単語リスト ✦</h2>
             <div className="eq-daily-word-list">
-              {todayWords.map((word, index) => (
+              {todayWords.map((word, index) => {
+                const wordFontSize = getDailyWordListFontSize(word.word);
+
+                return (
                 <button
                   key={`${word.id}-${index}`}
                   type="button"
@@ -562,6 +574,7 @@ export default function DailyWordUnitPage() {
                     navigate(`${routePrefix}/flashcard?word=${encodeURIComponent(word.word)}&index=${index}&total=${targetCount}${flashcardStageQuery}`);
                   }}
                   className="eq-daily-word-row"
+                  style={wordFontSize ? { '--daily-word-font-size': wordFontSize } : undefined}
                 >
                   <span className="eq-daily-word-number">{index + 1}</span>
                   <strong>{word.word}</strong>
@@ -578,7 +591,8 @@ export default function DailyWordUnitPage() {
                     ▶
                   </span>
                 </button>
-              ))}
+                );
+              })}
             </div>
 
             <div className="eq-daily-ready-pill">
