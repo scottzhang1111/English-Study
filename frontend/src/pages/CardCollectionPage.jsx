@@ -236,7 +236,7 @@ export default function CardCollectionPage() {
         items={[
           { label: 'ホーム', to: '/app', icon: 'home' },
           { label: '地図', to: '/app/study-map', icon: 'map' },
-          { label: '学習', to: '/daily-words', icon: 'study' },
+          { label: '学習', to: '/learning-hub', icon: 'study' },
           { label: 'カード', to: '/cards', icon: 'cards', active: true },
           { label: 'その他', to: '/settings', icon: 'more' },
         ]}

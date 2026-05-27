@@ -344,7 +344,7 @@ export default function WorldStagePage() {
           items={[
             { label: 'ホーム', to: '/app', icon: 'home' },
             { label: '世界地図', to: '/app/study-map', icon: 'map', active: true },
-            { label: '学習', to: '/daily-words', icon: 'study' },
+            { label: '学習', to: '/learning-hub', icon: 'study' },
             { label: 'カード', to: '/cards', icon: 'cards' },
             { label: 'その他', to: '/settings', icon: 'more' },
           ]}

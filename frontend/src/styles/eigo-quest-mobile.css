@@ -8527,6 +8527,272 @@ body,
   transform: scale(1.24);
 }
 
+/* =========================================================
+   Learning Hub
+   ========================================================= */
+
+.eq-learning-hub-page {
+  min-height: 100dvh;
+  background:
+    radial-gradient(circle at 50% 0%, rgba(73, 189, 255, 0.22), transparent 36%),
+    linear-gradient(180deg, #071333 0%, #050719 58%, #02030c 100%);
+}
+
+.eq-learning-hub-screen {
+  display: flex;
+  min-height: 100dvh;
+  flex-direction: column;
+  gap: 16px;
+  padding-top: max(22px, env(safe-area-inset-top, 0px));
+}
+
+.eq-learning-hub-header {
+  display: grid;
+  gap: 5px;
+  text-align: center;
+  text-shadow: 0 3px 16px rgba(0, 0, 0, 0.54);
+}
+
+.eq-learning-hub-header span {
+  color: #79e6ff;
+  font-size: 12px;
+  font-weight: 950;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.eq-learning-hub-header h1 {
+  margin: 0;
+  color: #fff0b5;
+  font-size: clamp(42px, 11vw, 58px);
+  font-weight: 950;
+  letter-spacing: 0.12em;
+  line-height: 1;
+  text-shadow:
+    0 2px 0 rgba(78, 44, 10, 0.95),
+    0 0 18px rgba(255, 211, 90, 0.48);
+}
+
+.eq-learning-hub-header p {
+  margin: 0;
+  color: rgba(226, 237, 255, 0.82);
+  font-size: 15px;
+  font-weight: 900;
+}
+
+.eq-learning-hub-main,
+.eq-learning-hub-card {
+  color: #f8fbff;
+  text-decoration: none;
+  touch-action: manipulation;
+}
+
+.eq-learning-hub-main {
+  --hub-accent: #ffd35a;
+  position: relative;
+  display: grid;
+  grid-template-columns: 76px minmax(0, 1fr) auto;
+  gap: 14px;
+  align-items: center;
+  min-height: 124px;
+  overflow: hidden;
+  padding: 18px;
+  border: 1.5px solid color-mix(in srgb, var(--hub-accent) 72%, rgba(255, 255, 255, 0.22));
+  border-radius: 26px;
+  background:
+    radial-gradient(circle at 12% 18%, color-mix(in srgb, var(--hub-accent) 28%, transparent), transparent 36%),
+    linear-gradient(180deg, rgba(10, 28, 72, 0.94), rgba(3, 10, 34, 0.96));
+  box-shadow:
+    0 0 28px color-mix(in srgb, var(--hub-accent) 24%, transparent),
+    0 18px 38px rgba(0, 0, 0, 0.34),
+    inset 0 0 26px rgba(255, 255, 255, 0.06);
+}
+
+.eq-learning-hub-main:active,
+.eq-learning-hub-card:active {
+  transform: scale(0.985);
+}
+
+.eq-learning-hub-main-icon,
+.eq-learning-hub-card-icon {
+  display: grid;
+  place-items: center;
+  border-radius: 20px;
+  background:
+    radial-gradient(circle at 40% 28%, rgba(255, 255, 255, 0.5), transparent 28%),
+    color-mix(in srgb, var(--hub-accent) 26%, rgba(8, 18, 52, 0.82));
+  color: #fff7d1;
+  font-weight: 950;
+  box-shadow:
+    0 0 18px color-mix(in srgb, var(--hub-accent) 36%, transparent),
+    inset 0 0 16px rgba(255, 255, 255, 0.08);
+}
+
+.eq-learning-hub-main-icon {
+  width: 72px;
+  height: 72px;
+  font-size: 28px;
+}
+
+.eq-learning-hub-main-copy {
+  display: grid;
+  min-width: 0;
+  gap: 7px;
+}
+
+.eq-learning-hub-main-copy strong {
+  overflow: hidden;
+  color: #ffe18c;
+  font-size: clamp(24px, 6.6vw, 32px);
+  font-weight: 950;
+  line-height: 1.05;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.eq-learning-hub-main-copy small {
+  color: rgba(242, 248, 255, 0.9);
+  font-size: clamp(13px, 3.6vw, 16px);
+  font-weight: 850;
+  line-height: 1.35;
+}
+
+.eq-learning-hub-main em {
+  display: inline-flex;
+  min-height: 36px;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 13px;
+  border-radius: 999px;
+  background: rgba(255, 211, 90, 0.16);
+  color: #ffe18c;
+  font-size: 12px;
+  font-style: normal;
+  font-weight: 950;
+}
+
+.eq-learning-hub-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.eq-learning-hub-card {
+  --hub-accent: #35d9ff;
+  display: grid;
+  min-height: 150px;
+  align-content: start;
+  gap: 9px;
+  padding: 14px;
+  border: 1px solid color-mix(in srgb, var(--hub-accent) 44%, rgba(255, 255, 255, 0.16));
+  border-radius: 20px;
+  background:
+    radial-gradient(circle at 50% 8%, color-mix(in srgb, var(--hub-accent) 20%, transparent), transparent 42%),
+    rgba(8, 17, 50, 0.84);
+  box-shadow:
+    0 12px 28px rgba(0, 0, 0, 0.28),
+    inset 0 0 18px rgba(255, 255, 255, 0.04);
+}
+
+.eq-learning-hub-card-icon {
+  width: 48px;
+  height: 48px;
+  font-size: 20px;
+}
+
+.eq-learning-hub-card strong {
+  color: #f8fbff;
+  font-size: 17px;
+  font-weight: 950;
+  line-height: 1.14;
+}
+
+.eq-learning-hub-card small {
+  color: rgba(211, 224, 250, 0.82);
+  font-size: 12px;
+  font-weight: 800;
+  line-height: 1.38;
+}
+
+.eq-learning-hub-reward-label {
+  display: inline-flex;
+  width: fit-content;
+  min-height: 24px;
+  align-items: center;
+  justify-content: center;
+  margin-top: auto;
+  padding: 5px 9px;
+  border: 1px solid color-mix(in srgb, var(--hub-accent) 42%, rgba(255, 255, 255, 0.18));
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--hub-accent) 16%, rgba(5, 12, 36, 0.78));
+  color: #fff1b8;
+  font-size: 10px;
+  font-weight: 950;
+  line-height: 1;
+}
+
+.eq-learning-hub-main.is-gold,
+.eq-learning-hub-card.is-gold {
+  --hub-accent: #ffd35a;
+}
+
+.eq-learning-hub-card.is-cyan {
+  --hub-accent: #35d9ff;
+}
+
+.eq-learning-hub-card.is-blue {
+  --hub-accent: #5f8dff;
+}
+
+.eq-learning-hub-card.is-purple {
+  --hub-accent: #a569ff;
+}
+
+.eq-learning-hub-card.is-green,
+.eq-learning-hub-card.is-mint {
+  --hub-accent: #54e6a8;
+}
+
+.eq-learning-hub-card.is-rose {
+  --hub-accent: #ff6b8a;
+}
+
+.eq-learning-hub-card.is-sky {
+  --hub-accent: #77d7ff;
+}
+
+.eq-learning-hub-card.is-violet {
+  --hub-accent: #c178ff;
+}
+
+.eq-learning-hub-card.is-amber {
+  --hub-accent: #ffb72e;
+}
+
+@media (max-width: 360px) {
+  .eq-learning-hub-screen {
+    gap: 12px;
+  }
+
+  .eq-learning-hub-main {
+    grid-template-columns: 64px minmax(0, 1fr);
+  }
+
+  .eq-learning-hub-main-icon {
+    width: 62px;
+    height: 62px;
+  }
+
+  .eq-learning-hub-main em {
+    display: none;
+  }
+
+  .eq-learning-hub-card {
+    min-height: 136px;
+    padding: 12px;
+  }
+}
+
 /* Home spirit dialogue final tuning */
 .spirit-assistant--home-floating {
   --spirit-size: clamp(138px, 31vw, 172px);

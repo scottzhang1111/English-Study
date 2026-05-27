@@ -17,8 +17,10 @@ const defaultItems = [
   },
   {
     label: '学習',
-    to: '/daily-words',
+    to: '/learning-hub',
     match: [
+      '/learning-hub',
+      '/app/learning-hub',
       '/daily-words',
       '/app/daily-words',
       '/flashcard',
@@ -27,7 +29,11 @@ const defaultItems = [
       '/app/quiz',
       '/grammar',
       '/grammar-practice',
+      '/eiken',
+      '/eiken-real',
+      '/learned-words',
       '/review',
+      '/error-review',
       '/today-review-quiz',
       '/vocab-expansion',
       '/cards',
