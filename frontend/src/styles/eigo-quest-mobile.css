@@ -10693,20 +10693,20 @@ body,
 
 /* Compact RPG menu polish */
 .eq-learning-hub-rpg-screen {
-  gap: 12px;
-  padding: max(12px, env(safe-area-inset-top, 0px)) 12px calc(132px + env(safe-area-inset-bottom, 0px));
+  gap: 10px;
+  padding: max(8px, env(safe-area-inset-top, 0px)) 12px calc(154px + env(safe-area-inset-bottom, 0px));
 }
 
 .eq-learning-hub-rpg-header {
-  gap: 5px;
-  padding: 2px 4px 0;
+  gap: 3px;
+  padding: 0 4px;
 }
 
 .eq-learning-hub-rpg-header::after {
   display: block;
-  width: min(210px, 68%);
-  height: 14px;
-  margin: 2px auto 0;
+  width: min(190px, 62%);
+  height: 12px;
+  margin: 0 auto;
   background:
     radial-gradient(circle, rgba(255, 211, 90, 0.95) 0 3px, transparent 4px),
     linear-gradient(90deg, transparent, rgba(255, 211, 90, 0.78), transparent);
@@ -10718,32 +10718,36 @@ body,
 }
 
 .eq-learning-hub-rpg-header span {
-  color: rgba(207, 233, 255, 0.72);
-  font-size: 10px;
-  letter-spacing: 0.06em;
+  color: rgba(207, 233, 255, 0.54);
+  font-size: 9px;
+  letter-spacing: 0.04em;
 }
 
 .eq-learning-hub-rpg-header h1 {
-  font-size: 34px;
+  color: #ffe7a1;
+  font-size: 32px;
+  text-shadow:
+    0 0 8px rgba(255, 211, 90, 0.5),
+    0 4px 16px rgba(0, 0, 0, 0.72);
 }
 
 .eq-learning-hub-rpg-header p {
-  font-size: 14px;
+  font-size: 13px;
 }
 
 .eq-learning-hub-rpg-main {
-  min-height: 178px;
-  padding: 17px;
-  border-radius: 22px;
+  min-height: 170px;
+  padding: 14px 15px;
+  border-radius: 20px;
 }
 
 .eq-learning-hub-rpg-main-copy {
   max-width: 70%;
-  gap: 6px;
+  gap: 5px;
 }
 
 .eq-learning-hub-rpg-main-copy strong {
-  font-size: 27px;
+  font-size: 26px;
 }
 
 .eq-learning-hub-rpg-main-copy small {
@@ -10751,13 +10755,13 @@ body,
 }
 
 .eq-learning-hub-rpg-main-copy em {
-  min-height: 38px;
-  margin-top: 5px;
-  padding: 8px 20px;
+  min-height: 34px;
+  margin-top: 3px;
+  padding: 7px 17px;
   border-color: rgba(106, 66, 10, 0.5);
   background:
     linear-gradient(180deg, #fff4bf 0%, #f2c85c 52%, #a96718 100%);
-  font-size: 15px;
+  font-size: 14px;
   box-shadow:
     0 0 14px rgba(255, 211, 90, 0.38),
     inset 0 2px 0 rgba(255, 255, 255, 0.5),
@@ -10765,36 +10769,46 @@ body,
 }
 
 .eq-learning-hub-rpg-grid {
-  gap: 11px;
+  gap: 10px;
 }
 
 .eq-lh-module-card {
   position: relative;
   isolation: isolate;
   display: grid;
-  grid-template-columns: 38% minmax(0, 62%);
-  min-height: 142px;
+  grid-template-columns: 33% minmax(0, 67%);
+  height: 138px;
   overflow: hidden;
-  border: 1.5px solid rgba(255, 211, 90, 0.78);
-  border-radius: 18px;
+  border: 2px solid rgba(255, 218, 116, 0.9);
+  border-radius: 16px;
   background:
-    radial-gradient(circle at 12% 20%, rgba(255, 211, 90, 0.13), transparent 30%),
-    linear-gradient(180deg, rgba(13, 23, 63, 0.96), rgba(5, 9, 32, 0.98));
+    radial-gradient(circle at 13% 18%, rgba(255, 211, 90, 0.16), transparent 30%),
+    linear-gradient(180deg, rgba(8, 16, 48, 0.98), rgba(3, 7, 26, 0.99));
   color: #fff8df;
   text-decoration: none;
   box-shadow:
-    0 0 18px rgba(255, 211, 90, 0.18),
-    0 12px 26px rgba(0, 0, 0, 0.34),
-    inset 0 0 20px rgba(255, 255, 255, 0.04);
+    0 0 20px rgba(255, 211, 90, 0.22),
+    0 10px 22px rgba(0, 0, 0, 0.38),
+    inset 0 0 22px rgba(255, 255, 255, 0.045);
   touch-action: manipulation;
+}
+
+.eq-lh-module-card::before {
+  position: absolute;
+  inset: 0 auto 0 calc(33% - 30px);
+  z-index: 1;
+  width: 72px;
+  background: linear-gradient(90deg, rgba(4, 8, 28, 0), rgba(5, 10, 33, 0.9) 64%, rgba(5, 10, 33, 0.99));
+  content: "";
+  pointer-events: none;
 }
 
 .eq-lh-module-card::after {
   position: absolute;
-  inset: 6px;
-  z-index: -1;
-  border: 1px solid rgba(255, 229, 153, 0.38);
-  border-radius: 14px;
+  inset: 5px;
+  z-index: 4;
+  border: 1px solid rgba(255, 231, 160, 0.48);
+  border-radius: 11px;
   content: "";
   pointer-events: none;
 }
@@ -10805,9 +10819,9 @@ body,
 
 .eq-lh-module-visual {
   position: relative;
+  z-index: 0;
   min-width: 0;
   overflow: hidden;
-  border-right: 1px solid rgba(255, 211, 90, 0.28);
   background: #05091e;
 }
 
@@ -10815,8 +10829,8 @@ body,
   position: absolute;
   inset: 0;
   background:
-    linear-gradient(90deg, rgba(2, 5, 18, 0.12), rgba(2, 5, 18, 0.34)),
-    radial-gradient(circle at 50% 30%, transparent 34%, rgba(2, 5, 18, 0.28));
+    linear-gradient(90deg, rgba(2, 5, 18, 0.06), rgba(2, 5, 18, 0.36)),
+    radial-gradient(circle at 50% 30%, transparent 32%, rgba(2, 5, 18, 0.36));
   content: "";
 }
 
@@ -10828,20 +10842,25 @@ body,
 }
 
 .eq-lh-module-body {
+  position: relative;
+  z-index: 2;
   display: grid;
   min-width: 0;
   align-content: center;
-  gap: 6px;
-  padding: 12px 24px 12px 12px;
-  text-shadow: 0 3px 12px rgba(0, 0, 0, 0.76);
+  gap: 5px;
+  overflow: hidden;
+  padding: 10px 25px 10px 9px;
+  text-shadow:
+    0 2px 6px rgba(0, 0, 0, 0.88),
+    0 0 12px rgba(255, 211, 90, 0.2);
 }
 
 .eq-lh-module-tag {
   display: inline-flex;
   width: fit-content;
-  min-height: 22px;
+  min-height: 20px;
   align-items: center;
-  padding: 4px 11px;
+  padding: 3px 10px;
   border: 1px solid rgba(255, 226, 147, 0.36);
   border-radius: 999px;
   background: linear-gradient(180deg, rgba(96, 119, 255, 0.94), rgba(72, 47, 174, 0.86));
@@ -10852,20 +10871,22 @@ body,
 }
 
 .eq-lh-module-body strong {
+  display: -webkit-box;
   overflow: hidden;
   color: #fff0b5;
-  font-size: 18px;
+  font-size: 21px;
   font-weight: 950;
-  line-height: 1.12;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  line-height: 1.08;
+  white-space: normal;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
 }
 
 .eq-lh-module-body small {
   display: -webkit-box;
   overflow: hidden;
   color: rgba(255, 255, 255, 0.9);
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 850;
   line-height: 1.35;
   -webkit-box-orient: vertical;
@@ -10873,11 +10894,12 @@ body,
 }
 
 .eq-lh-arrow {
+  z-index: 5;
   position: absolute;
-  right: 9px;
+  right: 8px;
   top: 50%;
   color: #ffd35a;
-  font-size: 28px;
+  font-size: 26px;
   font-weight: 950;
   line-height: 1;
   text-shadow:
@@ -10898,8 +10920,8 @@ body,
   }
 
   .eq-learning-hub-rpg-main {
-    min-height: 170px;
-    padding: 15px;
+    min-height: 165px;
+    padding: 13px;
   }
 
   .eq-learning-hub-rpg-main-copy strong {
@@ -10911,16 +10933,22 @@ body,
   }
 
   .eq-lh-module-card {
-    min-height: 136px;
-    border-radius: 16px;
+    grid-template-columns: 34% minmax(0, 66%);
+    height: 132px;
+    border-radius: 15px;
+  }
+
+  .eq-lh-module-card::before {
+    left: calc(34% - 28px);
+    width: 66px;
   }
 
   .eq-lh-module-body {
-    padding: 10px 21px 10px 10px;
+    padding: 9px 22px 9px 8px;
   }
 
   .eq-lh-module-body strong {
-    font-size: 16px;
+    font-size: 20px;
   }
 
   .eq-lh-module-body small {

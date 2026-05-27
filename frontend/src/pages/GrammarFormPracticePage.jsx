@@ -13,6 +13,7 @@ import { getGrammarFormPractice, submitGrammarFormPracticeAnswer } from '../api'
 import { createMissionReward } from '../helpers/eigoQuestRewards';
 
 const CHILD_STORAGE_KEY = 'selected_child_id';
+const PRACTICE_QUESTION_LIMIT = 5;
 
 export default function GrammarFormPracticePage() {
   const navigate = useNavigate();
@@ -29,7 +30,7 @@ export default function GrammarFormPracticePage() {
   const question = questions[index] || null;
   const isLast = index >= questions.length - 1;
   const correctCount = results.filter((item) => item.isCorrect).length;
-  const passTarget = Math.min(questions.length || 3, 3);
+  const passTarget = Math.min(questions.length || PRACTICE_QUESTION_LIMIT, PRACTICE_QUESTION_LIMIT);
   const remainingToPass = Math.max(0, passTarget - correctCount);
 
   const loadPractice = () => {
@@ -39,7 +40,7 @@ export default function GrammarFormPracticePage() {
     setSelectedIndex(null);
     setAnswerResult(null);
     setResults([]);
-    getGrammarFormPractice({ childId, limit: 3 })
+    getGrammarFormPractice({ childId, limit: PRACTICE_QUESTION_LIMIT })
       .then((payload) => setQuestions(payload.questions || []))
       .catch((err) => setError(err.message || '文法練習を読み込めませんでした。'))
       .finally(() => setLoading(false));
@@ -211,7 +212,7 @@ export default function GrammarFormPracticePage() {
           icon="文"
           meta={
             <div className="flex flex-wrap gap-2">
-              <EQBadge tone="gold">{questions.length && index < questions.length ? index + 1 : 0} / {questions.length || 3}</EQBadge>
+              <EQBadge tone="gold">{questions.length && index < questions.length ? index + 1 : 0} / {questions.length || PRACTICE_QUESTION_LIMIT}</EQBadge>
               <EQBadge tone="cyan">合格まで {remainingToPass} 問</EQBadge>
             </div>
           }
