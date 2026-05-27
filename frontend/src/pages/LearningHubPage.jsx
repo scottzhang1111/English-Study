@@ -100,11 +100,9 @@ export default function LearningHubPage() {
               key={entry.to}
               to={entry.to}
               className="eq-lh-module-card"
+              style={{ '--lh-module-image': `url("${entry.image}")` }}
               aria-label={`${entry.title}へ`}
             >
-              <div className="eq-lh-module-visual" aria-hidden="true">
-                <img src={entry.image} alt="" />
-              </div>
               <div className="eq-lh-module-body">
                 <span className="eq-lh-module-tag">{entry.badge}</span>
                 <strong>{entry.title}</strong>

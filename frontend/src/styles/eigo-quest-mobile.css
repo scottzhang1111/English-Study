@@ -10775,14 +10775,14 @@ body,
 .eq-lh-module-card {
   position: relative;
   isolation: isolate;
-  display: grid;
-  grid-template-columns: 33% minmax(0, 67%);
-  height: 138px;
+  display: block;
+  min-height: 148px;
   overflow: hidden;
   border: 2px solid rgba(255, 218, 116, 0.9);
-  border-radius: 16px;
+  border-radius: 22px;
   background:
-    radial-gradient(circle at 13% 18%, rgba(255, 211, 90, 0.16), transparent 30%),
+    linear-gradient(rgba(3, 8, 24, 0.22), rgba(3, 8, 24, 0.38)),
+    var(--lh-module-image) center / cover no-repeat,
     linear-gradient(180deg, rgba(8, 16, 48, 0.98), rgba(3, 7, 26, 0.99));
   color: #fff8df;
   text-decoration: none;
@@ -10795,10 +10795,11 @@ body,
 
 .eq-lh-module-card::before {
   position: absolute;
-  inset: 0 auto 0 calc(33% - 30px);
+  inset: 0;
   z-index: 1;
-  width: 72px;
-  background: linear-gradient(90deg, rgba(4, 8, 28, 0), rgba(5, 10, 33, 0.9) 64%, rgba(5, 10, 33, 0.99));
+  background:
+    radial-gradient(circle at 30% 28%, rgba(255, 211, 90, 0.08), transparent 34%),
+    linear-gradient(90deg, rgba(3, 8, 24, 0.08), rgba(3, 8, 24, 0.34) 52%, rgba(3, 8, 24, 0.66));
   content: "";
   pointer-events: none;
 }
@@ -10817,42 +10818,31 @@ body,
   transform: scale(0.985);
 }
 
-.eq-lh-module-visual {
-  position: relative;
-  z-index: 0;
-  min-width: 0;
-  overflow: hidden;
-  background: #05091e;
-}
-
-.eq-lh-module-visual::after {
-  position: absolute;
-  inset: 0;
-  background:
-    linear-gradient(90deg, rgba(2, 5, 18, 0.06), rgba(2, 5, 18, 0.36)),
-    radial-gradient(circle at 50% 30%, transparent 32%, rgba(2, 5, 18, 0.36));
-  content: "";
-}
-
-.eq-lh-module-visual img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  transform: scale(1.04);
-}
-
 .eq-lh-module-body {
-  position: relative;
+  position: absolute;
   z-index: 2;
+  right: 8px;
+  top: 8px;
   display: grid;
+  width: 54%;
+  height: 100%;
+  max-height: calc(100% - 16px);
   min-width: 0;
   align-content: center;
   gap: 5px;
   overflow: hidden;
-  padding: 10px 25px 10px 9px;
+  padding: 10px 24px 10px 12px;
+  border-radius: 16px;
+  background: rgba(9, 18, 52, 0.34);
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 231, 160, 0.18),
+    inset 0 0 22px rgba(255, 255, 255, 0.04),
+    0 8px 18px rgba(0, 0, 0, 0.18);
   text-shadow:
-    0 2px 6px rgba(0, 0, 0, 0.88),
-    0 0 12px rgba(255, 211, 90, 0.2);
+    0 2px 7px rgba(0, 0, 0, 0.9),
+    0 0 10px rgba(255, 211, 90, 0.16);
 }
 
 .eq-lh-module-tag {
@@ -10874,9 +10864,9 @@ body,
   display: -webkit-box;
   overflow: hidden;
   color: #fff0b5;
-  font-size: 21px;
+  font-size: 19px;
   font-weight: 950;
-  line-height: 1.08;
+  line-height: 1.15;
   white-space: normal;
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 2;
@@ -10885,10 +10875,10 @@ body,
 .eq-lh-module-body small {
   display: -webkit-box;
   overflow: hidden;
-  color: rgba(255, 255, 255, 0.9);
-  font-size: 11px;
+  color: rgba(255, 255, 255, 0.92);
+  font-size: 13px;
   font-weight: 850;
-  line-height: 1.35;
+  line-height: 1.26;
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 2;
 }
@@ -10933,25 +10923,23 @@ body,
   }
 
   .eq-lh-module-card {
-    grid-template-columns: 34% minmax(0, 66%);
-    height: 132px;
-    border-radius: 15px;
-  }
-
-  .eq-lh-module-card::before {
-    left: calc(34% - 28px);
-    width: 66px;
+    min-height: 142px;
+    border-radius: 20px;
   }
 
   .eq-lh-module-body {
-    padding: 9px 22px 9px 8px;
+    right: 7px;
+    top: 7px;
+    width: 55%;
+    max-height: calc(100% - 14px);
+    padding: 9px 22px 9px 10px;
   }
 
   .eq-lh-module-body strong {
-    font-size: 20px;
+    font-size: 18px;
   }
 
   .eq-lh-module-body small {
-    font-size: 11px;
+    font-size: 12px;
   }
 }
