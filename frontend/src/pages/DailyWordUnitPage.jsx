@@ -3,7 +3,6 @@ import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import { getDailyWords, getHomeData, markMastered, submitPracticeAnswer } from '../api';
 import { useChildren } from '../ChildrenContext';
 import { getPartner } from '../utils/childStorage';
-import { createMissionReward } from '../helpers/eigoQuestRewards';
 import eigoQuestWorlds from '../config/eigoQuestWorlds';
 
 import {
@@ -390,19 +389,7 @@ export default function DailyWordUnitPage() {
   setQuizSaving(false);
 
   if (passed) {
-    const latestHomeData = await getHomeData(child.id).catch(() => null);
-
-    createMissionReward({
-      childId: child.id,
-      learnedWordsCount: Number(
-        latestHomeData?.mastered_words ??
-          latestHomeData?.learned_words ??
-          latestHomeData?.progress ??
-          targetCount
-      ),
-    });
-
-    navigate('/card-reward');
+    navigate('/grammar');
   }
 };
 
@@ -524,7 +511,7 @@ export default function DailyWordUnitPage() {
             <header className="eq-daily-learning-title">
               <div className="eq-daily-adventure-plaque">
                 <span className="eq-daily-plaque-icon" aria-label={dailyWorldDisplay.icon} aria-hidden="true" />
-                <h1>本日の冒険</h1>
+                <h1>単語学習</h1>
                 <p>今日の{targetCount}語を集めて<br />封印を解放しよう！</p>
               </div>
             </header>
@@ -606,7 +593,7 @@ export default function DailyWordUnitPage() {
               disabled={!todayWords.length}
               className="eq-daily-start-button"
             >
-              学習をスタート
+              単語学習をスタート
             </GoldQuestButton>
           </section>
         </EQMobileShell>
@@ -738,7 +725,7 @@ export default function DailyWordUnitPage() {
                   </button>
                 )}
                 <button type="button" onClick={nextStudyWord} className="ghost-button px-5 py-3 text-sm">
-                  {studyIndex >= todayWords.length - 1 ? '小テストへ' : '次へ'}
+                  {studyIndex >= todayWords.length - 1 ? '単語小テストへ' : '次へ'}
                 </button>
               </div>
             </article>
@@ -777,7 +764,7 @@ export default function DailyWordUnitPage() {
       </div>
 
       <div className="rounded-[30px] bg-[linear-gradient(180deg,#eef8ff_0%,#fffdf7_100%)] p-6">
-        <p className="text-sm font-black text-[#6f7da8]">小テスト</p>
+        <p className="text-sm font-black text-[#6f7da8]">単語小テスト</p>
         <h2 className="display-font mt-4 whitespace-pre-line text-3xl font-extrabold text-[#354172]">
           {currentQuestion.question}
         </h2>
@@ -812,7 +799,7 @@ export default function DailyWordUnitPage() {
               disabled={quizSaving}
               className="pill-button px-5 py-3 text-sm disabled:opacity-50"
             >
-              {quizIndex >= quizQuestions.length - 1 ? '結果へ' : '次へ'}
+              {quizIndex >= quizQuestions.length - 1 ? '文法の神殿へ' : '次へ'}
             </button>
           )}
         </div>

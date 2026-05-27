@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getHomeData } from '../api';
+import { getHeroCards, getHomeData } from '../api';
 import { EQBackPill, EQBottomNav, EQCard, EQMobileShell } from '../components/eigo';
 import eigoQuestCards from '../config/eigoQuestCards';
 import eigoQuestWorlds from '../config/eigoQuestWorlds';
@@ -54,9 +54,9 @@ function getImageCandidates(card) {
   const worldFolder = card?.worldId;
   const number = fileName?.match(/(\d+)\.png$/)?.[1];
 
-  if (image) candidates.push(image);
   if (worldFolder && fileName) candidates.push(`/assets/eigo-quest/cards/${worldFolder}/${fileName}`);
   if (worldFolder && number) candidates.push(`/assets/eigo-quest/cards/${worldFolder}/${card.worldId}-guardian${number}.png`);
+  if (image) candidates.push(image);
 
   return Array.from(new Set(candidates.filter(Boolean)));
 }
@@ -83,7 +83,7 @@ function getLearnedWordsFromHomeData(homeData) {
   return Number.isFinite(learnedWords) ? Math.max(0, learnedWords) : 0;
 }
 
-function getProgressOwnedCardIds(learnedWordsCount) {
+function getProgressOwnedCardIds(learnedWordsCount, sourceCards = eigoQuestCards) {
   const learnedWords = Math.max(0, Number(learnedWordsCount) || 0);
   const ownedIds = [];
 
@@ -92,17 +92,35 @@ function getProgressOwnedCardIds(learnedWordsCount) {
     const clearedStages = Math.max(0, Math.min(STAGES_PER_WORLD, Math.floor(worldWords / WORDS_PER_STAGE)));
     if (clearedStages <= 0) return;
 
-    const worldCards = eigoQuestCards.filter((card) => card.worldId === world.id);
+    const worldCards = sourceCards.filter((card) => card.worldId === world.id);
     worldCards.slice(0, clearedStages).forEach((card) => ownedIds.push(card.id));
   });
 
   return ownedIds;
 }
 
+function normalizeHeroCard(card, index) {
+  return {
+    id: card.id || card.code || `hero-${index + 1}`,
+    worldId: card.worldId || 'wind',
+    nameJa: card.nameJa || card.name_ja || '',
+    nameZh: card.nameZh || card.name_cn || '',
+    type: card.type || 'hero',
+    rarity: card.rarity || 'R',
+    image: card.image || card.image_url || '',
+    descriptionJa: card.descriptionJa || card.description_ja || '',
+    unlockCondition: card.unlockCondition || '',
+    reviewMode: card.reviewMode || 'mixed',
+  };
+}
+
 function CardImage({ card, large = false }) {
   const [index, setIndex] = useState(0);
   const candidates = useMemo(
-    () => (card.owned ? getImageCandidates(card) : getCoverImageCandidates(card)),
+    () => {
+      const images = getImageCandidates(card);
+      return images.length ? images : getCoverImageCandidates(card);
+    },
     [card],
   );
   const world = getWorldMeta(card.worldId);
@@ -133,6 +151,7 @@ export default function CardCollectionPage() {
   const [activeFilter, setActiveFilter] = useState('all');
   const [detailCard, setDetailCard] = useState(null);
   const [homeData, setHomeData] = useState(null);
+  const [heroCards, setHeroCards] = useState([]);
   const [error, setError] = useState('');
   const navigate = useNavigate();
   const childId = useMemo(() => localStorage.getItem(CHILD_STORAGE_KEY) || '', []);
@@ -152,15 +171,23 @@ export default function CardCollectionPage() {
         setHomeData({ mastered_words: 0 });
         setError(err.message || 'カードの進捗データを読み込めませんでした。');
       });
+    getHeroCards()
+      .then((payload) => {
+        setHeroCards((payload.heroes || []).map(normalizeHeroCard));
+      })
+      .catch(() => {
+        setHeroCards([]);
+      });
   }, [childId, navigate]);
 
+  const cardSource = heroCards.length ? heroCards : eigoQuestCards;
   const learnedWordsCount = getLearnedWordsFromHomeData(homeData);
   const ownedCardIds = useMemo(() => {
-    return new Set(getProgressOwnedCardIds(learnedWordsCount));
-  }, [learnedWordsCount]);
+    return new Set(getProgressOwnedCardIds(learnedWordsCount, cardSource));
+  }, [cardSource, learnedWordsCount]);
   const cards = useMemo(
-    () => eigoQuestCards.map((card) => ({ ...card, owned: ownedCardIds.has(card.id) })),
-    [ownedCardIds],
+    () => cardSource.map((card, index) => ({ ...normalizeHeroCard(card, index), owned: ownedCardIds.has(card.id) })),
+    [cardSource, ownedCardIds],
   );
   const visibleCards = useMemo(
     () => cards.filter((card) => activeFilter === 'all' || card.worldId === activeFilter),
@@ -224,7 +251,10 @@ export default function CardCollectionPage() {
               >
                 <span className={`eq-rarity-badge rarity-${card.rarity}`}>{card.rarity}</span>
                 <CardImage card={card} />
-                <strong>{card.owned ? card.nameJa : '???'}</strong>
+                <strong>{card.nameJa || '???'}</strong>
+                <p className="eq-collection-card-description">
+                  {card.descriptionJa || '英雄の物語はまだ記録されていません。'}
+                </p>
                 <span>{world.name}</span>
               </button>
             );
@@ -251,12 +281,10 @@ export default function CardCollectionPage() {
             <CardImage card={detailCard} large />
             <div className="eq-card-detail-body">
               <span className={`eq-rarity-badge rarity-${detailCard.rarity}`}>{detailCard.rarity}</span>
-              <h2>{detailCard.owned ? detailCard.nameJa : '???'}</h2>
+              <h2>{detailCard.nameJa || '???'}</h2>
               <p className="eq-card-world">ワールド: {getWorldMeta(detailCard.worldId).name}</p>
               <p>
-                {detailCard.owned
-                  ? detailCard.descriptionJa
-                  : 'まだ手に入れていないカードです。クエストを進めて解放しよう。'}
+                {detailCard.descriptionJa || '英雄の物語はまだ記録されていません。'}
               </p>
               <div className="eq-card-detail-meta">
                 <span>Type: {detailCard.type}</span>

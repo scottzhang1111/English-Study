@@ -5,11 +5,11 @@ import SpiritAssistant from '../eigo-quest/SpiritAssistant';
 import eigoQuestWorlds from '../../config/eigoQuestWorlds';
 
 const QUEST_STEPS = [
-  { id: 'words', label: '単語', icon: 'book' },
-  { id: 'quiz', label: '小テスト', icon: '?' },
-  { id: 'grammar', label: '文法', icon: 'scroll' },
+  { id: 'words', label: '単語学習', icon: 'book' },
+  { id: 'quiz', label: '単語小テスト', icon: '?' },
+  { id: 'grammar', label: '文法の神殿', icon: 'scroll' },
   { id: 'grammarTest', label: '文法テスト', icon: 'shield' },
-  { id: 'reward', label: '報酬', icon: 'chest' },
+  { id: 'reward', label: '英雄カード獲得', icon: 'chest' },
 ];
 
 const STEP_INDEX = QUEST_STEPS.reduce((map, step, index) => ({ ...map, [step.id]: index }), {});

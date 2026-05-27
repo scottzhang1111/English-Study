@@ -15,7 +15,6 @@ import {
 } from '../components/eigo';
 import { getDailyWords, getFlashcardData, getHomeData, getLearnedWords, getTodayReviewQuiz, markMastered } from '../api';
 import eigoQuestWorlds from '../config/eigoQuestWorlds';
-import { createMissionReward } from '../helpers/eigoQuestRewards';
 
 const DAILY_TARGET = 20;
 const CHILD_STORAGE_KEY = 'selected_child_id';
@@ -847,11 +846,7 @@ const mobilePartOfSpeech =
               className="eq-purify-next"
               onClick={() => {
                 if (reviewResult.passed) {
-                  createMissionReward({
-                    childId: selectedChildId,
-                    learnedWordsCount: Number(homeData?.progress || DAILY_TARGET),
-                  });
-                  navigate('/card-reward');
+                  navigate('/grammar-quest?from=daily-quest');
                 } else {
                   navigate(dailyWordsPath);
                 }

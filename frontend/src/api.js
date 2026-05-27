@@ -64,6 +64,10 @@ export const getHomeData = async (childId) => {
   return fetchJson('/api/home', { params: { child_id: childId } });
 };
 
+export const getHeroCards = async () => {
+  return fetchJson('/api/heroes');
+};
+
 export const getFlashcardData = async ({ word, importance, frequency, childId } = {}) => {
   return fetchJson('/api/flashcard', { params: { word, importance, frequency, child_id: childId } });
 };

@@ -38,7 +38,7 @@ export default function PurificationQuizMobile({
           <div className="eq-purify-header">
             <span>✦ Day {day} ✦</span>
             <h1>{theme.nameJa}</h1>
-            <p>浄化クエスト</p>
+            <p>単語小テスト</p>
             <div className="eq-purify-target">対象単語数: 20 / 20</div>
             <strong>{questionIndex + 1} / {questionTotal}</strong>
           </div>
@@ -86,7 +86,7 @@ export default function PurificationQuizMobile({
               disabled={quizSaving}
               className="eq-purify-next"
             >
-              {isLastQuestion ? '結果へ' : 'つぎへ'}
+              {isLastQuestion ? '文法の神殿へ' : 'つぎへ'}
             </button>
           ) : null}
         </section>

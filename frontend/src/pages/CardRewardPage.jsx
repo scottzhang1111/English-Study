@@ -143,13 +143,13 @@ export default function CardRewardPage() {
         <div className="quest-reward-bonus-row" aria-label="獲得報酬">
           <span><b>EXP</b> +{rewardExp}</span>
           <span><b>Coin</b> +{rewardCoin}</span>
-          <span>カード獲得</span>
+          <span>英雄カード獲得</span>
         </div>
 
         <div className="quest-reward-complete-bar" aria-label="ステージ完了状況">
-          <span><b>単語</b> 5/5 完了</span>
-          <span><b>小テスト</b> 合格</span>
-          <span><b>文法学習</b> 完了</span>
+          <span><b>単語学習</b> 5/5 完了</span>
+          <span><b>単語小テスト</b> 合格</span>
+          <span><b>文法の神殿</b> 完了</span>
           <span><b>文法テスト</b> 合格</span>
         </div>
 

@@ -7522,6 +7522,52 @@ def get_table_count_for_debug(conn, table_name):
         return {'error': str(exc)}
 
 
+def hero_row_to_card(row):
+    code = str(row['code'] or '').strip()
+    world_id = str(row['world_id'] or '').strip()
+    return {
+        'id': code or f'hero-{row["id"]}',
+        'heroId': row['id'],
+        'worldId': {
+            '1': 'wind',
+            '2': 'fire',
+            '3': 'water',
+            '4': 'thunder',
+            '5': 'wood',
+            '6': 'rock',
+            '7': 'light',
+            '8': 'shadow',
+        }.get(world_id, world_id),
+        'code': code,
+        'nameJa': row['name_ja'] or '',
+        'nameZh': row['name_cn'] or '',
+        'type': 'hero',
+        'rarity': row['rarity'] or 'R',
+        'image': row['image_url'] or '',
+        'descriptionJa': row['description_ja'] or '',
+        'unlockCondition': '',
+        'reviewMode': 'mixed',
+    }
+
+
+@app.route('/api/heroes')
+def api_heroes():
+    conn = get_db_connection()
+    try:
+        if not _table_exists(conn, 'heroes'):
+            return jsonify(heroes=[])
+        rows = conn.execute(
+            '''
+            SELECT id, world_id, code, name_ja, name_cn, rarity, image_url, description_ja
+            FROM heroes
+            ORDER BY world_id, id
+            '''
+        ).fetchall()
+    finally:
+        conn.close()
+    return jsonify(heroes=[hero_row_to_card(row) for row in rows])
+
+
 @app.route('/debug/db')
 def debug_db():
     child_id = request.args.get('child_id', '').strip()
