@@ -1,0 +1,292 @@
+.eq-fantasy-page-header {
+  display: grid;
+  gap: 10px;
+  padding: 4px 2px 8px;
+  color: var(--eq-text);
+  text-shadow: 0 3px 16px rgba(0, 0, 0, 0.54);
+}
+
+.eq-fantasy-page-header__main {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+
+.eq-fantasy-page-header__icon,
+.eq-fantasy-info-card__icon,
+.eq-fantasy-quest-card__icon {
+  display: grid;
+  flex: 0 0 auto;
+  place-items: center;
+  border: 1px solid color-mix(in srgb, var(--eq-fantasy-accent, var(--eq-gold)) 52%, rgba(255, 255, 255, 0.18));
+  background:
+    radial-gradient(circle at 40% 25%, rgba(255, 255, 255, 0.42), transparent 30%),
+    color-mix(in srgb, var(--eq-fantasy-accent, var(--eq-gold)) 22%, rgba(8, 18, 52, 0.82));
+  color: #fff7d1;
+  font-weight: 950;
+  box-shadow: 0 0 18px color-mix(in srgb, var(--eq-fantasy-accent, var(--eq-gold)) 28%, transparent);
+}
+
+.eq-fantasy-page-header__icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 16px;
+}
+
+.eq-fantasy-page-header__copy {
+  display: grid;
+  min-width: 0;
+  gap: 4px;
+}
+
+.eq-fantasy-eyebrow {
+  color: var(--eq-primary);
+  font-size: 11px;
+  font-weight: 950;
+  letter-spacing: 0.12em;
+  line-height: 1.1;
+  text-transform: uppercase;
+}
+
+.eq-fantasy-page-header h1,
+.eq-fantasy-panel h2,
+.eq-fantasy-quest-card h2,
+.eq-fantasy-info-card h2 {
+  margin: 0;
+  color: #fff0b5;
+  font-weight: 950;
+  letter-spacing: 0;
+  line-height: 1.12;
+}
+
+.eq-fantasy-page-header h1 {
+  font-size: 28px;
+}
+
+.eq-fantasy-page-header p,
+.eq-fantasy-quest-card p,
+.eq-fantasy-info-card__body {
+  margin: 0;
+  color: rgba(226, 237, 255, 0.84);
+  font-size: 14px;
+  font-weight: 750;
+  line-height: 1.42;
+}
+
+.eq-fantasy-page-header__actions {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: 8px;
+  margin-left: auto;
+}
+
+.eq-fantasy-page-header__meta,
+.eq-fantasy-panel__footer,
+.eq-fantasy-info-card__footer,
+.eq-fantasy-quest-card__meta {
+  color: var(--eq-text-sub);
+  font-size: 12px;
+  font-weight: 850;
+}
+
+.eq-fantasy-panel,
+.eq-fantasy-info-card,
+.eq-fantasy-quest-card {
+  border-color: color-mix(in srgb, var(--eq-fantasy-accent, var(--eq-gold)) 58%, rgba(255, 255, 255, 0.16));
+  background:
+    radial-gradient(circle at 18% 0%, color-mix(in srgb, var(--eq-fantasy-accent, var(--eq-gold)) 16%, transparent), transparent 42%),
+    linear-gradient(180deg, rgba(12, 24, 66, 0.94), rgba(5, 9, 32, 0.96));
+  box-shadow:
+    0 0 24px color-mix(in srgb, var(--eq-fantasy-accent, var(--eq-gold)) 18%, transparent),
+    var(--eq-shadow-card),
+    inset 0 0 24px rgba(255, 255, 255, 0.05);
+}
+
+.eq-fantasy-panel {
+  display: grid;
+  gap: 12px;
+  padding: 16px;
+}
+
+.eq-fantasy-panel__header {
+  display: grid;
+  gap: 5px;
+}
+
+.eq-fantasy-panel h2,
+.eq-fantasy-info-card h2,
+.eq-fantasy-quest-card h2 {
+  font-size: 18px;
+}
+
+.eq-fantasy-quest-card {
+  --eq-fantasy-accent: var(--hub-accent, var(--eq-gold));
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 12px;
+  align-items: center;
+  min-height: 104px;
+  padding: 14px;
+  border: 1.5px solid color-mix(in srgb, var(--eq-fantasy-accent) 60%, rgba(255, 255, 255, 0.18));
+  border-radius: 22px;
+  color: var(--eq-text);
+  text-decoration: none;
+  touch-action: manipulation;
+}
+
+.eq-fantasy-quest-card.is-featured {
+  min-height: 124px;
+  padding: 18px;
+}
+
+.eq-fantasy-quest-card:where(a, button) {
+  width: 100%;
+  cursor: pointer;
+  text-align: left;
+}
+
+.eq-fantasy-quest-card:active {
+  transform: scale(0.985);
+}
+
+.eq-fantasy-quest-card__icon {
+  width: 56px;
+  height: 56px;
+  border-radius: 18px;
+  font-size: 20px;
+}
+
+.eq-fantasy-quest-card__body {
+  display: grid;
+  min-width: 0;
+  gap: 7px;
+}
+
+.eq-fantasy-quest-card__topline,
+.eq-fantasy-info-card__head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+  min-width: 0;
+}
+
+.eq-fantasy-quest-card__action {
+  grid-column: 1 / -1;
+}
+
+.eq-fantasy-info-card {
+  display: grid;
+  gap: 11px;
+  padding: 14px;
+  border-radius: 20px;
+}
+
+.eq-fantasy-info-card__icon {
+  width: 42px;
+  height: 42px;
+  border-radius: 14px;
+}
+
+.eq-fantasy-info-card strong {
+  display: block;
+  margin-top: 2px;
+  color: #ffffff;
+  font-size: 22px;
+  font-weight: 950;
+  line-height: 1.05;
+}
+
+.eq-fantasy-badge-row {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 6px;
+}
+
+.eq-fantasy-badge {
+  display: inline-flex;
+  min-height: 24px;
+  align-items: center;
+  justify-content: center;
+  padding: 5px 9px;
+  border: 1px solid color-mix(in srgb, var(--eq-fantasy-accent, var(--eq-gold)) 48%, rgba(255, 255, 255, 0.18));
+  border-radius: var(--eq-radius-pill);
+  background: color-mix(in srgb, var(--eq-fantasy-accent, var(--eq-gold)) 16%, rgba(5, 12, 36, 0.82));
+  color: #fff1b8;
+  font-size: 10px;
+  font-weight: 950;
+  line-height: 1;
+}
+
+.eq-fantasy-button {
+  width: auto;
+  min-width: 0;
+  white-space: nowrap;
+}
+
+.eq-fantasy-button.is-full-width {
+  width: 100%;
+}
+
+.eq-fantasy-primary-button {
+  min-height: 50px;
+}
+
+.eq-fantasy-secondary-button {
+  display: inline-flex;
+  min-height: 50px;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 13px 20px;
+  border: 1px solid rgba(255, 211, 90, 0.42);
+  border-radius: var(--eq-radius-pill);
+  background: rgba(7, 9, 31, 0.68);
+  color: var(--eq-text);
+  font-weight: 850;
+  text-decoration: none;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.24);
+  cursor: pointer;
+}
+
+.eq-fantasy-button:disabled,
+.eq-fantasy-choice-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.56;
+}
+
+.eq-fantasy-choice-button {
+  min-height: 54px;
+  border-color: rgba(255, 211, 90, 0.34);
+  background:
+    radial-gradient(circle at 8% 0%, rgba(255, 211, 90, 0.12), transparent 36%),
+    rgba(8, 17, 50, 0.84);
+  text-align: left;
+}
+
+.eq-fantasy-choice-button__feedback {
+  margin-left: auto;
+  color: var(--eq-text-sub);
+  font-size: 12px;
+  font-weight: 850;
+}
+
+@media (max-width: 360px) {
+  .eq-fantasy-page-header h1 {
+    font-size: 24px;
+  }
+
+  .eq-fantasy-quest-card {
+    grid-template-columns: 48px minmax(0, 1fr);
+    gap: 10px;
+    padding: 12px;
+  }
+
+  .eq-fantasy-quest-card__icon {
+    width: 48px;
+    height: 48px;
+  }
+}

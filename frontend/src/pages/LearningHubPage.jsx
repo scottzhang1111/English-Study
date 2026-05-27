@@ -1,11 +1,19 @@
 import { Link } from 'react-router-dom';
-import { EQBottomNav, EQMobileShell } from '../components/eigo';
+import {
+  EQBadge,
+  EQBottomNav,
+  EQMobileShell,
+  EQPageHeader,
+  EQPanel,
+  EQPrimaryButton,
+  EQQuestCard,
+} from '../components/eigo';
 
 const mainEntry = {
   title: '単語学習',
-  subtitle: '単語小テスト、文法の神殿へ進もう',
-  status: '未完成',
-  reward: '英雄カード獲得',
+  subtitle: '単語テスト、文法の神殿へ進もう',
+  status: '未完了',
+  reward: '英語カード収集',
   to: '/daily-words',
   icon: '20',
   tone: 'gold',
@@ -23,7 +31,7 @@ const moduleEntries = [
   },
   {
     title: '今日の復習クイズ',
-    subtitle: '今日の記憶をチェック',
+    subtitle: '今日の記録をチェック',
     status: '20問',
     reward: '復習ボーナス',
     to: '/today-review-quiz',
@@ -45,7 +53,7 @@ const moduleEntries = [
     status: '8問',
     reward: '練習スタンプ',
     to: '/grammar-practice',
-    icon: '✓',
+    icon: 'G',
     tone: 'green',
   },
   {
@@ -67,7 +75,7 @@ const moduleEntries = [
     tone: 'blue',
   },
   {
-    title: '単語図書館',
+    title: '単語辞書館',
     subtitle: '覚えた単語を見返す',
     status: '378 words',
     reward: 'コレクション',
@@ -77,47 +85,60 @@ const moduleEntries = [
   },
 ];
 
+function EntryBadges({ entry }) {
+  return (
+    <>
+      <EQBadge tone={entry.tone}>{entry.status}</EQBadge>
+      <EQBadge tone={entry.tone}>{entry.reward}</EQBadge>
+    </>
+  );
+}
+
 export default function LearningHubPage() {
   return (
     <div className="eq-learning-hub-page">
       <EQMobileShell className="eq-learning-hub-screen">
-        <header className="eq-learning-hub-header">
-          <span>Learning Hub</span>
-          <h1>学習</h1>
-          <p>今日のクエストを選ぼう</p>
-        </header>
+        <EQPageHeader
+          eyebrow="Learning Hub"
+          title="学習"
+          subtitle="今日のクエストを選ぼう"
+          icon="★"
+        />
 
-        <Link
+        <EQQuestCard
+          as={Link}
           to={mainEntry.to}
-          className={`eq-learning-hub-main is-${mainEntry.tone}`}
+          featured
+          tone={mainEntry.tone}
+          icon={mainEntry.icon}
+          title={mainEntry.title}
+          subtitle={mainEntry.subtitle}
+          badges={<EntryBadges entry={mainEntry} />}
+          action={
+            <EQPrimaryButton as="span" fullWidth>
+              Start
+            </EQPrimaryButton>
+          }
           aria-label={`${mainEntry.title}へ`}
-        >
-          <span className="eq-learning-hub-main-icon">{mainEntry.icon}</span>
-          <span className="eq-learning-hub-main-copy">
-            <strong>{mainEntry.title}</strong>
-            <small>{mainEntry.subtitle}</small>
-            <span className="eq-learning-hub-reward-label">{mainEntry.status}</span>
-            <span className="eq-learning-hub-reward-label">{mainEntry.reward}</span>
-          </span>
-          <em>Start</em>
-        </Link>
+        />
 
-        <section className="eq-learning-hub-grid" aria-label="学習メニュー">
-          {moduleEntries.map((entry) => (
-            <Link
-              key={entry.to}
-              to={entry.to}
-              className={`eq-learning-hub-card is-${entry.tone}`}
-              aria-label={`${entry.title}へ`}
-            >
-              <span className="eq-learning-hub-card-icon">{entry.icon}</span>
-              <strong>{entry.title}</strong>
-              <small>{entry.subtitle}</small>
-              <span className="eq-learning-hub-reward-label">{entry.status}</span>
-              <span className="eq-learning-hub-reward-label">{entry.reward}</span>
-            </Link>
-          ))}
-        </section>
+        <EQPanel className="eq-learning-hub-module-panel" title="クエスト" eyebrow="Choose Path">
+          <section className="eq-learning-hub-grid" aria-label="学習メニュー">
+            {moduleEntries.map((entry) => (
+              <EQQuestCard
+                key={entry.to}
+                as={Link}
+                to={entry.to}
+                tone={entry.tone}
+                icon={entry.icon}
+                title={entry.title}
+                subtitle={entry.subtitle}
+                badges={<EntryBadges entry={entry} />}
+                aria-label={`${entry.title}へ`}
+              />
+            ))}
+          </section>
+        </EQPanel>
       </EQMobileShell>
       <EQBottomNav className="eq-learning-hub-bottom-nav" />
     </div>

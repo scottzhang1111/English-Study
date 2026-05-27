@@ -1,6 +1,17 @@
 
 # Eigo Quest / 英語クエスト
 Do not solve state problems by adding more localStorage state.
+## Repo Quick Rules
+
+- Stack: React/Vite frontend, Flask backend, SQLite/PostgreSQL.
+- Main app folder: `frontend/src`.
+- Build command: `cd frontend && npm run build`.
+- Mobile UI source of truth: `docs/EIGO_UI_SYSTEM.md`.
+- Do not modify backend unless asked.
+- Do not refactor unrelated pages.
+- Prefer small focused diffs.
+- Always report changed files and build result.
+
 ## Project Goal
 
 This is a dark fantasy adventure English vocabulary learning app for children in Japan.

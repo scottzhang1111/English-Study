@@ -2,8 +2,15 @@ import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import TtsButton from '../components/TtsButton';
-import WebLearningLayout from '../components/WebLearningLayout';
-import WrongQuestionCard from '../components/WrongQuestionCard';
+import {
+  EQBadge,
+  EQBottomNav,
+  EQMobileShell,
+  EQPageHeader,
+  EQPanel,
+  EQPrimaryButton,
+  EQQuestCard,
+} from '../components/eigo';
 import {
   getBattleWrongQuestions,
   getEikenPre2WrongQuestions,
@@ -15,6 +22,33 @@ import {
 } from '../api';
 
 const CHILD_STORAGE_KEY = 'selected_child_id';
+
+function ReviewStats({ reviewList, battleWrongList, grammarFormWrongList, eikenWrongList }) {
+  const totalReviewCount = reviewList.length + battleWrongList.length + grammarFormWrongList.length + eikenWrongList.length;
+
+  return (
+    <EQPanel title={`${totalReviewCount} 件`} eyebrow="Review Status" tone="gold">
+      <div className="grid grid-cols-2 gap-2 text-sm font-black text-[var(--eq-text-sub)]">
+        <EQBadge tone="cyan">単語 {reviewList.length}</EQBadge>
+        <EQBadge tone="purple">バトル {battleWrongList.length}</EQBadge>
+        <EQBadge tone="green">文法 {grammarFormWrongList.length}</EQBadge>
+        <EQBadge tone="amber">英検 {eikenWrongList.length}</EQBadge>
+      </div>
+      <EQPrimaryButton as={Link} to="/flashcard" fullWidth>
+        単語を学ぶ
+      </EQPrimaryButton>
+    </EQPanel>
+  );
+}
+
+function ReviewSection({ title, subtitle, tone = 'gold', children }) {
+  return (
+    <EQPanel title={title} tone={tone}>
+      {subtitle ? <p className="eq-caption">{subtitle}</p> : null}
+      <div className="grid gap-3">{children}</div>
+    </EQPanel>
+  );
+}
 
 export default function ReviewPage() {
   const [reviewList, setReviewList] = useState([]);
@@ -30,18 +64,6 @@ export default function ReviewPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const totalReviewCount = reviewList.length + battleWrongList.length + grammarFormWrongList.length + eikenWrongList.length;
-  const rightPanel = (
-    <div className="rounded-3xl border border-white/80 bg-white/86 p-5 shadow-[0_16px_36px_rgba(129,164,199,0.14)] backdrop-blur">
-      <p className="text-xs font-bold text-[#8fa0c2]">復習ステータス</p>
-      <h2 className="mt-2 text-2xl font-bold text-[#31406f]">{totalReviewCount} 件</h2>
-      <div className="mt-5 grid gap-3 text-sm font-bold text-[#60709d]">
-        <div className="rounded-2xl bg-[#f8fcff] p-3">単語: {reviewList.length}</div>
-        <div className="rounded-2xl bg-[#fff8d9] p-3">文法: {grammarFormWrongList.length}</div>
-        <div className="rounded-2xl bg-[#f8fcff] p-3">英検: {eikenWrongList.length}</div>
-      </div>
-      <Link to="/flashcard" className="pill-button mt-5 block px-4 py-3 text-center text-sm">単語を学ぶ</Link>
-    </div>
-  );
 
   useEffect(() => {
     const childId = localStorage.getItem(CHILD_STORAGE_KEY) || '';
@@ -98,7 +120,7 @@ export default function ReviewPage() {
       choices,
       question: wordItem.example
         ? wordItem.example.replace(new RegExp(`\\b${String(wordItem.word).replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`, 'i'), '____')
-        : `「${wordItem.japanese}」は英語でどれ？`,
+        : `「${wordItem.japanese}」の英語はどれ？`,
     };
   };
 
@@ -136,210 +158,218 @@ export default function ReviewPage() {
   };
 
   return (
-    <WebLearningLayout title="復習リスト" subtitle="まちがえた問題を確認" rightPanel={rightPanel}>
-      <motion.section initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="panel px-6 py-6 sm:px-8">
-        <div className="rounded-[28px] bg-[linear-gradient(180deg,#eef8ff_0%,#e3f3ff_100%)] p-6">
-          <h2 className="display-font text-3xl font-extrabold text-[#354172]">まちがえた問題を見なおそう</h2>
-          <p className="mt-3 text-sm leading-6 text-[#6f7da8]">文法バトルと単語練習のまちがいを、やさしく復習できます。</p>
-        </div>
+    <div className="eq-learning-hub-page">
+      <EQMobileShell className="eq-learning-hub-screen">
+        <EQPageHeader
+          eyebrow="Wrong Review"
+          title="まちがい直し"
+          subtitle="苦手な問題をもう一度クリアしよう"
+          icon="!"
+        />
 
-        {!loading && !error && totalReviewCount === 0 && (
-          <div className="mt-5 rounded-[28px] bg-white/76 p-8 text-center text-[#6f7da8]">
-            <h3 className="text-2xl font-bold text-[#31406f]">まだ復習する問題はありません。</h3>
-            <p className="mt-2 text-base font-bold">よくできました！</p>
-            <div className="mt-6 flex flex-wrap justify-center gap-3">
-              <Link to="/" className="ghost-button px-5 py-3">ホームに戻る</Link>
-              <Link to="/flashcard" className="pill-button px-5 py-3">単語を学ぶ</Link>
-            </div>
-          </div>
-        )}
+        <motion.section initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="grid gap-4">
+          <ReviewStats
+            reviewList={reviewList}
+            battleWrongList={battleWrongList}
+            grammarFormWrongList={grammarFormWrongList}
+            eikenWrongList={eikenWrongList}
+          />
 
-        {loading ? (
-          <div className="mt-5 rounded-[24px] bg-white/70 p-6 text-center text-[#6f7da8]">復習リストを読み込み中...</div>
-        ) : error ? (
-          <div className="mt-5 rounded-[24px] bg-rose-50 p-6 text-sm text-rose-700">{error}</div>
-        ) : totalReviewCount === 0 && false ? (
-          <div className="mt-5 rounded-[24px] bg-white/70 p-6 text-center text-[#6f7da8]">まだ復習する問題はありません。</div>
-        ) : stage === 'detail' && selectedWord ? (
-          <div className="mt-5 rounded-[28px] bg-white/82 p-5 shadow-[0_16px_36px_rgba(145,177,209,0.12)]">
-            <button type="button" onClick={() => setStage('list')} className="ghost-button px-4 py-2 text-sm">一覧へ戻る</button>
-            <div className="mt-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-              <div>
-                <div className="flex flex-wrap items-center gap-2">
-                  <p className="display-font text-4xl font-extrabold text-[#354172]">{selectedWord.word}</p>
-                  <TtsButton text={selectedWord.word} label="単語" />
+          {loading ? (
+            <EQPanel tone="cyan">
+              <p className="eq-caption text-center">復習リストを読み込み中...</p>
+            </EQPanel>
+          ) : error ? (
+            <EQPanel title="読み込みエラー" tone="rose">
+              <p className="eq-caption">{error}</p>
+            </EQPanel>
+          ) : totalReviewCount === 0 ? (
+            <EQPanel title="復習する問題はありません" tone="green">
+              <p className="eq-caption">よくできました！次のクエストへ進みましょう。</p>
+              <div className="flex flex-wrap gap-3">
+                <EQPrimaryButton as={Link} to="/" fullWidth>
+                  ホームへ
+                </EQPrimaryButton>
+                <EQPrimaryButton as={Link} to="/flashcard" fullWidth>
+                  単語を学ぶ
+                </EQPrimaryButton>
+              </div>
+            </EQPanel>
+          ) : stage === 'detail' && selectedWord ? (
+            <EQPanel title={selectedWord.word} tone="gold">
+              <div className="flex flex-wrap items-center gap-2">
+                <TtsButton text={selectedWord.word} label="単語" />
+                <EQBadge tone="amber">まちがい {selectedWord.error_count}</EQBadge>
+              </div>
+              <p className="eq-caption text-lg font-black">{selectedWord.japanese}</p>
+              {selectedWord.example && (
+                <EQPanel tone="cyan">
+                  <div className="flex flex-wrap items-start justify-between gap-2">
+                    <p className="eq-caption">例文: {selectedWord.example}</p>
+                    <TtsButton text={selectedWord.example} label="例文" />
+                  </div>
+                </EQPanel>
+              )}
+              {(selectedWord.example_japanese || selectedWord.sentence_jp) && (
+                <EQPanel tone="purple">
+                  <p className="eq-caption">意味: {selectedWord.example_japanese || selectedWord.sentence_jp}</p>
+                </EQPanel>
+              )}
+              <div className="grid gap-3">
+                <EQPrimaryButton type="button" onClick={startWrongQuiz} fullWidth>
+                  この問題をやり直す
+                </EQPrimaryButton>
+                <EQPrimaryButton as="button" type="button" onClick={() => setStage('list')} fullWidth>
+                  一覧へ戻る
+                </EQPrimaryButton>
+              </div>
+            </EQPanel>
+          ) : stage === 'quiz' && selectedWord && quiz ? (
+            <EQPanel title="まちがい直し" tone="gold">
+              <p className="eq-caption text-lg font-black">{quiz.question}</p>
+              {quiz.choices.length < 2 ? (
+                <EQPanel tone="rose">
+                  <p className="eq-caption">選択肢を作るには、まちがえた単語がもう少し必要です。</p>
+                </EQPanel>
+              ) : (
+                <div className="grid gap-3">
+                  {quiz.choices.map((choice) => {
+                    const isCorrect = answer && choice === quiz.correct;
+                    const isWrong = answer === choice && choice !== quiz.correct;
+                    return (
+                      <button
+                        key={choice}
+                        type="button"
+                        onClick={() => handleQuizAnswer(choice)}
+                        disabled={!!answer}
+                        className={`eq-choice-button eq-fantasy-choice-button ${isCorrect ? 'is-correct' : ''} ${isWrong ? 'is-wrong' : ''}`}
+                      >
+                        <span className="eq-choice-text">{choice}</span>
+                      </button>
+                    );
+                  })}
                 </div>
-                <p className="mt-2 text-lg font-bold text-[#6f7da8]">{selectedWord.japanese}</p>
-              </div>
-              <div className="inline-flex rounded-full bg-[#fff2bb] px-4 py-2 text-sm font-black text-[#69557e]">
-                間違えた回数: {selectedWord.error_count}
-              </div>
-            </div>
-            {selectedWord.example && (
-              <div className="mt-5 rounded-[22px] bg-[#f8fbff] px-5 py-4 text-sm font-bold leading-7 text-[#60709d]">
-                <div className="flex flex-wrap items-start justify-between gap-2">
-                  <p>例文: {selectedWord.example}</p>
-                  <TtsButton text={selectedWord.example} label="例文" />
-                </div>
-              </div>
-            )}
-            {(selectedWord.example_japanese || selectedWord.sentence_jp) && (
-              <p className="mt-3 rounded-[22px] bg-[#fffdf7] px-5 py-4 text-sm font-bold leading-7 text-[#60709d]">
-                意味: {selectedWord.example_japanese || selectedWord.sentence_jp}
-              </p>
-            )}
-            <div className="mt-5 flex flex-wrap gap-3">
-              <button type="button" onClick={startWrongQuiz} className="pill-button px-5 py-3">この問題をやり直す</button>
-            </div>
-          </div>
-        ) : stage === 'quiz' && selectedWord && quiz ? (
-          <div className="mt-5 rounded-[28px] bg-white/82 p-5 shadow-[0_16px_36px_rgba(145,177,209,0.12)]">
-            <p className="text-sm font-black text-[#6f7da8]">まちがい直し</p>
-            <h2 className="display-font mt-3 text-3xl font-extrabold leading-tight text-[#354172]">{quiz.question}</h2>
-            {quiz.choices.length < 2 ? (
-              <div className="mt-5 rounded-[24px] bg-[#f8fbff] p-5 text-sm font-bold text-[#60709d]">選択肢を作るには、まちがえた単語がもう少し必要です。</div>
-            ) : (
-              <div className="mt-6 grid gap-3 sm:grid-cols-2">
-                {quiz.choices.map((choice) => {
-                  const isCorrect = answer && choice === quiz.correct;
-                  const isWrong = answer === choice && choice !== quiz.correct;
-                  return (
-                    <button
-                      key={choice}
-                      type="button"
-                      onClick={() => handleQuizAnswer(choice)}
-                      disabled={!!answer}
-                      className={`rounded-[24px] border px-5 py-4 text-left text-lg font-bold transition ${
-                        isCorrect ? 'border-[#ffcf48] bg-[#fff4bf] text-[#5e4e76]' : isWrong ? 'border-rose-200 bg-rose-50 text-rose-700' : 'border-white/80 bg-white/78 text-[#34406f] hover:bg-[#f6fbff]'
-                      }`}
-                    >
-                      {choice}
-                    </button>
-                  );
-                })}
-              </div>
-            )}
-            {answer && (
-              <div className="mt-5 rounded-[24px] bg-[#f9fcff] p-5 text-sm font-bold leading-7 text-[#60709d]">
-                <p className="text-base font-black text-[#354172]">{answer === quiz.correct ? 'せいかい！' : `こたえ: ${quiz.correct}`}</p>
-                {quizResult?.pet_exp_awarded > 0 && <p className="mt-2 text-[#6b5a2d]">ペット EXP +{quizResult.pet_exp_awarded}</p>}
-                <div className="mt-4 flex flex-wrap gap-3">
-                  <button type="button" onClick={startWrongQuiz} className="ghost-button px-5 py-3">もう一度</button>
-                  <button type="button" onClick={() => setStage('list')} className="pill-button px-5 py-3">一覧へ戻る</button>
-                </div>
-              </div>
-            )}
-          </div>
-        ) : (
-          <div className="mt-5 space-y-4">
-            <section className="rounded-[28px] bg-[#eef8ff] p-4">
-              <h3 className="display-font text-xl font-extrabold text-[#354172]">単語のまちがい</h3>
-              <p className="mt-1 text-sm font-bold text-[#6f7da8]">間違えた単語を選んで、もう一度学習してから問題をやり直しましょう。</p>
-              <div className="mt-4 grid gap-3">
+              )}
+              {answer && (
+                <EQPanel tone={answer === quiz.correct ? 'green' : 'rose'}>
+                  <p className="eq-caption text-base font-black">
+                    {answer === quiz.correct ? 'せいかい！' : `こたえ: ${quiz.correct}`}
+                  </p>
+                  {quizResult?.pet_exp_awarded > 0 && <EQBadge tone="gold">EXP +{quizResult.pet_exp_awarded}</EQBadge>}
+                  <div className="grid gap-3">
+                    <EQPrimaryButton type="button" onClick={startWrongQuiz} fullWidth>
+                      もう一度
+                    </EQPrimaryButton>
+                    <EQPrimaryButton type="button" onClick={() => setStage('list')} fullWidth>
+                      一覧へ戻る
+                    </EQPrimaryButton>
+                  </div>
+                </EQPanel>
+              )}
+            </EQPanel>
+          ) : (
+            <div className="grid gap-4">
+              <ReviewSection
+                title="単語のまちがい"
+                subtitle="まちがえた単語を選んで、もう一度学習してから問題をやり直しましょう。"
+                tone="gold"
+              >
                 {reviewList.map((item) => (
-                  <article
+                  <EQQuestCard
                     key={item.word_id}
-                    className="rounded-[24px] bg-white/88 p-4 shadow-[0_10px_24px_rgba(145,177,209,0.10)] transition hover:-translate-y-0.5 hover:bg-[#f8fcff]"
-                  >
-                    <span className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                      <span>
-                        <span className="flex flex-wrap items-center gap-2">
-                          <button type="button" onClick={() => openReviewWord(item)} className="text-left">
-                            <span className="display-font block text-2xl font-extrabold text-[#354172]">{item.word}</span>
-                          </button>
-                          <TtsButton text={item.word} label="Word" />
-                        </span>
-                        <span className="mt-1 block text-sm font-bold text-[#6f7da8]">{item.japanese}</span>
-                      </span>
-                      <span className="inline-flex rounded-full bg-[#fff2bb] px-4 py-2 text-sm font-black text-[#69557e]">
-                        間違えた回数: {item.error_count}
-                      </span>
-                    </span>
-                  </article>
+                    as="article"
+                    tone="gold"
+                    icon="単"
+                    title={item.word}
+                    subtitle={item.japanese}
+                    badges={<EQBadge tone="amber">まちがい {item.error_count}</EQBadge>}
+                    action={
+                      <div className="flex flex-wrap gap-2">
+                        <TtsButton text={item.word} label="Word" />
+                        <EQPrimaryButton type="button" onClick={() => openReviewWord(item)}>
+                          開く
+                        </EQPrimaryButton>
+                      </div>
+                    }
+                  />
                 ))}
-              </div>
-            </section>
-            {battleWrongList.length > 0 && (
-              <section className="rounded-[28px] bg-[#eef8ff] p-4">
-                <h3 className="display-font text-xl font-extrabold text-[#354172]">文法バトルのまちがい</h3>
-                <p className="mt-1 text-sm font-bold text-[#6f7da8]">答えられたら「できた！」にしよう。少しEXPも入ります。</p>
-                <div className="mt-4 space-y-3">
+              </ReviewSection>
+
+              {battleWrongList.length > 0 && (
+                <ReviewSection title="文法バトルのまちがい" subtitle="確認できたらクリア済みにできます。" tone="purple">
                   {battleWrongList.map((item) => (
-                    <article key={item.wrongId} className="rounded-[24px] bg-white/88 p-4 shadow-[0_10px_24px_rgba(145,177,209,0.10)]">
-                      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-                        <div>
-                          <span className="rounded-full bg-[#fff8d9] px-3 py-1 text-xs font-black text-[#6b5a2d]">{item.category}</span>
-                          <p className="mt-3 text-base font-extrabold leading-7 text-[#354172]">{item.questionText}</p>
-                          <p className="mt-2 text-sm font-bold text-[#6f7da8]">正解：{item.correctAnswer}</p>
-                        </div>
-                        <button type="button" onClick={() => handleMasterBattleWrong(item.wrongId)} className="pill-button shrink-0 px-4 py-2 text-sm">
+                    <EQQuestCard
+                      key={item.wrongId}
+                      tone="purple"
+                      icon="文"
+                      title={item.category}
+                      subtitle={item.questionText}
+                      meta={`正解: ${item.correctAnswer}`}
+                      action={
+                        <EQPrimaryButton type="button" onClick={() => handleMasterBattleWrong(item.wrongId)}>
                           できた！
-                        </button>
-                      </div>
-                      <p className="mt-3 rounded-[20px] bg-[#fff8d9] px-4 py-3 text-sm font-bold leading-6 text-[#6b5a2d]">
-                        {item.explanation || '解説はまだ準備中です。'}
-                      </p>
-                    </article>
+                        </EQPrimaryButton>
+                      }
+                    >
+                      <p className="eq-caption">{item.explanation || '解説はまだ準備中です。'}</p>
+                    </EQQuestCard>
                   ))}
-                </div>
-              </section>
-            )}
+                </ReviewSection>
+              )}
 
-            {grammarFormWrongList.length > 0 && (
-              <section className="rounded-[28px] bg-[#eef8ff] p-4">
-                <h3 className="display-font text-xl font-extrabold text-[#354172]">文法練習のまちがい</h3>
-                <p className="mt-1 text-sm font-bold text-[#6f7da8]">拡張練習でまちがえた文法問題です。確認できたら復習済みにできます。</p>
-                <div className="mt-4 space-y-3">
+              {grammarFormWrongList.length > 0 && (
+                <ReviewSection title="文法練習のまちがい" subtitle="練習で間違えた文法問題です。" tone="green">
                   {grammarFormWrongList.map((item) => (
-                    <article key={item.testId} className="rounded-[24px] bg-white/88 p-4 shadow-[0_10px_24px_rgba(145,177,209,0.10)]">
-                      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-                        <div>
-                          <span className="rounded-full bg-[#fff8d9] px-3 py-1 text-xs font-black text-[#6b5a2d]">{item.category} / {item.title}</span>
-                          <p className="mt-3 text-base font-extrabold leading-7 text-[#354172]">{item.questionJp}</p>
-                          <p className="mt-2 rounded-[18px] bg-[#f8fbff] px-4 py-3 text-sm font-black text-[#31406f]">{item.promptEn}</p>
-                          <p className="mt-2 text-sm font-bold text-[#6f7da8]">答え: {item.correctAnswer}</p>
-                          <p className="mt-2 text-sm font-bold leading-6 text-[#6f7da8]">{item.correctReasonJp}</p>
-                        </div>
-                        <button type="button" onClick={() => handleMasterGrammarFormWrong(item.testId)} className="pill-button shrink-0 px-4 py-2 text-sm">
+                    <EQQuestCard
+                      key={item.testId}
+                      tone="green"
+                      icon="G"
+                      title={`${item.category} / ${item.title}`}
+                      subtitle={item.questionJp}
+                      meta={`答え: ${item.correctAnswer}`}
+                      action={
+                        <EQPrimaryButton type="button" onClick={() => handleMasterGrammarFormWrong(item.testId)}>
                           できた！
-                        </button>
-                      </div>
-                    </article>
+                        </EQPrimaryButton>
+                      }
+                    >
+                      <p className="eq-caption">{item.promptEn}</p>
+                      <p className="eq-caption">{item.correctReasonJp}</p>
+                    </EQQuestCard>
                   ))}
-                </div>
-              </section>
-            )}
+                </ReviewSection>
+              )}
 
-            {eikenWrongList.length > 0 && (
-              <section className="rounded-[28px] bg-[#eef8ff] p-4">
-                <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                  <div>
-                    <h3 className="display-font text-xl font-extrabold text-[#354172]">英検チャレンジのまちがい</h3>
-                    <p className="mt-1 text-sm font-bold text-[#6f7da8]">模擬テストでまちがえた問題です。答えと解説を見ながら復習できます。</p>
-                  </div>
-                  <Link
+              {eikenWrongList.length > 0 && (
+                <ReviewSection title="英検チャレンジのまちがい" subtitle="模試で間違えた問題を英検復習へ送ります。" tone="amber">
+                  <EQPrimaryButton
+                    as={Link}
                     to={`/eiken-pre2/wrong-review?student_id=${encodeURIComponent(selectedChildId)}`}
-                    className="pill-button shrink-0 px-5 py-3 text-sm"
+                    fullWidth
                   >
-                    英検錯題を練習
-                  </Link>
-                </div>
-                <div className="mt-4 space-y-3">
+                    英検問題を練習
+                  </EQPrimaryButton>
                   {eikenWrongList.slice(0, 3).map((item) => (
-                    <WrongQuestionCard key={item.question_id} question={item} />
+                    <EQQuestCard
+                      key={item.question_id}
+                      tone="amber"
+                      icon="E"
+                      title={item.question_type || item.section || '問題'}
+                      subtitle={item.question_text || item.prompt}
+                      meta={`正解: ${item.correct_option || ''}`}
+                      badges={item.weak_point_tag ? <EQBadge tone="rose">{item.weak_point_tag}</EQBadge> : null}
+                    />
                   ))}
-                </div>
-                {eikenWrongList.length > 3 && (
-                  <div className="mt-4 text-center text-sm font-bold text-[#6f7da8]">
-                    ほか {eikenWrongList.length - 3} 問あります。英検錯題練習で続けましょう。
-                  </div>
-                )}
-              </section>
-            )}
-
-          </div>
-        )}
-      </motion.section>
-    </WebLearningLayout>
+                  {eikenWrongList.length > 3 && (
+                    <EQBadge tone="amber">ほか {eikenWrongList.length - 3} 問</EQBadge>
+                  )}
+                </ReviewSection>
+              )}
+            </div>
+          )}
+        </motion.section>
+      </EQMobileShell>
+      <EQBottomNav className="eq-learning-hub-bottom-nav" />
+    </div>
   );
 }
