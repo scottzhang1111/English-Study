@@ -99,16 +99,18 @@ export default function LearningHubPage() {
             <Link
               key={entry.to}
               to={entry.to}
-              className="eq-learning-hub-rpg-card"
-              style={{ '--hub-card-image': `url("${entry.image}")` }}
+              className="eq-lh-module-card"
               aria-label={`${entry.title}へ`}
             >
-              <span className="eq-learning-hub-rpg-card-copy">
-                <span className="eq-learning-hub-rpg-badge">{entry.badge}</span>
+              <div className="eq-lh-module-visual" aria-hidden="true">
+                <img src={entry.image} alt="" />
+              </div>
+              <div className="eq-lh-module-body">
+                <span className="eq-lh-module-tag">{entry.badge}</span>
                 <strong>{entry.title}</strong>
                 <small>{entry.subtitle}</small>
-              </span>
-              <span className="eq-learning-hub-rpg-arrow" aria-hidden="true">›</span>
+              </div>
+              <span className="eq-lh-arrow" aria-hidden="true">›</span>
             </Link>
           ))}
         </section>
