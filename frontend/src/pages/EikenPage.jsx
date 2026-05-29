@@ -5,14 +5,18 @@ import TtsButton from '../components/TtsButton';
 import {
   EQBadge,
   EQBottomNav,
+  EQChoiceButton,
   EQInfoCard,
   EQMobileShell,
-  EQPageHeader,
   EQPanel,
   EQPrimaryButton,
   EQSecondaryButton,
 } from '../components/eigo';
-import { getEikenQuestions, submitPracticeAnswer, getReviewList } from '../api';
+import { getEikenQuestions, getReviewList, submitPracticeAnswer } from '../api';
+
+const EIKEN_ASSET_BASE = '/assets/eigo-quest/learning-hub';
+const EIKEN_TOWER_IMAGE = `${EIKEN_ASSET_BASE}/英検クエスト.png`;
+const EIKEN_TRIAL_IMAGE = `${EIKEN_ASSET_BASE}/英検本番形式.png`;
 
 export default function EikenPage() {
   const childId = localStorage.getItem('selected_child_id') || '';
@@ -63,6 +67,7 @@ export default function EikenPage() {
   }, []);
 
   const currentQuestion = questions[currentIndex];
+  const progressPercent = questions.length ? Math.round(((currentIndex + 1) / questions.length) * 100) : 0;
 
   const handleSelect = async (choice) => {
     if (!currentQuestion || selectedAnswer) return;
@@ -115,69 +120,80 @@ export default function EikenPage() {
   };
 
   return (
-    <div className="eq-learning-hub-page">
-      <EQMobileShell className="eq-learning-hub-screen">
-        <EQPageHeader
-          eyebrow="Eiken Quest"
-          title="英検クエスト"
-          subtitle="重要度と頻度を選んで問題に挑戦"
-          icon="E"
-        />
+    <div className="eq-eiken-trial-page">
+      <EQMobileShell className="eq-eiken-trial-shell">
+        <header className="eq-eiken-trial-hero" style={{ '--eiken-hero-image': `url("${EIKEN_TOWER_IMAGE}")` }}>
+          <div className="eq-eiken-trial-crest" aria-hidden="true">英</div>
+          <div className="eq-eiken-trial-hero-copy">
+            <span>Eiken Trial Tower</span>
+            <h1>英検クエスト</h1>
+            <p>実戦力をためそう</p>
+          </div>
+          <div className="eq-eiken-trial-hero-stats">
+            <EQBadge tone="gold">正解 {correctCount}</EQBadge>
+            <EQBadge tone="green">挑戦 {answeredCount}</EQBadge>
+          </div>
+        </header>
 
-        <motion.div initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} className="grid gap-4">
-          <EQPanel title="絞り込み" tone="amber">
-            <p className="eq-caption">重要度と出現頻度で問題を絞り込めます。</p>
-            <div className="grid gap-3">
-              <label className="grid gap-2 text-sm font-black text-[var(--eq-text-sub)]">
+        <motion.div initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} className="eq-eiken-trial-stack">
+          <EQPanel title="試練の紋章" eyebrow="Tower Gate" tone="gold" className="eq-eiken-trial-filter-panel">
+            <p className="eq-caption">重要度と出現頻度を選んで、英検の試練に挑戦しよう。</p>
+            <div className="eq-eiken-trial-filter-grid">
+              <label className="eq-eiken-trial-select-label">
                 重要度
-                <select
-                  value={importance}
-                  onChange={(event) => setImportance(event.target.value)}
-                  className="rounded-full border border-[rgba(255,211,90,0.42)] bg-[rgba(7,9,31,0.68)] px-4 py-3 text-sm font-bold text-[var(--eq-text)]"
-                >
+                <select value={importance} onChange={(event) => setImportance(event.target.value)}>
                   <option value="ALL">すべて</option>
                   <option value="A">A</option>
                   <option value="B">B</option>
                   <option value="C">C</option>
                 </select>
               </label>
-              <label className="grid gap-2 text-sm font-black text-[var(--eq-text-sub)]">
+              <label className="eq-eiken-trial-select-label">
                 出現頻度
-                <select
-                  value={frequency}
-                  onChange={(event) => setFrequency(event.target.value)}
-                  className="rounded-full border border-[rgba(255,211,90,0.42)] bg-[rgba(7,9,31,0.68)] px-4 py-3 text-sm font-bold text-[var(--eq-text)]"
-                >
+                <select value={frequency} onChange={(event) => setFrequency(event.target.value)}>
                   <option value="ALL">すべて</option>
                   <option value="A">A</option>
                   <option value="B">B</option>
                   <option value="C">C</option>
                 </select>
               </label>
-              <EQPrimaryButton type="button" onClick={() => loadQuestions()} fullWidth>
-                適用
-              </EQPrimaryButton>
             </div>
+            <EQPrimaryButton type="button" onClick={() => loadQuestions()} fullWidth>
+              試練を更新
+            </EQPrimaryButton>
           </EQPanel>
 
           {loading ? (
-            <EQPanel tone="cyan">
-              <p className="eq-caption text-center">問題を読み込み中...</p>
+            <EQPanel tone="cyan" className="eq-eiken-trial-message-panel">
+              <p className="eq-caption text-center">試練を準備しています...</p>
             </EQPanel>
           ) : error ? (
-            <EQPanel title="読み込みエラー" tone="rose">
+            <EQPanel title="読み込みエラー" tone="rose" className="eq-eiken-trial-message-panel">
               <p className="eq-caption">{error}</p>
               <EQPrimaryButton type="button" onClick={() => loadQuestions()} fullWidth>
-                再読み込み
+                もう一度読み込む
               </EQPrimaryButton>
             </EQPanel>
           ) : !currentQuestion ? (
-            <EQPanel tone="gold">
+            <EQPanel tone="gold" className="eq-eiken-trial-message-panel">
               <p className="eq-caption text-center">出題できる問題がありません。</p>
             </EQPanel>
           ) : (
-            <EQPanel title="Practice Question" eyebrow={`Question ${currentIndex + 1} / ${questions.length}`} tone="gold">
-              <div className="flex flex-wrap gap-2">
+            <EQPanel
+              title="試練の問題"
+              eyebrow={`Question ${currentIndex + 1} / ${questions.length}`}
+              tone="gold"
+              className="eq-eiken-trial-question-panel"
+            >
+              <div className="eq-eiken-trial-progress-card" style={{ '--eiken-trial-image': `url("${EIKEN_TRIAL_IMAGE}")` }}>
+                <div>
+                  <span>Trial Progress</span>
+                  <strong>{progressPercent}%</strong>
+                </div>
+                <div className="eq-eiken-trial-progress-bar" style={{ '--eiken-progress': `${progressPercent}%` }} />
+              </div>
+
+              <div className="eq-eiken-trial-badges">
                 <EQBadge tone="cyan">{questionSource === 'ai' ? 'AI生成' : 'ルール生成'}</EQBadge>
                 <EQBadge tone="gold">正解 {correctCount} / {answeredCount}</EQBadge>
               </div>
@@ -187,34 +203,30 @@ export default function EikenPage() {
                 value={currentQuestion.id ? `ID ${currentQuestion.id}` : ''}
                 badges={sourceWarning ? <EQBadge tone="amber">Notice</EQBadge> : null}
                 tone="amber"
+                className="eq-eiken-trial-question-card"
               >
                 {sourceWarning ? <p className="mb-3">{sourceWarning}</p> : null}
-                <p className="whitespace-pre-line text-base font-bold leading-7">{currentQuestion.question}</p>
+                <p className="eq-eiken-trial-question-text">{currentQuestion.question}</p>
               </EQInfoCard>
 
-              <div className="grid gap-3">
+              <div className="eq-eiken-trial-choice-grid">
                 {currentQuestion.choices.map((choice) => {
                   const isSelected = selectedAnswer === choice;
                   const isCorrect = choice === currentQuestion.correct;
-                  const toneClass = selectedAnswer
-                    ? isCorrect
-                      ? 'is-correct'
-                      : isSelected
-                        ? 'is-wrong'
-                        : ''
-                    : '';
 
                   return (
-                    <EQSecondaryButton
+                    <EQChoiceButton
                       key={choice}
                       type="button"
                       onClick={() => handleSelect(choice)}
                       disabled={!!selectedAnswer}
-                      fullWidth
-                      className={`justify-start whitespace-normal text-left ${toneClass}`}
+                      correct={!!selectedAnswer && isCorrect}
+                      wrong={!!selectedAnswer && isSelected && !isCorrect}
+                      selected={isSelected}
+                      className="eq-eiken-trial-choice"
                     >
                       {choice}
-                    </EQSecondaryButton>
+                    </EQChoiceButton>
                   );
                 })}
               </div>
@@ -222,34 +234,34 @@ export default function EikenPage() {
               {selectedAnswer && (
                 <>
                   {feedback && (
-                    <EQPanel tone={selectedAnswer === currentQuestion.correct ? 'green' : 'rose'}>
+                    <EQPanel tone={selectedAnswer === currentQuestion.correct ? 'green' : 'rose'} className="eq-eiken-trial-result-panel">
                       <p className="eq-caption">{feedback}</p>
                     </EQPanel>
                   )}
 
                   {petResult && (
-                    <EQPanel tone="gold">
+                    <EQPanel tone="gold" className="eq-eiken-trial-pet-panel">
                       <PetDisplay pet={petResult} earnedExp={earnedExp} compact />
                     </EQPanel>
                   )}
 
-                  <EQInfoCard title="解説" tone="cyan">
+                  <EQInfoCard title="解説" tone="cyan" className="eq-eiken-trial-explain-card">
                     {currentQuestion.word && (
-                      <div className="flex flex-wrap items-center gap-3">
-                        <p className="font-black text-[#fff0b5]">{currentQuestion.word}</p>
+                      <div className="eq-eiken-trial-audio-row">
+                        <p>{currentQuestion.word}</p>
                         <TtsButton text={currentQuestion.word} label="Word" />
                       </div>
                     )}
                     {currentQuestion.japanese && (
                       <>
-                        <p className="mt-3 font-black text-[#fff0b5]">日本語訳</p>
-                        <p className="mt-2">{currentQuestion.japanese}</p>
+                        <p className="eq-eiken-trial-explain-heading">日本語訳</p>
+                        <p>{currentQuestion.japanese}</p>
                       </>
                     )}
                     {currentQuestion.example && (
                       <>
-                        <p className="mt-3 font-black text-[#fff0b5]">英文例</p>
-                        <div className="mt-2 flex flex-wrap items-center gap-3">
+                        <p className="eq-eiken-trial-explain-heading">英文例</p>
+                        <div className="eq-eiken-trial-audio-row">
                           <p>{currentQuestion.example}</p>
                           <TtsButton text={currentQuestion.example} label="Example" />
                         </div>
@@ -257,27 +269,27 @@ export default function EikenPage() {
                     )}
                     {currentQuestion.example_jp && (
                       <>
-                        <p className="mt-3 font-black text-[#fff0b5]">和訳例</p>
-                        <p className="mt-2">{currentQuestion.example_jp}</p>
+                        <p className="eq-eiken-trial-explain-heading">和訳例</p>
+                        <p>{currentQuestion.example_jp}</p>
                       </>
                     )}
                     {currentQuestion.sentence_jp && (
                       <>
-                        <p className="mt-3 font-black text-[#fff0b5]">例文</p>
-                        <p className="mt-2">{currentQuestion.sentence_jp}</p>
+                        <p className="eq-eiken-trial-explain-heading">例文</p>
+                        <p>{currentQuestion.sentence_jp}</p>
                       </>
                     )}
                     {currentQuestion.explanation_jp && (
                       <>
-                        <p className="mt-3 font-black text-[#fff0b5]">解説</p>
-                        <p className="mt-2">{currentQuestion.explanation_jp}</p>
+                        <p className="eq-eiken-trial-explain-heading">解説</p>
+                        <p>{currentQuestion.explanation_jp}</p>
                       </>
                     )}
                   </EQInfoCard>
                 </>
               )}
 
-              <div className="grid gap-3">
+              <div className="eq-eiken-trial-actions">
                 <EQSecondaryButton type="button" onClick={showPrev} disabled={currentIndex === 0} fullWidth>
                   前へ
                 </EQSecondaryButton>
@@ -285,7 +297,7 @@ export default function EikenPage() {
                   次へ
                 </EQPrimaryButton>
                 <EQSecondaryButton type="button" onClick={loadReview} fullWidth>
-                  復習リストを表示
+                  復習リストを見る
                 </EQSecondaryButton>
                 <EQSecondaryButton type="button" onClick={() => loadQuestions({ forceAi: true })} fullWidth>
                   20問を再生成
@@ -293,14 +305,14 @@ export default function EikenPage() {
               </div>
 
               {reviewError && (
-                <EQPanel title="復習リストエラー" tone="rose">
+                <EQPanel title="復習リストエラー" tone="rose" className="eq-eiken-trial-message-panel">
                   <p className="eq-caption">{reviewError}</p>
                 </EQPanel>
               )}
 
               {reviewList.length > 0 && (
-                <EQPanel title="復習リスト" tone="purple">
-                  <div className="grid gap-3">
+                <EQPanel title="復習リスト" tone="purple" className="eq-eiken-trial-review-panel">
+                  <div className="eq-eiken-trial-review-list">
                     {reviewList.map((item) => (
                       <EQInfoCard
                         key={item.word_id}
@@ -308,7 +320,7 @@ export default function EikenPage() {
                         badges={<EQBadge tone="amber">誤答 {item.error_count}</EQBadge>}
                         tone="purple"
                       >
-                        <div className="flex flex-wrap items-center gap-3">
+                        <div className="eq-eiken-trial-audio-row">
                           <p>{item.japanese}</p>
                           <TtsButton text={item.word} label="Word" />
                         </div>
@@ -321,7 +333,7 @@ export default function EikenPage() {
           )}
         </motion.div>
       </EQMobileShell>
-      <EQBottomNav />
+      <EQBottomNav className="eq-eiken-trial-bottom-nav" />
     </div>
   );
 }

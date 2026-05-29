@@ -10917,3 +10917,300 @@ body,
     font-size: 18px;
   }
 }
+
+/* =========================================================
+   Eiken Trial Tower
+   ========================================================= */
+
+.eq-eiken-trial-page {
+  min-height: 100dvh;
+  background:
+    radial-gradient(circle at 50% -8%, rgba(255, 211, 90, 0.18), transparent 30%),
+    radial-gradient(circle at 0% 18%, rgba(84, 230, 168, 0.16), transparent 34%),
+    linear-gradient(180deg, #06143d 0%, #050820 48%, #02040e 100%);
+}
+
+.eq-eiken-trial-shell {
+  gap: 14px;
+  padding: max(12px, env(safe-area-inset-top, 0px)) 12px calc(118px + env(safe-area-inset-bottom, 0px));
+  background:
+    radial-gradient(circle at 50% -4%, rgba(255, 211, 90, 0.2), transparent 28%),
+    radial-gradient(circle at 8% 18%, rgba(84, 230, 168, 0.18), transparent 34%),
+    radial-gradient(circle at 100% 28%, rgba(95, 141, 255, 0.22), transparent 36%),
+    linear-gradient(180deg, #071745 0%, #060923 44%, #02040e 100%);
+}
+
+.eq-eiken-trial-stack {
+  display: grid;
+  gap: 14px;
+}
+
+.eq-eiken-trial-hero {
+  position: relative;
+  isolation: isolate;
+  display: grid;
+  min-height: 188px;
+  overflow: hidden;
+  align-content: end;
+  gap: 10px;
+  padding: 16px;
+  border: 2px solid rgba(255, 218, 116, 0.88);
+  border-radius: 24px;
+  background:
+    linear-gradient(180deg, rgba(3, 8, 24, 0.12), rgba(3, 8, 24, 0.72)),
+    var(--eiken-hero-image) center / cover no-repeat;
+  box-shadow:
+    0 0 24px rgba(255, 211, 90, 0.28),
+    0 16px 34px rgba(0, 0, 0, 0.42),
+    inset 0 0 28px rgba(255, 255, 255, 0.05);
+  color: #fff8df;
+}
+
+.eq-eiken-trial-hero::after {
+  position: absolute;
+  inset: 6px;
+  z-index: -1;
+  border: 1px solid rgba(255, 231, 160, 0.46);
+  border-radius: 18px;
+  content: "";
+  pointer-events: none;
+}
+
+.eq-eiken-trial-crest {
+  position: absolute;
+  top: 13px;
+  left: 13px;
+  display: grid;
+  width: 54px;
+  height: 62px;
+  place-items: center;
+  clip-path: polygon(50% 0, 100% 18%, 92% 74%, 50% 100%, 8% 74%, 0 18%);
+  background:
+    radial-gradient(circle at 42% 20%, rgba(255, 255, 255, 0.5), transparent 28%),
+    linear-gradient(180deg, #fff0b5 0%, #f2c85c 52%, #a96718 100%);
+  color: #251700;
+  font-size: 22px;
+  font-weight: 950;
+  text-shadow: 0 1px 0 rgba(255, 244, 185, 0.55);
+  filter: drop-shadow(0 0 16px rgba(255, 211, 90, 0.42));
+}
+
+.eq-eiken-trial-hero-copy {
+  display: grid;
+  max-width: 78%;
+  gap: 4px;
+  text-shadow:
+    0 3px 12px rgba(0, 0, 0, 0.84),
+    0 0 18px rgba(255, 211, 90, 0.24);
+}
+
+.eq-eiken-trial-hero-copy span {
+  color: rgba(207, 233, 255, 0.78);
+  font-size: 10px;
+  font-weight: 950;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.eq-eiken-trial-hero-copy h1 {
+  margin: 0;
+  color: #ffe7a1;
+  font-size: 34px;
+  font-weight: 950;
+  letter-spacing: 0;
+  line-height: 1;
+}
+
+.eq-eiken-trial-hero-copy p {
+  margin: 0;
+  color: rgba(245, 249, 255, 0.94);
+  font-size: 15px;
+  font-weight: 900;
+}
+
+.eq-eiken-trial-hero-stats,
+.eq-eiken-trial-badges,
+.eq-eiken-trial-audio-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.eq-eiken-trial-filter-panel,
+.eq-eiken-trial-question-panel,
+.eq-eiken-trial-message-panel,
+.eq-eiken-trial-result-panel,
+.eq-eiken-trial-pet-panel,
+.eq-eiken-trial-review-panel {
+  border-radius: 22px;
+  background:
+    radial-gradient(circle at 18% 0%, rgba(255, 211, 90, 0.13), transparent 42%),
+    linear-gradient(180deg, rgba(10, 24, 70, 0.95), rgba(4, 9, 34, 0.97));
+}
+
+.eq-eiken-trial-filter-grid,
+.eq-eiken-trial-choice-grid,
+.eq-eiken-trial-actions,
+.eq-eiken-trial-review-list {
+  display: grid;
+  gap: 10px;
+}
+
+.eq-eiken-trial-filter-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.eq-eiken-trial-select-label {
+  display: grid;
+  gap: 7px;
+  color: rgba(226, 237, 255, 0.86);
+  font-size: 12px;
+  font-weight: 950;
+}
+
+.eq-eiken-trial-select-label select {
+  min-height: 46px;
+  width: 100%;
+  border: 1px solid rgba(255, 211, 90, 0.44);
+  border-radius: 999px;
+  background:
+    linear-gradient(180deg, rgba(14, 31, 81, 0.9), rgba(5, 11, 38, 0.92));
+  color: #fff8df;
+  font-size: 14px;
+  font-weight: 850;
+  outline: none;
+  padding: 0 14px;
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.04),
+    0 8px 18px rgba(0, 0, 0, 0.2);
+}
+
+.eq-eiken-trial-progress-card {
+  position: relative;
+  isolation: isolate;
+  display: grid;
+  gap: 10px;
+  overflow: hidden;
+  min-height: 96px;
+  padding: 14px;
+  border: 1px solid rgba(84, 230, 168, 0.48);
+  border-radius: 18px;
+  background:
+    linear-gradient(90deg, rgba(3, 8, 24, 0.86), rgba(3, 8, 24, 0.42)),
+    var(--eiken-trial-image) center / cover no-repeat;
+  box-shadow:
+    0 0 20px rgba(84, 230, 168, 0.18),
+    inset 0 0 20px rgba(255, 255, 255, 0.04);
+}
+
+.eq-eiken-trial-progress-card span {
+  display: block;
+  color: rgba(207, 233, 255, 0.72);
+  font-size: 10px;
+  font-weight: 950;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.eq-eiken-trial-progress-card strong {
+  display: block;
+  margin-top: 3px;
+  color: #54e6a8;
+  font-size: 26px;
+  font-weight: 950;
+  line-height: 1;
+  text-shadow: 0 0 14px rgba(84, 230, 168, 0.36);
+}
+
+.eq-eiken-trial-progress-bar {
+  height: 10px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: rgba(226, 237, 255, 0.16);
+}
+
+.eq-eiken-trial-progress-bar::before {
+  display: block;
+  width: var(--eiken-progress, 0%);
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #ffd35a, #54e6a8);
+  box-shadow: 0 0 14px rgba(84, 230, 168, 0.44);
+  content: "";
+}
+
+.eq-eiken-trial-question-card,
+.eq-eiken-trial-explain-card {
+  background:
+    radial-gradient(circle at 18% 0%, rgba(84, 230, 168, 0.12), transparent 40%),
+    linear-gradient(180deg, rgba(9, 22, 62, 0.94), rgba(4, 9, 32, 0.96));
+}
+
+.eq-eiken-trial-question-text {
+  margin: 0;
+  white-space: pre-line;
+  color: #f7fbff;
+  font-size: 16px;
+  font-weight: 850;
+  line-height: 1.7;
+}
+
+.eq-eiken-trial-choice {
+  width: 100%;
+  justify-content: flex-start;
+  border-color: rgba(255, 211, 90, 0.38);
+  background:
+    radial-gradient(circle at 8% 0%, rgba(255, 211, 90, 0.13), transparent 34%),
+    linear-gradient(180deg, rgba(10, 25, 69, 0.92), rgba(5, 11, 38, 0.94));
+  color: #f7fbff;
+  font-weight: 850;
+}
+
+.eq-eiken-trial-choice.is-correct {
+  border-color: rgba(84, 230, 168, 0.82);
+  background:
+    radial-gradient(circle at 12% 0%, rgba(84, 230, 168, 0.26), transparent 40%),
+    rgba(8, 48, 42, 0.9);
+}
+
+.eq-eiken-trial-choice.is-wrong {
+  border-color: rgba(255, 107, 138, 0.78);
+  background:
+    radial-gradient(circle at 12% 0%, rgba(255, 107, 138, 0.22), transparent 40%),
+    rgba(50, 12, 34, 0.9);
+}
+
+.eq-eiken-trial-explain-heading {
+  margin: 12px 0 5px;
+  color: #fff0b5;
+  font-weight: 950;
+}
+
+.eq-eiken-trial-audio-row p {
+  margin: 0;
+  min-width: 0;
+  flex: 1 1 180px;
+  color: rgba(247, 251, 255, 0.92);
+  font-weight: 800;
+}
+
+@media (max-width: 380px) {
+  .eq-eiken-trial-shell {
+    padding-right: 10px;
+    padding-left: 10px;
+  }
+
+  .eq-eiken-trial-hero {
+    min-height: 174px;
+    padding: 14px;
+  }
+
+  .eq-eiken-trial-hero-copy h1 {
+    font-size: 30px;
+  }
+
+  .eq-eiken-trial-filter-grid {
+    grid-template-columns: 1fr;
+  }
+}
