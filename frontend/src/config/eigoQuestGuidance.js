@@ -1,7 +1,6 @@
 export const EIGO_HEADER_GUIDANCE = {
   dailyWords: [
-    '今日の20語を見ていこう。',
-    '気になる単語はカードで確認しよう。',
+    '▶ を押すと発音を聞けるよ',
   ],
 };
 

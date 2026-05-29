@@ -530,13 +530,8 @@ export default function DailyWordUnitPage() {
       <div className="eq-daily-words-preview lg:hidden">
         <EQMobileShell className="eq-daily-words-shell">
           <CompactPageHeader
-            title={`今日の${targetCount}語`}
-            subtitle="今日の単語を確認しよう"
+            title="今日の20語"
             backgroundImage={dailyWorldDisplay.backgroundImage}
-            elementLabel={dailyWorldDisplay.icon}
-            progressText={`${todayWords.length} / ${targetCount}`}
-            progressValue={todayWords.length}
-            progressMax={targetCount}
             helperImage={SPIRIT_IMAGE}
             guidanceText={EIGO_HEADER_GUIDANCE.dailyWords}
             variant={questWorld?.id || 'wind'}

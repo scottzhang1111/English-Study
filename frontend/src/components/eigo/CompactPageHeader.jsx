@@ -13,7 +13,7 @@ export default function CompactPageHeader({
   guidanceText,
   variant = 'default',
 }) {
-  const [guidanceOpen, setGuidanceOpen] = useState(false);
+  const [guidanceIndex, setGuidanceIndex] = useState(0);
 
   const guidanceLines = useMemo(() => {
     if (!guidanceText) return [];
@@ -23,7 +23,8 @@ export default function CompactPageHeader({
 
     return lines.filter(Boolean).slice(0, 2);
   }, [guidanceText]);
-  const guidanceMessage = guidanceLines.join(' ');
+  const activeGuidance = guidanceLines[guidanceIndex % Math.max(1, guidanceLines.length)] || '';
+  const headerGuidance = activeGuidance || subtitle || '';
 
   const progressPercent = useMemo(() => {
     const value = Number(progressValue);
@@ -31,6 +32,7 @@ export default function CompactPageHeader({
     if (!Number.isFinite(value) || !Number.isFinite(max) || max <= 0) return 0;
     return Math.min(100, Math.max(0, (value / max) * 100));
   }, [progressValue, progressMax]);
+  const hasMeta = Boolean(elementLabel || progressText);
 
   return (
     <section
@@ -44,21 +46,23 @@ export default function CompactPageHeader({
       <div className="compact-page-header__content">
         <h1 className="compact-page-header__title">{title}</h1>
 
-        {subtitle ? (
-          <p className="compact-page-header__subtitle">{subtitle}</p>
+        {headerGuidance ? (
+          <p className="compact-page-header__subtitle">{headerGuidance}</p>
         ) : null}
 
-        <div className="compact-page-header__meta">
-          {elementLabel ? (
-            <span className="compact-page-header__pill">{elementLabel}</span>
-          ) : null}
+        {hasMeta ? (
+          <div className="compact-page-header__meta">
+            {elementLabel ? (
+              <span className="compact-page-header__pill">{elementLabel}</span>
+            ) : null}
 
-          {progressText ? (
-            <span className="compact-page-header__progress-text">
-              {progressText}
-            </span>
-          ) : null}
-        </div>
+            {progressText ? (
+              <span className="compact-page-header__progress-text">
+                {progressText}
+              </span>
+            ) : null}
+          </div>
+        ) : null}
 
         {progressMax ? (
           <div className="compact-page-header__bar" aria-hidden="true">
@@ -72,17 +76,11 @@ export default function CompactPageHeader({
           <button
             type="button"
             className="compact-page-header__helper-button"
-            onClick={() => setGuidanceOpen((current) => !current)}
+            onClick={() => setGuidanceIndex((current) => (guidanceLines.length > 1 ? current + 1 : current))}
             aria-label="ガイダンスを表示"
           >
             <img src={helperImage} alt="" />
           </button>
-
-          {guidanceOpen && guidanceMessage ? (
-            <div className="compact-page-header__bubble">
-              <p>{guidanceMessage}</p>
-            </div>
-          ) : null}
         </div>
       ) : null}
     </section>
