@@ -156,6 +156,16 @@ function getStudyWorldDisplay(world) {
   };
 }
 
+function isStageWordCleared(word) {
+  const status = String(word?.status || '').toLowerCase();
+  return Boolean(
+    status === 'mastered' ||
+    status === 'master' ||
+    word?.mastered ||
+    Number(word?.mastery || 0) >= 100
+  );
+}
+
 export default function FlashcardPage() {
   const [homeData, setHomeData] = useState(null);
   const [flashcard, setFlashcard] = useState(null);
@@ -470,6 +480,12 @@ const handleNextStudy = async () => {
           return;
         }
       }
+    }
+
+    const isClearedStageReview = hasRequestedStage && studyWords.length > 0 && studyWords.every(isStageWordCleared);
+    if (isClearedStageReview) {
+      navigate(dailyWordsPath);
+      return;
     }
 
     await loadReviewQuiz();

@@ -44,7 +44,7 @@
 
 .compact-page-header__copy h1 {
   margin: 0;
-  color: #fff0b5;
+  color: #ffd36a;
   font-size: clamp(28px, 7.8vw, 32px);
   font-weight: 950;
   letter-spacing: 0;
@@ -359,7 +359,7 @@
   line-height: 1.05;
   font-weight: 950;
   letter-spacing: -0.03em;
-  color: #fff0a8;
+  color: #ffd36a;
   text-shadow:
     0 2px 8px rgba(0, 0, 0, 0.7),
     0 0 18px rgba(255, 218, 94, 0.32);
@@ -431,13 +431,10 @@
   padding: 0;
   display: grid;
   place-items: center;
-  border: 2px solid rgba(231, 192, 91, 0.75);
-  border-radius: 999px;
-  background:
-    radial-gradient(circle, rgba(70, 180, 255, 0.22), rgba(7, 12, 34, 0.4));
-  box-shadow:
-    0 0 18px rgba(89, 184, 255, 0.22),
-    inset 0 0 0 1px rgba(255, 255, 255, 0.08);
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
   cursor: pointer;
 }
 

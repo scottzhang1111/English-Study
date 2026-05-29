@@ -225,6 +225,26 @@ export default function WorldStagePage() {
     }
   }
 
+  if (!homeData && !error) {
+    return (
+      <div className="eq-world-stage-wrap">
+        <EQMobileShell className="eq-world-stage-screen">
+          <CompactPageHeader
+            title="冒険を準備中"
+            subtitle="学習データを読み込んでいます"
+            progressText="Loading..."
+            helperImage="/assets/eigo-quest/spirit_assets/happy.png"
+            variant="loading"
+          />
+          <EQCard className="eq-stage-mission-panel">
+            <p className="eq-caption text-center">正しい世界を確認しています...</p>
+          </EQCard>
+          <EQBottomNav className="eq-world-stage-bottom-nav" />
+        </EQMobileShell>
+      </div>
+    );
+  }
+
   return (
     <div className="eq-world-stage-wrap">
       <EQMobileShell className="eq-world-stage-screen">

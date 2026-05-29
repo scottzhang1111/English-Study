@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import TtsButton from '../components/TtsButton';
+import { useChildren } from '../ChildrenContext';
 import {
   EQBadge,
   EQBottomNav,
@@ -52,6 +53,7 @@ function ReviewSection({ title, subtitle, tone = 'gold', children }) {
 }
 
 export default function ReviewPage() {
+  const { selectedChildId: currentChildId } = useChildren();
   const [reviewList, setReviewList] = useState([]);
   const [battleWrongList, setBattleWrongList] = useState([]);
   const [grammarFormWrongList, setGrammarFormWrongList] = useState([]);
@@ -67,8 +69,19 @@ export default function ReviewPage() {
   const totalReviewCount = reviewList.length + battleWrongList.length + grammarFormWrongList.length + eikenWrongList.length;
 
   useEffect(() => {
-    const childId = localStorage.getItem(CHILD_STORAGE_KEY) || '';
+    const childId = currentChildId || localStorage.getItem(CHILD_STORAGE_KEY) || '';
     setSelectedChildId(childId);
+
+    if (!childId) {
+      setReviewList([]);
+      setBattleWrongList([]);
+      setGrammarFormWrongList([]);
+      setEikenWrongList([]);
+      setLoading(false);
+      return;
+    }
+
+    let isActive = true;
     setLoading(true);
     Promise.allSettled([
       getReviewList(childId),
@@ -77,21 +90,34 @@ export default function ReviewPage() {
       getEikenPre2WrongQuestions({ childId, latestOnly: true, limit: 6 }),
     ])
       .then(([reviewResult, battleResult, grammarFormResult, eikenResult]) => {
+        if (!isActive) return;
         const failed = [reviewResult, battleResult, grammarFormResult, eikenResult].filter((result) => result.status === 'rejected');
+        const reviewPayload = reviewResult.status === 'fulfilled' ? reviewResult.value || {} : {};
+        const battlePayload = battleResult.status === 'fulfilled' ? battleResult.value || {} : {};
+        const grammarFormPayload = grammarFormResult.status === 'fulfilled' ? grammarFormResult.value || {} : {};
+        const eikenPayload = eikenResult.status === 'fulfilled' ? eikenResult.value || {} : {};
 
-        setReviewList(reviewResult.status === 'fulfilled' ? reviewResult.value.review_list || [] : []);
-        setBattleWrongList(battleResult.status === 'fulfilled' ? battleResult.value.wrongQuestions || [] : []);
-        setGrammarFormWrongList(grammarFormResult.status === 'fulfilled' ? grammarFormResult.value.wrongQuestions || [] : []);
-        setEikenWrongList(eikenResult.status === 'fulfilled' ? eikenResult.value.wrong_questions || [] : []);
+        setReviewList(reviewPayload.review_list || reviewPayload.reviewList || []);
+        setBattleWrongList(battlePayload.wrongQuestions || battlePayload.wrong_questions || []);
+        setGrammarFormWrongList(grammarFormPayload.wrongQuestions || grammarFormPayload.wrong_questions || []);
+        setEikenWrongList(eikenPayload.wrong_questions || eikenPayload.wrongQuestions || []);
 
         if (failed.length === 4) {
           throw new Error(failed[0].reason?.message || '復習リストを読み込めませんでした。');
         }
         setError(null);
       })
-      .catch((err) => setError(err.message))
-      .finally(() => setLoading(false));
-  }, []);
+      .catch((err) => {
+        if (isActive) setError(err.message);
+      })
+      .finally(() => {
+        if (isActive) setLoading(false);
+      });
+
+    return () => {
+      isActive = false;
+    };
+  }, [currentChildId]);
 
   const handleMasterBattleWrong = (wrongId) => {
     masterBattleWrongQuestion(wrongId)
@@ -100,7 +126,7 @@ export default function ReviewPage() {
   };
 
   const handleMasterGrammarFormWrong = (testId) => {
-    const childId = localStorage.getItem(CHILD_STORAGE_KEY) || '';
+    const childId = selectedChildId || localStorage.getItem(CHILD_STORAGE_KEY) || '';
     masterGrammarFormWrongQuestion({ childId, testId })
       .then(() => setGrammarFormWrongList((items) => items.filter((item) => item.testId !== testId)))
       .catch((err) => setError(err.message));
@@ -150,7 +176,7 @@ export default function ReviewPage() {
         word: selectedWord.word,
         selected: choice,
         correct: quiz.correct,
-        childId: localStorage.getItem(CHILD_STORAGE_KEY) || '',
+        childId: selectedChildId || localStorage.getItem(CHILD_STORAGE_KEY) || '',
       });
       setQuizResult(payload);
     } catch (err) {
