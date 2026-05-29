@@ -38,7 +38,7 @@
   gap: 12px;
 }
 
-.compact-page-header:has(.spirit-assistant--compact-header) .compact-page-header__content {
+.compact-page-header:has(.compact-page-header__helper-button) .compact-page-header__content {
   width: min(58%, 300px);
 }
 
@@ -96,6 +96,95 @@
   object-fit: contain;
   filter: drop-shadow(0 10px 20px rgba(0, 0, 0, 0.45));
   pointer-events: none;
+}
+
+.compact-page-header__progress {
+  width: min(180px, 100%);
+  height: 6px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.18);
+  box-shadow: inset 0 0 8px rgba(0, 0, 0, 0.32);
+}
+
+.compact-page-header__progress span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #48d8ff, #ffe07a);
+  box-shadow: 0 0 12px rgba(255, 215, 104, 0.46);
+}
+
+.compact-page-header__spirit {
+  position: absolute;
+  top: 12px;
+  right: 10px;
+  z-index: 5;
+  display: grid;
+  justify-items: end;
+  gap: 6px;
+}
+
+.compact-page-header__helper-button {
+  width: clamp(62px, 17vw, 82px);
+  height: clamp(62px, 17vw, 82px);
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border: 1.5px solid rgba(255, 216, 108, 0.72);
+  border-radius: 999px;
+  background: radial-gradient(circle at 50% 35%, rgba(255, 255, 255, 0.16), rgba(5, 12, 34, 0.42));
+  box-shadow:
+    0 0 18px rgba(255, 211, 90, 0.2),
+    0 10px 22px rgba(0, 0, 0, 0.34);
+  cursor: pointer;
+}
+
+.compact-page-header__helper-button img {
+  width: 112%;
+  height: 112%;
+  object-fit: contain;
+  filter: drop-shadow(0 8px 14px rgba(0, 0, 0, 0.34));
+  animation: compact-spirit-float 3.2s ease-in-out infinite;
+}
+
+.compact-page-header__helper-button:active img {
+  transform: scale(0.94);
+}
+
+.compact-page-header__guidance {
+  width: min(236px, 58vw);
+  padding: 10px 12px;
+  border: 1.5px solid rgba(255, 216, 108, 0.78);
+  border-radius: 16px;
+  background: rgba(6, 16, 45, 0.9);
+  box-shadow:
+    0 0 18px rgba(56, 170, 255, 0.18),
+    0 12px 24px rgba(0, 0, 0, 0.32);
+  backdrop-filter: blur(8px);
+}
+
+.compact-page-header__guidance p {
+  margin: 0;
+  color: #f7fbff;
+  font-size: 12px;
+  font-weight: 850;
+  line-height: 1.35;
+}
+
+.compact-page-header__guidance p + p {
+  margin-top: 4px;
+}
+
+@keyframes compact-spirit-float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-6px);
+  }
 }
 
 .compact-page-header .spirit-assistant--compact-header {

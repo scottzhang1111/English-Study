@@ -1,5 +1,5 @@
+import { useMemo, useState } from 'react';
 import './CompactPageHeader.css';
-import SpiritAssistant from '../eigo-quest/SpiritAssistant';
 
 export default function CompactPageHeader({
   title,
@@ -7,9 +7,21 @@ export default function CompactPageHeader({
   backgroundImage,
   elementLabel,
   progressText,
+  progressValue,
+  progressMax,
   helperImage,
+  guidanceText,
   variant = 'default',
 }) {
+  const [guidanceOpen, setGuidanceOpen] = useState(false);
+  const guidanceLines = useMemo(() => {
+    if (Array.isArray(guidanceText)) return guidanceText.filter(Boolean).slice(0, 3);
+    if (guidanceText) return [guidanceText];
+    return [];
+  }, [guidanceText]);
+  const progressPercent = Number(progressMax) > 0
+    ? Math.min(100, Math.max(0, (Number(progressValue) / Number(progressMax)) * 100))
+    : null;
   const style = backgroundImage
     ? { '--compact-page-header-bg': `url("${backgroundImage}")` }
     : undefined;
@@ -28,18 +40,31 @@ export default function CompactPageHeader({
             {progressText ? <span>{progressText}</span> : null}
           </div>
         ) : null}
+        {progressPercent !== null ? (
+          <div className="compact-page-header__progress" aria-hidden="true">
+            <span style={{ width: `${progressPercent}%` }} />
+          </div>
+        ) : null}
       </div>
       {helperImage ? (
-        <SpiritAssistant
-          worldName={elementLabel || title}
-          mood="talk"
-          position="compact-header"
-          messages={[
-            subtitle || title,
-            progressText ? `${progressText} まで進んでいるよ` : 'ここから冒険を続けよう',
-            'タップすると応援するよ',
-          ]}
-        />
+        <div className={`compact-page-header__spirit ${guidanceOpen ? 'is-open' : ''}`}>
+          {guidanceOpen && guidanceLines.length ? (
+            <div className="compact-page-header__guidance" role="status">
+              {guidanceLines.map((line) => (
+                <p key={line}>{line}</p>
+              ))}
+            </div>
+          ) : null}
+          <button
+            type="button"
+            className="compact-page-header__helper-button"
+            onClick={() => setGuidanceOpen((open) => !open)}
+            aria-expanded={guidanceOpen}
+            aria-label="ガイドを表示"
+          >
+            <img src={helperImage} alt="" aria-hidden="true" />
+          </button>
+        </div>
       ) : null}
     </header>
   );
