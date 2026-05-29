@@ -10795,7 +10795,7 @@ body,
   inset: 0;
   z-index: 1;
   background:
-    linear-gradient(rgba(3, 8, 24, 0.22), rgba(3, 8, 24, 0.38)),
+    linear-gradient(180deg, rgba(3, 8, 24, 0.18) 0%, rgba(3, 8, 24, 0.24) 48%, rgba(3, 8, 24, 0.68) 100%),
     radial-gradient(circle at 28% 24%, rgba(255, 211, 90, 0.08), transparent 38%);
   content: "";
   pointer-events: none;
@@ -10818,30 +10818,26 @@ body,
 .eq-lh-module-body {
   position: absolute;
   z-index: 2;
-  top: 9px;
-  right: 9px;
-  bottom: 9px;
-  display: grid;
-  width: 54%;
+  inset: 0;
+  display: block;
+  width: auto;
   min-width: 0;
-  align-content: center;
-  gap: 5px;
   overflow: hidden;
-  padding: 10px 25px 10px 12px;
-  border-radius: 16px;
-  background: rgba(9, 18, 52, 0.34);
-  -webkit-backdrop-filter: blur(6px);
-  backdrop-filter: blur(6px);
-  box-shadow:
-    inset 0 0 0 1px rgba(255, 231, 160, 0.2),
-    inset 0 0 22px rgba(255, 255, 255, 0.04),
-    0 8px 18px rgba(0, 0, 0, 0.18);
+  padding: 0;
+  border-radius: 0;
+  background: transparent;
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+  box-shadow: none;
   text-shadow:
     0 2px 7px rgba(0, 0, 0, 0.9),
     0 0 10px rgba(255, 211, 90, 0.16);
 }
 
 .eq-lh-module-tag {
+  position: absolute;
+  top: 10px;
+  left: 10px;
   display: inline-flex;
   width: fit-content;
   min-height: 20px;
@@ -10857,7 +10853,11 @@ body,
 }
 
 .eq-lh-module-body strong {
+  position: absolute;
+  left: 12px;
+  bottom: 13px;
   display: -webkit-box;
+  width: calc(100% - 46px);
   overflow: hidden;
   color: #fff0b5;
   font-size: 19px;
@@ -10869,14 +10869,7 @@ body,
 }
 
 .eq-lh-module-body small {
-  display: -webkit-box;
-  overflow: hidden;
-  color: rgba(255, 255, 255, 0.92);
-  font-size: 13px;
-  font-weight: 850;
-  line-height: 1.26;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 2;
+  display: none;
 }
 
 .eq-lh-arrow {
@@ -10924,18 +10917,14 @@ body,
   }
 
   .eq-lh-module-body {
-    top: 7px;
-    right: 7px;
-    bottom: 7px;
-    width: 55%;
-    padding: 9px 22px 9px 10px;
+    inset: 0;
+    width: auto;
+    padding: 0;
   }
 
   .eq-lh-module-body strong {
+    left: 11px;
+    bottom: 12px;
     font-size: 18px;
-  }
-
-  .eq-lh-module-body small {
-    font-size: 12px;
   }
 }
