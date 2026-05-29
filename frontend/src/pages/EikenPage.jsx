@@ -13,6 +13,7 @@ import {
   EQSecondaryButton,
 } from '../components/eigo';
 import { getEikenQuestions, getReviewList, submitPracticeAnswer } from '../api';
+import CompactPageHeader from '../components/eigo/CompactPageHeader';
 
 const EIKEN_ASSET_BASE = '/assets/eigo-quest/learning-hub';
 const EIKEN_TOWER_IMAGE = `${EIKEN_ASSET_BASE}/英検クエスト.png`;
@@ -122,6 +123,15 @@ export default function EikenPage() {
   return (
     <div className="eq-eiken-trial-page">
       <EQMobileShell className="eq-eiken-trial-shell">
+        <CompactPageHeader
+          title="英検クエスト"
+          subtitle="実戦力をためそう"
+          backgroundImage="/assets/eigo-quest/learning-hub/英検クエスト.png"
+          elementLabel="英"
+          progressText={`正解 ${correctCount} / ${answeredCount}`}
+          helperImage="/assets/eigo-quest/spirit_assets/happy.png"
+          variant="eiken"
+        />
         <header className="eq-eiken-trial-hero" style={{ '--eiken-hero-image': `url("${EIKEN_TOWER_IMAGE}")` }}>
           <div className="eq-eiken-trial-crest" aria-hidden="true">英</div>
           <div className="eq-eiken-trial-hero-copy">

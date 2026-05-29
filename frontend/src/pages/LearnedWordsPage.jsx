@@ -11,6 +11,7 @@ import {
   EQSecondaryButton,
 } from '../components/eigo';
 import { getLearnedWords } from '../api';
+import CompactPageHeader from '../components/eigo/CompactPageHeader';
 
 const CHILD_STORAGE_KEY = 'selected_child_id';
 
@@ -50,6 +51,15 @@ export default function LearnedWordsPage() {
   return (
     <div className="eq-learning-hub-page">
       <EQMobileShell className="eq-learning-hub-screen">
+        <CompactPageHeader
+          title="単語図書館"
+          subtitle={data?.child?.name ? `${data.child.name} のカード` : '覚えた単語'}
+          backgroundImage="/assets/eigo-quest/learning-hub/単語図書館.png"
+          elementLabel="本"
+          progressText={`${words.length} words`}
+          helperImage="/assets/eigo-quest/spirit_assets/happy.png"
+          variant="learned"
+        />
         <EQPageHeader
           eyebrow="Mastered Words"
           title="単語辞書館"

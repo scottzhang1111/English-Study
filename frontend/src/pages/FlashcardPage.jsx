@@ -15,6 +15,7 @@ import {
 } from '../components/eigo';
 import { getDailyWords, getFlashcardData, getHomeData, getLearnedWords, getTodayReviewQuiz, markMastered } from '../api';
 import eigoQuestWorlds from '../config/eigoQuestWorlds';
+import CompactPageHeader from '../components/eigo/CompactPageHeader';
 
 const DAILY_TARGET = 20;
 const CHILD_STORAGE_KEY = 'selected_child_id';
@@ -666,6 +667,15 @@ const mobilePartOfSpeech =
     {(mode === 'study' || mode === 'complete') && (
       <div className="quest-word-page-wrap lg:hidden">
         <EQMobileShell className="eq-word-study-screen">
+          <CompactPageHeader
+            title="単語カード"
+            subtitle="意味と例文を確認しよう"
+            backgroundImage={studyWorldDisplay.backgroundImage}
+            elementLabel={studyWorldDisplay.icon}
+            progressText={mobileStudyCount}
+            helperImage={SPIRIT_IMAGE}
+            variant={questWorld?.id || 'wind'}
+          />
           <section
             className={`quest-word-world-hero is-${questWorld?.id || 'wind'}`}
             style={{ '--quest-word-world-color': studyWorldDisplay.themeColor }}

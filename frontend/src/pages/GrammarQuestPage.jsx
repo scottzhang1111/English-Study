@@ -15,6 +15,7 @@ import {
 } from '../api';
 import { useChildren } from '../ChildrenContext';
 import { createMissionReward } from '../helpers/eigoQuestRewards';
+import CompactPageHeader from '../components/eigo/CompactPageHeader';
 
 const PASS_SCORE = 2;
 
@@ -237,6 +238,15 @@ export default function GrammarQuestPage() {
   return (
     <div className="quest-grammar-mobile-intro">
       <EQMobileShell className="eq-grammar-screen quest-grammar-learn-page">
+        <CompactPageHeader
+          title="文法クエスト"
+          subtitle={fromDailyQuest ? '今日の文法をクリアしよう' : 'ルールを覚えて挑戦しよう'}
+          backgroundImage="/assets/eigo-quest/learning-hub/文法の神殿.png"
+          elementLabel="文"
+          progressText={mode === 'quiz' ? `${questionIndex + 1} / ${questions.length}` : 'LESSON'}
+          helperImage="/assets/eigo-quest/spirit_assets/happy.png"
+          variant="grammar"
+        />
         <header className="quest-grammar-header quest-header">
           <button type="button" className="quest-back-button" onClick={() => navigate(-1)} aria-label="Back">
             ‹

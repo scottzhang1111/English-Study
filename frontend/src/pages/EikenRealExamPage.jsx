@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom';
 import { EQBottomNav } from '../components/eigo';
 import { getEikenRealExamPart, getEikenRealExams, submitEikenRealExamAttempt } from '../api';
 import { useChildren } from '../ChildrenContext';
+import CompactPageHeader from '../components/eigo/CompactPageHeader';
 
 const CHILD_STORAGE_KEY = 'selected_child_id';
 
@@ -497,6 +498,17 @@ export default function EikenRealExamPage() {
 
   return (
     <div className={`eiken-exam-page eiken-real-trial-page mx-auto max-w-[1440px] px-4 pb-32 pt-4 text-[#26376d] lg:px-6 lg:py-6 ${practiceStarted && !result ? 'max-md:pb-36' : ''}`}>
+      <div className="eiken-real-trial-compact-wrap md:hidden">
+        <CompactPageHeader
+          title={result ? '試練結果' : '英検試練'}
+          subtitle={isEntryScreen ? '年度・パートを選んで挑戦' : `${examLabel} / ${modeLabel}`}
+          backgroundImage="/assets/eigo-quest/learning-hub/英検本番形式.png"
+          elementLabel="英"
+          progressText={result ? `${correctForResult} / ${totalForResult}` : `${answeredCount} / ${questionCount || '-'}`}
+          helperImage="/assets/eigo-quest/spirit_assets/happy.png"
+          variant="eiken-real"
+        />
+      </div>
       <header className={`${isEntryScreen ? 'hidden' : ''} mb-4 rounded-[24px] border border-white/80 bg-white/88 px-4 py-3 shadow-[0_14px_34px_rgba(129,164,199,0.14)] backdrop-blur lg:mb-6 lg:flex lg:min-h-[68px] lg:items-center lg:justify-between lg:px-5 max-md:hidden`}>
         <Link to="/app" className="text-sm font-bold text-[#52668c] transition hover:text-[#26376d]">
           ← ホームに戻る

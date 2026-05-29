@@ -16,6 +16,7 @@ import {
   markGrammarLessonViewed,
   submitGrammarQuizAnswer,
 } from '../api';
+import CompactPageHeader from '../components/eigo/CompactPageHeader';
 
 const CHILD_STORAGE_KEY = 'selected_child_id';
 
@@ -182,6 +183,15 @@ export default function GrammarPage() {
       {error && <div className="panel mb-4 p-5 text-sm font-bold text-rose-700">{error}</div>}
 
       <div className="quest-grammar-learn-page lg:hidden">
+        <CompactPageHeader
+          title="文法学習"
+          subtitle="ことばの使い方を学ぼう"
+          backgroundImage="/assets/eigo-quest/learning-hub/文法練習.png"
+          elementLabel="文"
+          progressText={`${stats.mastered || 0} / ${stats.total || 0}`}
+          helperImage="/assets/eigo-quest/spirit_assets/happy.png"
+          variant="grammar"
+        />
         <QuestHeader
           title="文法学習"
           subtitle="ことばの使い方を学ぼう"

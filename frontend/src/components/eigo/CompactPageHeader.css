@@ -95,7 +95,20 @@
 }
 
 .eq-daily-words-shell > .eq-daily-learning-hero,
-.eq-daily-words-shell > .eq-daily-spirit-message {
+.eq-daily-words-shell > .eq-daily-spirit-message,
+.eq-word-study-screen > .quest-word-world-hero,
+.eq-world-stage-screen > .eq-world-stage-story-header,
+.eq-world-home-screen > .eq-world-home-header,
+.eq-world-overview-screen > .eq-map-hero-header,
+.eq-quiz-screen > .quest-quiz-header,
+.eq-quiz-screen > .quest-quiz-spirit,
+.quest-grammar-learn-page > .quest-grammar-header,
+.quest-grammar-learn-page > .quest-grammar-spirit,
+.quest-grammar-learn-page > .world-mini-banner,
+.eq-learning-hub-screen:has(> .compact-page-header) > .eq-fantasy-page-header,
+.eq-eiken-trial-shell:has(> .compact-page-header) > .eq-eiken-trial-hero,
+.eq-card-collection-screen:has(> .compact-page-header) > .eq-back-pill,
+.eq-card-collection-screen:has(> .compact-page-header) > .eq-card-page-header {
   display: none !important;
 }
 

@@ -2,6 +2,7 @@ import { useMemo } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { EQBackPill, EQCard, EQMobileShell, EQBottomNav } from '../components/eigo';
 import eigoQuestWorlds from '../config/eigoQuestWorlds';
+import CompactPageHeader from '../components/eigo/CompactPageHeader';
 
 const WORLD_DISPLAY = {
   wind: { nameJa: '風の世界', nameEn: 'WIND REALM', symbol: '風', color: '#45d7ff' },
@@ -36,6 +37,15 @@ export default function WorldHomePage() {
   return (
     <div className="eq-world-home-wrap">
       <EQMobileShell className="eq-world-home-screen">
+        <CompactPageHeader
+          title={world.nameJa}
+          subtitle="ステージを選んで冒険しよう"
+          backgroundImage={world.backgroundImage}
+          elementLabel={world.symbol}
+          progressText="10 stages"
+          helperImage="/assets/eigo-quest/spirit_assets/happy.png"
+          variant={world.id}
+        />
         <header className="eq-world-home-header" style={{ '--world-color': world.color }}>
           <button type="button" onClick={() => navigate('/app/study-map')}>
             ← マップへ

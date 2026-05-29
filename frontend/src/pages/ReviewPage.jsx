@@ -11,6 +11,7 @@ import {
   EQPrimaryButton,
   EQQuestCard,
 } from '../components/eigo';
+import CompactPageHeader from '../components/eigo/CompactPageHeader';
 import {
   getBattleWrongQuestions,
   getEikenPre2WrongQuestions,
@@ -160,6 +161,15 @@ export default function ReviewPage() {
   return (
     <div className="eq-learning-hub-page">
       <EQMobileShell className="eq-learning-hub-screen">
+        <CompactPageHeader
+          title="まちがい復習"
+          subtitle="苦手な問題をもう一度クリアしよう"
+          backgroundImage="/assets/eigo-quest/learning-hub/まちがい復習.png"
+          elementLabel="復"
+          progressText={`${totalReviewCount} 件`}
+          helperImage="/assets/eigo-quest/spirit_assets/happy.png"
+          variant="review"
+        />
         <EQPageHeader
           eyebrow="Wrong Review"
           title="まちがい直し"

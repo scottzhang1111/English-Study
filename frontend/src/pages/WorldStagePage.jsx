@@ -5,6 +5,7 @@ import { EQBackPill, EQCard, EQMobileShell, EQBottomNav } from '../components/ei
 import { eigoQuestCards } from '../config/eigoQuestCards';
 import eigoQuestWorlds from '../config/eigoQuestWorlds';
 import SpiritAssistant from '../components/eigo-quest/SpiritAssistant';
+import CompactPageHeader from '../components/eigo/CompactPageHeader';
 
 const CHILD_STORAGE_KEY = 'selected_child_id';
 const MOCK_LEARNED_WORDS = 35;
@@ -228,6 +229,15 @@ export default function WorldStagePage() {
   return (
     <div className="eq-world-stage-wrap">
       <EQMobileShell className="eq-world-stage-screen">
+        <CompactPageHeader
+          title={worldDisplay.nameJa.replace('荳也阜', '蝗ｽ')}
+          subtitle={`Stage ${currentStage} に挑戦しよう`}
+          backgroundImage={currentWorld.backgroundImage}
+          elementLabel={worldDisplay.symbol}
+          progressText={`${learnedWordsInWorld} / ${WORDS_PER_WORLD} words`}
+          helperImage="/assets/eigo-quest/spirit_assets/happy.png"
+          variant={currentWorld.id}
+        />
 <header className={`eq-world-stage-story-header is-${currentWorld.id}`} style={{ '--world-color': worldDisplay.color }}>
   <div className="eq-world-title-frame">
     <span className="eq-world-title-gem eq-world-title-gem--top" aria-hidden="true" />

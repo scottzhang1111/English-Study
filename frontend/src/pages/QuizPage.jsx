@@ -17,6 +17,7 @@ import {
   WorldMiniBanner,
 } from '../components/eigo';
 import { getLearnedWords, getQuizData, submitPracticeAnswer } from '../api';
+import CompactPageHeader from '../components/eigo/CompactPageHeader';
 
 function shuffleItems(items) {
   return [...items].sort(() => Math.random() - 0.5);
@@ -193,6 +194,15 @@ export default function QuizPage() {
     <>
     <div className="quest-quiz-page-wrap lg:hidden">
       <EQMobileShell className="eq-quiz-screen">
+        <CompactPageHeader
+          title="小テスト"
+          subtitle="覚えた単語を確認しよう"
+          backgroundImage="/assets/eigo-quest/worlds/wind.png"
+          elementLabel="Q"
+          progressText={mobileQuestionCount}
+          helperImage="/assets/eigo-quest/spirit_assets/happy.png"
+          variant="quiz"
+        />
         <QuestHeader
           title="小テスト"
           subtitle="ことばをおぼえたか ためしてみよう"

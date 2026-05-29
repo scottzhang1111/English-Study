@@ -4,6 +4,7 @@ import { getHeroCards, getHomeData } from '../api';
 import { EQBackPill, EQBottomNav, EQCard, EQMobileShell } from '../components/eigo';
 import eigoQuestCards from '../config/eigoQuestCards';
 import eigoQuestWorlds from '../config/eigoQuestWorlds';
+import CompactPageHeader from '../components/eigo/CompactPageHeader';
 
 const CHILD_STORAGE_KEY = 'selected_child_id';
 const WORDS_PER_WORLD = 200;
@@ -200,6 +201,16 @@ export default function CardCollectionPage() {
     <div className="eq-card-page-wrap">
       <EQMobileShell className="eq-card-collection-screen">
         <EQBackPill to="/app">← ホームに戻る</EQBackPill>
+
+        <CompactPageHeader
+          title="カードコレクション"
+          subtitle="集めたカードを確認しよう"
+          backgroundImage="/assets/eigo-quest/learning-hub/上の背景.png"
+          elementLabel={selectedWorld.symbol}
+          progressText={`${ownedCount} / ${cards.length}`}
+          helperImage="/assets/eigo-quest/spirit_assets/happy.png"
+          variant="cards"
+        />
 
         <header className="eq-card-page-header">
           <div>

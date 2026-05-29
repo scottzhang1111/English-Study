@@ -11,6 +11,7 @@ import {
   EQPrimaryButton,
 } from '../components/eigo';
 import { getProgressData } from '../api';
+import CompactPageHeader from '../components/eigo/CompactPageHeader';
 
 const CHILD_STORAGE_KEY = 'selected_child_id';
 
@@ -118,6 +119,15 @@ export default function ProgressPage() {
     return (
       <div className="eq-learning-hub-page">
         <EQMobileShell className="eq-learning-hub-screen">
+          <CompactPageHeader
+            title="学習レポート"
+            subtitle="日ごとの記録を確認しよう"
+            backgroundImage="/assets/eigo-quest/learning-hub/上の背景.png"
+            elementLabel="記"
+            progressText="Error"
+            helperImage="/assets/eigo-quest/spirit_assets/happy.png"
+            variant="progress"
+          />
           <EQPageHeader
             eyebrow="Progress"
             title="学習レポート"
@@ -136,6 +146,15 @@ export default function ProgressPage() {
   return (
     <div className="eq-learning-hub-page">
       <EQMobileShell className="eq-learning-hub-screen">
+        <CompactPageHeader
+          title="学習レポート"
+          subtitle={`${data?.child?.name || '子ども'} の記録`}
+          backgroundImage="/assets/eigo-quest/learning-hub/上の背景.png"
+          elementLabel="記"
+          progressText={`${data?.study_days ?? 0} days`}
+          helperImage="/assets/eigo-quest/spirit_assets/happy.png"
+          variant="progress"
+        />
         <EQPageHeader
           eyebrow="Progress"
           title="学習レポート"

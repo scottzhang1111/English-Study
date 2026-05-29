@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { getHomeData } from '../api';
 import { EQBottomNav, EQCard, EQMobileShell } from '../components/eigo';
 import eigoQuestWorlds from '../config/eigoQuestWorlds';
+import CompactPageHeader from '../components/eigo/CompactPageHeader';
 
 const CHILD_STORAGE_KEY = 'selected_child_id';
 const MOCK_LEARNED_WORDS = 420;
@@ -87,6 +88,7 @@ export default function StudyMapPage() {
 
   const clearedWorlds = worlds.filter((world) => world.status === 'complete').length;
   const totalProgressPercent = Math.round((learnedWordsCount / TOTAL_WORDS_TARGET) * 100);
+  const currentWorld = worlds[currentWorldIndex] || worlds[0];
 
   function handleImageError(worldId) {
     setFailedImages((current) => {
@@ -107,6 +109,15 @@ function handleWorldClick(world) {
   return (
     <div className="eq-study-map-wrap">
       <EQMobileShell className="eq-study-map-screen eq-world-overview-screen">
+        <CompactPageHeader
+          title="学習マップ"
+          subtitle="8つの世界を進めよう"
+          backgroundImage={currentWorld?.backgroundImage}
+          elementLabel={currentWorld?.symbol}
+          progressText={`${learnedWordsCount} / ${TOTAL_WORDS_TARGET} words`}
+          helperImage="/assets/eigo-quest/spirit_assets/happy.png"
+          variant={currentWorld?.id || 'wind'}
+        />
         <header className="eq-map-hero-header">
           <div className="eq-map-hero-copy">
             <span className="eq-map-hero-compass" aria-hidden="true">✦</span>
