@@ -20,7 +20,7 @@ const moduleEntries = [
     image: `${ASSET_BASE}/まちがい復習.png`,
   },
   {
-    title: '今日の復習クイズ',
+    title: '今日のクイズ',
     subtitle: '今日の学びをクイズで確認しよう',
     badge: '復習',
     to: '/today-review-quiz',

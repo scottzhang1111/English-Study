@@ -10857,7 +10857,7 @@ body,
   left: 12px;
   bottom: 13px;
   display: -webkit-box;
-  width: calc(100% - 46px);
+  width: calc(100% - 24px);
   overflow: hidden;
   color: #fff0b5;
   font-size: 19px;
@@ -10873,18 +10873,7 @@ body,
 }
 
 .eq-lh-arrow {
-  z-index: 5;
-  position: absolute;
-  right: 8px;
-  top: 50%;
-  color: #ffd35a;
-  font-size: 26px;
-  font-weight: 950;
-  line-height: 1;
-  text-shadow:
-    0 0 12px rgba(255, 211, 90, 0.66),
-    0 2px 6px rgba(0, 0, 0, 0.72);
-  transform: translateY(-50%);
+  display: none;
 }
 
 @media (max-width: 380px) {
