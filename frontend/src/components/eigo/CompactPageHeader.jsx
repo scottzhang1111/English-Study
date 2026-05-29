@@ -13,7 +13,7 @@ export default function CompactPageHeader({
   guidanceText,
   variant = 'default',
 }) {
-  const [guidanceIndex, setGuidanceIndex] = useState(0);
+  const [isGuidanceOpen, setIsGuidanceOpen] = useState(false);
 
   const guidanceLines = useMemo(() => {
     if (!guidanceText) return [];
@@ -21,10 +21,11 @@ export default function CompactPageHeader({
       ? guidanceText
       : String(guidanceText).split('\n');
 
-    return lines.filter(Boolean).slice(0, 2);
+    return lines.filter(Boolean).slice(0, 3);
   }, [guidanceText]);
-  const activeGuidance = guidanceLines[guidanceIndex % Math.max(1, guidanceLines.length)] || '';
-  const headerGuidance = activeGuidance || subtitle || '';
+  const visibleGuidanceLines = guidanceLines.length
+    ? guidanceLines.slice(0, isGuidanceOpen ? 3 : 1)
+    : subtitle ? [subtitle] : [];
 
   const progressPercent = useMemo(() => {
     const value = Number(progressValue);
@@ -36,7 +37,7 @@ export default function CompactPageHeader({
 
   return (
     <section
-      className={`compact-page-header compact-page-header--${variant}`}
+      className={`compact-page-header compact-page-header--${variant} ${isGuidanceOpen ? 'is-guidance-open' : ''}`}
       style={{
         backgroundImage: backgroundImage
           ? `linear-gradient(90deg, rgba(4,8,24,.82), rgba(4,8,24,.48)), url("${backgroundImage}")`
@@ -46,8 +47,12 @@ export default function CompactPageHeader({
       <div className="compact-page-header__content">
         <h1 className="compact-page-header__title">{title}</h1>
 
-        {headerGuidance ? (
-          <p className="compact-page-header__subtitle">{headerGuidance}</p>
+        {visibleGuidanceLines.length ? (
+          <div className="compact-page-header__subtitle">
+            {visibleGuidanceLines.map((line) => (
+              <span key={line}>{line}</span>
+            ))}
+          </div>
         ) : null}
 
         {hasMeta ? (
@@ -76,7 +81,7 @@ export default function CompactPageHeader({
           <button
             type="button"
             className="compact-page-header__helper-button"
-            onClick={() => setGuidanceIndex((current) => (guidanceLines.length > 1 ? current + 1 : current))}
+            onClick={() => setIsGuidanceOpen((current) => !current)}
             aria-label="ガイダンスを表示"
           >
             <img src={helperImage} alt="" />
