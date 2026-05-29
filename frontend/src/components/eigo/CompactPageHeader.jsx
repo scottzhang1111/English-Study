@@ -1,4 +1,5 @@
 import './CompactPageHeader.css';
+import SpiritAssistant from '../eigo-quest/SpiritAssistant';
 
 export default function CompactPageHeader({
   title,
@@ -29,7 +30,16 @@ export default function CompactPageHeader({
         ) : null}
       </div>
       {helperImage ? (
-        <img className="compact-page-header__helper" src={helperImage} alt="" aria-hidden="true" />
+        <SpiritAssistant
+          worldName={elementLabel || title}
+          mood="talk"
+          position="compact-header"
+          messages={[
+            subtitle || title,
+            progressText ? `${progressText} まで進んでいるよ` : 'ここから冒険を続けよう',
+            'タップすると応援するよ',
+          ]}
+        />
       ) : null}
     </header>
   );

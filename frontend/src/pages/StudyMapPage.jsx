@@ -1,7 +1,7 @@
 import { useMemo, useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getHomeData } from '../api';
-import { EQBottomNav, EQCard, EQMobileShell } from '../components/eigo';
+import { EQBottomNav, EQMobileShell } from '../components/eigo';
 import eigoQuestWorlds from '../config/eigoQuestWorlds';
 import CompactPageHeader from '../components/eigo/CompactPageHeader';
 
@@ -86,8 +86,6 @@ export default function StudyMapPage() {
     };
   });
 
-  const clearedWorlds = worlds.filter((world) => world.status === 'complete').length;
-  const totalProgressPercent = Math.round((learnedWordsCount / TOTAL_WORDS_TARGET) * 100);
   const currentWorld = worlds[currentWorldIndex] || worlds[0];
 
   function handleImageError(worldId) {
@@ -136,22 +134,6 @@ function handleWorldClick(world) {
 
         {error ? <div className="eq-study-map-error">{error}</div> : null}
 
-        <EQCard className="eq-map-summary-card">
-          <div className="eq-map-summary-row">
-            <div>
-              <span>総進行</span>
-              <strong>{learnedWordsCount} / {TOTAL_WORDS_TARGET} words</strong>
-            </div>
-            <div>
-              <span>クリアした世界</span>
-              <strong>{clearedWorlds} / {worlds.length}</strong>
-            </div>
-          </div>
-          <div className="eq-map-total-progress">
-            <span style={{ width: `${totalProgressPercent}%` }} />
-          </div>
-        </EQCard>
-
         <section className="eq-world-overview-grid" aria-label="8つの世界">
           {worlds.map((world) => (
             <button
@@ -182,10 +164,12 @@ function handleWorldClick(world) {
                 <div className="eq-world-overview-title">
                   <h2>{world.nameJa}</h2>
                 </div>
-                <div className="eq-world-overview-meta">
-                  <strong>{world.stageLabel}</strong>
-                  <span>{world.progressWords} / {WORDS_PER_WORLD} words</span>
-                </div>
+                {world.status !== 'complete' ? (
+                  <div className="eq-world-overview-meta">
+                    <strong>{world.stageLabel}</strong>
+                    <span>{world.progressWords} / {WORDS_PER_WORLD} words</span>
+                  </div>
+                ) : null}
                 <div className="eq-world-card-progress">
                   <span style={{ width: `${world.progressPercent}%` }} />
                 </div>

@@ -4,7 +4,6 @@ import { getHomeData } from '../api';
 import { EQBackPill, EQCard, EQMobileShell, EQBottomNav } from '../components/eigo';
 import { eigoQuestCards } from '../config/eigoQuestCards';
 import eigoQuestWorlds from '../config/eigoQuestWorlds';
-import SpiritAssistant from '../components/eigo-quest/SpiritAssistant';
 import CompactPageHeader from '../components/eigo/CompactPageHeader';
 
 const CHILD_STORAGE_KEY = 'selected_child_id';
@@ -299,7 +298,7 @@ export default function WorldStagePage() {
             </button>
           ))}
         </section>  
-        <section className="eq-world-stage-guide-area">
+        {false && <section className="eq-world-stage-guide-area">
   <div className="eq-world-stage-bubble">
     <span>{worldDisplay.nameJa.replace('世界', '国')}</span>
 
@@ -313,7 +312,7 @@ export default function WorldStagePage() {
     `ここは「${worldDisplay.nameJa.replace('世界', '国')}」だよ。\nStage ${currentStage} に挑戦しよう！`,
   ]}
 />
-</section>
+</section>}
 
 {/* <button
   type="button"
