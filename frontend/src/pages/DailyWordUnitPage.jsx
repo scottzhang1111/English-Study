@@ -4,6 +4,7 @@ import { getDailyWords, getHomeData, markMastered, submitPracticeAnswer } from '
 import { useChildren } from '../ChildrenContext';
 import { getPartner } from '../utils/childStorage';
 import eigoQuestWorlds from '../config/eigoQuestWorlds';
+import CompactPageHeader from '../components/eigo/CompactPageHeader';
 
 import {
   EQBottomNav,
@@ -506,6 +507,15 @@ export default function DailyWordUnitPage() {
     {!error && stage === 'preview' && (
       <div className="eq-daily-words-preview lg:hidden">
         <EQMobileShell className="eq-daily-words-shell">
+          <CompactPageHeader
+            title="単語学習"
+            subtitle={`今日の${targetCount}語を確認しよう`}
+            backgroundImage={dailyWorldDisplay.backgroundImage}
+            elementLabel={dailyWorldDisplay.icon}
+            progressText={`${todayWords.length} / ${targetCount}`}
+            helperImage={SPIRIT_IMAGE}
+            variant={questWorld?.id || 'wind'}
+          />
           <section
             className={`eq-daily-learning-hero is-${questWorld?.id || 'wind'}`}
             style={{ '--eq-daily-world-color': dailyWorldDisplay.themeColor }}
