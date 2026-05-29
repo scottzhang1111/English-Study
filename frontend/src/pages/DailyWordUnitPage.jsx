@@ -5,7 +5,7 @@ import { useChildren } from '../ChildrenContext';
 import { getPartner } from '../utils/childStorage';
 import eigoQuestWorlds from '../config/eigoQuestWorlds';
 import CompactPageHeader from '../components/eigo/CompactPageHeader';
-import { EIGO_GUIDANCE } from '../config/eigoQuestGuidance';
+import { EIGO_HEADER_GUIDANCE } from '../config/eigoQuestGuidance';
 
 import {
   EQBottomNav,
@@ -517,7 +517,7 @@ export default function DailyWordUnitPage() {
             progressValue={todayWords.length}
             progressMax={targetCount}
             helperImage={SPIRIT_IMAGE}
-            guidanceText={EIGO_GUIDANCE.dailyWords}
+            guidanceText={EIGO_HEADER_GUIDANCE.dailyWords}
             variant={questWorld?.id || 'wind'}
           />
           <section

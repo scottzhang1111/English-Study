@@ -64,7 +64,10 @@ function getImageCandidates(card) {
 
 function getCoverImageCandidates(card) {
   if (!card?.worldId) return [];
-  return [`/assets/eigo-quest/cards/${card.worldId}/${card.worldId}-cover.png`];
+  return [
+    `/assets/eigo-quest/cards/back/${card.worldId}-cover.png`,
+    `/assets/eigo-quest/cards/${card.worldId}/${card.worldId}-cover.png`,
+  ];
 }
 
 function getCardReviewPath(card) {
@@ -119,6 +122,7 @@ function CardImage({ card, large = false }) {
   const [index, setIndex] = useState(0);
   const candidates = useMemo(
     () => {
+      if (!card?.owned) return getCoverImageCandidates(card);
       const images = getImageCandidates(card);
       return images.length ? images : getCoverImageCandidates(card);
     },

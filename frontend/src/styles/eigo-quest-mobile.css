@@ -11352,6 +11352,13 @@ body,
     linear-gradient(180deg, rgba(3, 8, 24, 0.32) 0%, rgba(3, 8, 24, 0.46) 48%, rgba(3, 8, 24, 0.86) 100%);
 }
 
+/* Card collection detail: hide database ability/rarity metadata */
+.eq-card-detail .eq-card-detail-body > .eq-rarity-badge,
+.eq-card-detail .eq-card-detail-body > p:not(.eq-card-world),
+.eq-card-detail .eq-card-detail-meta {
+  display: none !important;
+}
+
 /* Daily words list header */
 .eq-daily-words-preview .eq-daily-learning-progress {
   display: none !important;
