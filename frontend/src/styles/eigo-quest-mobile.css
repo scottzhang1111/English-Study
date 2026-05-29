@@ -11195,6 +11195,188 @@ body,
   font-weight: 800;
 }
 
+/* =========================================================
+   Study Map Learning Hub World Cards
+   ========================================================= */
+
+.eq-world-overview-screen {
+  --eq-mobile-max: 520px;
+  gap: 12px;
+  padding: max(8px, env(safe-area-inset-top, 0px)) 12px calc(118px + env(safe-area-inset-bottom, 0px));
+}
+
+.eq-world-overview-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.eq-world-overview-card {
+  min-height: 212px;
+  overflow: hidden;
+  border: 2px solid rgba(255, 218, 116, 0.9);
+  border-radius: 22px;
+  background: rgba(3, 8, 24, 0.88);
+  box-shadow:
+    0 0 20px color-mix(in srgb, var(--world-color, var(--eq-gold)) 28%, transparent),
+    0 12px 28px rgba(0, 0, 0, 0.42),
+    inset 0 0 22px rgba(255, 255, 255, 0.045);
+}
+
+.eq-world-overview-card::after {
+  position: absolute;
+  inset: 5px;
+  z-index: 4;
+  border: 1px solid rgba(255, 231, 160, 0.48);
+  border-radius: 17px;
+  content: "";
+  pointer-events: none;
+}
+
+.eq-world-overview-bg::after {
+  background:
+    linear-gradient(180deg, rgba(3, 8, 24, 0.14) 0%, rgba(3, 8, 24, 0.2) 42%, rgba(3, 8, 24, 0.78) 100%),
+    radial-gradient(circle at 30% 18%, color-mix(in srgb, var(--world-color, var(--eq-primary)) 22%, transparent), transparent 42%);
+}
+
+.eq-world-overview-bg img {
+  filter: saturate(1.08) contrast(1.04);
+}
+
+.eq-world-overview-content {
+  min-height: 212px;
+  display: block;
+  padding: 0;
+}
+
+.eq-world-symbol-row {
+  top: 10px;
+  right: auto;
+  left: 10px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: flex-start;
+  gap: 6px;
+}
+
+.eq-world-symbol {
+  width: auto;
+  min-width: 34px;
+  height: 30px;
+  padding: 0 10px;
+  border-color: rgba(255, 226, 147, 0.38);
+  border-radius: 999px;
+  background: rgba(7, 9, 31, 0.68);
+  color: #fff8df;
+  font-size: 12px;
+  box-shadow: 0 0 14px color-mix(in srgb, var(--world-color, var(--eq-primary)) 44%, transparent);
+}
+
+.eq-world-symbol-row em {
+  max-width: 86px;
+  min-height: 30px;
+  padding: 8px 9px;
+  border: 1px solid rgba(255, 226, 147, 0.3);
+  background: rgba(9, 18, 52, 0.52);
+  color: #fff0b5;
+  font-size: 9px;
+  line-height: 1;
+}
+
+.eq-world-overview-title {
+  position: absolute;
+  left: 12px;
+  right: 12px;
+  bottom: 36px;
+}
+
+.eq-world-overview-title h2 {
+  display: -webkit-box;
+  overflow: hidden;
+  color: #fff0b5;
+  font-size: 19px;
+  font-weight: 950;
+  line-height: 1.12;
+  text-shadow:
+    0 2px 8px rgba(0, 0, 0, 0.88),
+    0 0 12px rgba(255, 211, 90, 0.2);
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+.eq-world-overview-title p {
+  display: none;
+}
+
+.eq-world-overview-meta {
+  position: absolute;
+  left: 12px;
+  right: 12px;
+  bottom: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.eq-world-overview-meta strong,
+.eq-world-overview-meta span {
+  overflow: hidden;
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 10px;
+  font-weight: 900;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.eq-world-overview-meta strong {
+  color: #ffd35a;
+}
+
+.eq-world-card-progress {
+  position: absolute;
+  right: 12px;
+  bottom: 8px;
+  left: 12px;
+  height: 5px;
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.eq-world-overview-card.is-future {
+  opacity: 0.82;
+  filter: saturate(0.72);
+}
+
+.eq-world-overview-card.is-future .eq-world-overview-bg::after {
+  background:
+    linear-gradient(180deg, rgba(3, 8, 24, 0.32) 0%, rgba(3, 8, 24, 0.46) 48%, rgba(3, 8, 24, 0.86) 100%);
+}
+
+/* Daily words list header */
+.eq-daily-words-preview .eq-daily-learning-progress {
+  display: none !important;
+}
+
+@media (max-width: 390px) {
+  .eq-world-overview-grid {
+    gap: 10px;
+  }
+
+  .eq-world-overview-card,
+  .eq-world-overview-content {
+    min-height: 196px;
+  }
+
+  .eq-world-overview-title h2 {
+    font-size: 17px;
+  }
+
+  .eq-world-overview-meta strong,
+  .eq-world-overview-meta span {
+    font-size: 9px;
+  }
+}
+
 @media (max-width: 380px) {
   .eq-eiken-trial-shell {
     padding-right: 10px;
