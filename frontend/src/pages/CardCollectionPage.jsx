@@ -147,7 +147,6 @@ function CardImage({ card, large = false }) {
       ) : (
         <span className="eq-card-art-symbol">{world.symbol}</span>
       )}
-      {!card.owned ? <span className="eq-card-lock-mark">???</span> : null}
     </div>
   );
 }

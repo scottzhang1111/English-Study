@@ -11359,6 +11359,18 @@ body,
   display: none !important;
 }
 
+.eq-collection-card.is-locked .eq-collection-card-description {
+  color: transparent !important;
+  font-size: 0 !important;
+}
+
+.eq-collection-card.is-locked .eq-collection-card-description::before {
+  color: rgba(255, 255, 255, 0.78);
+  content: "???";
+  font-size: 12px;
+  font-weight: 900;
+}
+
 /* Daily words list header */
 .eq-daily-words-preview .eq-daily-learning-progress {
   display: none !important;
