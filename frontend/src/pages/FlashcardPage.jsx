@@ -206,9 +206,12 @@ export default function FlashcardPage() {
   const dailyWordsPath = `${routePrefix}/daily-words${hasRequestedStage ? `?world=${encodeURIComponent(requestedWorldId)}&stage=${encodeURIComponent(requestedStage)}` : ''}`;
   const shouldLoadReviewQuiz = location.pathname.includes('today-review-quiz');
   const progressValue = Math.min(DAILY_TARGET, Number(homeData?.progress || 0));
-  const questWorld = getQuestWorldByLearnedWords(
-    homeData?.mastered_words ?? homeData?.learned_words ?? homeData?.progress ?? 0
-  );
+  const requestedQuestWorld = requestedWorldId
+    ? eigoQuestWorlds.find((world) => world.id === requestedWorldId)
+    : null;
+  const questWorld = requestedQuestWorld || (homeData
+    ? getQuestWorldByLearnedWords(homeData.mastered_words ?? homeData.learned_words ?? homeData.progress ?? 0)
+    : null);
   const studyWorldDisplay = getStudyWorldDisplay(questWorld);
   const progressPercent = `${(progressValue / DAILY_TARGET) * 100}%`;
   const dayLabel = `Day ${Math.floor(progressValue / DAILY_TARGET) + 1}`;
@@ -630,6 +633,34 @@ const handlePreviousStudy = async () => {
       <WebLearningLayout title="単語カード" subtitle="復習クイズ" rightPanel={rightPanel}>
         <div className="panel px-5 py-5 text-sm text-rose-700">{reviewError}</div>
       </WebLearningLayout>
+    );
+  }
+
+  if (!questWorld) {
+    return (
+      <>
+        <div className="quest-word-page-wrap lg:hidden">
+          <EQMobileShell className="eq-word-study-screen">
+            <CompactPageHeader
+              title="単語を準備中"
+              subtitle="正しい世界を読み込んでいます"
+              progressText="Loading..."
+              helperImage={SPIRIT_IMAGE}
+              variant="loading"
+            />
+            <EQCard className="eq-word-card eq-word-empty-card">
+              <h1>Loading...</h1>
+              <p>単語カードを準備しています。</p>
+            </EQCard>
+          </EQMobileShell>
+          <EQBottomNav />
+        </div>
+        <div className="hidden lg:block">
+          <WebLearningLayout title="単語を準備中" subtitle="学習データを読み込んでいます" rightPanel={rightPanel}>
+            <div className="panel px-5 py-5 text-sm text-[#60709d]">Loading...</div>
+          </WebLearningLayout>
+        </div>
+      </>
     );
   }
 

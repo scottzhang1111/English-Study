@@ -259,7 +259,7 @@ export default function DailyWordUnitPage() {
   const [partnerExp, setPartnerExp] = useState(0); */
   const [quizSaving, setQuizSaving] = useState(false);
   const [dailyTarget, setDailyTarget] = useState(DEFAULT_DAILY_WORD_TARGET);
-  const [questWorld, setQuestWorld] = useState(() => eigoQuestWorlds[0]);
+  const [questWorld, setQuestWorld] = useState(null);
   const [error, setError] = useState('');
   const { children, childrenLoading, childrenError } = useChildren();
 
@@ -501,6 +501,27 @@ export default function DailyWordUnitPage() {
   const shouldHideDesktopOnMobile =
   stage === 'preview' || stage === 'quiz' || stage === 'result';
   if (!child) return null;
+
+  if (!questWorld) {
+    return (
+      <div className="eq-daily-words-preview lg:hidden">
+        <EQMobileShell className="eq-daily-words-shell">
+          <CompactPageHeader
+            title="単語を準備中"
+            subtitle="正しい世界を読み込んでいます"
+            progressText="Loading..."
+            helperImage={SPIRIT_IMAGE}
+            variant="loading"
+          />
+          <section className="eq-daily-word-list-panel">
+            <h2>Loading...</h2>
+          </section>
+        </EQMobileShell>
+        <EQBottomNav className="eq-daily-words-bottom-nav" />
+      </div>
+    );
+  }
+
   const dailyWorldDisplay = getDailyWorldDisplay(questWorld);
 
   return (
