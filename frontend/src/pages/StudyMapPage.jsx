@@ -164,12 +164,6 @@ function handleWorldClick(world) {
                 <div className="eq-world-overview-title">
                   <h2>{world.nameJa}</h2>
                 </div>
-                {world.status !== 'complete' ? (
-                  <div className="eq-world-overview-meta">
-                    <strong>{world.stageLabel}</strong>
-                    <span>{world.progressWords} / {WORDS_PER_WORLD} words</span>
-                  </div>
-                ) : null}
                 <div className="eq-world-card-progress">
                   <span style={{ width: `${world.progressPercent}%` }} />
                 </div>

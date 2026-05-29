@@ -15,10 +15,11 @@ export default function CompactPageHeader({
 }) {
   const [guidanceOpen, setGuidanceOpen] = useState(false);
   const guidanceLines = useMemo(() => {
-    if (Array.isArray(guidanceText)) return guidanceText.filter(Boolean).slice(0, 3);
+    if (Array.isArray(guidanceText)) return guidanceText.filter(Boolean).slice(0, 2);
     if (guidanceText) return [guidanceText];
     return [];
   }, [guidanceText]);
+  const guidanceMessage = guidanceLines.join(' ');
   const progressPercent = Number(progressMax) > 0
     ? Math.min(100, Math.max(0, (Number(progressValue) / Number(progressMax)) * 100))
     : null;
@@ -48,11 +49,9 @@ export default function CompactPageHeader({
       </div>
       {helperImage ? (
         <div className={`compact-page-header__spirit ${guidanceOpen ? 'is-open' : ''}`}>
-          {guidanceOpen && guidanceLines.length ? (
+          {guidanceOpen && guidanceMessage ? (
             <div className="compact-page-header__guidance" role="status">
-              {guidanceLines.map((line) => (
-                <p key={line}>{line}</p>
-              ))}
+              <p>{guidanceMessage}</p>
             </div>
           ) : null}
           <button
