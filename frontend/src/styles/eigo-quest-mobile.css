@@ -11371,6 +11371,18 @@ body,
   font-weight: 900;
 }
 
+.eq-collection-card.is-locked > strong {
+  color: transparent !important;
+  font-size: 0 !important;
+}
+
+.eq-collection-card.is-locked > strong::before {
+  color: #fff0b5;
+  content: "???";
+  font-size: 15px;
+  font-weight: 950;
+}
+
 /* Daily words list header */
 .eq-daily-words-preview .eq-daily-learning-progress {
   display: none !important;
