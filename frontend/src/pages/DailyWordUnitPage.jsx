@@ -424,7 +424,7 @@ export default function DailyWordUnitPage() {
   setQuizSaving(false);
 
   if (passed) {
-    navigate('/grammar');
+    navigate('/today-review-quiz');
   }
 };
 
