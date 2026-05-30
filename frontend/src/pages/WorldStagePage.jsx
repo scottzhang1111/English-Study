@@ -232,7 +232,6 @@ export default function WorldStagePage() {
           <CompactPageHeader
             title="冒険を準備中"
             subtitle="学習データを読み込んでいます"
-            progressText="Loading..."
             helperImage="/assets/eigo-quest/spirit_assets/happy.png"
             variant="loading"
           />
@@ -249,25 +248,16 @@ export default function WorldStagePage() {
     <div className="eq-world-stage-wrap">
       <EQMobileShell className="eq-world-stage-screen">
         <CompactPageHeader
-          title={worldDisplay.nameJa.replace('荳也阜', '蝗ｽ')}
-          subtitle={`Stage ${currentStage} に挑戦しよう`}
+          title={worldDisplay.nameJa}
           backgroundImage={currentWorld.backgroundImage}
-          elementLabel={worldDisplay.symbol}
-          progressText={`${learnedWordsInWorld} / ${WORDS_PER_WORLD} words`}
           helperImage="/assets/eigo-quest/spirit_assets/happy.png"
+          guidanceText={[
+            '今のStageを確認しよう',
+            'Bossに近づいているよ',
+            '一歩ずつ進めば大丈夫',
+          ]}
           variant={currentWorld.id}
         />
-<header className={`eq-world-stage-story-header is-${currentWorld.id}`} style={{ '--world-color': worldDisplay.color }}>
-  <div className="eq-world-title-frame">
-    <span className="eq-world-title-gem eq-world-title-gem--top" aria-hidden="true" />
-    <h1>{worldDisplay.nameJa.replace('世界', '国')}</h1>
-    <span className="eq-world-title-gem eq-world-title-gem--bottom" aria-hidden="true" />
-  </div>
-
-  <p className="eq-world-stage-intro">
-    {worldDisplay.intro || 'さあ、冒険の旅に出よう！'}
-  </p>
-</header>
 
         {error ? <div className="eq-study-map-error">{error}</div> : null}
         {message ? <div className="eq-stage-toast">{message}</div> : null}

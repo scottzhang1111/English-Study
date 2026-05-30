@@ -191,6 +191,7 @@ export default function FlashcardPage() {
   const [reviewStreak, setReviewStreak] = useState(0);
   const [reviewResult, setReviewResult] = useState(null);
   const audioRef = useRef(null);
+  const stageWasClearedOnOpenRef = useRef(false);
   const navigate = useNavigate();
   const location = useLocation();
   const [searchParams] = useSearchParams();
@@ -349,6 +350,11 @@ export default function FlashcardPage() {
           : Promise.resolve(null),
       ]);
       const dailyWords = dailyPayload?.words || [];
+      stageWasClearedOnOpenRef.current = Boolean(
+        hasRequestedStage &&
+        dailyWords.length > 0 &&
+        dailyWords.every(isStageWordCleared)
+      );
       const matchedIndex = dailyWords.findIndex((item) => (
         String(item.word || '').toLowerCase() === String(payload.word || word).toLowerCase()
         || String(item.id || '') === String(payload.id || '')
@@ -402,10 +408,12 @@ export default function FlashcardPage() {
         if (cancelled) return;
         setHomeData(payload);
         if (shouldLoadReviewQuiz) {
+          stageWasClearedOnOpenRef.current = false;
           await loadReviewQuiz();
         } else if (requestedWord) {
           await loadStudyWord(requestedWord);
         } else {
+          stageWasClearedOnOpenRef.current = false;
           await loadLearnedStudyWords();
         }
       } catch (err) {
@@ -485,9 +493,9 @@ const handleNextStudy = async () => {
       }
     }
 
-    const isClearedStageReview = hasRequestedStage && studyWords.length > 0 && studyWords.every(isStageWordCleared);
+    const isClearedStageReview = hasRequestedStage && stageWasClearedOnOpenRef.current;
     if (isClearedStageReview) {
-      navigate(dailyWordsPath);
+      navigate(`${routePrefix}/world-stage?world=${encodeURIComponent(requestedWorldId)}`);
       return;
     }
 
