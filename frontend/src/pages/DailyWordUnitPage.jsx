@@ -333,7 +333,6 @@ export default function DailyWordUnitPage() {
   const correctCount = answers.filter((answer) => answer.correct).length;
   const wrongAnswers = answers.filter((answer) => !answer.correct);
   const targetCount = todayWords.length || dailyTarget;
-  const previewProgressPercent = Math.min(100, Math.round((todayWords.length / Math.max(1, targetCount)) * 100));
   const hasNextUnit = !hasRequestedStage && (unitIndex + 1) * dailyTarget < allWords.length;
 /*   const partnerName = getPartnerName(child, partner);
   const partnerImage = getPartnerImage(child, partner); */
@@ -562,7 +561,6 @@ export default function DailyWordUnitPage() {
           <CompactPageHeader
             title="単語を準備中"
             subtitle="正しい世界を読み込んでいます"
-            progressText="Loading..."
             helperImage={SPIRIT_IMAGE}
             variant="loading"
           />
@@ -593,59 +591,6 @@ export default function DailyWordUnitPage() {
             ]}
             variant={questWorld?.id || 'wind'}
           />
-          <section
-            className={`eq-daily-learning-hero is-${questWorld?.id || 'wind'}`}
-            style={{ '--eq-daily-world-color': dailyWorldDisplay.themeColor }}
-          >
-            <img
-              className="eq-daily-learning-hero-bg"
-              src={dailyWorldDisplay.backgroundImage}
-              alt=""
-              aria-hidden="true"
-            />
-            <div className="eq-daily-learning-hero-shade" aria-hidden="true" />
-            <header className="eq-daily-learning-title">
-              <div className="eq-daily-adventure-plaque">
-                <span className="eq-daily-plaque-icon" aria-label={dailyWorldDisplay.icon} aria-hidden="true" />
-                <h1>単語学習</h1>
-                <p>今日の{targetCount}語を集めて<br />封印を解放しよう！</p>
-              </div>
-            </header>
-            <div className="eq-daily-learning-world">
-              <div className="eq-daily-learning-emblem" aria-hidden="true">
-                <span>{dailyWorldDisplay.icon}</span>
-                <small>{dailyWorldDisplay.nameEn}</small>
-              </div>
-              <div className="eq-daily-learning-world-copy" aria-hidden="true">
-                <h2>{dailyWorldDisplay.nameJa}</h2>
-              </div>
-            </div>
-            <img
-              className="eq-daily-learning-spirit"
-              src={SPIRIT_IMAGE}
-              alt=""
-              aria-hidden="true"
-            />
-            <div className="eq-daily-learning-goal">
-              <div className="eq-daily-goal-copy">
-                <strong>今日の目標：<b>{targetCount}</b>語</strong>
-                <p>あと少しで封印が解けるよ！</p>
-              </div>
-              <div className="eq-daily-learning-progress" aria-hidden="true">
-                <span style={{ width: `${previewProgressPercent}%` }} />
-                <em>{todayWords.length} / {targetCount}</em>
-              </div>
-            </div>
-          </section>
-
-          <section className={`eq-daily-spirit-message is-${questWorld?.id || 'wind'}`}>
-            <span className="eq-daily-spirit-message-icon" aria-hidden="true">{dailyWorldDisplay.icon}</span>
-            <div>
-              <strong>精霊からのメッセージ</strong>
-              <p>今日は{targetCount}個の単語を集めよう！</p>
-            </div>
-            <em>1 / 1</em>
-          </section>
 
           <section className="eq-daily-word-list-panel">
             <h2>✦ 今日の単語リスト ✦</h2>
