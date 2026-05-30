@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
+import { getHeroCards } from '../api';
 import { GoldQuestButton } from '../components/eigo';
 import {
   addOwnedCardId,
@@ -20,6 +21,22 @@ const sparkleParticles = Array.from({ length: 28 }, (_, index) => ({
   size: 4 + (index % 5) * 2,
 }));
 
+function normalizeHeroCard(card, index = 0) {
+  if (!card) return null;
+  return {
+    ...card,
+    id: String(card.id || card.code || `hero-${index + 1}`),
+    code: String(card.code || card.id || ''),
+    worldId: card.worldId || card.world_id || 'wind',
+    nameJa: card.nameJa || card.name_ja || '',
+    nameZh: card.nameZh || card.name_cn || '',
+    sourceJa: card.sourceJa || card.source_ja || card.originJa || card.origin_ja || '',
+    rarity: card.rarity || 'R',
+    image: card.image || card.image_url || '',
+    descriptionJa: card.descriptionJa || card.description_ja || '',
+  };
+}
+
 function getWorldClass(worldId) {
   const worldClassMap = {
     wind: '風',
@@ -36,29 +53,32 @@ function getWorldClass(worldId) {
 
 function getRewardCardImage(card) {
   if (!card?.image) return '';
+  const image = card.image;
   const worldId = card.worldId || 'wind';
-  if (card.image.includes(`/cards/${worldId}/`)) return card.image;
-  return card.image.replace('/assets/eigo-quest/cards/', `/assets/eigo-quest/cards/${worldId}/`);
+  if (image.includes(`/cards/${worldId}/`)) return image;
+  return image.replace('/assets/eigo-quest/cards/', `/assets/eigo-quest/cards/${worldId}/`);
+}
+
+function findRewardHero(apiHeroes, pendingReward, fallbackCard) {
+  const cardId = String(pendingReward?.cardId || '');
+  const fallback = normalizeHeroCard(fallbackCard);
+  const matches = (card) => {
+    const hero = normalizeHeroCard(card);
+    if (!hero || !cardId) return false;
+    return hero.id === cardId || hero.code === cardId;
+  };
+
+  return normalizeHeroCard(apiHeroes.find(matches)) || fallback;
 }
 
 function getHeroCopy(card) {
-  const isZhaoYun = card?.id === 'wind-guardian-zhaoyun';
-  if (isZhaoYun) {
-    return {
-      name: '趙雲',
-      source: '三国志',
-      intro: '白銀の槍を操る伝説の武将。',
-      story: '長坂坡で単騎突撃し、幼主を救い出した英雄。',
-    };
-  }
-
   const description = card?.descriptionJa || '光の封印から目覚めた新しい英雄。';
-  const [intro, ...rest] = description.split('。').filter(Boolean);
+  const sentences = description.split('。').map((line) => line.trim()).filter(Boolean);
   return {
-    name: card?.nameJa || '新英雄',
-    source: card?.sourceJa || card?.originJa || '英雄譚',
-    intro: intro ? `${intro}。` : description,
-    story: rest.length ? `${rest.join('。')}。` : 'これからの冒険で力を貸してくれる仲間。',
+    name: card?.nameJa || card?.nameZh || '新英雄',
+    source: card?.sourceJa || card?.originJa || card?.nameZh || '英雄譚',
+    intro: sentences[0] ? `${sentences[0]}。` : description,
+    story: sentences.length > 1 ? `${sentences.slice(1).join('。')}。` : 'これからの冒険で力を貸してくれる仲間。',
   };
 }
 
@@ -67,12 +87,27 @@ export default function CardRewardPage() {
   const [rewardStep, setRewardStep] = useState('reveal');
   const [isFlipped, setIsFlipped] = useState(false);
   const [isAdvancing, setIsAdvancing] = useState(false);
+  const [apiHeroes, setApiHeroes] = useState([]);
   const pendingReward = useMemo(() => getPendingReward(), []);
   const fallbackCard = useMemo(() => pickRewardCardForProgress(0), []);
-  const rewardCard = getCardById(pendingReward?.cardId) || fallbackCard;
+  const rewardCard = findRewardHero(apiHeroes, pendingReward, getCardById(pendingReward?.cardId) || fallbackCard);
   const worldClass = getWorldClass(rewardCard?.worldId);
   const rewardImage = getRewardCardImage(rewardCard);
   const hero = getHeroCopy(rewardCard);
+
+  useEffect(() => {
+    let cancelled = false;
+    getHeroCards()
+      .then((payload) => {
+        if (!cancelled) setApiHeroes((payload.heroes || []).map(normalizeHeroCard).filter(Boolean));
+      })
+      .catch(() => {
+        if (!cancelled) setApiHeroes([]);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   useEffect(() => {
     const timer = window.setTimeout(() => setIsFlipped(true), 520);

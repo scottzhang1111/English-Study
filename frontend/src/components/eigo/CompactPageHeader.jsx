@@ -48,8 +48,8 @@ export default function CompactPageHeader({
         <h1 className="compact-page-header__title">{title}</h1>
 
         {currentGuidance ? (
-          <div className="compact-page-header__subtitle">
-            <span>{currentGuidance}</span>
+          <div className="compact-page-header__guidance">
+            <span className="compact-page-header__guidance-text">{currentGuidance}</span>
           </div>
         ) : null}
 
