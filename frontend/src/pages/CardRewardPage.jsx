@@ -26,13 +26,14 @@ function normalizeHeroCard(card, index = 0) {
   return {
     ...card,
     id: String(card.id || card.code || `hero-${index + 1}`),
+    heroId: card.heroId || card.hero_id || '',
     code: String(card.code || card.id || ''),
     worldId: card.worldId || card.world_id || 'wind',
     nameJa: card.nameJa || card.name_ja || '',
     nameZh: card.nameZh || card.name_cn || '',
     sourceJa: card.sourceJa || card.source_ja || card.originJa || card.origin_ja || '',
     rarity: card.rarity || 'R',
-    image: card.image || card.image_url || '',
+    image: card.image || card.imageUrl || card.image_url || '',
     descriptionJa: card.descriptionJa || card.description_ja || '',
   };
 }
@@ -59,16 +60,52 @@ function getRewardCardImage(card) {
   return image.replace('/assets/eigo-quest/cards/', `/assets/eigo-quest/cards/${worldId}/`);
 }
 
+function getImageFileName(image = '') {
+  return String(image).split('?')[0].split('/').pop() || '';
+}
+
 function findRewardHero(apiHeroes, pendingReward, fallbackCard) {
-  const cardId = String(pendingReward?.cardId || '');
   const fallback = normalizeHeroCard(fallbackCard);
+  const rewardKeys = [
+    pendingReward?.cardId,
+    pendingReward?.card_id,
+    pendingReward?.heroId,
+    pendingReward?.hero_id,
+    pendingReward?.code,
+    fallback?.id,
+    fallback?.code,
+    fallback?.heroId,
+  ].filter(Boolean).map(String);
+  const rewardKeySet = new Set(rewardKeys);
+  const rewardWorldId = pendingReward?.worldId || pendingReward?.world_id || fallback?.worldId || '';
+  const rewardImageName = getImageFileName(fallback?.image);
+  const rewardNameSet = new Set([fallback?.nameJa, fallback?.nameZh].filter(Boolean));
   const matches = (card) => {
     const hero = normalizeHeroCard(card);
-    if (!hero || !cardId) return false;
-    return hero.id === cardId || hero.code === cardId;
+    if (!hero) return false;
+    const heroKeys = [hero.id, hero.code, hero.heroId].filter(Boolean).map(String);
+    if (heroKeys.some((key) => rewardKeySet.has(key))) return true;
+
+    const sameWorld = !rewardWorldId || hero.worldId === rewardWorldId;
+    if (sameWorld && rewardImageName && getImageFileName(hero.image) === rewardImageName) return true;
+    if (sameWorld && (rewardNameSet.has(hero.nameJa) || rewardNameSet.has(hero.nameZh))) return true;
+    return false;
   };
 
   return normalizeHeroCard(apiHeroes.find(matches)) || fallback;
+}
+
+function getHeroSource(card) {
+  if (card?.sourceJa || card?.originJa) return card.sourceJa || card.originJa;
+  const text = `${card?.descriptionJa || ''} ${card?.nameJa || ''}`;
+  if (text.includes('三国')) return '三国志';
+  if (text.includes('ギリシャ')) return 'ギリシャ神話';
+  if (text.includes('北欧')) return '北欧神話';
+  if (text.includes('インド')) return 'インド神話';
+  if (text.includes('中国神話')) return '中国神話';
+  if (text.includes('日本神話')) return '日本神話';
+  if (text.includes('戦国')) return '戦国時代';
+  return card?.nameZh || '英雄譚';
 }
 
 function getHeroCopy(card) {
@@ -76,7 +113,7 @@ function getHeroCopy(card) {
   const sentences = description.split('。').map((line) => line.trim()).filter(Boolean);
   return {
     name: card?.nameJa || card?.nameZh || '新英雄',
-    source: card?.sourceJa || card?.originJa || card?.nameZh || '英雄譚',
+    source: getHeroSource(card),
     intro: sentences[0] ? `${sentences[0]}。` : description,
     story: sentences.length > 1 ? `${sentences.slice(1).join('。')}。` : 'これからの冒険で力を貸してくれる仲間。',
   };
