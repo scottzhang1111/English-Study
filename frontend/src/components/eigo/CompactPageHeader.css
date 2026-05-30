@@ -692,3 +692,98 @@
     height: 92px;
   }
 }
+
+/* Final structural overrides for the compact guidance header. */
+.compact-page-header {
+  position: relative;
+  min-height: 165px;
+  padding: 24px 128px 22px 22px;
+  overflow: hidden;
+}
+
+.compact-page-header__content,
+.compact-page-header:has(.compact-page-header__helper-button) .compact-page-header__content {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  max-width: calc(100% - 0px);
+  display: block;
+}
+
+.compact-page-header__title {
+  color: #f6d77a;
+  background: linear-gradient(180deg, #fff2b8 0%, #f4d36d 45%, #b88725 100%);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-shadow: 0 0 12px rgba(255, 220, 120, 0.25);
+}
+
+.compact-page-header__guidance {
+  position: relative;
+  top: auto;
+  right: auto;
+  width: 100%;
+  min-width: min(200px, 100%);
+  max-width: 360px;
+  min-height: 36px;
+  margin-top: 12px;
+  padding: 8px 12px;
+  display: flex;
+  align-items: center;
+  border-radius: 14px;
+  border: 1px solid rgba(232, 190, 88, 0.45);
+  background: rgba(8, 16, 42, 0.62);
+  color: #fff8df;
+  font-size: 14px;
+  line-height: 1.35;
+  font-weight: 800;
+  text-align: left;
+  text-shadow: 0 2px 6px rgba(0, 0, 0, 0.55);
+  white-space: normal;
+  overflow: hidden;
+  overflow-wrap: anywhere;
+}
+
+.compact-page-header__guidance-text {
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+
+.compact-page-header__helper-button {
+  position: absolute;
+  right: 22px;
+  top: 50%;
+  z-index: 5;
+  width: 104px;
+  height: 104px;
+  padding: 0;
+  display: grid;
+  place-items: center;
+  border: 1.5px solid rgba(232, 190, 88, 0.6);
+  border-radius: 999px;
+  background: radial-gradient(circle, rgba(96, 190, 255, 0.28), rgba(8, 16, 42, 0.16));
+  box-shadow: 0 0 24px rgba(100, 200, 255, 0.35);
+  cursor: pointer;
+  pointer-events: auto;
+  transform: translateY(-50%);
+}
+
+.compact-page-header__helper-button:active {
+  transform: translateY(-50%) scale(0.96);
+}
+
+.compact-page-header__helper-button img {
+  width: 110%;
+  height: 110%;
+  object-fit: contain;
+  filter: drop-shadow(0 0 14px rgba(120, 210, 255, 0.45));
+}
+
+.compact-page-header__bubble,
+.compact-page-header .spirit-assistant--compact-header .spirit-assistant__bubble,
+.compact-page-header__guidance p {
+  display: none !important;
+}

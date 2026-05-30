@@ -75,16 +75,14 @@ export default function CompactPageHeader({
       </div>
 
       {helperImage ? (
-        <div className="compact-page-header__helper">
-          <button
-            type="button"
-            className="compact-page-header__helper-button"
-            onClick={() => setGuidanceIndex((current) => current + 1)}
-            aria-label="次のヒント"
-          >
-            <img src={helperImage} alt="" />
-          </button>
-        </div>
+        <button
+          type="button"
+          className="compact-page-header__helper-button"
+          onClick={() => setGuidanceIndex((current) => current + 1)}
+          aria-label="次のヒント"
+        >
+          <img src={helperImage} alt="" />
+        </button>
       ) : null}
     </section>
   );
