@@ -575,6 +575,9 @@
 }
 
 .compact-page-header__guidance {
+  position: relative;
+  top: auto;
+  right: auto;
   width: calc(100% - 150px);
   max-width: 360px;
   min-height: 38px;

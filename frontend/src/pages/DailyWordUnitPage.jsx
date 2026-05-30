@@ -587,8 +587,8 @@ export default function DailyWordUnitPage() {
             backgroundImage={dailyWorldDisplay.backgroundImage}
             helperImage={SPIRIT_IMAGE}
             guidanceText={[
-              '▶ を押すと発音を聞けるよ',
-              '単語をタップするとカードを見られるよ',
+              '▶ 発音を聞けるよ',
+              '単語をタップして確認しよう',
               '準備できたら学習を始めよう',
             ]}
             variant={questWorld?.id || 'wind'}
