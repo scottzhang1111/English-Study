@@ -129,8 +129,27 @@ export const submitVocabExpansionAnswer = async ({ id, selected, correct, childI
   });
 };
 
-export const getTodayReviewQuiz = async (childId) => {
-  return fetchJson('/api/today-review-quiz', { params: { child_id: childId } });
+export const getTodayReviewQuiz = async (childId, options = {}) => {
+  return fetchJson('/api/today-review-quiz', {
+    params: {
+      child_id: childId,
+      world: options.world,
+      stage: options.stage,
+    },
+  });
+};
+
+export const getWorldStageProgress = async ({ childId, world, stage } = {}) => {
+  return fetchJson(`/api/children/${encodeURIComponent(childId)}/world-stage-progress`, {
+    params: { world, stage },
+  });
+};
+
+export const markWorldStageCleared = async ({ childId, world, stage } = {}) => {
+  return fetchJson(`/api/children/${encodeURIComponent(childId)}/world-stage-progress`, {
+    method: 'POST',
+    body: { world, stage, status: 'cleared' },
+  });
 };
 
 export const getAiPracticeQuestion = async (childId) => {

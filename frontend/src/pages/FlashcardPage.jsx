@@ -13,7 +13,16 @@ import {
   QuestProgressStepper,
     PurificationQuizMobile,
 } from '../components/eigo';
-import { getDailyWords, getFlashcardData, getHomeData, getLearnedWords, getTodayReviewQuiz, markMastered } from '../api';
+import {
+  getDailyWords,
+  getFlashcardData,
+  getHomeData,
+  getLearnedWords,
+  getTodayReviewQuiz,
+  getWorldStageProgress,
+  markMastered,
+  markWorldStageCleared,
+} from '../api';
 import eigoQuestWorlds from '../config/eigoQuestWorlds';
 import CompactPageHeader from '../components/eigo/CompactPageHeader';
 
@@ -156,16 +165,6 @@ function getStudyWorldDisplay(world) {
   };
 }
 
-function isStageWordCleared(word) {
-  const status = String(word?.status || '').toLowerCase();
-  return Boolean(
-    status === 'mastered' ||
-    status === 'master' ||
-    word?.mastered ||
-    Number(word?.mastery || 0) >= 100
-  );
-}
-
 export default function FlashcardPage() {
   const [homeData, setHomeData] = useState(null);
   const [flashcard, setFlashcard] = useState(null);
@@ -191,7 +190,6 @@ export default function FlashcardPage() {
   const [reviewStreak, setReviewStreak] = useState(0);
   const [reviewResult, setReviewResult] = useState(null);
   const audioRef = useRef(null);
-  const stageWasClearedOnOpenRef = useRef(false);
   const navigate = useNavigate();
   const location = useLocation();
   const [searchParams] = useSearchParams();
@@ -350,11 +348,6 @@ export default function FlashcardPage() {
           : Promise.resolve(null),
       ]);
       const dailyWords = dailyPayload?.words || [];
-      stageWasClearedOnOpenRef.current = Boolean(
-        hasRequestedStage &&
-        dailyWords.length > 0 &&
-        dailyWords.every(isStageWordCleared)
-      );
       const matchedIndex = dailyWords.findIndex((item) => (
         String(item.word || '').toLowerCase() === String(payload.word || word).toLowerCase()
         || String(item.id || '') === String(payload.id || '')
@@ -379,7 +372,10 @@ export default function FlashcardPage() {
     setReviewLoading(true);
     setReviewError(null);
     try {
-      const payload = await getTodayReviewQuiz(selectedChildId);
+      const payload = await getTodayReviewQuiz(selectedChildId, {
+        world: hasRequestedStage ? requestedWorldId : undefined,
+        stage: hasRequestedStage ? requestedStage : undefined,
+      });
       setReviewData(payload);
       setReviewIndex(0);
       setReviewAnswer('');
@@ -408,12 +404,10 @@ export default function FlashcardPage() {
         if (cancelled) return;
         setHomeData(payload);
         if (shouldLoadReviewQuiz) {
-          stageWasClearedOnOpenRef.current = false;
           await loadReviewQuiz();
         } else if (requestedWord) {
           await loadStudyWord(requestedWord);
         } else {
-          stageWasClearedOnOpenRef.current = false;
           await loadLearnedStudyWords();
         }
       } catch (err) {
@@ -493,10 +487,16 @@ const handleNextStudy = async () => {
       }
     }
 
-    const isClearedStageReview = hasRequestedStage && stageWasClearedOnOpenRef.current;
-    if (isClearedStageReview) {
-      navigate(`${routePrefix}/world-stage?world=${encodeURIComponent(requestedWorldId)}`);
-      return;
+    if (hasRequestedStage) {
+      const stageProgress = await getWorldStageProgress({
+        childId: selectedChildId,
+        world: requestedWorldId,
+        stage: requestedStage,
+      });
+      if (stageProgress?.cleared) {
+        navigate(`${routePrefix}/world-stage?world=${encodeURIComponent(requestedWorldId)}`);
+        return;
+      }
     }
 
     await loadReviewQuiz();
@@ -868,13 +868,28 @@ const mobilePartOfSpeech =
             <button
               type="button"
               className="eq-purify-next"
-              onClick={() => {
+              onClick={async () => {
                 if (reviewResult.passed) {
+                  if (hasRequestedStage) {
+                    try {
+                      setReviewLoading(true);
+                      await markWorldStageCleared({
+                        childId: selectedChildId,
+                        world: requestedWorldId,
+                        stage: requestedStage,
+                      });
+                    } catch (err) {
+                      setReviewError(err.message);
+                      setReviewLoading(false);
+                      return;
+                    }
+                  }
                   navigate('/grammar-quest?from=daily-quest');
                 } else {
                   navigate(dailyWordsPath);
                 }
               }}
+              disabled={reviewLoading}
             >
               {reviewResult.passed ? 'カードを受け取る' : '単語リストへ'}
             </button>

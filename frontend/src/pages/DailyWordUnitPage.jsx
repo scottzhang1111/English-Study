@@ -424,7 +424,9 @@ export default function DailyWordUnitPage() {
   setQuizSaving(false);
 
   if (passed) {
-    navigate('/today-review-quiz');
+    navigate(hasRequestedStage
+      ? `/today-review-quiz?world=${encodeURIComponent(requestedWorldId)}&stage=${encodeURIComponent(requestedStage)}`
+      : '/today-review-quiz');
   }
 };
 

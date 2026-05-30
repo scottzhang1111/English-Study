@@ -2054,6 +2054,21 @@ def init_db(force=False):
         )
         conn.execute(
             '''
+            CREATE TABLE IF NOT EXISTS child_world_stage_progress (
+                child_id INTEGER NOT NULL,
+                world_id TEXT NOT NULL,
+                stage_number INTEGER NOT NULL,
+                status TEXT NOT NULL DEFAULT 'in_progress',
+                cleared_at TEXT,
+                created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                PRIMARY KEY (child_id, world_id, stage_number),
+                FOREIGN KEY (child_id) REFERENCES children (id) ON UPDATE CASCADE ON DELETE CASCADE
+            )
+            '''
+        )
+        conn.execute(
+            '''
             CREATE TABLE IF NOT EXISTS child_grammar_quiz_attempts (
                 attempt_id INTEGER PRIMARY KEY AUTOINCREMENT,
                 child_id INTEGER NOT NULL,
@@ -4412,8 +4427,7 @@ def _generate_review_cloze_question(entry, entries):
     }
 
 
-def generate_today_review_questions(limit=20, child_id=None):
-    entries = get_today_review_entries(limit=limit, child_id=child_id)
+def generate_review_questions_from_entries(entries, limit=20):
     if not entries:
         return []
 
@@ -4450,13 +4464,31 @@ def generate_today_review_questions(limit=20, child_id=None):
                 if question:
                     questions.append(question)
 
-    return questions[:20]
+    return questions[:limit]
 
 
-def api_today_review_quiz_payload(child_id=None):
+def generate_today_review_questions(limit=20, child_id=None):
+    entries = get_today_review_entries(limit=limit, child_id=child_id)
+    return generate_review_questions_from_entries(entries, limit=limit)
+
+
+def api_today_review_quiz_payload(child_id=None, world_id=None, stage=None):
     if child_id is None:
-        raise LookupError('child_id is required')
-    questions = generate_today_review_questions(child_id=child_id)
+        progress = load_progress()
+        target = int(load_settings().get('daily_target', 20) or 20)
+        progress_count = int(progress.get('count') or len(progress.get('mastered_words', [])) or 0)
+        return {
+            'day': int(progress_count // max(1, target)) + 1 if progress_count else 1,
+            'progress': progress_count,
+            'target': target,
+            'questions': generate_today_review_questions(),
+        }
+    stage_entries = select_stage_vocab_entries(world_id, stage, 20) if world_id and stage not in [None, ''] else None
+    questions = (
+        generate_review_questions_from_entries(stage_entries, limit=20)
+        if stage_entries is not None
+        else generate_today_review_questions(child_id=child_id)
+    )
     conn = get_db_connection()
     try:
         child_row = conn.execute(
@@ -4473,12 +4505,22 @@ def api_today_review_quiz_payload(child_id=None):
         conn.close()
     progress_count = int(mastered_row['count'] or 0) if mastered_row else 0
     target = int(child_row['daily_target'] or 20)
-    return {
+    payload = {
         'day': int(progress_count // max(1, target)) + 1 if progress_count else 1,
         'progress': progress_count,
         'target': target,
         'questions': questions,
     }
+    if stage_entries is not None:
+        stage_progress = get_child_world_stage_progress(child_id, world_id, stage)
+        payload.update(
+            review_mode='stage',
+            world=stage_progress['world'],
+            stage=stage_progress['stage'],
+            stage_status=stage_progress['status'],
+            stage_cleared=stage_progress['cleared'],
+        )
+    return payload
 
 
 def get_default_child_id():
@@ -7502,6 +7544,71 @@ def select_stage_vocab_entries(world_id=None, stage=None, limit=20):
     return vocab_list[start:end]
 
 
+def normalize_stage_status(status):
+    normalized = str(status or '').strip().lower()
+    return 'cleared' if normalized in {'clear', 'cleared', 'completed'} else 'in_progress'
+
+
+def get_child_world_stage_progress(child_id, world_id, stage):
+    stage_entries = select_stage_vocab_entries(world_id, stage, 20)
+    if stage_entries is None:
+        raise ValueError('valid world and stage are required')
+    stage_number = int(stage)
+    normalized_world_id = str(world_id or '').strip().lower()
+    conn = get_db_connection()
+    try:
+        ensure_child_exists(conn, child_id)
+        row = conn.execute(
+            '''
+            SELECT status, cleared_at, updated_at
+            FROM child_world_stage_progress
+            WHERE child_id = ? AND world_id = ? AND stage_number = ?
+            ''',
+            (child_id, normalized_world_id, stage_number),
+        ).fetchone()
+    finally:
+        conn.close()
+
+    status = normalize_stage_status(row['status'] if row else 'in_progress')
+    return {
+        'child_id': child_id,
+        'world': normalized_world_id,
+        'stage': stage_number,
+        'status': status,
+        'cleared': status == 'cleared',
+        'cleared_at': row['cleared_at'] if row else None,
+        'updated_at': row['updated_at'] if row else None,
+    }
+
+
+def mark_child_world_stage_cleared(child_id, world_id, stage):
+    stage_entries = select_stage_vocab_entries(world_id, stage, 20)
+    if stage_entries is None:
+        raise ValueError('valid world and stage are required')
+    stage_number = int(stage)
+    normalized_world_id = str(world_id or '').strip().lower()
+    now = get_now_iso()
+    conn = get_db_connection()
+    try:
+        ensure_child_exists(conn, child_id)
+        conn.execute(
+            '''
+            INSERT INTO child_world_stage_progress (
+                child_id, world_id, stage_number, status, cleared_at, created_at, updated_at
+            ) VALUES (?, ?, ?, 'cleared', ?, ?, ?)
+            ON CONFLICT(child_id, world_id, stage_number) DO UPDATE SET
+                status = 'cleared',
+                cleared_at = COALESCE(child_world_stage_progress.cleared_at, excluded.cleared_at),
+                updated_at = excluded.updated_at
+            ''',
+            (child_id, normalized_world_id, stage_number, now, now, now),
+        )
+        conn.commit()
+    finally:
+        conn.close()
+    return get_child_world_stage_progress(child_id, normalized_world_id, stage_number)
+
+
 def get_database_host_for_debug():
     database_url = get_database_url()
     if not database_url:
@@ -7817,6 +7924,31 @@ def api_update_child_study_mode(child_id):
     return jsonify(child_id=child_id, study_mode=study_mode)
 
 
+@app.route('/api/children/<int:child_id>/world-stage-progress', methods=['GET', 'POST'])
+def api_child_world_stage_progress(child_id):
+    if request.method == 'POST':
+        data = request.get_json(silent=True) or {}
+        world_id = data.get('world') or data.get('world_id') or request.args.get('world')
+        stage = data.get('stage') or data.get('stage_number') or request.args.get('stage')
+        status = normalize_stage_status(data.get('status') or 'cleared')
+    else:
+        world_id = request.args.get('world') or request.args.get('world_id')
+        stage = request.args.get('stage') or request.args.get('stage_number')
+        status = 'in_progress'
+
+    try:
+        if request.method == 'POST' and status == 'cleared':
+            payload = mark_child_world_stage_cleared(child_id, world_id, stage)
+        else:
+            payload = get_child_world_stage_progress(child_id, world_id, stage)
+    except LookupError as exc:
+        abort(404, str(exc))
+    except ValueError as exc:
+        abort(400, str(exc))
+
+    return jsonify(payload)
+
+
 @app.route('/api/mark-mastered', methods=['POST'])
 def api_mark_mastered():
     data = request.get_json(silent=True) or {}
@@ -8118,8 +8250,10 @@ def api_vocab_expansion_answer():
 @app.route('/api/today-review-quiz')
 def api_today_review_quiz():
     child_id = parse_optional_child_id_arg()
+    world_id = request.args.get('world', '').strip()
+    stage = request.args.get('stage', '').strip()
     try:
-        return jsonify(api_today_review_quiz_payload(child_id=child_id))
+        return jsonify(api_today_review_quiz_payload(child_id=child_id, world_id=world_id, stage=stage))
     except LookupError as exc:
         abort(404, str(exc))
 

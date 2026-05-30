@@ -1100,6 +1100,40 @@ class TodayReviewQuizTests(unittest.TestCase):
         self.assertEqual(2, payload['day'])
         self.assertEqual(sample_questions, payload['questions'])
 
+    def test_stage_review_quiz_uses_stage_words_and_tracks_clear_status(self):
+        conn = app_module.get_db_connection()
+        try:
+            child_id = conn.execute(
+                'INSERT INTO children (name, grade, target_level) VALUES (?, ?, ?)',
+                ('Aki', '3', 'A2'),
+            ).lastrowid
+            conn.commit()
+        finally:
+            conn.close()
+
+        client = app_module.app.test_client()
+        status_response = client.get(f'/api/children/{child_id}/world-stage-progress?world=wind&stage=1')
+        self.assertEqual(200, status_response.status_code)
+        self.assertFalse(status_response.get_json()['cleared'])
+
+        quiz_response = client.get(f'/api/today-review-quiz?child_id={child_id}&world=wind&stage=1')
+        self.assertEqual(200, quiz_response.status_code)
+        payload = quiz_response.get_json()
+        self.assertEqual('stage', payload['review_mode'])
+        self.assertEqual('wind', payload['world'])
+        self.assertEqual(1, payload['stage'])
+        self.assertFalse(payload['stage_cleared'])
+        self.assertEqual(20, len(payload['questions']))
+        stage_words = {entry['English'] for entry in app_module.select_stage_vocab_entries('wind', 1, 20)}
+        self.assertTrue({question['word'] for question in payload['questions']}.issubset(stage_words))
+
+        clear_response = client.post(
+            f'/api/children/{child_id}/world-stage-progress',
+            json={'world': 'wind', 'stage': 1, 'status': 'cleared'},
+        )
+        self.assertEqual(200, clear_response.status_code)
+        self.assertTrue(clear_response.get_json()['cleared'])
+
 
 class AiPracticeSystemTests(unittest.TestCase):
     def setUp(self):
