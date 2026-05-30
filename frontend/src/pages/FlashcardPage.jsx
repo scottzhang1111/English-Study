@@ -664,12 +664,6 @@ const handlePreviousStudy = async () => {
     );
   }
 
-  const mobileStudyCount = studyWords.length
-    ? `${studyIndex + 1} / ${studyWords.length}`
-    : `${progressValue} / ${DAILY_TARGET}`;
-  const mobileStudyProgress = studyWords.length
-    ? `${Math.min(100, ((studyIndex + 1) / studyWords.length) * 100)}%`
-    : progressWidth;
   const mobileTotalWords = studyWords.length > 1
     ? studyWords.length
     : Number.isFinite(requestedWordTotal) && requestedWordTotal > 0
@@ -715,51 +709,16 @@ const mobilePartOfSpeech =
       <div className="quest-word-page-wrap lg:hidden">
         <EQMobileShell className="eq-word-study-screen">
           <CompactPageHeader
-            title="単語カード"
-            subtitle="意味と例文を確認しよう"
+            title={flashcard?.word || '単語カード'}
             backgroundImage={studyWorldDisplay.backgroundImage}
-            elementLabel={studyWorldDisplay.icon}
-            progressText={mobileStudyCount}
             helperImage={SPIRIT_IMAGE}
+            guidanceText={[
+              '意味と例文を見てみよう',
+              '音声も聞くと覚えやすいよ',
+              '覚えたら次へ進もう',
+            ]}
             variant={questWorld?.id || 'wind'}
           />
-          <section
-            className={`quest-word-world-hero is-${questWorld?.id || 'wind'}`}
-            style={{ '--quest-word-world-color': studyWorldDisplay.themeColor }}
-          >
-            <img
-              className="quest-word-world-bg"
-              src={studyWorldDisplay.backgroundImage}
-              alt=""
-              aria-hidden="true"
-            />
-            <div className="quest-word-world-scrim" aria-hidden="true" />
-            <div className="quest-word-world-icon" aria-hidden="true">
-              {studyWorldDisplay.icon}
-            </div>
-            <div className="quest-word-world-title">
-              <h1>{studyWorldDisplay.nameJa}</h1>
-              <p>{studyWorldDisplay.nameEn}</p>
-            </div>
-            <div className="quest-word-world-count">
-              <span>{Math.floor(progressValue / DAILY_TARGET) + 1}</span>
-              <strong>学習中の単語</strong>
-              <b>{mobileStudyCount}</b>
-            </div>
-            <div className="quest-word-world-progress" aria-hidden="true">
-              <span style={{ width: mobileStudyProgress }} />
-            </div>
-            <img
-              className="quest-word-world-spirit"
-              src={SPIRIT_IMAGE}
-              alt=""
-              aria-hidden="true"
-            />
-            <div className="quest-word-world-message">
-              <strong>精霊</strong>
-              <p>いいね！意味と例文を見てみよう！</p>
-            </div>
-          </section>
 
           {mode === 'complete' ? (
             <EQCard className="eq-word-card eq-word-empty-card">
