@@ -13,7 +13,7 @@ export default function CompactPageHeader({
   guidanceText,
   variant = 'default',
 }) {
-  const [isGuidanceOpen, setIsGuidanceOpen] = useState(false);
+  const [guidanceIndex, setGuidanceIndex] = useState(0);
 
   const guidanceLines = useMemo(() => {
     if (!guidanceText) return [];
@@ -21,11 +21,11 @@ export default function CompactPageHeader({
       ? guidanceText
       : String(guidanceText).split('\n');
 
-    return lines.filter(Boolean).slice(0, 3);
+    return lines.filter(Boolean);
   }, [guidanceText]);
-  const visibleGuidanceLines = guidanceLines.length
-    ? guidanceLines.slice(0, isGuidanceOpen ? 3 : 1)
-    : subtitle ? [subtitle] : [];
+  const currentGuidance = guidanceLines.length
+    ? guidanceLines[guidanceIndex % guidanceLines.length]
+    : subtitle || '';
 
   const progressPercent = useMemo(() => {
     const value = Number(progressValue);
@@ -37,7 +37,7 @@ export default function CompactPageHeader({
 
   return (
     <section
-      className={`compact-page-header compact-page-header--${variant} ${isGuidanceOpen ? 'is-guidance-open' : ''}`}
+      className={`compact-page-header compact-page-header--${variant}`}
       style={{
         backgroundImage: backgroundImage
           ? `linear-gradient(90deg, rgba(4,8,24,.82), rgba(4,8,24,.48)), url("${backgroundImage}")`
@@ -47,11 +47,9 @@ export default function CompactPageHeader({
       <div className="compact-page-header__content">
         <h1 className="compact-page-header__title">{title}</h1>
 
-        {visibleGuidanceLines.length ? (
+        {currentGuidance ? (
           <div className="compact-page-header__subtitle">
-            {visibleGuidanceLines.map((line) => (
-              <span key={line}>{line}</span>
-            ))}
+            <span>{currentGuidance}</span>
           </div>
         ) : null}
 
@@ -81,8 +79,8 @@ export default function CompactPageHeader({
           <button
             type="button"
             className="compact-page-header__helper-button"
-            onClick={() => setIsGuidanceOpen((current) => !current)}
-            aria-label="ガイダンスを表示"
+            onClick={() => setGuidanceIndex((current) => current + 1)}
+            aria-label="次のヒント"
           >
             <img src={helperImage} alt="" />
           </button>

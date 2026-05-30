@@ -5,7 +5,6 @@ import { useChildren } from '../ChildrenContext';
 import { getPartner } from '../utils/childStorage';
 import eigoQuestWorlds from '../config/eigoQuestWorlds';
 import CompactPageHeader from '../components/eigo/CompactPageHeader';
-import { EIGO_HEADER_GUIDANCE } from '../config/eigoQuestGuidance';
 
 import {
   EQBottomNav,
@@ -533,7 +532,11 @@ export default function DailyWordUnitPage() {
             title="今日の20語"
             backgroundImage={dailyWorldDisplay.backgroundImage}
             helperImage={SPIRIT_IMAGE}
-            guidanceText={EIGO_HEADER_GUIDANCE.dailyWords}
+            guidanceText={[
+              '▶ を押すと発音を聞けるよ',
+              '単語をタップするとカードを見られるよ',
+              '準備できたら学習を始めよう',
+            ]}
             variant={questWorld?.id || 'wind'}
           />
           <section
