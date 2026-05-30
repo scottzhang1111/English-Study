@@ -109,28 +109,15 @@ function handleWorldClick(world) {
       <EQMobileShell className="eq-study-map-screen eq-world-overview-screen">
         <CompactPageHeader
           title="学習マップ"
-          subtitle="8つの世界を進めよう"
           backgroundImage={currentWorld?.backgroundImage}
-          elementLabel={currentWorld?.symbol}
-          progressText={`${learnedWordsCount} / ${TOTAL_WORDS_TARGET} words`}
           helperImage="/assets/eigo-quest/spirit_assets/happy.png"
+          guidanceText={[
+            '学習の旅を確認しよう',
+            '次の目標まで少しずつ進もう',
+            'クリアした世界は力のしるしだよ',
+          ]}
           variant={currentWorld?.id || 'wind'}
         />
-        <header className="eq-map-hero-header">
-          <div className="eq-map-hero-copy">
-            <span className="eq-map-hero-compass" aria-hidden="true">✦</span>
-            <div>
-              <h1>学習マップ</h1>
-              <p>8つの世界から学習するエリアを選ぼう</p>
-            </div>
-          </div>
-          <img
-            className="eq-map-hero-spirit"
-            src="/assets/eigo-quest/spirit_assets/happy.png"
-            alt=""
-            aria-hidden="true"
-          />
-        </header>
 
         {error ? <div className="eq-study-map-error">{error}</div> : null}
 
