@@ -186,6 +186,12 @@ export default function QuizPage() {
     : `正しい答えは「${currentQuiz?.correct || '-'}」です。カードで意味と例文を確認できます。`;
   const choiceLetters = ['A', 'B', 'C', 'D'];
   const quizWord = currentQuiz?.word || currentQuiz?.correct || targetJapanese;
+  const isListeningQuestion =
+    currentQuiz?.type === 'Listening' ||
+    currentQuiz?.type === 'listening' ||
+    Boolean(currentQuiz?.audioUrl);
+  const isVocabularyMeaningQuestion = Boolean(currentQuiz?.word) && !isListeningQuestion;
+  const hasInlineWordAudio = isVocabularyMeaningQuestion && Boolean(quizWord);
   const quizQuestionText = currentQuiz?.word
     ? `${currentQuiz.word} の意味はどれ？`
     : `${targetJapanese} はどれ？`;
@@ -291,19 +297,33 @@ export default function QuizPage() {
                 <strong>正解 <b>{correctCount}</b></strong>
               </div>
 
-              <h1 className="quest-quiz-question">{quizQuestionText}</h1>
+              <h1 className="quest-quiz-question">
+                {quizQuestionText}
+                {hasInlineWordAudio ? (
+                  <button
+                    type="button"
+                    className="quest-quiz-word-speaker"
+                    onClick={() => speak(quizWord)}
+                    aria-label="単語の音声"
+                  >
+                    ▶
+                  </button>
+                ) : null}
+              </h1>
 
-              <div className="quest-quiz-audio-row">
-                <AudioButton onClick={() => speak(quizWord)}>
-                  単語を聞く
-                </AudioButton>
-                <AudioButton
-                  tone="purple"
-                  onClick={() => speak(currentQuiz?.example || quizWord)}
-                >
-                  例文を聞く
-                </AudioButton>
-              </div>
+              {isListeningQuestion ? (
+                <div className="quest-quiz-audio-row">
+                  <AudioButton onClick={() => speak(quizWord)}>
+                    単語を聞く
+                  </AudioButton>
+                  <AudioButton
+                    tone="purple"
+                    onClick={() => speak(currentQuiz?.example || quizWord)}
+                  >
+                    例文を聞く
+                  </AudioButton>
+                </div>
+              ) : null}
 
               <div className="eq-quiz-options quest-quiz-options">
                 {currentQuiz?.choices.map((choice, index) => {

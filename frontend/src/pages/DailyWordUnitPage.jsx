@@ -231,6 +231,15 @@ function buildQuizQuestions(words, choiceSource = words) {
   });
 }
 
+function getQuizQuestionKey(question) {
+  return String(question?.id || question?.word?.id || question?.word?.word || question?.question || '');
+}
+
+function pickRandomQuestion(questions) {
+  if (!questions.length) return null;
+  return questions[Math.floor(Math.random() * questions.length)];
+}
+
 export default function DailyWordUnitPage() {
   const navigate = useNavigate();
   const location = useLocation();
@@ -250,6 +259,9 @@ export default function DailyWordUnitPage() {
   const [unitIndex, setUnitIndex] = useState(0);
   const [studyIndex, setStudyIndex] = useState(0);
   const [quizQuestions, setQuizQuestions] = useState([]);
+  const [retryQueue, setRetryQueue] = useState([]);
+  const [isRetryMode, setIsRetryMode] = useState(false);
+  const [activeRetryQuestion, setActiveRetryQuestion] = useState(null);
   const [quizIndex, setQuizIndex] = useState(0);
   const [answers, setAnswers] = useState([]);
   const [selectedChoice, setSelectedChoice] = useState('');
@@ -317,7 +329,7 @@ export default function DailyWordUnitPage() {
 
   const todayWords = useMemo(() => getUnitWords(allWords, unitIndex, dailyTarget), [allWords, unitIndex, dailyTarget]);
   const currentWord = todayWords[studyIndex] || null;
-  const currentQuestion = quizQuestions[quizIndex] || null;
+  const currentQuestion = isRetryMode ? activeRetryQuestion : quizQuestions[quizIndex] || null;
   const correctCount = answers.filter((answer) => answer.correct).length;
   const wrongAnswers = answers.filter((answer) => !answer.correct);
   const targetCount = todayWords.length || dailyTarget;
@@ -335,6 +347,9 @@ export default function DailyWordUnitPage() {
 
     if (studyIndex >= todayWords.length - 1) {
       setQuizQuestions(buildQuizQuestions(todayWords, allWords));
+      setRetryQueue([]);
+      setIsRetryMode(false);
+      setActiveRetryQuestion(null);
       setQuizIndex(0);
       setAnswers([]);
       setSelectedChoice('');
@@ -348,6 +363,7 @@ export default function DailyWordUnitPage() {
   const chooseAnswer = (choice) => {
     if (!currentQuestion || selectedChoice) return;
     const correct = choice === currentQuestion.correct;
+    const questionKey = getQuizQuestionKey(currentQuestion);
     setSelectedChoice(choice);
     setAnswers((prev) => [
       ...prev,
@@ -361,10 +377,20 @@ export default function DailyWordUnitPage() {
         correct,
       },
     ]);
+
+    if (correct) {
+      setRetryQueue((queue) => queue.filter((item) => getQuizQuestionKey(item) !== questionKey));
+      return;
+    }
+
+    setRetryQueue((queue) => {
+      if (queue.some((item) => getQuizQuestionKey(item) === questionKey)) return queue;
+      return [...queue, currentQuestion];
+    });
   };
 
   const finishQuiz = async () => {
-  const passed = correctCount === quizQuestions.length;
+  const passed = true;
 
   setResultStatus(passed ? 'passed' : 'failed');
   setStage('result');
@@ -453,10 +479,29 @@ export default function DailyWordUnitPage() {
   };
  */
   const nextQuiz = () => {
-    if (quizIndex >= quizQuestions.length - 1) {
+    if (isRetryMode) {
+      if (retryQueue.length) {
+        setActiveRetryQuestion(pickRandomQuestion(retryQueue));
+        setSelectedChoice('');
+        return;
+      }
+
       finishQuiz();
       return;
     }
+
+    if (quizIndex >= quizQuestions.length - 1) {
+      if (retryQueue.length) {
+        setIsRetryMode(true);
+        setActiveRetryQuestion(pickRandomQuestion(retryQueue));
+        setSelectedChoice('');
+        return;
+      }
+
+      finishQuiz();
+      return;
+    }
+
     setQuizIndex((index) => index + 1);
     setSelectedChoice('');
   };
@@ -465,6 +510,9 @@ export default function DailyWordUnitPage() {
     const wrongIds = new Set(wrongAnswers.map((answer) => String(answer.wordId)));
     const wrongWords = todayWords.filter((word) => wrongIds.has(String(word.id)));
     setQuizQuestions(buildQuizQuestions(wrongWords, allWords));
+    setRetryQueue([]);
+    setIsRetryMode(false);
+    setActiveRetryQuestion(null);
     setQuizIndex(0);
     setAnswers([]);
     setSelectedChoice('');
@@ -476,6 +524,9 @@ export default function DailyWordUnitPage() {
 
   const retryQuiz = () => {
     setQuizQuestions(buildQuizQuestions(todayWords, allWords));
+    setRetryQueue([]);
+    setIsRetryMode(false);
+    setActiveRetryQuestion(null);
     setQuizIndex(0);
     setAnswers([]);
     setSelectedChoice('');
@@ -488,6 +539,9 @@ export default function DailyWordUnitPage() {
     setStage('preview');
     setStudyIndex(0);
     setQuizQuestions([]);
+    setRetryQueue([]);
+    setIsRetryMode(false);
+    setActiveRetryQuestion(null);
     setQuizIndex(0);
     setAnswers([]);
     setSelectedChoice('');
@@ -655,8 +709,10 @@ export default function DailyWordUnitPage() {
         worldId={questWorld?.id || 'wind'}
         day={unitIndex + 1}
         question={currentQuestion}
-        questionIndex={quizIndex}
+        questionIndex={isRetryMode ? Math.max(quizQuestions.length - 1, 0) : quizIndex}
         questionTotal={quizQuestions.length}
+        retryMode={isRetryMode}
+        retryRemaining={retryQueue.length}
         selectedChoice={selectedChoice}
         correctCount={correctCount}
         onChoose={chooseAnswer}
@@ -806,7 +862,9 @@ export default function DailyWordUnitPage() {
 {!error && stage === 'quiz' && currentQuestion && (
   <section className="panel hidden px-6 py-6 sm:px-8 lg:block">
       <div className="mb-4 flex items-center justify-between text-sm font-black text-[#6f7da8]">
-        <span>{quizIndex + 1} / {quizQuestions.length}</span>
+        <span>
+          {isRetryMode ? `まちがい浄化中 あと ${retryQueue.length} 問` : `${quizIndex + 1} / ${quizQuestions.length}`}
+        </span>
         <span>正解 {correctCount}</span>
       </div>
 

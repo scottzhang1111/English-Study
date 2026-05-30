@@ -1,4 +1,3 @@
-
 import EQBottomNav from './EQBottomNav';
 import EQMobileShell from './EQMobileShell';
 import { quizThemes } from '../../config/eigoQuestQuizThemes';
@@ -10,6 +9,8 @@ export default function PurificationQuizMobile({
   questionIndex = 0,
   questionTotal = 0,
   selectedChoice = '',
+  retryMode = false,
+  retryRemaining = 0,
   onChoose,
   onNext,
   onPlayAudio,
@@ -18,9 +19,16 @@ export default function PurificationQuizMobile({
   const theme = quizThemes[worldId] || quizThemes.wind;
   const locked = Boolean(selectedChoice);
   const isLastQuestion = questionIndex >= questionTotal - 1;
+  const isListeningQuestion =
+    question?.type === 'Listening' ||
+    question?.type === 'listening' ||
+    Boolean(question?.audioUrl);
+  const isVocabularyMeaningQuestion = question?.type === 'en-ja';
+  const targetWord = question?.word?.word || question?.word || '';
+  const hasWordAudio = isVocabularyMeaningQuestion && Boolean(targetWord) && typeof onPlayAudio === 'function';
 
   const promptText =
-    question?.type === 'Listening'
+    isListeningQuestion
       ? 'Listen and choose the correct word.'
       : question?.question || '問題を読み込み中...';
 
@@ -40,20 +48,40 @@ export default function PurificationQuizMobile({
             <h1>{theme.nameJa}</h1>
             <p>単語小テスト</p>
             <div className="eq-purify-target">対象単語数: 20 / 20</div>
+            {retryMode ? (
+              <div className="eq-purify-retry-label">
+                <span>まちがい浄化中</span>
+                <strong>あと {retryRemaining} 問</strong>
+              </div>
+            ) : null}
             <strong>{questionIndex + 1} / {questionTotal}</strong>
           </div>
 
           <div className="eq-purify-prompt">
-            <h2>{promptText}</h2>
+            <h2>
+              {promptText}
+              {hasWordAudio ? (
+                <button
+                  type="button"
+                  className="eq-purify-word-speaker"
+                  onClick={() => onPlayAudio?.(question)}
+                  aria-label="単語の音声"
+                >
+                  ▶
+                </button>
+              ) : null}
+            </h2>
 
-            <button
-              type="button"
-              className="eq-purify-audio"
-              onClick={() => onPlayAudio?.(question)}
-              aria-label="音声を聞く"
-            >
-              ▶
-            </button>
+            {isListeningQuestion ? (
+              <button
+                type="button"
+                className="eq-purify-audio"
+                onClick={() => onPlayAudio?.(question)}
+                aria-label="音声を聞く"
+              >
+                ▶
+              </button>
+            ) : null}
           </div>
 
           <div className="eq-purify-choices">
