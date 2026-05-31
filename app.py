@@ -7228,6 +7228,7 @@ def api_home():
                 'SELECT COUNT(DISTINCT study_date) AS count FROM daily_study_log WHERE child_id = ? AND studied_count > 0',
                 (child_id,),
             ).fetchone()
+            stage_clear_set = get_child_world_stage_clear_set(conn, child_id)
         finally:
             conn.close()
         if child_row and child_row['daily_target']:
@@ -7236,9 +7237,11 @@ def api_home():
         remain = max(0, target - progress_count)
         mastered_words = int(mastered_row['count'] or 0) if mastered_row else 0
         study_days = int(study_days_row['count'] or 0) if study_days_row else 0
+        eigo_quest_progress = build_eigo_quest_progress_from_clears(stage_clear_set)
     else:
         mastered_words = len(progress.get('mastered_words', []))
         study_days = 1 if progress.get('count', 0) > 0 else 0
+        eigo_quest_progress = build_eigo_quest_progress_from_clears(set())
 
     pet = get_child_pet_state(child_id) or get_pet_state(progress, settings)
     if child_id and pet:
@@ -7253,6 +7256,7 @@ def api_home():
         mastered_words=mastered_words,
         study_days=study_days,
         pet=pet,
+        eigo_quest_progress=eigo_quest_progress,
     )
 
 
@@ -7566,6 +7570,94 @@ def select_stage_vocab_entries(world_id=None, stage=None, limit=20):
 def normalize_stage_status(status):
     normalized = str(status or '').strip().lower()
     return 'cleared' if normalized in {'clear', 'cleared', 'completed'} else 'in_progress'
+
+
+def get_child_world_stage_clear_set(conn, child_id):
+    rows = conn.execute(
+        '''
+        SELECT world_id, stage_number
+        FROM child_world_stage_progress
+        WHERE child_id = ? AND status = 'cleared'
+        ''',
+        (child_id,),
+    ).fetchall()
+    return {
+        (str(row['world_id']).strip().lower(), int(row['stage_number']))
+        for row in rows
+    }
+
+
+def build_eigo_quest_progress_from_clears(clear_set):
+    unlocked_next = True
+    current_world = None
+    current_stage = None
+    mainline_complete = True
+    worlds = []
+    completed_stage_count = 0
+
+    for world in EIGO_QUEST_WORLDS:
+        stage_items = []
+        world_has_current = False
+        world_cleared_count = 0
+        for stage_number in range(1, world['stage_count'] + 1):
+            key = (world['id'], stage_number)
+            cleared = key in clear_set
+            unlocked = unlocked_next or cleared
+            if cleared:
+                status = 'cleared'
+                world_cleared_count += 1
+                completed_stage_count += 1
+            elif unlocked and current_stage is None:
+                status = 'current'
+                current_world = world['id']
+                current_stage = stage_number
+                world_has_current = True
+                mainline_complete = False
+            else:
+                status = 'locked'
+                mainline_complete = False
+
+            stage_items.append({
+                'stage': stage_number,
+                'status': status,
+                'cleared': cleared,
+                'unlocked': unlocked,
+            })
+            unlocked_next = unlocked_next and cleared
+
+        worlds.append({
+            'id': world['id'],
+            'order': world['order'],
+            'stage_count': world['stage_count'],
+            'word_count': world['word_count'],
+            'word_start_index': world['word_start_index'],
+            'unlocked': any(stage['unlocked'] for stage in stage_items),
+            'cleared': world_cleared_count == world['stage_count'],
+            'cleared_stage_count': world_cleared_count,
+            'has_current_stage': world_has_current,
+            'stages': stage_items,
+        })
+
+    return {
+        'source': 'child_world_stage_progress',
+        'total_stages': EIGO_QUEST_TOTAL_STAGES,
+        'total_words': EIGO_QUEST_TOTAL_WORDS,
+        'completed_stage_count': completed_stage_count,
+        'mainline_complete': mainline_complete,
+        'current_world': None if mainline_complete else current_world,
+        'current_stage': None if mainline_complete else current_stage,
+        'worlds': worlds,
+    }
+
+
+def get_child_eigo_quest_progress(child_id):
+    conn = get_db_connection()
+    try:
+        ensure_child_exists(conn, child_id)
+        clear_set = get_child_world_stage_clear_set(conn, child_id)
+    finally:
+        conn.close()
+    return build_eigo_quest_progress_from_clears(clear_set)
 
 
 def get_child_world_stage_progress(child_id, world_id, stage):
@@ -7969,6 +8061,14 @@ def api_child_world_stage_progress(child_id):
         abort(400, str(exc))
 
     return jsonify(payload)
+
+
+@app.route('/api/children/<int:child_id>/eigo-quest-progress')
+def api_child_eigo_quest_progress(child_id):
+    try:
+        return jsonify(get_child_eigo_quest_progress(child_id))
+    except LookupError as exc:
+        abort(404, str(exc))
 
 
 @app.route('/api/mark-mastered', methods=['POST'])

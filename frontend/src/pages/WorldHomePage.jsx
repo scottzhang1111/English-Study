@@ -1,8 +1,11 @@
-import { useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { EQBackPill, EQCard, EQMobileShell, EQBottomNav } from '../components/eigo';
+import { getHomeData } from '../api';
 import eigoQuestWorlds from '../config/eigoQuestWorlds';
 import CompactPageHeader from '../components/eigo/CompactPageHeader';
+
+const CHILD_STORAGE_KEY = 'selected_child_id';
 
 const WORLD_DISPLAY = {
   wind: { nameJa: '風の世界', nameEn: 'WIND REALM', symbol: '風', color: '#45d7ff' },
@@ -18,6 +21,8 @@ const WORLD_DISPLAY = {
 export default function WorldHomePage() {
   const navigate = useNavigate();
   const { worldId } = useParams();
+  const childId = useMemo(() => localStorage.getItem(CHILD_STORAGE_KEY) || '', []);
+  const [questProgress, setQuestProgress] = useState(null);
 
   const world = useMemo(() => {
     const configWorld = eigoQuestWorlds.find((item) => item.id === worldId);
@@ -33,6 +38,23 @@ export default function WorldHomePage() {
       color: display.color || configWorld?.themeColor || '#45d7ff',
     };
   }, [worldId]);
+  const worldProgress = questProgress?.worlds?.find((item) => item.id === world.id);
+  const stageProgressItems = worldProgress?.stages || [];
+
+  useEffect(() => {
+    if (!childId) return;
+    getHomeData(childId)
+      .then((payload) => setQuestProgress(payload?.eigo_quest_progress || null))
+      .catch(() => setQuestProgress(null));
+  }, [childId]);
+
+  function handleStageClick(stageNumber) {
+    const stageProgress = stageProgressItems.find((item) => Number(item.stage) === stageNumber);
+    const canEnter = Boolean(stageProgress?.unlocked || stageProgress?.cleared);
+    if (canEnter || (!questProgress && world.id === 'wind' && stageNumber === 1)) {
+      navigate(`/daily-words?world=${encodeURIComponent(world.id)}&stage=${stageNumber}`);
+    }
+  }
 
   return (
     <div className="eq-world-home-wrap">
@@ -78,7 +100,8 @@ export default function WorldHomePage() {
               <button
                 key={index}
                 type="button"
-                onClick={() => navigate(`/worlds/${world.id}/stages/${index + 1}`)}
+                disabled={questProgress && !stageProgressItems[index]?.unlocked && !stageProgressItems[index]?.cleared}
+                onClick={() => handleStageClick(index + 1)}
               >
                 Stage {index + 1}
               </button>

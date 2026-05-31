@@ -10,6 +10,7 @@ import { getPartner } from '../utils/childStorage';
 import { getEigoQuestProgress } from '../helpers/eigoQuestProgress';
 import { eigoQuestCards } from '../config/eigoQuestCards';
 import { eigoQuestIconAssets } from '../config/eigoQuestAssets';
+import eigoQuestWorlds, { EIGO_QUEST_WORDS_PER_STAGE } from '../config/eigoQuestWorlds';
 import eigoQuestAssets from '../data/eigoQuestAssets';
 
 const DEFAULT_DAILY_WORD_TARGET = 20;
@@ -531,8 +532,34 @@ const handleHomeVideoPlay = async (event) => {
   const grammarProgressWidth = `${grammarDailyDone * 100}%`;
   const grammarLessonTitle = todayGrammarLesson?.title || '今日の文法';
   const partner = selectedChild ? getPartner(selectedChild.partnerMonsterId) : null;
-  const learnedWordsCount = Number(data?.mastered_words ?? data?.learned_words ?? todayStudied ?? 0);
-  const questProgress = getEigoQuestProgress(learnedWordsCount);
+  const stageProgress = data?.eigo_quest_progress || null;
+  const fallbackQuestProgress = getEigoQuestProgress(0);
+  const activeWorldId = stageProgress?.mainline_complete
+    ? 'shadow'
+    : (stageProgress?.current_world || fallbackQuestProgress.currentWorld.id);
+  const activeWorld = eigoQuestWorlds.find((world) => world.id === activeWorldId) || fallbackQuestProgress.currentWorld;
+  const activeWorldProgress = stageProgress?.worlds?.find((world) => world.id === activeWorld.id) || {};
+  const clearedStagesInWorld = Number(activeWorldProgress.cleared_stage_count || 0);
+  const completedStageCount = Number(stageProgress?.completed_stage_count || 0);
+  const totalStageCount = Number(stageProgress?.total_stages || fallbackQuestProgress.totalStages);
+  const masteredWordsCount = Number(data?.mastered_words ?? data?.learned_words ?? 0);
+  const questProgress = {
+    ...fallbackQuestProgress,
+    learnedWords: Math.max(0, Number.isFinite(masteredWordsCount) ? masteredWordsCount : 0),
+    totalWords: Number(stageProgress?.total_words || fallbackQuestProgress.totalWords),
+    totalStages: totalStageCount,
+    currentWorld: activeWorld,
+    stageInWorld: stageProgress?.mainline_complete
+      ? Number(activeWorld.stageCount || activeWorld.stages || 1)
+      : Number(stageProgress?.current_stage || 1),
+    worldStageCount: Number(activeWorld.stageCount || activeWorld.stages || 1),
+    worldWordsLearned: clearedStagesInWorld * EIGO_QUEST_WORDS_PER_STAGE,
+    worldWordTarget: Number(activeWorld.wordCount || clearedStagesInWorld * EIGO_QUEST_WORDS_PER_STAGE || fallbackQuestProgress.worldWordTarget),
+    stageProgressPercent: totalStageCount > 0
+      ? Math.round((completedStageCount / totalStageCount) * 100)
+      : fallbackQuestProgress.stageProgressPercent,
+    isComplete: Boolean(stageProgress?.mainline_complete),
+  };
   const adventureProgress = questProgress.stageProgressPercent || 0;
   const adventureProgressLabel = `${adventureProgress}%`;
   const petImage = data?.pet?.image_url || data?.pet?.sprite_url || data?.pet?.imageUrl || partner?.image_url || AIR_RABBIT_DEFAULT_IMAGE;

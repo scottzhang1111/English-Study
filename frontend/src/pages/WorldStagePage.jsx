@@ -4,7 +4,6 @@ import { getHomeData } from '../api';
 import { EQBackPill, EQCard, EQMobileShell, EQBottomNav } from '../components/eigo';
 import { eigoQuestCards } from '../config/eigoQuestCards';
 import eigoQuestWorlds, { EIGO_QUEST_WORDS_PER_STAGE } from '../config/eigoQuestWorlds';
-import { getEigoQuestProgress } from '../helpers/eigoQuestProgress';
 import CompactPageHeader from '../components/eigo/CompactPageHeader';
 
 const CHILD_STORAGE_KEY = 'selected_child_id';
@@ -135,18 +134,21 @@ export default function WorldStagePage() {
       .then((payload) => setHomeData(payload))
       .catch((err) => {
         setError(err.message || '学習データを読み込めませんでした。');
-        setHomeData({ mastered_words: MOCK_LEARNED_WORDS });
+        setHomeData(null);
       });
   }, [childId, navigate]);
 
-  const learnedWords = Number(homeData?.mastered_words ?? homeData?.learned_words ?? homeData?.progress ?? MOCK_LEARNED_WORDS);
-  const safeLearnedWords = Number.isFinite(learnedWords) ? Math.max(0, learnedWords) : MOCK_LEARNED_WORDS;
-  const progressWorldIndex = getEigoQuestProgress(safeLearnedWords).worldIndex;
+  const questProgress = homeData?.eigo_quest_progress || {};
   const requestedWorldId = searchParams.get('world');
-  const requestedWorldIndex = eigoQuestWorlds.findIndex((world) => world.id === requestedWorldId);
-  const canOpenRequestedWorld = requestedWorldIndex >= 0 && requestedWorldIndex <= progressWorldIndex;
-  const worldIndex = canOpenRequestedWorld ? requestedWorldIndex : progressWorldIndex;
-  const currentWorld = eigoQuestWorlds[worldIndex] || eigoQuestWorlds[0];
+  const requestedWorldProgress = questProgress.worlds?.find((world) => world.id === requestedWorldId);
+  const canOpenRequestedWorld = Boolean(requestedWorldProgress?.unlocked);
+  const activeWorldId = canOpenRequestedWorld
+    ? requestedWorldId
+    : questProgress.mainline_complete
+      ? 'shadow'
+      : (questProgress.current_world || 'wind');
+  const currentWorld = eigoQuestWorlds.find((world) => world.id === activeWorldId) || eigoQuestWorlds[0];
+  const currentWorldProgress = questProgress.worlds?.find((world) => world.id === currentWorld.id) || {};
   const worldWordCount = Number(currentWorld.wordCount || Number(currentWorld.stageCount || currentWorld.stages || 10) * EIGO_QUEST_WORDS_PER_STAGE);
   const worldStageCount = Number(currentWorld.stageCount || currentWorld.stages || Math.ceil(worldWordCount / EIGO_QUEST_WORDS_PER_STAGE));
   const worldDisplay = WORLD_DISPLAY[currentWorld.id] || {
@@ -156,12 +158,10 @@ export default function WorldStagePage() {
     color: currentWorld.themeColor || '#45d7ff',
   };
 
-  const rawWorldWords = safeLearnedWords - Number(currentWorld.wordStartIndex || 0);
-  const learnedWordsInWorld = clamp(rawWorldWords, 0, worldWordCount);
-  const isSelectedWorldComplete = learnedWordsInWorld >= worldWordCount;
-  const currentStage = isSelectedWorldComplete
-    ? worldStageCount
-    : clamp(Math.floor(learnedWordsInWorld / EIGO_QUEST_WORDS_PER_STAGE) + 1, 1, worldStageCount);
+  const learnedWordsInWorld = clamp(Number(currentWorldProgress.cleared_stage_count || 0) * EIGO_QUEST_WORDS_PER_STAGE, 0, worldWordCount);
+  const currentStage = currentWorld.id === questProgress.current_world
+    ? clamp(Number(questProgress.current_stage || 1), 1, worldStageCount)
+    : worldStageCount;
   const worldProgressPercent = Math.round((learnedWordsInWorld / worldWordCount) * 100);
   const todayWordsDone = Number(homeData?.progress ?? 6);
   const todayWordsTarget = Number(homeData?.target ?? 20);
@@ -170,9 +170,15 @@ export default function WorldStagePage() {
   const wrongReviewDone = Number(homeData?.today_review_done ?? 0);
   const wrongReviewTarget = Number(homeData?.today_review_target ?? 3);
 
-  const stageStarted = learnedWordsInWorld > (currentStage - 1) * EIGO_QUEST_WORDS_PER_STAGE;
-  const stageCompleted = learnedWordsInWorld >= currentStage * EIGO_QUEST_WORDS_PER_STAGE;
-  const stageCtaLabel = stageCompleted ? '次のステージへ' : stageStarted ? `Stage ${currentStage} をつづける` : `Stage ${currentStage} を始める`;
+  const stageStarted = Boolean(currentWorldProgress.stages?.some((stage) => stage.status === 'current' || stage.status === 'cleared'));
+  const stageCompleted = Boolean(currentWorldProgress.cleared);
+  const stageCtaLabel = questProgress.mainline_complete && currentWorld.id === 'shadow'
+    ? 'メインクエストクリア'
+    : stageCompleted
+      ? 'クリア済みステージ'
+      : stageStarted
+        ? `Stage ${currentStage} をつづける`
+        : `Stage ${currentStage} を始める`;
   const rewardCard = eigoQuestCards.find((card) => card.worldId === currentWorld.id) || eigoQuestCards[0];
   const rewardCardName = currentWorld.id === 'wind' ? 'そよ風の精霊カード' : `${rewardCard?.nameJa || '精霊カード'}`;
   const missionRows = [
@@ -191,16 +197,13 @@ export default function WorldStagePage() {
 
   const stageNodes = Array.from({ length: worldStageCount }, (_, index) => {
     const stage = index + 1;
-    const status = isSelectedWorldComplete
-      ? 'completed'
-      : stage < currentStage
-        ? 'completed'
-        : stage === currentStage
-          ? 'current'
-          : 'locked';
+    const stageProgress = currentWorldProgress.stages?.find((item) => Number(item.stage) === stage);
+    const rawStatus = stageProgress?.status || (currentWorld.id === 'wind' && stage === 1 ? 'current' : 'locked');
+    const status = rawStatus === 'cleared' ? 'completed' : rawStatus;
     return {
       stage,
       status,
+      unlocked: Boolean(stageProgress?.unlocked || status === 'completed' || status === 'current'),
       isBoss: stage === worldStageCount,
       position: stagePositions[index],
     };
@@ -211,11 +214,14 @@ export default function WorldStagePage() {
   }
 
   function startCurrentStage() {
-    openStageWords(currentStage);
+    const targetStage = stageNodes.find((stage) => stage.status === 'current') || stageNodes.find((stage) => stage.status === 'completed');
+    if (targetStage) {
+      openStageWords(targetStage.stage);
+    }
   }
 
   function handleStageTap(stage) {
-    if (stage.status === 'current' || stage.status === 'completed') {
+    if (stage.unlocked) {
       openStageWords(stage.stage);
       return;
     }

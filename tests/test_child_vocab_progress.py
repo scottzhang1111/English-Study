@@ -1060,6 +1060,58 @@ class TodayReviewQuizTests(unittest.TestCase):
         app_module._DB_INITIALIZED = False
         self.temp_dir.cleanup()
 
+    def create_child(self, name='Quest'):
+        conn = app_module.get_db_connection()
+        try:
+            child_id = conn.execute(
+                'INSERT INTO children (name, grade, target_level) VALUES (?, ?, ?)',
+                (name, '3', 'A2'),
+            ).lastrowid
+            conn.commit()
+            return child_id
+        finally:
+            conn.close()
+
+    def clear_stage(self, client, child_id, world, stage):
+        response = client.post(
+            f'/api/children/{child_id}/world-stage-progress',
+            json={'world': world, 'stage': stage, 'status': 'cleared'},
+        )
+        self.assertEqual(200, response.status_code, response.get_data(as_text=True))
+        return response.get_json()
+
+    def seed_cleared_stages(self, child_id, plan):
+        rows = [
+            (child_id, world_id, stage, 'cleared', '2026-05-31T00:00:00')
+            for world_id, stages in plan.items()
+            for stage in stages
+        ]
+        conn = app_module.get_db_connection()
+        try:
+            conn.executemany(
+                '''
+                INSERT INTO child_world_stage_progress (
+                    child_id, world_id, stage_number, status, cleared_at
+                ) VALUES (?, ?, ?, ?, ?)
+                ON CONFLICT(child_id, world_id, stage_number) DO UPDATE SET
+                    status = excluded.status,
+                    cleared_at = COALESCE(child_world_stage_progress.cleared_at, excluded.cleared_at),
+                    updated_at = CURRENT_TIMESTAMP
+                ''',
+                rows,
+            )
+            conn.commit()
+        finally:
+            conn.close()
+
+    def quest_progress(self, client, child_id):
+        response = client.get(f'/api/home?child_id={child_id}')
+        self.assertEqual(200, response.status_code, response.get_data(as_text=True))
+        return response.get_json()['eigo_quest_progress']
+
+    def progress_world(self, progress, world_id):
+        return next(world for world in progress['worlds'] if world['id'] == world_id)
+
     def test_generate_today_review_questions(self):
         mastered_words = [entry['English'] for entry in app_module.vocab_list[:20] if entry.get('English')]
         with patch.object(app_module, 'load_progress', return_value={'count': 20, 'mastered_words': mastered_words}), patch.object(
@@ -1234,6 +1286,117 @@ class TodayReviewQuizTests(unittest.TestCase):
 
         progress_response = client.get(f'/api/children/{child_id}/world-stage-progress?world=shadow&stage=6')
         self.assertEqual(400, progress_response.status_code)
+
+    def test_new_child_only_unlocks_wind_stage_one(self):
+        child_id = self.create_child('New Quest')
+        client = app_module.app.test_client()
+
+        progress = self.quest_progress(client, child_id)
+        wind = self.progress_world(progress, 'wind')
+        fire = self.progress_world(progress, 'fire')
+
+        self.assertEqual('child_world_stage_progress', progress['source'])
+        self.assertEqual('wind', progress['current_world'])
+        self.assertEqual(1, progress['current_stage'])
+        self.assertFalse(progress['mainline_complete'])
+        self.assertTrue(wind['stages'][0]['unlocked'])
+        self.assertEqual('current', wind['stages'][0]['status'])
+        self.assertFalse(wind['stages'][1]['unlocked'])
+        self.assertFalse(fire['unlocked'])
+
+    def test_stage_clear_unlocks_next_stage_and_next_world(self):
+        child_id = self.create_child('Wind Clear')
+        client = app_module.app.test_client()
+
+        self.clear_stage(client, child_id, 'wind', 1)
+        progress = self.quest_progress(client, child_id)
+        wind = self.progress_world(progress, 'wind')
+        self.assertEqual('wind', progress['current_world'])
+        self.assertEqual(2, progress['current_stage'])
+        self.assertEqual('cleared', wind['stages'][0]['status'])
+        self.assertEqual('current', wind['stages'][1]['status'])
+
+        self.seed_cleared_stages(child_id, {'wind': range(2, 11)})
+        progress = self.quest_progress(client, child_id)
+        fire = self.progress_world(progress, 'fire')
+        self.assertEqual('fire', progress['current_world'])
+        self.assertEqual(1, progress['current_stage'])
+        self.assertTrue(fire['unlocked'])
+        self.assertEqual('current', fire['stages'][0]['status'])
+
+    def test_light_stage_ten_unlocks_shadow_stage_one(self):
+        child_id = self.create_child('Shadow Open')
+        client = app_module.app.test_client()
+
+        self.seed_cleared_stages(
+            child_id,
+            {world_id: range(1, 11) for world_id in ['wind', 'fire', 'water', 'thunder', 'wood', 'rock', 'light']},
+        )
+
+        progress = self.quest_progress(client, child_id)
+        shadow = self.progress_world(progress, 'shadow')
+        self.assertEqual('shadow', progress['current_world'])
+        self.assertEqual(1, progress['current_stage'])
+        self.assertTrue(shadow['unlocked'])
+        self.assertEqual(5, len(shadow['stages']))
+        self.assertEqual('current', shadow['stages'][0]['status'])
+
+    def test_shadow_stage_five_completes_mainline_without_stage_six(self):
+        child_id = self.create_child('Mainline Done')
+        client = app_module.app.test_client()
+
+        plan = {world_id: range(1, 11) for world_id in ['wind', 'fire', 'water', 'thunder', 'wood', 'rock', 'light']}
+        plan['shadow'] = range(1, 6)
+        self.seed_cleared_stages(child_id, plan)
+
+        progress = self.quest_progress(client, child_id)
+        shadow = self.progress_world(progress, 'shadow')
+        self.assertTrue(progress['mainline_complete'])
+        self.assertIsNone(progress['current_world'])
+        self.assertIsNone(progress['current_stage'])
+        self.assertEqual(75, progress['completed_stage_count'])
+        self.assertEqual(5, len(shadow['stages']))
+        self.assertFalse(any(stage['stage'] == 6 for stage in shadow['stages']))
+
+    def test_mastered_words_do_not_unlock_stages_without_stage_clear(self):
+        child_id = self.create_child('Mastered Only')
+        conn = app_module.get_db_connection()
+        try:
+            conn.execute('INSERT OR IGNORE INTO vocabulary (id) VALUES (?)', (1,))
+            conn.execute(
+                '''
+                INSERT INTO child_vocab_progress (
+                    child_id, vocab_id, correct_count, wrong_count, review_count,
+                    memory_level, last_studied_at, mastered, correct_streak
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+                ''',
+                (child_id, 1, 5, 0, 5, 5, '2026-05-31T00:00:00', 1, 5),
+            )
+            conn.commit()
+        finally:
+            conn.close()
+
+        progress = self.quest_progress(app_module.app.test_client(), child_id)
+        wind = self.progress_world(progress, 'wind')
+        self.assertEqual('wind', progress['current_world'])
+        self.assertEqual(1, progress['current_stage'])
+        self.assertEqual('locked', wind['stages'][1]['status'])
+
+    def test_repeated_stage_clear_is_idempotent(self):
+        child_id = self.create_child('Repeat Clear')
+        client = app_module.app.test_client()
+
+        first = self.clear_stage(client, child_id, 'wind', 1)
+        second = self.clear_stage(client, child_id, 'wind', 1)
+        progress = self.quest_progress(client, child_id)
+        wind = self.progress_world(progress, 'wind')
+
+        self.assertTrue(first['cleared'])
+        self.assertTrue(second['cleared'])
+        self.assertEqual(1, progress['completed_stage_count'])
+        self.assertEqual('wind', progress['current_world'])
+        self.assertEqual(2, progress['current_stage'])
+        self.assertEqual('cleared', wind['stages'][0]['status'])
 
 
 class AiPracticeSystemTests(unittest.TestCase):

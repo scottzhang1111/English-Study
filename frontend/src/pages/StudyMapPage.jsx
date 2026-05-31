@@ -2,12 +2,10 @@ import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getHomeData } from '../api';
 import { EQBottomNav, EQMobileShell } from '../components/eigo';
-import eigoQuestWorlds, { EIGO_QUEST_TOTAL_WORDS, EIGO_QUEST_WORDS_PER_STAGE } from '../config/eigoQuestWorlds';
-import { getEigoQuestProgress } from '../helpers/eigoQuestProgress';
+import eigoQuestWorlds from '../config/eigoQuestWorlds';
 import CompactPageHeader from '../components/eigo/CompactPageHeader';
 
 const CHILD_STORAGE_KEY = 'selected_child_id';
-const MOCK_LEARNED_WORDS = 420;
 
 const WORLD_DISPLAY = {
   wind: { nameJa: '風の世界', nameEn: 'WIND REALM', symbol: '風', color: '#45d7ff' },
@@ -20,16 +18,10 @@ const WORLD_DISPLAY = {
   shadow: { nameJa: '影の世界', nameEn: 'SHADOW REALM', symbol: '影', color: '#a569ff' },
 };
 
-function clamp(value, min, max) {
-  return Math.min(max, Math.max(min, value));
-}
-
-function getWorldStageLabel(progressWords, world) {
+function getStageLabel(worldProgress, world) {
   const stageCount = Number(world?.stageCount || world?.stages || 10);
-  const wordCount = Number(world?.wordCount || stageCount * EIGO_QUEST_WORDS_PER_STAGE);
-  if (progressWords >= wordCount) return 'クリア';
-  if (progressWords <= 0) return `Stage 0 / ${stageCount}`;
-  return `Stage ${Math.floor(progressWords / EIGO_QUEST_WORDS_PER_STAGE) + 1} / ${stageCount}`;
+  if (worldProgress?.cleared) return 'クリア';
+  return `Stage ${worldProgress?.cleared_stage_count || 0} / ${stageCount}`;
 }
 
 export default function StudyMapPage() {
@@ -49,40 +41,40 @@ export default function StudyMapPage() {
       .then((payload) => setHomeData(payload))
       .catch((err) => {
         setError(err.message || '学習データを読み込めませんでした。');
-        setHomeData({ mastered_words: MOCK_LEARNED_WORDS });
+        setHomeData(null);
       });
   }, [childId, navigate]);
 
-  const rawLearnedWords = homeData?.mastered_words ?? homeData?.learned_words ?? homeData?.progress;
-  const learnedWordsCount = Number.isFinite(Number(rawLearnedWords))
-    ? clamp(Number(rawLearnedWords), 0, EIGO_QUEST_TOTAL_WORDS)
-    : MOCK_LEARNED_WORDS;
-  const currentWorldIndex = getEigoQuestProgress(learnedWordsCount).worldIndex;
+  const questProgress = homeData?.eigo_quest_progress || {};
+  const progressWorlds = questProgress.worlds || [];
+  const currentWorldId = questProgress.mainline_complete ? 'shadow' : (questProgress.current_world || 'wind');
 
-  const worlds = eigoQuestWorlds.map((world, index) => {
+  const worlds = eigoQuestWorlds.map((world) => {
+    const worldProgress = progressWorlds.find((item) => item.id === world.id) || {};
     const display = WORLD_DISPLAY[world.id] || {
       nameJa: world.nameJa,
       nameEn: `${world.id.toUpperCase()} REALM`,
       symbol: world.icon || '*',
       color: world.themeColor || '#45d7ff',
     };
-    const wordCount = Number(world.wordCount || Number(world.stageCount || world.stages || 10) * EIGO_QUEST_WORDS_PER_STAGE);
-    const progressWords = clamp(learnedWordsCount - Number(world.wordStartIndex || 0), 0, wordCount);
-    const isComplete = progressWords >= wordCount;
-    const isCurrent = index === currentWorldIndex && !isComplete;
-    const isFuture = progressWords === 0 && !isCurrent;
+    const stageCount = Number(world.stageCount || world.stages || 10);
+    const clearedStages = Number(worldProgress.cleared_stage_count || 0);
+    const isComplete = Boolean(worldProgress.cleared);
+    const isCurrent = world.id === currentWorldId && !questProgress.mainline_complete;
+    const isFuture = !worldProgress.unlocked && !isCurrent;
 
     return {
       ...world,
       ...display,
-      progressWords,
-      progressPercent: Math.round((progressWords / wordCount) * 100),
-      stageLabel: getWorldStageLabel(progressWords, world),
+      progressWords: clearedStages * 20,
+      progressPercent: Math.round((clearedStages / stageCount) * 100),
+      stageLabel: getStageLabel(worldProgress, world),
       status: isComplete ? 'complete' : isCurrent ? 'current' : isFuture ? 'future' : 'active',
+      unlocked: Boolean(worldProgress.unlocked),
     };
   });
 
-  const currentWorld = worlds[currentWorldIndex] || worlds[0];
+  const currentWorld = worlds.find((world) => world.id === currentWorldId) || worlds[0];
 
   function handleImageError(worldId) {
     setFailedImages((current) => {
@@ -93,7 +85,7 @@ export default function StudyMapPage() {
   }
 
   function handleWorldClick(world) {
-    if (world.status === 'future') return;
+    if (!world.unlocked && world.status === 'future') return;
     navigate(`/app/world-stage?world=${world.id}`);
   }
 
@@ -105,9 +97,9 @@ export default function StudyMapPage() {
           backgroundImage={currentWorld?.backgroundImage}
           helperImage="/assets/eigo-quest/spirit_assets/happy.png"
           guidanceText={[
-            '学習の旅を確認しよう',
-            '次の目標まで少しずつ進もう',
-            'クリアした世界は力を取り戻しているよ',
+            questProgress.mainline_complete ? 'メインクエストをクリアしました' : '学習の旅を確認しよう',
+            'Stage clear で次の道が開くよ',
+            'クリアしたStageはいつでも入り直せます',
           ]}
           variant={currentWorld?.id || 'wind'}
         />
