@@ -1,5 +1,6 @@
 ﻿import sqlite3
 import json
+import re
 import tempfile
 import unittest
 from pathlib import Path
@@ -14,10 +15,12 @@ class ChildVocabProgressSchemaTests(unittest.TestCase):
         self.db_path = Path(self.temp_dir.name) / 'test.db'
         self.get_db_path_patch = patch.object(app_module, 'get_db_path', return_value=str(self.db_path))
         self.get_db_path_patch.start()
+        app_module._DB_INITIALIZED = False
         app_module.init_db()
 
     def tearDown(self):
         self.get_db_path_patch.stop()
+        app_module._DB_INITIALIZED = False
         self.temp_dir.cleanup()
 
     def test_schema_and_foreign_keys_exist(self):
@@ -1049,10 +1052,12 @@ class TodayReviewQuizTests(unittest.TestCase):
         self.db_path = Path(self.temp_dir.name) / 'test.db'
         self.get_db_path_patch = patch.object(app_module, 'get_db_path', return_value=str(self.db_path))
         self.get_db_path_patch.start()
+        app_module._DB_INITIALIZED = False
         app_module.init_db()
 
     def tearDown(self):
         self.get_db_path_patch.stop()
+        app_module._DB_INITIALIZED = False
         self.temp_dir.cleanup()
 
     def test_generate_today_review_questions(self):
@@ -1133,6 +1138,102 @@ class TodayReviewQuizTests(unittest.TestCase):
         )
         self.assertEqual(200, clear_response.status_code)
         self.assertTrue(clear_response.get_json()['cleared'])
+
+    def test_eigo_quest_world_config_matches_product_stage_plan(self):
+        expected_worlds = [
+            ('wind', 1, 10, 200, 0),
+            ('fire', 2, 10, 200, 200),
+            ('water', 3, 10, 200, 400),
+            ('thunder', 4, 10, 200, 600),
+            ('wood', 5, 10, 200, 800),
+            ('rock', 6, 10, 200, 1000),
+            ('light', 7, 10, 200, 1200),
+            ('shadow', 8, 5, 100, 1400),
+        ]
+
+        self.assertEqual([world_id for world_id, *_ in expected_worlds], app_module.EIGO_QUEST_WORLD_ORDER)
+        self.assertEqual(75, app_module.EIGO_QUEST_TOTAL_STAGES)
+        self.assertEqual(1500, app_module.EIGO_QUEST_TOTAL_WORDS)
+        self.assertEqual(20, app_module.EIGO_QUEST_WORDS_PER_STAGE)
+        self.assertEqual('water', app_module.EIGO_QUEST_WORLDS[2]['id'])
+        self.assertEqual('light', app_module.EIGO_QUEST_WORLDS[6]['id'])
+        self.assertEqual('shadow', app_module.EIGO_QUEST_WORLDS[7]['id'])
+
+        for world_id, order, stage_count, word_count, word_start_index in expected_worlds:
+            self.assertEqual(
+                {
+                    'id': world_id,
+                    'order': order,
+                    'stage_count': stage_count,
+                    'word_count': word_count,
+                    'word_start_index': word_start_index,
+                },
+                app_module.EIGO_QUEST_WORLD_MAP[world_id],
+            )
+
+    def test_frontend_world_config_matches_product_stage_plan(self):
+        config_path = Path(app_module.app.root_path) / 'frontend' / 'src' / 'config' / 'eigoQuestWorlds.js'
+        config_text = config_path.read_text(encoding='utf-8')
+
+        ordered_ids = re.findall(r"id: '([^']+)'", config_text)
+        self.assertEqual(
+            ['wind', 'fire', 'water', 'thunder', 'wood', 'rock', 'light', 'shadow'],
+            ordered_ids,
+        )
+        self.assertIn('export const EIGO_QUEST_WORDS_PER_STAGE = 20', config_text)
+        self.assertIn('export const EIGO_QUEST_TOTAL_WORDS', config_text)
+        self.assertIn('export const EIGO_QUEST_TOTAL_STAGES', config_text)
+        self.assertRegex(config_text, r"id: 'shadow',[\s\S]*?stageCount: 5,[\s\S]*?wordCount: 100,[\s\S]*?wordStartIndex: 1400")
+
+    def test_stage_vocab_boundaries_follow_1500_word_plan(self):
+        expected_worlds = [
+            ('wind', 10, 1, 200),
+            ('fire', 10, 201, 400),
+            ('water', 10, 401, 600),
+            ('thunder', 10, 601, 800),
+            ('wood', 10, 801, 1000),
+            ('rock', 10, 1001, 1200),
+            ('light', 10, 1201, 1400),
+            ('shadow', 5, 1401, 1500),
+        ]
+
+        for world_id, stage_count, first_id, last_id in expected_worlds:
+            seen_ids = []
+            for stage in range(1, stage_count + 1):
+                entries = app_module.select_stage_vocab_entries(world_id, stage, 20)
+                self.assertEqual(20, len(entries), (world_id, stage))
+                ids = [int(entry['ID']) for entry in entries]
+                self.assertEqual(list(range(ids[0], ids[0] + 20)), ids)
+                seen_ids.extend(ids)
+
+            self.assertEqual(first_id, seen_ids[0])
+            self.assertEqual(last_id, seen_ids[-1])
+            self.assertEqual(list(range(first_id, last_id + 1)), seen_ids)
+
+        shadow_stage_5 = app_module.select_stage_vocab_entries('shadow', 5, 20)
+        self.assertEqual(list(range(1481, 1501)), [int(entry['ID']) for entry in shadow_stage_5])
+        self.assertIsNone(app_module.select_stage_vocab_entries('shadow', 6, 20))
+
+    def test_invalid_shadow_stage_is_rejected_by_stage_apis(self):
+        conn = app_module.get_db_connection()
+        try:
+            child_id = conn.execute(
+                'INSERT INTO children (name, grade, target_level) VALUES (?, ?, ?)',
+                ('Mio', '3', 'A2'),
+            ).lastrowid
+            conn.commit()
+        finally:
+            conn.close()
+
+        client = app_module.app.test_client()
+        daily_response = client.get(f'/api/daily-words?child_id={child_id}&world=shadow&stage=6&limit=20')
+        self.assertEqual(400, daily_response.status_code)
+
+        quiz_response = client.get(f'/api/today-review-quiz?child_id={child_id}&world=shadow&stage=6')
+        self.assertEqual(400, quiz_response.status_code)
+
+        progress_response = client.get(f'/api/children/{child_id}/world-stage-progress?world=shadow&stage=6')
+        self.assertEqual(400, progress_response.status_code)
 
 
 class AiPracticeSystemTests(unittest.TestCase):

@@ -13,8 +13,6 @@ import { eigoQuestIconAssets } from '../config/eigoQuestAssets';
 import eigoQuestAssets from '../data/eigoQuestAssets';
 
 const DEFAULT_DAILY_WORD_TARGET = 20;
-const EQ_WORDS_PER_WORLD = 200;
-const EQ_WORDS_PER_STAGE = 20;
 const HOME_WORLD_NAME_JA = {
   wind: '風の区域',
   fire: '火の山',
@@ -600,13 +598,10 @@ const handleHomeVideoPlay = async (event) => {
   const displayQuizDone = Math.min(quizDone, quizTarget);
   const displayWrongReviewDone = Math.min(wrongReviewDone, wrongReviewTarget);
   const rewardCard = eigoQuestCards.find((card) => card.worldId === questProgress.currentWorld.id) || eigoQuestCards[0];
-  const currentWorldWordsRaw = questProgress.learnedWords % EQ_WORDS_PER_WORLD;
-  const currentWorldWords = questProgress.learnedWords > 0 && currentWorldWordsRaw === 0
-    ? EQ_WORDS_PER_WORLD
-    : currentWorldWordsRaw;
-  const currentWorldStage = Math.min(10, Math.max(1, Math.floor(currentWorldWords / EQ_WORDS_PER_STAGE) + 1));
-  const currentWorldProgressLabel = `${currentWorldWords} / ${EQ_WORDS_PER_WORLD} words`;
-  const currentWorldProgressValue = Math.min(100, Math.round((currentWorldWords / EQ_WORDS_PER_WORLD) * 100));
+  const currentWorldWords = questProgress.worldWordsLearned;
+  const currentWorldStage = questProgress.stageInWorld;
+  const currentWorldProgressLabel = `${currentWorldWords} / ${questProgress.worldWordTarget} words`;
+  const currentWorldProgressValue = Math.min(100, Math.round((currentWorldWords / questProgress.worldWordTarget) * 100));
   const currentWorldProgressPercent = `${currentWorldProgressValue}%`;
   const worldDisplayName = HOME_WORLD_NAME_JA[questProgress.currentWorld.id] || questProgress.currentWorld.nameJa || '風の区域';
   const worldEnglishLabel = `${String(questProgress.currentWorld.id || 'wind').toUpperCase()} REALM`;
@@ -830,9 +825,9 @@ const handleHomeVideoPlay = async (event) => {
               </div> */}
 
               <div className="world-progress-row">
-                <div className="eq-home-hero-meta stage-panel" aria-label={`${currentWorldStage} / 10 stages, ${currentWorldProgressLabel}`}>
+                <div className="eq-home-hero-meta stage-panel" aria-label={`${currentWorldStage} / ${questProgress.worldStageCount} stages, ${currentWorldProgressLabel}`}>
                   <div className="stage-main">
-                    <strong>Stage {currentWorldStage} / 10</strong>
+                    <strong>Stage {currentWorldStage} / {questProgress.worldStageCount}</strong>
                   </div>
                   <div className="words-main">
                     <strong>{currentWorldProgressLabel}</strong>

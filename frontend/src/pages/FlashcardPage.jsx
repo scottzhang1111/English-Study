@@ -24,11 +24,11 @@ import {
   markWorldStageCleared,
 } from '../api';
 import eigoQuestWorlds from '../config/eigoQuestWorlds';
+import { getWorldStageByLearnedWords } from '../helpers/eigoQuestProgress';
 import CompactPageHeader from '../components/eigo/CompactPageHeader';
 
 const DAILY_TARGET = 20;
 const CHILD_STORAGE_KEY = 'selected_child_id';
-const WORDS_PER_WORLD = 200;
 const SPIRIT_IMAGE = '/assets/eigo-quest/spirit_assets/happy.png';
 
 const WORLD_STUDY_DISPLAY = {
@@ -146,14 +146,7 @@ function MasteryStars({ count }) {
 }
 
 function getQuestWorldByLearnedWords(learnedWordsCount = 0) {
-  const learnedWords = Number(learnedWordsCount);
-  const safeLearnedWords = Number.isFinite(learnedWords) ? Math.max(0, learnedWords) : 0;
-  const worldIndex = Math.min(
-    eigoQuestWorlds.length - 1,
-    Math.max(0, Math.floor(safeLearnedWords / WORDS_PER_WORLD))
-  );
-
-  return eigoQuestWorlds[worldIndex] || eigoQuestWorlds[0];
+  return getWorldStageByLearnedWords(learnedWordsCount).world || eigoQuestWorlds[0];
 }
 
 function getStudyWorldDisplay(world) {

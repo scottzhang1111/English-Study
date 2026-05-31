@@ -4,6 +4,7 @@ import { getDailyWords, getHomeData, markMastered, submitPracticeAnswer } from '
 import { useChildren } from '../ChildrenContext';
 import { getPartner } from '../utils/childStorage';
 import eigoQuestWorlds from '../config/eigoQuestWorlds';
+import { getWorldStageByLearnedWords } from '../helpers/eigoQuestProgress';
 import CompactPageHeader from '../components/eigo/CompactPageHeader';
 
 import {
@@ -16,7 +17,6 @@ import {
 const DEFAULT_DAILY_WORD_TARGET = 20;
 /* const DAILY_PASS_EXP = 20; */
 const DAILY_WORD_POOL_UNITS = 10;
-const WORDS_PER_WORLD = 200;
 const SPIRIT_IMAGE = '/assets/eigo-quest/spirit_assets/happy.png';
 
 const DAILY_WORLD_DISPLAY = {
@@ -96,14 +96,7 @@ function compareReviewOrder(a, b) {
 }
 
 function getQuestWorldByLearnedWords(learnedWordsCount = 0) {
-  const learnedWords = Number(learnedWordsCount);
-  const safeLearnedWords = Number.isFinite(learnedWords) ? Math.max(0, learnedWords) : 0;
-  const worldIndex = Math.min(
-    eigoQuestWorlds.length - 1,
-    Math.max(0, Math.floor(safeLearnedWords / WORDS_PER_WORLD))
-  );
-
-  return eigoQuestWorlds[worldIndex] || eigoQuestWorlds[0];
+  return getWorldStageByLearnedWords(learnedWordsCount).world || eigoQuestWorlds[0];
 }
 
 function getDailyWorldDisplay(world) {

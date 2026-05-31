@@ -3,13 +3,10 @@ import { useNavigate } from 'react-router-dom';
 import { getHeroCards, getHomeData } from '../api';
 import { EQBackPill, EQBottomNav, EQCard, EQMobileShell } from '../components/eigo';
 import eigoQuestCards from '../config/eigoQuestCards';
-import eigoQuestWorlds from '../config/eigoQuestWorlds';
+import eigoQuestWorlds, { EIGO_QUEST_WORDS_PER_STAGE } from '../config/eigoQuestWorlds';
 import CompactPageHeader from '../components/eigo/CompactPageHeader';
 
 const CHILD_STORAGE_KEY = 'selected_child_id';
-const WORDS_PER_WORLD = 200;
-const WORDS_PER_STAGE = 20;
-const STAGES_PER_WORLD = 10;
 
 const WORLD_META = {
   all: { label: 'すべて', name: 'すべて', color: '#ffd35a', symbol: '★' },
@@ -23,7 +20,7 @@ const WORLD_META = {
   light: { label: '光', name: '光の世界', color: '#ffd86b', symbol: '光' },
 };
 
-const CARD_FILTERS = ['all', 'wind', 'fire', 'thunder', 'wood', 'rock', 'shadow', 'water', 'light'];
+const CARD_FILTERS = ['all', ...eigoQuestWorlds.map((world) => world.id)];
 
 const WORD_REVIEW_MODES = new Set([
   'antonym',
@@ -91,9 +88,9 @@ function getProgressOwnedCardIds(learnedWordsCount, sourceCards = eigoQuestCards
   const learnedWords = Math.max(0, Number(learnedWordsCount) || 0);
   const ownedIds = [];
 
-  eigoQuestWorlds.forEach((world, worldIndex) => {
-    const worldWords = Math.max(0, Math.min(WORDS_PER_WORLD, learnedWords - worldIndex * WORDS_PER_WORLD));
-    const clearedStages = Math.max(0, Math.min(STAGES_PER_WORLD, Math.floor(worldWords / WORDS_PER_STAGE)));
+  eigoQuestWorlds.forEach((world) => {
+    const worldWords = Math.max(0, Math.min(world.wordCount, learnedWords - Number(world.wordStartIndex || 0)));
+    const clearedStages = Math.max(0, Math.min(world.stageCount, Math.floor(worldWords / EIGO_QUEST_WORDS_PER_STAGE)));
     if (clearedStages <= 0) return;
 
     const worldCards = sourceCards.filter((card) => card.worldId === world.id);

@@ -42,7 +42,7 @@ export default function WorldHomePage() {
           subtitle="ステージを選んで冒険しよう"
           backgroundImage={world.backgroundImage}
           elementLabel={world.symbol}
-          progressText="10 stages"
+          progressText={`${world.stageCount || world.stages || 10} stages`}
           helperImage="/assets/eigo-quest/spirit_assets/happy.png"
           variant={world.id}
         />
@@ -74,7 +74,7 @@ export default function WorldHomePage() {
         <EQCard className="eq-world-home-card">
           <h2>ステージ</h2>
           <div className="eq-world-stage-list">
-            {Array.from({ length: 10 }).map((_, index) => (
+            {Array.from({ length: world.stageCount || world.stages || 10 }).map((_, index) => (
               <button
                 key={index}
                 type="button"

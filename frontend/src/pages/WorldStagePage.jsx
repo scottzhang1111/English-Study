@@ -3,14 +3,12 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { getHomeData } from '../api';
 import { EQBackPill, EQCard, EQMobileShell, EQBottomNav } from '../components/eigo';
 import { eigoQuestCards } from '../config/eigoQuestCards';
-import eigoQuestWorlds from '../config/eigoQuestWorlds';
+import eigoQuestWorlds, { EIGO_QUEST_WORDS_PER_STAGE } from '../config/eigoQuestWorlds';
+import { getEigoQuestProgress } from '../helpers/eigoQuestProgress';
 import CompactPageHeader from '../components/eigo/CompactPageHeader';
 
 const CHILD_STORAGE_KEY = 'selected_child_id';
 const MOCK_LEARNED_WORDS = 35;
-const WORDS_PER_WORLD = 200;
-const WORDS_PER_STAGE = 20;
-const STAGES_PER_WORLD = 10;
 
 const WORLD_DISPLAY = {
   wind: {
@@ -143,12 +141,14 @@ export default function WorldStagePage() {
 
   const learnedWords = Number(homeData?.mastered_words ?? homeData?.learned_words ?? homeData?.progress ?? MOCK_LEARNED_WORDS);
   const safeLearnedWords = Number.isFinite(learnedWords) ? Math.max(0, learnedWords) : MOCK_LEARNED_WORDS;
-  const progressWorldIndex = clamp(Math.floor(safeLearnedWords / WORDS_PER_WORLD), 0, eigoQuestWorlds.length - 1);
+  const progressWorldIndex = getEigoQuestProgress(safeLearnedWords).worldIndex;
   const requestedWorldId = searchParams.get('world');
   const requestedWorldIndex = eigoQuestWorlds.findIndex((world) => world.id === requestedWorldId);
   const canOpenRequestedWorld = requestedWorldIndex >= 0 && requestedWorldIndex <= progressWorldIndex;
   const worldIndex = canOpenRequestedWorld ? requestedWorldIndex : progressWorldIndex;
   const currentWorld = eigoQuestWorlds[worldIndex] || eigoQuestWorlds[0];
+  const worldWordCount = Number(currentWorld.wordCount || Number(currentWorld.stageCount || currentWorld.stages || 10) * EIGO_QUEST_WORDS_PER_STAGE);
+  const worldStageCount = Number(currentWorld.stageCount || currentWorld.stages || Math.ceil(worldWordCount / EIGO_QUEST_WORDS_PER_STAGE));
   const worldDisplay = WORLD_DISPLAY[currentWorld.id] || {
     nameJa: currentWorld.nameJa || '風の世界',
     nameEn: `${String(currentWorld.id || 'wind').toUpperCase()} REALM`,
@@ -156,13 +156,13 @@ export default function WorldStagePage() {
     color: currentWorld.themeColor || '#45d7ff',
   };
 
-  const rawWorldWords = safeLearnedWords - worldIndex * WORDS_PER_WORLD;
-  const learnedWordsInWorld = clamp(rawWorldWords, 0, WORDS_PER_WORLD);
-  const isSelectedWorldComplete = learnedWordsInWorld >= WORDS_PER_WORLD;
+  const rawWorldWords = safeLearnedWords - Number(currentWorld.wordStartIndex || 0);
+  const learnedWordsInWorld = clamp(rawWorldWords, 0, worldWordCount);
+  const isSelectedWorldComplete = learnedWordsInWorld >= worldWordCount;
   const currentStage = isSelectedWorldComplete
-    ? STAGES_PER_WORLD
-    : clamp(Math.floor(learnedWordsInWorld / WORDS_PER_STAGE) + 1, 1, STAGES_PER_WORLD);
-  const worldProgressPercent = Math.round((learnedWordsInWorld / WORDS_PER_WORLD) * 100);
+    ? worldStageCount
+    : clamp(Math.floor(learnedWordsInWorld / EIGO_QUEST_WORDS_PER_STAGE) + 1, 1, worldStageCount);
+  const worldProgressPercent = Math.round((learnedWordsInWorld / worldWordCount) * 100);
   const todayWordsDone = Number(homeData?.progress ?? 6);
   const todayWordsTarget = Number(homeData?.target ?? 20);
   const quizDone = Number(homeData?.today_quiz_correct ?? homeData?.quiz_progress ?? 3);
@@ -170,8 +170,8 @@ export default function WorldStagePage() {
   const wrongReviewDone = Number(homeData?.today_review_done ?? 0);
   const wrongReviewTarget = Number(homeData?.today_review_target ?? 3);
 
-  const stageStarted = learnedWordsInWorld > (currentStage - 1) * WORDS_PER_STAGE;
-  const stageCompleted = learnedWordsInWorld >= currentStage * WORDS_PER_STAGE;
+  const stageStarted = learnedWordsInWorld > (currentStage - 1) * EIGO_QUEST_WORDS_PER_STAGE;
+  const stageCompleted = learnedWordsInWorld >= currentStage * EIGO_QUEST_WORDS_PER_STAGE;
   const stageCtaLabel = stageCompleted ? '次のステージへ' : stageStarted ? `Stage ${currentStage} をつづける` : `Stage ${currentStage} を始める`;
   const rewardCard = eigoQuestCards.find((card) => card.worldId === currentWorld.id) || eigoQuestCards[0];
   const rewardCardName = currentWorld.id === 'wind' ? 'そよ風の精霊カード' : `${rewardCard?.nameJa || '精霊カード'}`;
@@ -189,7 +189,7 @@ export default function WorldStagePage() {
     setImageFailed(false);
   }, [currentWorld.id]);
 
-  const stageNodes = Array.from({ length: STAGES_PER_WORLD }, (_, index) => {
+  const stageNodes = Array.from({ length: worldStageCount }, (_, index) => {
     const stage = index + 1;
     const status = isSelectedWorldComplete
       ? 'completed'
@@ -201,7 +201,7 @@ export default function WorldStagePage() {
     return {
       stage,
       status,
-      isBoss: stage === STAGES_PER_WORLD,
+      isBoss: stage === worldStageCount,
       position: stagePositions[index],
     };
   });

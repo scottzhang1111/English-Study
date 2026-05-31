@@ -45,6 +45,21 @@ GRAMMAR_FORM_TEST_DB_FILENAME = os.path.join('data', 'eiken', 'eiken_pre2', 'eik
 OPENAI_RESPONSES_URL = 'https://api.openai.com/v1/responses'
 AI_QUESTION_TYPES = ['Vocabulary', 'Grammar', 'Conversation', 'Reading Cloze']
 AI_AUTO_QUESTION_TYPES = ['multiple_choice', 'fill_blank', 'en_to_ja', 'ja_to_en', 'sentence', 'reading', 'writing']
+EIGO_QUEST_WORDS_PER_STAGE = 20
+EIGO_QUEST_WORLDS = [
+    {'id': 'wind', 'order': 1, 'stage_count': 10, 'word_count': 200, 'word_start_index': 0},
+    {'id': 'fire', 'order': 2, 'stage_count': 10, 'word_count': 200, 'word_start_index': 200},
+    {'id': 'water', 'order': 3, 'stage_count': 10, 'word_count': 200, 'word_start_index': 400},
+    {'id': 'thunder', 'order': 4, 'stage_count': 10, 'word_count': 200, 'word_start_index': 600},
+    {'id': 'wood', 'order': 5, 'stage_count': 10, 'word_count': 200, 'word_start_index': 800},
+    {'id': 'rock', 'order': 6, 'stage_count': 10, 'word_count': 200, 'word_start_index': 1000},
+    {'id': 'light', 'order': 7, 'stage_count': 10, 'word_count': 200, 'word_start_index': 1200},
+    {'id': 'shadow', 'order': 8, 'stage_count': 5, 'word_count': 100, 'word_start_index': 1400},
+]
+EIGO_QUEST_WORLD_MAP = {world['id']: world for world in EIGO_QUEST_WORLDS}
+EIGO_QUEST_WORLD_ORDER = [world['id'] for world in EIGO_QUEST_WORLDS]
+EIGO_QUEST_TOTAL_STAGES = sum(world['stage_count'] for world in EIGO_QUEST_WORLDS)
+EIGO_QUEST_TOTAL_WORDS = sum(world['word_count'] for world in EIGO_QUEST_WORLDS)
 STARTER_POKEMON_IDS = [1, 10, 19]
 POKEMON_NAME_FALLBACKS = {
     1: 'フシギダネ',
@@ -4483,7 +4498,10 @@ def api_today_review_quiz_payload(child_id=None, world_id=None, stage=None):
             'target': target,
             'questions': generate_today_review_questions(),
         }
-    stage_entries = select_stage_vocab_entries(world_id, stage, 20) if world_id and stage not in [None, ''] else None
+    has_stage_request = bool(world_id) or stage not in [None, '']
+    stage_entries = select_stage_vocab_entries(world_id, stage, 20) if has_stage_request else None
+    if has_stage_request and stage_entries is None:
+        raise ValueError('valid world and stage are required')
     questions = (
         generate_review_questions_from_entries(stage_entries, limit=20)
         if stage_entries is not None
@@ -7526,21 +7544,22 @@ def build_daily_word_payloads(entries, child_id=None):
 
 
 def select_stage_vocab_entries(world_id=None, stage=None, limit=20):
-    world_ids = ['wind', 'fire', 'water', 'thunder', 'wood', 'rock', 'light', 'shadow']
     try:
         stage_number = int(stage)
     except (TypeError, ValueError):
         return None
-    if stage_number < 1 or stage_number > 10:
-        return None
     normalized_world_id = str(world_id or '').strip().lower()
-    if normalized_world_id not in world_ids:
+    world = EIGO_QUEST_WORLD_MAP.get(normalized_world_id)
+    if not world:
         return None
-    words_per_stage = 20
-    safe_limit = max(1, min(words_per_stage, int(limit or words_per_stage)))
-    world_index = world_ids.index(normalized_world_id)
-    start = world_index * 200 + (stage_number - 1) * words_per_stage
+    if stage_number < 1 or stage_number > world['stage_count']:
+        return None
+    safe_limit = EIGO_QUEST_WORDS_PER_STAGE
+    start = world['word_start_index'] + (stage_number - 1) * EIGO_QUEST_WORDS_PER_STAGE
     end = start + safe_limit
+    world_end = world['word_start_index'] + world['word_count']
+    if end > world_end:
+        return None
     return vocab_list[start:end]
 
 
@@ -7767,7 +7786,10 @@ def api_daily_words():
             limit = int(child_row['daily_target'])
     limit = max(1, min(200, limit))
     study_mode = normalize_study_mode(child_row['study_mode'] if child_row else 'normal')
+    has_stage_request = bool(requested_world) or requested_stage not in [None, '']
     stage_entries = select_stage_vocab_entries(requested_world, requested_stage, limit)
+    if has_stage_request and stage_entries is None:
+        abort(400, 'valid world and stage are required')
     if stage_entries is not None:
         words = build_daily_word_payloads(stage_entries, resolved_child_id)
         return jsonify(
@@ -8256,6 +8278,8 @@ def api_today_review_quiz():
         return jsonify(api_today_review_quiz_payload(child_id=child_id, world_id=world_id, stage=stage))
     except LookupError as exc:
         abort(404, str(exc))
+    except ValueError as exc:
+        abort(400, str(exc))
 
 
 @app.route('/api/ai-practice/next')
