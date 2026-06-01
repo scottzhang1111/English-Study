@@ -749,17 +749,13 @@ const mobilePartOfSpeech =
     {(mode === 'study' || mode === 'complete') && (
       <div className="quest-word-page-wrap lg:hidden">
         <EQMobileShell className="eq-word-study-screen">
-          <header
-            className="quest-word-magic-header"
-            style={{ '--quest-word-bg': `url(${studyWorldDisplay.backgroundImage})` }}
-          >
-            <div className="quest-word-magic-frame" aria-hidden="true" />
-            <div className="quest-word-magic-copy">
-              <h1>単語カード</h1>
-              <p>意味と例文を見てみよう</p>
-            </div>
-            <img className="quest-word-magic-fairy" src={SPIRIT_IMAGE} alt="" />
-          </header>
+          <CompactPageHeader
+            title="単語カード"
+            backgroundImage={studyWorldDisplay.backgroundImage}
+            helperImage={SPIRIT_IMAGE}
+            guidanceText="意味と例文を見てみよう"
+            variant={questWorld?.id || 'wind'}
+          />
 
           {mode === 'complete' ? (
             <EQCard className="eq-word-card eq-word-empty-card">
