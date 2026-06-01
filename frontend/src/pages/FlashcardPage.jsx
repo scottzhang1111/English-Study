@@ -28,6 +28,7 @@ import CompactPageHeader from '../components/eigo/CompactPageHeader';
 
 const DAILY_TARGET = 20;
 const CHILD_STORAGE_KEY = 'selected_child_id';
+const STAGE_QUIZ_ATTEMPT_STORAGE_PREFIX = 'eigo_quest_stage_quiz_attempt';
 const SPIRIT_IMAGE = '/assets/eigo-quest/spirit_assets/happy.png';
 
 const WORLD_STUDY_DISPLAY = {
@@ -155,6 +156,14 @@ function getStudyWorldDisplay(world) {
     ...world,
     ...(WORLD_STUDY_DISPLAY[world.id] || {}),
   };
+}
+
+function getStageQuizAttemptStorageKey(childId, worldId, stage) {
+  return `${STAGE_QUIZ_ATTEMPT_STORAGE_PREFIX}:${childId || 'default'}:${worldId || 'world'}:${stage || 'stage'}`;
+}
+
+function createStageQuizAttemptId() {
+  return `stage-${Date.now()}-${Math.random().toString(16).slice(2)}`;
 }
 
 export default function FlashcardPage() {
@@ -368,9 +377,16 @@ export default function FlashcardPage() {
     setReviewData(null);
     setMode('review');
     try {
+      let stageAttemptId = '';
+      if (hasRequestedStage) {
+        const attemptStorageKey = getStageQuizAttemptStorageKey(selectedChildId, requestedWorldId, requestedStage);
+        stageAttemptId = localStorage.getItem(attemptStorageKey) || createStageQuizAttemptId();
+        localStorage.setItem(attemptStorageKey, stageAttemptId);
+      }
       const payload = await getTodayReviewQuiz(selectedChildId, {
         world: hasRequestedStage ? requestedWorldId : undefined,
         stage: hasRequestedStage ? requestedStage : undefined,
+        attemptId: hasRequestedStage ? stageAttemptId : undefined,
       });
       setReviewData(payload);
       setReviewIndex(0);
@@ -380,7 +396,9 @@ export default function FlashcardPage() {
       setReviewStreak(0);
       setReviewResult(null);
       setReviewAnswers({});
-      reviewAttemptIdRef.current = `stage-${Date.now()}-${Math.random().toString(16).slice(2)}`;
+      reviewAttemptIdRef.current = hasRequestedStage
+        ? (payload.attempt_id || stageAttemptId)
+        : createStageQuizAttemptId();
     } catch (err) {
       setReviewError(err.message || 'Stage Quizを読み込めませんでした。もう一度ためしてください。');
     } finally {
@@ -571,6 +589,7 @@ const handlePreviousStudy = async () => {
           attemptId: reviewAttemptIdRef.current,
           answers: Object.values(reviewAnswers),
         });
+        localStorage.removeItem(getStageQuizAttemptStorageKey(selectedChildId, requestedWorldId, requestedStage));
         const rewardQueue = Array.isArray(result.reward_queue) ? result.reward_queue : [];
         if (result.passed) {
           if (rewardQueue.length) {

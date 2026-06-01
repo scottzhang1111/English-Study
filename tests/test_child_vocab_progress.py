@@ -1263,6 +1263,35 @@ class TodayReviewQuizTests(unittest.TestCase):
             type_counts,
         )
 
+    def test_stage_review_quiz_same_attempt_is_stable_until_submission(self):
+        child_id = self.create_child('Stable Quiz')
+        client = app_module.app.test_client()
+        attempt_id = f'stable-{child_id}-a'
+
+        first = client.get(
+            f'/api/today-review-quiz?child_id={child_id}&world=wind&stage=1&attempt_id={attempt_id}'
+        ).get_json()['questions']
+        second = client.get(
+            f'/api/today-review-quiz?child_id={child_id}&world=wind&stage=1&attempt_id={attempt_id}'
+        ).get_json()['questions']
+
+        self.assertEqual(first, second)
+
+        answers = [
+            {'id': question['id'], 'type': question['type'], 'selected': question['correct']}
+            for question in first
+        ]
+        submit_response = client.post(
+            f'/api/children/{child_id}/stage-quiz-attempts',
+            json={'world': 'wind', 'stage': 1, 'attempt_id': attempt_id, 'answers': answers},
+        )
+        self.assertEqual(201, submit_response.status_code, submit_response.get_data(as_text=True))
+
+        next_attempt = client.get(
+            f'/api/today-review-quiz?child_id={child_id}&world=wind&stage=1&attempt_id=stable-{child_id}-b'
+        ).get_json()['questions']
+        self.assertNotEqual(first, next_attempt)
+
     def test_stage_review_quiz_uses_stage_words_after_stage_is_cleared(self):
         child_id = self.create_child('Cleared Quiz')
         client = app_module.app.test_client()

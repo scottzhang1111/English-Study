@@ -4426,6 +4426,25 @@ def _build_review_choices(correct_value, entries, extractor, minimum_choices=4):
     return choices
 
 
+def _build_stage_review_choices(correct_value, entries, extractor, rng, minimum_choices=4):
+    correct = _clean_csv_value(correct_value)
+    if not correct:
+        return []
+    options = []
+    for entry in entries:
+        value = _clean_csv_value(extractor(entry))
+        if value and value != correct and value not in options:
+            options.append(value)
+    rng.shuffle(options)
+    choices = [correct] + options[: max(0, minimum_choices - 1)]
+    while len(choices) < minimum_choices:
+        filler = f'choice_{len(choices)}'
+        if filler not in choices:
+            choices.append(filler)
+    rng.shuffle(choices)
+    return choices
+
+
 def _generate_review_listening_question(entry, entries):
     word = entry.get('English', '').strip()
     japanese = entry.get('Japanese', '').strip()
@@ -4517,12 +4536,12 @@ def _get_stage_entry_meaning(entry):
     )
 
 
-def _generate_stage_review_listening_question(entry, entries):
+def _generate_stage_review_listening_question(entry, entries, rng):
     word = entry.get('English', '').strip()
     if not word:
         return None
     japanese = _get_stage_entry_meaning(entry)
-    choices = _build_review_choices(word, entries, lambda item: item.get('English', '').strip())
+    choices = _build_stage_review_choices(word, entries, lambda item: item.get('English', '').strip(), rng)
     return {
         'type': 'Listening',
         'question': 'Listen and choose the correct word.',
@@ -4538,12 +4557,12 @@ def _generate_stage_review_listening_question(entry, entries):
     }
 
 
-def _generate_stage_review_meaning_question(entry, entries):
+def _generate_stage_review_meaning_question(entry, entries, rng):
     word = entry.get('English', '').strip()
     japanese = _get_stage_entry_meaning(entry)
     if not word or not japanese:
         return None
-    choices = _build_review_choices(japanese, entries, _get_stage_entry_meaning)
+    choices = _build_stage_review_choices(japanese, entries, _get_stage_entry_meaning, rng)
     return {
         'type': 'Meaning',
         'question': f'What does "{word}" mean?',
@@ -4558,12 +4577,12 @@ def _generate_stage_review_meaning_question(entry, entries):
     }
 
 
-def _generate_stage_review_reverse_question(entry, entries):
+def _generate_stage_review_reverse_question(entry, entries, rng):
     word = entry.get('English', '').strip()
     japanese = _get_stage_entry_meaning(entry)
     if not word or not japanese:
         return None
-    choices = _build_review_choices(word, entries, lambda item: item.get('English', '').strip())
+    choices = _build_stage_review_choices(word, entries, lambda item: item.get('English', '').strip(), rng)
     return {
         'type': 'Reverse',
         'question': f'Choose the English word for "{japanese}".',
@@ -4578,14 +4597,14 @@ def _generate_stage_review_reverse_question(entry, entries):
     }
 
 
-def _generate_stage_review_cloze_question(entry, entries):
+def _generate_stage_review_cloze_question(entry, entries, rng):
     word = entry.get('English', '').strip()
     japanese = _get_stage_entry_meaning(entry)
     if not word:
         return None
     example = entry.get('Example_English', '').strip() or f'This sentence uses {word}.'
     blanked = make_blank(example, word)
-    choices = _build_review_choices(word, entries, lambda item: item.get('English', '').strip())
+    choices = _build_stage_review_choices(word, entries, lambda item: item.get('English', '').strip(), rng)
     return {
         'type': 'Cloze',
         'question': blanked,
@@ -4640,12 +4659,13 @@ def generate_review_questions_from_entries(entries, limit=20):
     return questions[:limit]
 
 
-def generate_stage_review_questions_from_entries(entries, limit=20):
+def generate_stage_review_questions_from_entries(entries, limit=20, seed=None):
     if not entries:
         return []
 
     stage_entries = list(entries)[:limit]
-    random.shuffle(stage_entries)
+    rng = random.Random(seed) if seed else random
+    rng.shuffle(stage_entries)
     generators = [
         _generate_stage_review_listening_question,
         _generate_stage_review_meaning_question,
@@ -4655,7 +4675,7 @@ def generate_stage_review_questions_from_entries(entries, limit=20):
     questions = []
     for index, generator in enumerate(generators):
         for entry in stage_entries[index * 5:(index + 1) * 5]:
-            question = generator(entry, stage_entries)
+            question = generator(entry, stage_entries, rng)
             if question:
                 questions.append(question)
     return questions
@@ -4666,7 +4686,7 @@ def generate_today_review_questions(limit=20, child_id=None):
     return generate_review_questions_from_entries(entries, limit=limit)
 
 
-def api_today_review_quiz_payload(child_id=None, world_id=None, stage=None):
+def api_today_review_quiz_payload(child_id=None, world_id=None, stage=None, attempt_id=None):
     if child_id is None:
         progress = load_progress()
         target = int(load_settings().get('daily_target', 20) or 20)
@@ -4681,8 +4701,14 @@ def api_today_review_quiz_payload(child_id=None, world_id=None, stage=None):
     stage_entries = select_stage_vocab_entries(world_id, stage, 20) if has_stage_request else None
     if has_stage_request and stage_entries is None:
         raise ValueError('valid world and stage are required')
+    normalized_attempt_id = _clean_csv_value(attempt_id)
+    stage_seed = (
+        f'{child_id}:{str(world_id or "").strip().lower()}:{stage}:{normalized_attempt_id}'
+        if stage_entries is not None and normalized_attempt_id
+        else None
+    )
     questions = (
-        generate_stage_review_questions_from_entries(stage_entries, limit=20)
+        generate_stage_review_questions_from_entries(stage_entries, limit=20, seed=stage_seed)
         if stage_entries is not None
         else generate_today_review_questions(child_id=child_id)
     )
@@ -4724,6 +4750,8 @@ def api_today_review_quiz_payload(child_id=None, world_id=None, stage=None):
             stage_status=stage_progress['status'],
             stage_cleared=stage_progress['cleared'],
         )
+        if normalized_attempt_id:
+            payload['attempt_id'] = normalized_attempt_id
     return payload
 
 
@@ -8916,8 +8944,9 @@ def api_today_review_quiz():
     child_id = parse_optional_child_id_arg()
     world_id = request.args.get('world', '').strip()
     stage = request.args.get('stage', '').strip()
+    attempt_id = request.args.get('attempt_id') or request.args.get('attemptId')
     try:
-        return jsonify(api_today_review_quiz_payload(child_id=child_id, world_id=world_id, stage=stage))
+        return jsonify(api_today_review_quiz_payload(child_id=child_id, world_id=world_id, stage=stage, attempt_id=attempt_id))
     except LookupError as exc:
         abort(404, str(exc))
     except ValueError as exc:

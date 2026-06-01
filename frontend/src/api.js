@@ -139,6 +139,7 @@ export const getTodayReviewQuiz = async (childId, options = {}) => {
       child_id: childId,
       world: options.world,
       stage: options.stage,
+      attempt_id: options.attemptId,
     },
   });
 };
