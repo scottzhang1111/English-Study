@@ -1239,6 +1239,30 @@ class TodayReviewQuizTests(unittest.TestCase):
         self.assertEqual(200, clear_response.status_code)
         self.assertTrue(clear_response.get_json()['cleared'])
 
+    def test_stage_review_quiz_uses_each_stage_word_once_with_balanced_types(self):
+        child_id = self.create_child('Stage Quiz Balance')
+        client = app_module.app.test_client()
+
+        quiz_response = client.get(f'/api/today-review-quiz?child_id={child_id}&world=wind&stage=1')
+        self.assertEqual(200, quiz_response.status_code)
+        questions = quiz_response.get_json()['questions']
+
+        self.assertEqual(20, len(questions))
+        self.assertEqual(20, len({str(question['id']) for question in questions}))
+
+        type_counts = {}
+        for question in questions:
+            type_counts[question['type']] = type_counts.get(question['type'], 0) + 1
+            self.assertTrue(question['correct'])
+            self.assertIn(question['correct'], question['choices'])
+            self.assertEqual(1, question['choices'].count(question['correct']))
+            self.assertEqual(len(question['choices']), len(set(question['choices'])))
+
+        self.assertEqual(
+            {'Listening': 5, 'Meaning': 5, 'Reverse': 5, 'Cloze': 5},
+            type_counts,
+        )
+
     def test_stage_review_quiz_uses_stage_words_after_stage_is_cleared(self):
         child_id = self.create_child('Cleared Quiz')
         client = app_module.app.test_client()

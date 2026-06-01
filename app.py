@@ -4509,6 +4509,97 @@ def _generate_review_cloze_question(entry, entries):
     }
 
 
+def _get_stage_entry_meaning(entry):
+    return (
+        entry.get('Japanese', '').strip()
+        or entry.get('Chinese', '').strip()
+        or entry.get('English', '').strip()
+    )
+
+
+def _generate_stage_review_listening_question(entry, entries):
+    word = entry.get('English', '').strip()
+    if not word:
+        return None
+    japanese = _get_stage_entry_meaning(entry)
+    choices = _build_review_choices(word, entries, lambda item: item.get('English', '').strip())
+    return {
+        'type': 'Listening',
+        'question': 'Listen and choose the correct word.',
+        'audio_text': word,
+        'choices': choices,
+        'correct': word,
+        'id': entry.get('ID', ''),
+        'word': word,
+        'japanese': japanese,
+        'explanation_jp': f'The word is "{word}".',
+        'example': entry.get('Example_English', '').strip(),
+        'example_jp': entry.get('Example_Japanese', '').strip(),
+    }
+
+
+def _generate_stage_review_meaning_question(entry, entries):
+    word = entry.get('English', '').strip()
+    japanese = _get_stage_entry_meaning(entry)
+    if not word or not japanese:
+        return None
+    choices = _build_review_choices(japanese, entries, _get_stage_entry_meaning)
+    return {
+        'type': 'Meaning',
+        'question': f'What does "{word}" mean?',
+        'choices': choices,
+        'correct': japanese,
+        'id': entry.get('ID', ''),
+        'word': word,
+        'japanese': japanese,
+        'explanation_jp': f'"{word}" means "{japanese}".',
+        'example': entry.get('Example_English', '').strip(),
+        'example_jp': entry.get('Example_Japanese', '').strip(),
+    }
+
+
+def _generate_stage_review_reverse_question(entry, entries):
+    word = entry.get('English', '').strip()
+    japanese = _get_stage_entry_meaning(entry)
+    if not word or not japanese:
+        return None
+    choices = _build_review_choices(word, entries, lambda item: item.get('English', '').strip())
+    return {
+        'type': 'Reverse',
+        'question': f'Choose the English word for "{japanese}".',
+        'choices': choices,
+        'correct': word,
+        'id': entry.get('ID', ''),
+        'word': word,
+        'japanese': japanese,
+        'explanation_jp': f'The correct English word is "{word}".',
+        'example': entry.get('Example_English', '').strip(),
+        'example_jp': entry.get('Example_Japanese', '').strip(),
+    }
+
+
+def _generate_stage_review_cloze_question(entry, entries):
+    word = entry.get('English', '').strip()
+    japanese = _get_stage_entry_meaning(entry)
+    if not word:
+        return None
+    example = entry.get('Example_English', '').strip() or f'This sentence uses {word}.'
+    blanked = make_blank(example, word)
+    choices = _build_review_choices(word, entries, lambda item: item.get('English', '').strip())
+    return {
+        'type': 'Cloze',
+        'question': blanked,
+        'choices': choices,
+        'correct': word,
+        'id': entry.get('ID', ''),
+        'word': word,
+        'japanese': japanese,
+        'explanation_jp': f'The word "{word}" fits best here.',
+        'example': example,
+        'example_jp': entry.get('Example_Japanese', '').strip(),
+    }
+
+
 def generate_review_questions_from_entries(entries, limit=20):
     if not entries:
         return []
@@ -4549,6 +4640,27 @@ def generate_review_questions_from_entries(entries, limit=20):
     return questions[:limit]
 
 
+def generate_stage_review_questions_from_entries(entries, limit=20):
+    if not entries:
+        return []
+
+    stage_entries = list(entries)[:limit]
+    random.shuffle(stage_entries)
+    generators = [
+        _generate_stage_review_listening_question,
+        _generate_stage_review_meaning_question,
+        _generate_stage_review_reverse_question,
+        _generate_stage_review_cloze_question,
+    ]
+    questions = []
+    for index, generator in enumerate(generators):
+        for entry in stage_entries[index * 5:(index + 1) * 5]:
+            question = generator(entry, stage_entries)
+            if question:
+                questions.append(question)
+    return questions
+
+
 def generate_today_review_questions(limit=20, child_id=None):
     entries = get_today_review_entries(limit=limit, child_id=child_id)
     return generate_review_questions_from_entries(entries, limit=limit)
@@ -4570,7 +4682,7 @@ def api_today_review_quiz_payload(child_id=None, world_id=None, stage=None):
     if has_stage_request and stage_entries is None:
         raise ValueError('valid world and stage are required')
     questions = (
-        generate_review_questions_from_entries(stage_entries, limit=20)
+        generate_stage_review_questions_from_entries(stage_entries, limit=20)
         if stage_entries is not None
         else generate_today_review_questions(child_id=child_id)
     )
