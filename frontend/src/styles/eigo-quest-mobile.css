@@ -11782,3 +11782,394 @@ body,
     grid-template-columns: 1fr;
   }
 }
+.quest-reward-palace {
+  position: relative;
+  min-height: 100dvh;
+  overflow: hidden;
+  display: grid;
+  grid-template-rows: auto auto minmax(0, 1fr) auto;
+  justify-items: center;
+  gap: clamp(8px, 1.7dvh, 16px);
+  padding: max(10px, env(safe-area-inset-top, 0px)) 16px calc(var(--eq-bottom-nav-height) + 28px + env(safe-area-inset-bottom, 0px));
+  background:
+    radial-gradient(circle at 50% 14%, rgba(104, 122, 255, 0.42), transparent 24%),
+    radial-gradient(circle at 50% 48%, rgba(62, 185, 255, 0.22), transparent 30%),
+    radial-gradient(circle at 50% 78%, rgba(255, 211, 90, 0.22), transparent 24%),
+    linear-gradient(180deg, rgba(5, 6, 24, 0.26), rgba(6, 8, 30, 0.7)),
+    url("/assets/eigo-quest/worlds/light.png") center / cover no-repeat,
+    linear-gradient(180deg, #050313 0%, #10124a 48%, #02030d 100%);
+  color: #fff7df;
+}
+
+.quest-reward-palace::before,
+.quest-reward-palace::after {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  content: "";
+}
+
+.quest-reward-palace::before {
+  background:
+    linear-gradient(90deg, rgba(7, 10, 30, 0.74), transparent 18%, transparent 82%, rgba(7, 10, 30, 0.78)),
+    radial-gradient(ellipse at 50% 96%, rgba(126, 86, 255, 0.42), transparent 32%);
+}
+
+.quest-reward-palace::after {
+  background:
+    linear-gradient(180deg, rgba(2, 3, 13, 0.18), transparent 22%, rgba(2, 3, 13, 0.56)),
+    repeating-linear-gradient(90deg, transparent 0 58px, rgba(255, 255, 255, 0.03) 59px 60px);
+}
+
+.quest-reward-palace > * {
+  position: relative;
+  z-index: 1;
+}
+
+.quest-reward-palace-stars {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background:
+    radial-gradient(circle at 18% 15%, rgba(255, 232, 154, 0.9) 0 2px, transparent 3px),
+    radial-gradient(circle at 76% 10%, rgba(255, 232, 154, 0.82) 0 2px, transparent 3px),
+    radial-gradient(circle at 84% 42%, rgba(255, 232, 154, 0.72) 0 1px, transparent 3px),
+    radial-gradient(circle at 20% 56%, rgba(191, 227, 255, 0.62) 0 1px, transparent 3px);
+  filter: drop-shadow(0 0 10px rgba(255, 232, 154, 0.7));
+}
+
+.quest-reward-result {
+  display: grid;
+  justify-items: center;
+  gap: 6px;
+  width: min(100%, 420px);
+  padding-top: 2px;
+  text-align: center;
+}
+
+.quest-reward-crystal {
+  position: relative;
+  width: clamp(54px, 15vw, 82px);
+  height: clamp(48px, 13vw, 72px);
+  display: grid;
+  place-items: center;
+  filter:
+    drop-shadow(0 0 18px rgba(120, 212, 255, 0.82))
+    drop-shadow(0 0 28px rgba(255, 232, 154, 0.34));
+}
+
+.quest-reward-crystal::before,
+.quest-reward-crystal::after,
+.quest-reward-crystal span {
+  position: absolute;
+  content: "";
+}
+
+.quest-reward-crystal::before {
+  width: 74%;
+  height: 74%;
+  transform: rotate(45deg);
+  border: 2px solid rgba(255, 232, 154, 0.8);
+  background: linear-gradient(135deg, rgba(200, 246, 255, 0.92), rgba(66, 168, 255, 0.42) 52%, rgba(98, 85, 255, 0.52));
+  box-shadow: inset 0 0 16px rgba(255, 255, 255, 0.72), 0 0 28px rgba(87, 178, 255, 0.62);
+}
+
+.quest-reward-crystal::after {
+  width: 168%;
+  height: 168%;
+  border: 1px solid rgba(255, 232, 154, 0.42);
+  border-radius: 999px;
+  box-shadow: 0 0 22px rgba(255, 232, 154, 0.28) inset;
+}
+
+.quest-reward-crystal span {
+  width: 190%;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, rgba(185, 233, 255, 0.9), transparent);
+}
+
+.quest-reward-result h1 {
+  margin: 0;
+  color: #ffd96f;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: clamp(58px, 18vw, 104px);
+  font-weight: 900;
+  line-height: 0.86;
+  letter-spacing: 0;
+  text-transform: uppercase;
+  text-shadow:
+    0 2px 0 #7a430a,
+    0 5px 0 rgba(55, 24, 5, 0.72),
+    0 0 12px rgba(255, 242, 176, 0.92),
+    0 0 28px rgba(255, 183, 47, 0.55);
+}
+
+.quest-reward-stage-label {
+  margin: 2px 0 0;
+  width: min(100%, 340px);
+  padding: 7px 14px;
+  border: 1px solid rgba(255, 224, 132, 0.78);
+  border-radius: 999px;
+  background:
+    linear-gradient(90deg, transparent, rgba(255, 211, 90, 0.16), transparent),
+    rgba(7, 19, 58, 0.72);
+  color: #fff5c4;
+  font-size: clamp(15px, 4vw, 19px);
+  font-weight: 950;
+  line-height: 1.2;
+  box-shadow: 0 0 20px rgba(255, 211, 90, 0.2);
+}
+
+.quest-reward-score {
+  display: grid;
+  justify-items: center;
+  gap: 1px;
+  margin-top: 4px;
+}
+
+.quest-reward-score strong {
+  color: #f6fbff;
+  font-size: clamp(35px, 10vw, 58px);
+  font-weight: 1000;
+  line-height: 0.95;
+  text-shadow: 0 0 16px rgba(150, 219, 255, 0.7), 0 2px 12px rgba(0, 0, 0, 0.72);
+}
+
+.quest-reward-score span {
+  color: #ffe58e;
+  font-size: clamp(17px, 4.6vw, 25px);
+  font-weight: 950;
+  text-shadow: 0 0 12px rgba(255, 211, 90, 0.45);
+}
+
+.quest-reward-gain-label {
+  margin: 0;
+  color: #fff0a8;
+  font-size: clamp(17px, 4.8vw, 24px);
+  font-weight: 1000;
+  line-height: 1.2;
+  text-align: center;
+  text-shadow: 0 0 12px rgba(255, 211, 90, 0.62), 0 2px 12px rgba(0, 0, 0, 0.64);
+}
+
+.quest-reward-gain-label::before,
+.quest-reward-gain-label::after {
+  color: #fff6c8;
+  content: "✦";
+  margin: 0 9px;
+}
+
+.quest-reward-palace .quest-reward-card-stage {
+  width: min(100%, 390px);
+  min-height: 0;
+  display: grid;
+  place-items: center;
+  margin: 0;
+  perspective: 1300px;
+  animation: none;
+}
+
+.quest-reward-palace .quest-reward-halo {
+  inset: auto;
+  width: min(92vw, 370px);
+  height: min(92vw, 370px);
+  border-radius: 999px;
+  background:
+    radial-gradient(circle, rgba(255, 250, 202, 0.74) 0 5%, rgba(255, 211, 90, 0.36) 21%, rgba(142, 98, 255, 0.28) 48%, transparent 70%);
+  filter: blur(3px);
+}
+
+.quest-reward-palace .quest-reward-card-flip {
+  width: min(52vw, 210px);
+  max-height: 34dvh;
+  aspect-ratio: 0.68;
+}
+
+.quest-reward-palace .quest-reward-card-face {
+  border-width: 3px;
+  border-color: rgba(255, 224, 132, 0.98);
+  border-radius: 22px;
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.22) inset,
+    0 0 34px rgba(255, 211, 90, 0.68),
+    0 0 70px rgba(255, 160, 45, 0.2),
+    0 22px 48px rgba(0, 0, 0, 0.58);
+}
+
+.quest-reward-palace .quest-reward-card-back {
+  grid-template-rows: 1fr auto auto;
+  align-items: center;
+  justify-items: center;
+  padding: 18px 14px 16px;
+  background:
+    radial-gradient(circle at 50% 34%, rgba(255, 222, 112, 0.22), transparent 24%),
+    radial-gradient(circle at 50% 50%, rgba(76, 174, 255, 0.28), transparent 35%),
+    linear-gradient(145deg, #102a75, #03081f 62%, #351158);
+}
+
+.quest-reward-card-emblem {
+  display: grid;
+  width: 62%;
+  aspect-ratio: 1;
+  place-items: center;
+  border: 2px solid rgba(255, 224, 132, 0.72);
+  border-radius: 999px;
+  color: #ffe58e;
+  font-size: clamp(46px, 13vw, 64px);
+  font-weight: 1000;
+  box-shadow: 0 0 28px rgba(255, 211, 90, 0.28), inset 0 0 26px rgba(100, 196, 255, 0.18);
+}
+
+.quest-reward-palace .quest-reward-card-back strong {
+  width: auto;
+  height: auto;
+  border: 0;
+  background: transparent;
+  color: #fff4b5;
+  font-size: clamp(28px, 8vw, 40px);
+  line-height: 1;
+  box-shadow: none;
+  text-shadow: 0 0 12px rgba(255, 211, 90, 0.55);
+}
+
+.quest-reward-palace .quest-reward-card-back p,
+.quest-reward-palace .quest-reward-card-caption p {
+  margin: 0;
+  color: #c28cff;
+  font-size: clamp(14px, 3.8vw, 18px);
+  font-weight: 950;
+  line-height: 1;
+}
+
+.quest-reward-palace .quest-reward-card-front {
+  grid-template-rows: minmax(0, 1fr) auto;
+  background:
+    radial-gradient(circle at 50% 18%, rgba(255, 225, 116, 0.18), transparent 34%),
+    linear-gradient(180deg, rgba(12, 37, 86, 0.98), rgba(4, 7, 23, 0.98));
+}
+
+.quest-reward-palace .quest-reward-card-front img,
+.quest-reward-palace .quest-reward-card-front .eq-card-art {
+  min-height: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.quest-reward-palace .quest-reward-card-caption {
+  display: grid;
+  gap: 6px;
+  padding: 10px 8px 12px;
+  text-align: center;
+}
+
+.quest-reward-palace .quest-reward-card-caption h2 {
+  margin: 0;
+  color: #fff4b5;
+  font-size: clamp(18px, 5vw, 24px);
+  font-weight: 1000;
+  line-height: 1.05;
+}
+
+.quest-reward-rarity-badge {
+  position: absolute;
+  top: 9px;
+  right: 9px;
+  z-index: 4;
+  display: grid;
+  min-width: 42px;
+  height: 42px;
+  place-items: center;
+  border: 2px solid rgba(255, 232, 154, 0.82);
+  border-radius: 14px 18px 14px 18px;
+  background:
+    radial-gradient(circle at 38% 28%, rgba(255, 255, 255, 0.74), transparent 22%),
+    linear-gradient(135deg, #a64cff, #5c22c9 58%, #32105f);
+  color: #fff6ff;
+  font-size: 18px;
+  font-weight: 1000;
+  box-shadow: 0 0 18px rgba(171, 87, 255, 0.68), 0 0 12px rgba(255, 211, 90, 0.38);
+}
+
+.quest-reward-main-button {
+  width: min(100%, 330px) !important;
+  min-height: 58px !important;
+  margin: 2px auto 0;
+  border-radius: 999px !important;
+  color: #3d2500 !important;
+  font-size: clamp(21px, 6vw, 30px) !important;
+  font-weight: 1000 !important;
+  letter-spacing: 0 !important;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.46);
+  filter: drop-shadow(0 0 16px rgba(255, 211, 90, 0.65));
+}
+
+.quest-reward-main-button:disabled {
+  opacity: 0.74;
+}
+
+.quest-reward-empty {
+  display: grid;
+  align-self: center;
+  justify-items: center;
+  gap: 14px;
+  width: min(100%, 360px);
+  text-align: center;
+}
+
+.quest-reward-empty h1 {
+  margin: 0;
+  color: #ffd96f;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: clamp(58px, 18vw, 96px);
+  font-weight: 900;
+  line-height: 0.9;
+  text-shadow: 0 0 20px rgba(255, 211, 90, 0.72);
+}
+
+.quest-reward-empty p {
+  margin: 0;
+  color: #fff5c4;
+  font-size: 18px;
+  font-weight: 900;
+}
+
+@media (max-height: 720px) {
+  .quest-reward-palace {
+    gap: 6px;
+    padding-top: max(6px, env(safe-area-inset-top, 0px));
+    padding-bottom: calc(var(--eq-bottom-nav-height) + 18px + env(safe-area-inset-bottom, 0px));
+  }
+
+  .quest-reward-crystal {
+    width: 48px;
+    height: 42px;
+  }
+
+  .quest-reward-result h1 {
+    font-size: clamp(48px, 15vw, 76px);
+  }
+
+  .quest-reward-stage-label {
+    padding-block: 5px;
+    font-size: 14px;
+  }
+
+  .quest-reward-score strong {
+    font-size: clamp(30px, 8vw, 44px);
+  }
+
+  .quest-reward-score span,
+  .quest-reward-gain-label {
+    font-size: 15px;
+  }
+
+  .quest-reward-palace .quest-reward-card-flip {
+    width: min(48vw, 188px);
+  }
+
+  .quest-reward-main-button {
+    min-height: 52px !important;
+    font-size: 21px !important;
+  }
+}

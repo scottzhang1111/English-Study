@@ -1,8 +1,9 @@
 import { useEffect, useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { getHeroCards } from '../api';
-import { GoldQuestButton } from '../components/eigo';
+import { EQBottomNav, GoldQuestButton } from '../components/eigo';
+import { getEigoQuestWorld } from '../config/eigoQuestWorlds';
 import {
   clearPendingReward,
   getCardById,
@@ -11,12 +12,10 @@ import {
 } from '../helpers/eigoQuestRewards';
 import eigoQuestCards from '../config/eigoQuestCards';
 
-const SPIRIT_IMAGE = '/assets/eigo-quest/spirit_assets/happy.png';
-
-const sparkleParticles = Array.from({ length: 28 }, (_, index) => ({
+const sparkleParticles = Array.from({ length: 26 }, (_, index) => ({
   id: index,
-  left: `${8 + ((index * 17) % 84)}%`,
-  top: `${6 + ((index * 29) % 82)}%`,
+  left: `${7 + ((index * 19) % 86)}%`,
+  top: `${7 + ((index * 31) % 82)}%`,
   delay: (index % 7) * 0.14,
   size: 4 + (index % 5) * 2,
 }));
@@ -35,6 +34,7 @@ function normalizeHeroCard(card, index = 0) {
     rarity: card.rarity || 'R',
     image: card.image || card.imageUrl || card.image_url || '',
     descriptionJa: card.descriptionJa || card.description_ja || '',
+    unlockCondition: card.unlockCondition || card.unlock_condition || '',
   };
 }
 
@@ -95,32 +95,65 @@ function findRewardHero(apiHeroes, pendingReward, fallbackCard) {
   return normalizeHeroCard(apiHeroes.find(matches)) || fallback;
 }
 
-function getHeroSource(card) {
-  if (card?.sourceJa || card?.originJa) return card.sourceJa || card.originJa;
-  const text = `${card?.descriptionJa || ''} ${card?.nameJa || ''}`;
-  if (text.includes('三国')) return '三国志';
-  if (text.includes('ギリシャ')) return 'ギリシャ神話';
-  if (text.includes('北欧')) return '北欧神話';
-  if (text.includes('インド')) return 'インド神話';
-  if (text.includes('中国神話')) return '中国神話';
-  if (text.includes('日本神話')) return '日本神話';
-  if (text.includes('戦国')) return '戦国時代';
-  return card?.nameZh || '英雄譚';
+function parseStageNumber(value) {
+  const normalized = Number(value);
+  return Number.isFinite(normalized) && normalized > 0 ? normalized : null;
+}
+
+function inferStageFromReward(pendingReward, rewardCard) {
+  const directStage = parseStageNumber(
+    pendingReward?.stage
+    || pendingReward?.stageNumber
+    || pendingReward?.stage_number
+    || pendingReward?.awardedStageNumber
+    || pendingReward?.awarded_stage_number
+    || rewardCard?.stage
+    || rewardCard?.stageNumber
+    || rewardCard?.stage_number,
+  );
+  if (directStage) return directStage;
+
+  const worldId = pendingReward?.worldId || pendingReward?.world_id || rewardCard?.worldId || '';
+  const code = String(pendingReward?.code || pendingReward?.cardId || rewardCard?.code || rewardCard?.id || '');
+  const codeMatch = code.match(/guardian(\d+)$/i);
+  if (codeMatch) {
+    const stage = Number(codeMatch[1]);
+    return worldId === 'shadow' && stage > 5 ? 5 : stage;
+  }
+
+  const imageMatch = String(rewardCard?.image || '').match(/guardian(\d+)\.(?:png|webp|jpg|jpeg)$/i);
+  if (imageMatch) {
+    const stage = Number(imageMatch[1]);
+    return worldId === 'shadow' && stage > 5 ? 5 : stage;
+  }
+
+  const conditionMatch = String(rewardCard?.unlockCondition || '').match(/Stage\s*(\d+)/i);
+  if (conditionMatch) return Number(conditionMatch[1]);
+  return null;
+}
+
+function getStageCompleteLabel(pendingReward, rewardCard, searchParams) {
+  const routeWorldId = searchParams.get('world') || searchParams.get('world_id') || '';
+  const routeStage = searchParams.get('stage') || searchParams.get('stage_number') || '';
+  const worldId = routeWorldId || pendingReward?.worldId || pendingReward?.world_id || rewardCard?.worldId || '';
+  const stage = parseStageNumber(routeStage) || inferStageFromReward(pendingReward, rewardCard);
+  const world = getEigoQuestWorld(worldId);
+
+  if (world?.nameJa && stage) return `${world.nameJa}・Stage ${stage} Complete`;
+  if (stage) return `Stage ${stage} Complete`;
+  return 'Stage Complete';
 }
 
 function getHeroCopy(card) {
-  const description = card?.descriptionJa || '光の封印から目覚めた新しい英雄。';
-  const sentences = description.split('。').map((line) => line.trim()).filter(Boolean);
   return {
-    name: card?.nameJa || card?.nameZh || '新英雄',
-    source: getHeroSource(card),
-    intro: sentences[0] ? `${sentences[0]}。` : description,
-    story: sentences.length > 1 ? `${sentences.slice(1).join('。')}。` : 'これからの冒険で力を貸してくれる仲間。',
+    name: card?.nameJa || card?.nameZh || '新しい英雄',
+    rarity: card?.rarity || 'R',
   };
 }
 
 export default function CardRewardPage() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const [rewardStep, setRewardStep] = useState('reveal');
   const [isFlipped, setIsFlipped] = useState(false);
   const [isAdvancing, setIsAdvancing] = useState(false);
@@ -136,6 +169,7 @@ export default function CardRewardPage() {
   const rewardImage = getRewardCardImage(rewardCard);
   const hero = getHeroCopy(rewardCard);
   const hasNextReward = rewardIndex < pendingQueue.length - 1;
+  const stageCompleteLabel = getStageCompleteLabel(pendingReward, rewardCard, searchParams);
 
   useEffect(() => {
     let cancelled = false;
@@ -151,23 +185,19 @@ export default function CardRewardPage() {
     };
   }, []);
 
-  useEffect(() => {
-    const timer = window.setTimeout(() => setIsFlipped(true), 520);
-    return () => window.clearTimeout(timer);
-  }, [rewardIndex]);
-
   const finishRewards = () => {
     clearPendingReward();
     navigate('/app');
   };
 
-  const showDetail = () => {
+  const revealCard = () => {
     if (rewardStep !== 'reveal' || isAdvancing) return;
     setIsAdvancing(true);
+    setIsFlipped(true);
     window.setTimeout(() => {
       setRewardStep('detail');
       setIsAdvancing(false);
-    }, 360);
+    }, 760);
   };
 
   const showNextReward = () => {
@@ -177,135 +207,120 @@ export default function CardRewardPage() {
     }
     const nextIndex = rewardIndex + 1;
     savePendingRewardQueue(pendingQueue.slice(nextIndex));
-    setRewardIndex(nextIndex);
+    setPendingQueue((queue) => queue.slice(nextIndex));
+    setRewardIndex(0);
     setRewardStep('reveal');
     setIsFlipped(false);
   };
 
   if (!rewardCard) {
     return (
-      <div className="eq-card-page-wrap quest-reward-page-wrap is-detail">
-        <section className="quest-reward-detail" aria-label="報酬なし">
-          <div className="quest-reward-detail-card">
-            <div className="quest-reward-detail-copy">
-              <h1>報酬は受け取り済みです</h1>
-              <p>カードコレクションで仲間を確認できます。</p>
-            </div>
-          </div>
-
-          <GoldQuestButton onClick={finishRewards} className="eq-reward-claim-button">
-            ホームへ
-          </GoldQuestButton>
-        </section>
-      </div>
+      <>
+        <div className="eq-card-page-wrap quest-reward-page-wrap quest-reward-palace is-detail">
+          <section className="quest-reward-empty" aria-label="報酬なし">
+            <h1>CLEAR!</h1>
+            <p>報酬は受け取り済みです。</p>
+            <GoldQuestButton onClick={finishRewards} className="eq-reward-claim-button quest-reward-main-button">
+              ホームへ
+            </GoldQuestButton>
+          </section>
+        </div>
+        <EQBottomNav className="eq-home-bottom-nav" />
+      </>
     );
   }
 
   return (
-    <div className={`eq-card-page-wrap quest-reward-page-wrap is-${rewardStep}`}>
-      {rewardStep === 'reveal' ? (
-        <button type="button" className="quest-reward-reveal" onClick={showDetail}>
-          <div className="quest-reward-title">
-            <span>MISSION COMPLETE!</span>
-            <strong>NEW HERO!</strong>
+    <>
+      <div className={`eq-card-page-wrap quest-reward-page-wrap quest-reward-palace is-${rewardStep}`}>
+        <div className="quest-reward-palace-stars" aria-hidden="true" />
+
+        <section className="quest-reward-result" aria-label="クエストクリア">
+          <div className="quest-reward-crystal" aria-hidden="true">
+            <span />
           </div>
-
-          <section className="quest-reward-card-stage" aria-label="新英雄カード">
-            <motion.div
-              className="quest-reward-halo"
-              aria-hidden="true"
-              animate={{ scale: [0.9, 1.14, 0.9], opacity: [0.42, 0.92, 0.42] }}
-              transition={{ duration: 2.4, repeat: Infinity, ease: 'easeInOut' }}
-            />
-            {sparkleParticles.map((particle) => (
-              <motion.span
-                key={particle.id}
-                className="quest-reward-sparkle"
-                aria-hidden="true"
-                style={{
-                  left: particle.left,
-                  top: particle.top,
-                  width: particle.size,
-                  height: particle.size,
-                }}
-                animate={{
-                  y: [-9, 10, -9],
-                  opacity: [0.18, 1, 0.18],
-                  scale: [0.65, 1.35, 0.65],
-                }}
-                transition={{ duration: 2.3, repeat: Infinity, delay: particle.delay, ease: 'easeInOut' }}
-              />
-            ))}
-
-            <motion.div
-              className="quest-reward-card-flip"
-              initial={{ y: 80, scale: 0.88, opacity: 0 }}
-              animate={{ y: 0, scale: isAdvancing ? 1.05 : 1, opacity: 1 }}
-              transition={{ duration: 0.62, ease: [0.22, 1, 0.36, 1] }}
-            >
-              <motion.div
-                className="quest-reward-card-inner"
-                initial={{ rotateY: 0 }}
-                animate={{ rotateY: isFlipped ? (isAdvancing ? 198 : 180) : 0 }}
-                transition={{ duration: isAdvancing ? 0.32 : 0.9, ease: [0.22, 1, 0.36, 1] }}
-              >
-                <div className="quest-reward-card-face quest-reward-card-back">
-                  <span>EIGO QUEST</span>
-                  <strong>{worldClass}</strong>
-                </div>
-                <div className="quest-reward-card-face quest-reward-card-front">
-                  <span className="quest-new-ribbon">NEW HERO</span>
-                  {rewardImage ? (
-                    <img src={rewardImage} alt={hero.name} />
-                  ) : (
-                    <div className={`eq-card-art eq-card-world-${worldClass} is-large`}>
-                      <div className="eq-card-art-symbol">{worldClass}</div>
-                    </div>
-                  )}
-                  <div className="quest-reward-card-caption">
-                    <h2>{hero.name}</h2>
-                    <p aria-label="レアリティ">★★★★★</p>
-                  </div>
-                </div>
-              </motion.div>
-            </motion.div>
-          </section>
-
-          <div className="quest-reward-spirit-bubble">
-            <img src={SPIRIT_IMAGE} alt="" />
-            <p>
-              すごい！<br />
-              {hero.name}を仲間にしたよ！
-            </p>
+          <h1>CLEAR!</h1>
+          <p className="quest-reward-stage-label">{stageCompleteLabel}</p>
+          <div className="quest-reward-score">
+            <strong>20 / 20</strong>
+            <span>Words Mastered</span>
           </div>
-
-          <p className="quest-reward-tap-label">タップして続ける</p>
-        </button>
-      ) : (
-        <section className="quest-reward-detail" aria-label="英雄詳細">
-          <div className="quest-reward-detail-card">
-            <div className="quest-reward-detail-art">
-              {rewardImage ? (
-                <img src={rewardImage} alt={hero.name} />
-              ) : (
-                <div className={`eq-card-art eq-card-world-${worldClass} is-large`}>
-                  <div className="eq-card-art-symbol">{worldClass}</div>
-                </div>
-              )}
-            </div>
-            <div className="quest-reward-detail-copy">
-              <h1>{hero.name}</h1>
-              <span>{hero.source}</span>
-              <p>{hero.intro}</p>
-              <p>{hero.story}</p>
-            </div>
-          </div>
-
-          <GoldQuestButton onClick={showNextReward} className="eq-reward-claim-button">
-            {hasNextReward ? '次のカードへ' : 'ホームへ'}
-          </GoldQuestButton>
         </section>
-      )}
-    </div>
+
+        <p className="quest-reward-gain-label">新しい英雄カードを獲得しました！</p>
+
+        <section className="quest-reward-card-stage" aria-label="新しい英雄カード">
+          <motion.div
+            className="quest-reward-halo"
+            aria-hidden="true"
+            animate={{ scale: [0.92, 1.1, 0.92], opacity: [0.42, 0.9, 0.42] }}
+            transition={{ duration: 2.4, repeat: Infinity, ease: 'easeInOut' }}
+          />
+          {sparkleParticles.map((particle) => (
+            <motion.span
+              key={particle.id}
+              className="quest-reward-sparkle"
+              aria-hidden="true"
+              style={{
+                left: particle.left,
+                top: particle.top,
+                width: particle.size,
+                height: particle.size,
+              }}
+              animate={{
+                y: [-8, 9, -8],
+                opacity: [0.18, 1, 0.18],
+                scale: [0.65, 1.32, 0.65],
+              }}
+              transition={{ duration: 2.3, repeat: Infinity, delay: particle.delay, ease: 'easeInOut' }}
+            />
+          ))}
+
+          <motion.div
+            className="quest-reward-card-flip"
+            initial={{ y: 40, scale: 0.92, opacity: 0 }}
+            animate={{ y: 0, scale: isAdvancing ? 1.04 : 1, opacity: 1 }}
+            transition={{ duration: 0.58, ease: [0.22, 1, 0.36, 1] }}
+          >
+            <motion.div
+              className="quest-reward-card-inner"
+              initial={{ rotateY: 0 }}
+              animate={{ rotateY: isFlipped ? 180 : 0 }}
+              transition={{ duration: 0.82, ease: [0.22, 1, 0.36, 1] }}
+            >
+              <div className="quest-reward-card-face quest-reward-card-back">
+                <span className="quest-reward-rarity-badge">{hero.rarity}</span>
+                <div className="quest-reward-card-emblem" aria-hidden="true">{worldClass}</div>
+                <strong>???</strong>
+                <p>{hero.rarity} Hero</p>
+              </div>
+              <div className="quest-reward-card-face quest-reward-card-front">
+                <span className="quest-reward-rarity-badge">{hero.rarity}</span>
+                {rewardImage ? (
+                  <img src={rewardImage} alt={hero.name} />
+                ) : (
+                  <div className={`eq-card-art eq-card-world-${worldClass} is-large`}>
+                    <div className="eq-card-art-symbol">{worldClass}</div>
+                  </div>
+                )}
+                <div className="quest-reward-card-caption">
+                  <h2>{hero.name}</h2>
+                  <p>{hero.rarity} Hero</p>
+                </div>
+              </div>
+            </motion.div>
+          </motion.div>
+        </section>
+
+        <GoldQuestButton
+          onClick={rewardStep === 'reveal' ? revealCard : showNextReward}
+          className="eq-reward-claim-button quest-reward-main-button"
+          disabled={isAdvancing}
+        >
+          {rewardStep === 'reveal' ? 'カードを受け取る' : hasNextReward ? '次のカードへ' : 'ホームへ'}
+        </GoldQuestButton>
+      </div>
+      <EQBottomNav className="eq-home-bottom-nav" />
+    </>
   );
 }

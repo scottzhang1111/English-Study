@@ -738,7 +738,7 @@ const mobilePartOfSpeech =
       <div className="quest-word-page-wrap lg:hidden">
         <EQMobileShell className="eq-word-study-screen">
           <CompactPageHeader
-            title={flashcard?.word || '単語カード'}
+            title="単語カード"
             backgroundImage={studyWorldDisplay.backgroundImage}
             helperImage={SPIRIT_IMAGE}
             guidanceText={[
