@@ -1,11 +1,3 @@
-export const EIGO_HEADER_GUIDANCE = {
-  dailyWords: [
-    '▶ を押すと発音を聞けるよ',
-    '単語をタップするとカードを見られるよ',
-    '準備できたら学習を始めよう',
-  ],
-};
-
 export const EIGO_GUIDANCE = {
   dailyWords: [
     '今日の20語を見ていこう。',
@@ -110,3 +102,69 @@ export const EIGO_WORLD_GUIDANCE = {
     '光を見つけるように答えを探そう。',
   ],
 };
+
+export const EIGO_HEADER_GUIDANCE = {
+  dailyWords: [
+    '今日の20語を見ていこう。',
+    '気になる単語はカードで確認しよう。',
+  ],
+
+  wordDetail: [
+    '意味と例文を見てみよう。',
+    '音声も聞くと覚えやすいよ。',
+  ],
+
+  studyMap: [
+    '学習の旅を確認しよう。',
+    '次の目標まで少しずつ進もう。',
+  ],
+
+  worldStage: [
+    '今のStageを確認しよう。',
+    'あと少しで次の挑戦に進めるよ。',
+  ],
+
+  grammarLesson: [
+    '今日の文法を覚えよう。',
+    '例文で使い方を確認しよう。',
+  ],
+
+  grammarPractice: [
+    '文の形をよく見よう。',
+    'ルールを思い出して選ぼう。',
+  ],
+
+  grammarTest: [
+    '落ち着いて問題を読もう。',
+    '最後まで集中して進もう。',
+  ],
+
+  eikenQuest: [
+    '英検の試練に挑戦しよう。',
+    '正解を重ねてバッジに近づこう。',
+  ],
+
+  eikenQuiz: [
+    '問題をよく読んで答えよう。',
+    '選択肢を比べて選ぼう。',
+  ],
+
+  eikenResult: [
+    '結果を確認しよう。',
+    'まちがいは復習で強くなれるよ。',
+  ],
+
+  wrongReview: [
+    'まちがえた問題を見直そう。',
+    '苦手を減らして強くなろう。',
+  ],
+
+  cardReward: [
+    '新しいカードを受け取ろう。',
+    '学びが冒険の力になったよ。',
+  ],
+};
+
+export function getHeaderGuidance(key, fallbackKey = 'dailyWords') {
+  return EIGO_HEADER_GUIDANCE[key] || EIGO_HEADER_GUIDANCE[fallbackKey] || [];
+}

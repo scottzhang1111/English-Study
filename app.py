@@ -60,115 +60,31 @@ EIGO_QUEST_WORLD_MAP = {world['id']: world for world in EIGO_QUEST_WORLDS}
 EIGO_QUEST_WORLD_ORDER = [world['id'] for world in EIGO_QUEST_WORLDS]
 EIGO_QUEST_TOTAL_STAGES = sum(world['stage_count'] for world in EIGO_QUEST_WORLDS)
 EIGO_QUEST_TOTAL_WORDS = sum(world['word_count'] for world in EIGO_QUEST_WORLDS)
+# Stage reward cards use the existing official heroes rows in the database.
+# The heroes table already contains 80 cards using codes such as
+# wind-guardian1 ... shadow-guardian10.
 EIGO_QUEST_STAGE_REWARD_CODES = {
-    'wind': [
-        'wind-guardian-zephyrus',
-        'wind-monster-griffin',
-        'wind-guardian-odin',
-        'wind-guardian-hraesvelgr',
-        'wind-guardian-vayu',
-        'wind-guardian-zhaoyun',
-        'wind-guardian-feilian',
-        'wind-guardian-masamune',
-        'wind-guardian-shinato',
-        'wind-boss-typhoeus',
-    ],
-    'fire': [
-        'fire-guardian-hephaestus',
-        'fire-monster-chimera',
-        'fire-guardian-loki',
-        'fire-guardian-agni',
-        'fire-monster-ravana',
-        'fire-guardian-lvbu',
-        'fire-guardian-zhurong',
-        'fire-guardian-nobunaga',
-        'fire-guardian-kagutsuchi',
-        'fire-boss-surtr',
-    ],
-    'water': [
-        'water-guardian-poseidon',
-        'water-monster-kraken',
-        'water-guardian-aegir',
-        'water-guardian-njord',
-        'water-guardian-varuna',
-        'water-guardian-zhouyu',
-        'water-guardian-gonggong',
-        'water-guardian-kenshin',
-        'water-guardian-watatsumi',
-        'water-boss-leviathan',
-    ],
-    'thunder': [
-        'thunder-guardian-thor',
-        'thunder-monster-nue',
-        'thunder-guardian-perun',
-        'thunder-guardian-baron',
-        'thunder-guardian-indra',
-        'thunder-guardian-guanyu',
-        'thunder-guardian-leizhenzi',
-        'thunder-guardian-shingen',
-        'thunder-guardian-takemikazuchi',
-        'thunder-boss-susanoo',
-    ],
-    'wood': [
-        'wood-guardian-demeter',
-        'wood-monster-alraune',
-        'wood-guardian-vidar',
-        'wood-guardian-idun',
-        'wood-guardian-soma',
-        'wood-guardian-liubei',
-        'wood-guardian-shennong',
-        'wood-guardian-motonari',
-        'wood-guardian-sukunabikona',
-        'wood-boss-ygdrasil',
-    ],
-    'rock': [
-        'rock-guardian-gaia',
-        'rock-monster-behemoth',
-        'rock-guardian-hades',
-        'rock-guardian-forseti',
-        'rock-guardian-prithvi',
-        'rock-guardian-guanxiu',
-        'rock-guardian-houji',
-        'rock-guardian-iyeyasu',
-        'rock-guardian-ohyamatsumi',
-        'rock-boss-shiva',
-    ],
-    'light': [
-        'light-guardian-apollo',
-        'light-monster-sphinx',
-        'light-guardian-baldr',
-        'light-guardian-amaterasu',
-        'light-guardian-indra',
-        'light-guardian-arthur',
-        'light-guardian-joan',
-        'light-guardian-zhuge',
-        'light-boss-zeus',
-        'light-boss-lucifer',
-    ],
-    'shadow': [
-        'shadow-guardian-nyx',
-        'shadow-monster-fenrir',
-        'shadow-guardian-hel',
-        'shadow-guardian-hypnos',
-        'shadow-guardian-kali',
-    ],
+    'wind': [f'wind-guardian{i}' for i in range(1, 11)],
+    'fire': [f'fire-guardian{i}' for i in range(1, 11)],
+    'water': [f'water-guardian{i}' for i in range(1, 11)],
+    'thunder': [f'thunder-guardian{i}' for i in range(1, 11)],
+    'wood': [f'wood-guardian{i}' for i in range(1, 11)],
+    'rock': [f'rock-guardian{i}' for i in range(1, 11)],
+    'light': [f'light-guardian{i}' for i in range(1, 11)],
+    'shadow': [f'shadow-guardian{i}' for i in range(1, 6)],
 }
+
+# Final reward pack after clearing shadow Stage 5.
 EIGO_QUEST_FINAL_REWARD_CODES = [
-    'shadow-guardian-simayi',
-    'shadow-guardian-chiyou',
-    'shadow-guardian-hanchou',
-    'shadow-guardian-tsukuyomi',
-    'shadow-boss-anubis',
+    f'shadow-guardian{i}' for i in range(6, 11)
 ]
-EIGO_QUEST_LEGACY_REWARD_CODE_MAP = {
-    code: f'{world_id}-guardian{index + 1}'
-    for world_id, codes in EIGO_QUEST_STAGE_REWARD_CODES.items()
-    for index, code in enumerate(codes)
-}
-EIGO_QUEST_LEGACY_REWARD_CODE_MAP.update({
-    code: f'shadow-guardian{index + 6}'
-    for index, code in enumerate(EIGO_QUEST_FINAL_REWARD_CODES)
-})
+
+# Kept for compatibility with older helper code.
+# New rewards should resolve directly to the official database hero codes.
+EIGO_QUEST_LEGACY_REWARD_CODE_MAP = {}
+
+
+
 STARTER_POKEMON_IDS = [1, 10, 19]
 POKEMON_NAME_FALLBACKS = {
     1: 'フシギダネ',

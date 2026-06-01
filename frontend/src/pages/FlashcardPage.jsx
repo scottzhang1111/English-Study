@@ -896,7 +896,9 @@ const mobilePartOfSpeech =
                     navigate('/card-reward');
                     return;
                   }
-                  navigate('/grammar-quest?from=daily-quest');
+                  navigate(
+                  `${routePrefix}/world-stage?world=${encodeURIComponent(requestedWorldId)}`
+                );
                 } else {
                   navigate(dailyWordsPath);
                 }

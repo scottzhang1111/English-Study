@@ -301,3 +301,29 @@ Recommended verification after changes:
 8. Card rewards, badges, or materials update for the selected child when applicable.
 9. Wrong answers appear in review for the selected child only.
 10. Refresh the browser and confirm progress still comes from backend data.
+
+## Frontend Data Source Rule
+
+Do not hardcode real app data in frontend components.
+
+The frontend should prioritize backend/database data for:
+
+* vocabulary lists
+* children
+* daily learning progress
+* mastered words
+* wrong answers
+* quiz history
+* card rewards
+* hero/card ownership
+* badges and materials
+* world unlock/progress state
+
+Frontend hardcoded data is only acceptable as temporary UI fallback, mock data, or display placeholder.
+
+If backend data exists or can be provided by an API, use the backend data first.
+
+When mock or fallback data is used, keep it clearly separated from real learning logic and do not let it become the source of truth.
+
+Do not duplicate backend data models inside React components.
+If a component currently uses hardcoded real data, gradually replace it with backend API data instead of expanding the hardcoded dataset.
