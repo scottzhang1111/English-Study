@@ -3,7 +3,6 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import WebLearningLayout from '../components/WebLearningLayout';
 import {
-  AudioButton,
   EQBottomNav,
   EQCard,
   EQMobileShell,
@@ -572,13 +571,26 @@ const handlePreviousStudy = async () => {
           attemptId: reviewAttemptIdRef.current,
           answers: Object.values(reviewAnswers),
         });
+        const rewardQueue = Array.isArray(result.reward_queue) ? result.reward_queue : [];
+        if (result.passed) {
+          if (rewardQueue.length) {
+            savePendingRewardQueue(rewardQueue.map((reward) => ({
+              ...reward,
+              worldId: reward.worldId || reward.world_id || requestedWorldId,
+            })));
+            navigate('/card-reward');
+            return;
+          }
+          navigate(`${routePrefix}/world-stage?world=${encodeURIComponent(requestedWorldId)}`);
+          return;
+        }
         setReviewResult({
-          passed: Boolean(result.passed),
+          passed: false,
           score: Number(result.score || 0),
           total: Number(result.total || reviewTotal),
           stageCleared: Boolean(result.stage_cleared),
           attemptId: result.attempt_id,
-          rewardQueue: Array.isArray(result.reward_queue) ? result.reward_queue : [],
+          rewardQueue,
         });
         setMode('review-result');
       } catch (err) {
@@ -737,17 +749,17 @@ const mobilePartOfSpeech =
     {(mode === 'study' || mode === 'complete') && (
       <div className="quest-word-page-wrap lg:hidden">
         <EQMobileShell className="eq-word-study-screen">
-          <CompactPageHeader
-            title="単語カード"
-            backgroundImage={studyWorldDisplay.backgroundImage}
-            helperImage={SPIRIT_IMAGE}
-            guidanceText={[
-              '意味と例文を見てみよう',
-              '音声も聞くと覚えやすいよ',
-              '覚えたら次へ進もう',
-            ]}
-            variant={questWorld?.id || 'wind'}
-          />
+          <header
+            className="quest-word-magic-header"
+            style={{ '--quest-word-bg': `url(${studyWorldDisplay.backgroundImage})` }}
+          >
+            <div className="quest-word-magic-frame" aria-hidden="true" />
+            <div className="quest-word-magic-copy">
+              <h1>単語カード</h1>
+              <p>意味と例文を見てみよう</p>
+            </div>
+            <img className="quest-word-magic-fairy" src={SPIRIT_IMAGE} alt="" />
+          </header>
 
           {mode === 'complete' ? (
             <EQCard className="eq-word-card eq-word-empty-card">
@@ -781,7 +793,17 @@ const mobilePartOfSpeech =
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.32, ease: 'easeOut' }}
               >
-                <h1 className="eq-word-title">{flashcard.word}</h1>
+                <div className="eq-word-hero-row">
+                  <h1 className="eq-word-title">{flashcard.word}</h1>
+                  <button
+                    type="button"
+                    className="eq-word-speaker is-word"
+                    onClick={() => playAudio(flashcard.word, audioRef)}
+                    aria-label="単語を聞く"
+                  >
+                    ♪
+                  </button>
+                </div>
                 <div className="eq-word-card-head">
                   <span className="eq-word-pos-badge"> {mobilePartOfSpeech}</span>
                 </div>
@@ -798,37 +820,39 @@ const mobilePartOfSpeech =
 
                 <div className="eq-word-example-block">
                   <p className="eq-word-label">例文</p>
-                  <p className="eq-word-example-en">{mobileExample || '-'}</p>
+                  <div className="eq-word-row-content has-audio">
+                    <p className="eq-word-example-en">{mobileExample || '-'}</p>
+                    {mobileExample ? (
+                      <button
+                        type="button"
+                        className="eq-word-speaker eq-word-row-speaker"
+                        onClick={() => playAudio(mobileExample, audioRef)}
+                        aria-label="例文を聞く"
+                      >
+                        ♪
+                      </button>
+                    ) : null}
+                  </div>
                 </div>
                 <div className="eq-word-translation-block">
                   <p className="eq-word-label">日本語訳</p>
                   <p className="eq-word-example-ja">{mobileExampleTranslation}</p>
                 </div>
-                <div className="quest-word-audio-row">
-                  <AudioButton type="button" onClick={() => playAudio(flashcard.word, audioRef)}>
-                    単語を聞く
-                  </AudioButton>
-                  {mobileExample ? (
-                    <AudioButton type="button" onClick={() => playAudio(mobileExample, audioRef)} tone="purple">
-                      例文を聞く
-                    </AudioButton>
-                  ) : null}
-                </div>
               </MagicPanel>
 
               <div className={`eq-word-actions quest-word-actions-two ${studyIndex > 0 ? '' : 'is-first-word'}`}>
-                {studyIndex > 0 ? (
-                  <button
-                    type="button"
-                    onClick={handlePreviousStudy}
-                    className="quest-word-prev-button"
-                  >
-                    ← まえへ
-                  </button>
-                ) : null}
+                <button
+                  type="button"
+                  onClick={handlePreviousStudy}
+                  className="quest-word-prev-button"
+                  disabled={studyIndex <= 0}
+                  aria-disabled={studyIndex <= 0}
+                >
+                  戻る
+                </button>
 
                 <GoldQuestButton onClick={handleNextStudy} className="quest-word-next-button">
-                  つぎへ
+                  次へ
                 </GoldQuestButton>
               </div>
             </>
@@ -892,7 +916,10 @@ const mobilePartOfSpeech =
               onClick={async () => {
                 if (reviewResult.passed) {
                   if (reviewResult.rewardQueue?.length) {
-                    savePendingRewardQueue(reviewResult.rewardQueue);
+                    savePendingRewardQueue(reviewResult.rewardQueue.map((reward) => ({
+                      ...reward,
+                      worldId: reward.worldId || reward.world_id || requestedWorldId,
+                    })));
                     navigate('/card-reward');
                     return;
                   }

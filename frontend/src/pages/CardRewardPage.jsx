@@ -60,6 +60,14 @@ function getRewardCardImage(card) {
   return image.replace('/assets/eigo-quest/cards/', `/assets/eigo-quest/cards/${worldId}/`);
 }
 
+const rewardBackWorldIds = new Set(['wind', 'fire', 'water', 'thunder', 'wood', 'rock', 'light', 'shadow']);
+
+function getRewardCardBackImage(worldId) {
+  const normalized = String(worldId || 'wind').trim().toLowerCase();
+  const safeWorldId = rewardBackWorldIds.has(normalized) ? normalized : 'wind';
+  return `/assets/eigo-quest/cards/back/${safeWorldId}-cover.png`;
+}
+
 function getImageFileName(image = '') {
   return String(image).split('?')[0].split('/').pop() || '';
 }
@@ -167,6 +175,9 @@ export default function CardRewardPage() {
     : null;
   const worldClass = getWorldClass(rewardCard?.worldId);
   const rewardImage = getRewardCardImage(rewardCard);
+  const rewardBackImage = getRewardCardBackImage(
+    pendingReward?.worldId || pendingReward?.world_id || rewardCard?.worldId,
+  );
   const hero = getHeroCopy(rewardCard);
   const hasNextReward = rewardIndex < pendingQueue.length - 1;
   const stageCompleteLabel = getStageCompleteLabel(pendingReward, rewardCard, searchParams);
@@ -289,8 +300,20 @@ export default function CardRewardPage() {
               transition={{ duration: 0.82, ease: [0.22, 1, 0.36, 1] }}
             >
               <div className="quest-reward-card-face quest-reward-card-back">
+                <img
+                  src={rewardBackImage}
+                  alt=""
+                  aria-hidden="true"
+                  style={{
+                    position: 'absolute',
+                    inset: 0,
+                    width: '100%',
+                    height: '100%',
+                    objectFit: 'cover',
+                    pointerEvents: 'none',
+                  }}
+                />
                 <span className="quest-reward-rarity-badge">{hero.rarity}</span>
-                <div className="quest-reward-card-emblem" aria-hidden="true">{worldClass}</div>
                 <strong>???</strong>
                 <p>{hero.rarity} Hero</p>
               </div>
