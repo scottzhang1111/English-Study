@@ -63,6 +63,10 @@ export const getHeroCards = async () => {
   return fetchJson('/api/heroes');
 };
 
+export const getChildHeroCards = async (childId) => {
+  return fetchJson(`/api/children/${encodeURIComponent(childId)}/heroes`);
+};
+
 export const getFlashcardData = async ({ word, importance, frequency, childId } = {}) => {
   return fetchJson('/api/flashcard', { params: { word, importance, frequency, child_id: childId } });
 };
@@ -135,6 +139,18 @@ export const getTodayReviewQuiz = async (childId, options = {}) => {
       child_id: childId,
       world: options.world,
       stage: options.stage,
+    },
+  });
+};
+
+export const submitStageQuizAttempt = async ({ childId, world, stage, answers, attemptId } = {}) => {
+  return fetchJson(`/api/children/${encodeURIComponent(childId)}/stage-quiz-attempts`, {
+    method: 'POST',
+    body: {
+      world,
+      stage,
+      answers,
+      attempt_id: attemptId,
     },
   });
 };

@@ -1,9 +1,9 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getHeroCards, getHomeData } from '../api';
+import { getChildHeroCards } from '../api';
 import { EQBackPill, EQBottomNav, EQCard, EQMobileShell } from '../components/eigo';
 import eigoQuestCards from '../config/eigoQuestCards';
-import eigoQuestWorlds, { EIGO_QUEST_WORDS_PER_STAGE } from '../config/eigoQuestWorlds';
+import eigoQuestWorlds from '../config/eigoQuestWorlds';
 import CompactPageHeader from '../components/eigo/CompactPageHeader';
 
 const CHILD_STORAGE_KEY = 'selected_child_id';
@@ -79,27 +79,6 @@ function getCardReviewPath(card) {
   return `/review?${params.toString()}`;
 }
 
-function getLearnedWordsFromHomeData(homeData) {
-  const learnedWords = Number(homeData?.mastered_words ?? homeData?.learned_words ?? homeData?.progress ?? 0);
-  return Number.isFinite(learnedWords) ? Math.max(0, learnedWords) : 0;
-}
-
-function getProgressOwnedCardIds(learnedWordsCount, sourceCards = eigoQuestCards) {
-  const learnedWords = Math.max(0, Number(learnedWordsCount) || 0);
-  const ownedIds = [];
-
-  eigoQuestWorlds.forEach((world) => {
-    const worldWords = Math.max(0, Math.min(world.wordCount, learnedWords - Number(world.wordStartIndex || 0)));
-    const clearedStages = Math.max(0, Math.min(world.stageCount, Math.floor(worldWords / EIGO_QUEST_WORDS_PER_STAGE)));
-    if (clearedStages <= 0) return;
-
-    const worldCards = sourceCards.filter((card) => card.worldId === world.id);
-    worldCards.slice(0, clearedStages).forEach((card) => ownedIds.push(card.id));
-  });
-
-  return ownedIds;
-}
-
 function normalizeHeroCard(card, index) {
   return {
     id: card.id || card.code || `hero-${index + 1}`,
@@ -112,6 +91,7 @@ function normalizeHeroCard(card, index) {
     descriptionJa: card.descriptionJa || card.description_ja || '',
     unlockCondition: card.unlockCondition || '',
     reviewMode: card.reviewMode || 'mixed',
+    owned: Boolean(card.owned),
   };
 }
 
@@ -151,7 +131,6 @@ function CardImage({ card, large = false }) {
 export default function CardCollectionPage() {
   const [activeFilter, setActiveFilter] = useState('all');
   const [detailCard, setDetailCard] = useState(null);
-  const [homeData, setHomeData] = useState(null);
   const [heroCards, setHeroCards] = useState([]);
   const [error, setError] = useState('');
   const navigate = useNavigate();
@@ -163,32 +142,21 @@ export default function CardCollectionPage() {
       return;
     }
 
-    getHomeData(childId)
+    getChildHeroCards(childId)
       .then((payload) => {
-        setHomeData(payload);
+        setHeroCards((payload.heroes || []).map(normalizeHeroCard));
         setError('');
       })
       .catch((err) => {
-        setHomeData({ mastered_words: 0 });
+        setHeroCards(eigoQuestCards.map((card, index) => ({ ...normalizeHeroCard(card, index), owned: false })));
         setError(err.message || 'カードの進捗データを読み込めませんでした。');
-      });
-    getHeroCards()
-      .then((payload) => {
-        setHeroCards((payload.heroes || []).map(normalizeHeroCard));
-      })
-      .catch(() => {
-        setHeroCards([]);
       });
   }, [childId, navigate]);
 
   const cardSource = heroCards.length ? heroCards : eigoQuestCards;
-  const learnedWordsCount = getLearnedWordsFromHomeData(homeData);
-  const ownedCardIds = useMemo(() => {
-    return new Set(getProgressOwnedCardIds(learnedWordsCount, cardSource));
-  }, [cardSource, learnedWordsCount]);
   const cards = useMemo(
-    () => cardSource.map((card, index) => ({ ...normalizeHeroCard(card, index), owned: ownedCardIds.has(card.id) })),
-    [cardSource, ownedCardIds],
+    () => cardSource.map((card, index) => normalizeHeroCard(card, index)),
+    [cardSource],
   );
   const visibleCards = useMemo(
     () => cards.filter((card) => activeFilter === 'all' || card.worldId === activeFilter),

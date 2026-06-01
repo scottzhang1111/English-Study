@@ -19,12 +19,12 @@ import {
   getHomeData,
   getLearnedWords,
   getTodayReviewQuiz,
-  getWorldStageProgress,
   markMastered,
-  markWorldStageCleared,
+  submitStageQuizAttempt,
 } from '../api';
 import eigoQuestWorlds from '../config/eigoQuestWorlds';
 import { getWorldStageByLearnedWords } from '../helpers/eigoQuestProgress';
+import { savePendingRewardQueue } from '../helpers/eigoQuestRewards';
 import CompactPageHeader from '../components/eigo/CompactPageHeader';
 
 const DAILY_TARGET = 20;
@@ -182,7 +182,9 @@ export default function FlashcardPage() {
   const [reviewScore, setReviewScore] = useState(0);
   const [reviewStreak, setReviewStreak] = useState(0);
   const [reviewResult, setReviewResult] = useState(null);
+  const [reviewAnswers, setReviewAnswers] = useState({});
   const audioRef = useRef(null);
+  const reviewAttemptIdRef = useRef('');
   const navigate = useNavigate();
   const location = useLocation();
   const [searchParams] = useSearchParams();
@@ -364,6 +366,8 @@ export default function FlashcardPage() {
   const loadReviewQuiz = async () => {
     setReviewLoading(true);
     setReviewError(null);
+    setReviewData(null);
+    setMode('review');
     try {
       const payload = await getTodayReviewQuiz(selectedChildId, {
         world: hasRequestedStage ? requestedWorldId : undefined,
@@ -376,9 +380,10 @@ export default function FlashcardPage() {
       setReviewScore(0);
       setReviewStreak(0);
       setReviewResult(null);
-      setMode('review');
+      setReviewAnswers({});
+      reviewAttemptIdRef.current = `stage-${Date.now()}-${Math.random().toString(16).slice(2)}`;
     } catch (err) {
-      setReviewError(err.message);
+      setReviewError(err.message || 'Stage Quizを読み込めませんでした。もう一度ためしてください。');
     } finally {
       setReviewLoading(false);
     }
@@ -480,18 +485,6 @@ const handleNextStudy = async () => {
       }
     }
 
-    if (hasRequestedStage) {
-      const stageProgress = await getWorldStageProgress({
-        childId: selectedChildId,
-        world: requestedWorldId,
-        stage: requestedStage,
-      });
-      if (stageProgress?.cleared) {
-        navigate(`${routePrefix}/world-stage?world=${encodeURIComponent(requestedWorldId)}`);
-        return;
-      }
-    }
-
     await loadReviewQuiz();
   } catch (err) {
     setStudyError(err.message);
@@ -545,6 +538,15 @@ const handlePreviousStudy = async () => {
     setReviewAnswer(choice);
     setReviewLocked(true);
     const isCorrect = choice === currentReviewQuestion.correct;
+    setReviewAnswers((prev) => ({
+      ...prev,
+      [reviewIndex]: {
+        id: currentReviewQuestion.id,
+        word: currentReviewQuestion.word,
+        type: currentReviewQuestion.type,
+        selected: choice,
+      },
+    }));
     if (isCorrect) {
       setReviewScore((score) => score + 1);
       setReviewStreak((streak) => streak + 1);
@@ -553,16 +555,42 @@ const handlePreviousStudy = async () => {
     }
   };
 
-  const handleReviewNext = () => {
+  const handleReviewNext = async () => {
     if (reviewIndex < reviewTotal - 1) {
       setReviewIndex((index) => index + 1);
       setReviewAnswer('');
       setReviewLocked(false);
       return;
     }
+    if (hasRequestedStage) {
+      try {
+        setReviewLoading(true);
+        const result = await submitStageQuizAttempt({
+          childId: selectedChildId,
+          world: requestedWorldId,
+          stage: requestedStage,
+          attemptId: reviewAttemptIdRef.current,
+          answers: Object.values(reviewAnswers),
+        });
+        setReviewResult({
+          passed: Boolean(result.passed),
+          score: Number(result.score || 0),
+          total: Number(result.total || reviewTotal),
+          stageCleared: Boolean(result.stage_cleared),
+          attemptId: result.attempt_id,
+          rewardQueue: Array.isArray(result.reward_queue) ? result.reward_queue : [],
+        });
+        setMode('review-result');
+      } catch (err) {
+        setReviewError(err.message || 'Quiz結果を保存できませんでした。もう一度ためしてください。');
+      } finally {
+        setReviewLoading(false);
+      }
+      return;
+    }
     const finalScore = reviewScore;
     const passed = reviewTotal > 0 && finalScore >= reviewTotal;
-    setReviewResult({ passed, score: finalScore, total: reviewTotal });
+    setReviewResult({ passed, score: finalScore, total: reviewTotal, stageCleared: false });
     setMode('review-result');
   };
 
@@ -863,19 +891,10 @@ const mobilePartOfSpeech =
               className="eq-purify-next"
               onClick={async () => {
                 if (reviewResult.passed) {
-                  if (hasRequestedStage) {
-                    try {
-                      setReviewLoading(true);
-                      await markWorldStageCleared({
-                        childId: selectedChildId,
-                        world: requestedWorldId,
-                        stage: requestedStage,
-                      });
-                    } catch (err) {
-                      setReviewError(err.message);
-                      setReviewLoading(false);
-                      return;
-                    }
+                  if (reviewResult.rewardQueue?.length) {
+                    savePendingRewardQueue(reviewResult.rewardQueue);
+                    navigate('/card-reward');
+                    return;
                   }
                   navigate('/grammar-quest?from=daily-quest');
                 } else {

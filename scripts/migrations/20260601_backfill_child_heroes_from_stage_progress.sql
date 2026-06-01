@@ -1,0 +1,108 @@
+-- PostgreSQL backfill for Phase 6B/7. Run only after
+-- 20260601_child_heroes.sql has created the child_heroes structure.
+
+WITH reward_map(world_id, stage_number, hero_code, reward_type) AS (
+    VALUES
+        ('wind', 1, 'wind-guardian-zephyrus', 'stage'),
+        ('wind', 2, 'wind-monster-griffin', 'stage'),
+        ('wind', 3, 'wind-guardian-odin', 'stage'),
+        ('wind', 4, 'wind-guardian-hraesvelgr', 'stage'),
+        ('wind', 5, 'wind-guardian-vayu', 'stage'),
+        ('wind', 6, 'wind-guardian-zhaoyun', 'stage'),
+        ('wind', 7, 'wind-guardian-feilian', 'stage'),
+        ('wind', 8, 'wind-guardian-masamune', 'stage'),
+        ('wind', 9, 'wind-guardian-shinato', 'stage'),
+        ('wind', 10, 'wind-boss-typhoeus', 'stage'),
+        ('fire', 1, 'fire-guardian-hephaestus', 'stage'),
+        ('fire', 2, 'fire-monster-chimera', 'stage'),
+        ('fire', 3, 'fire-guardian-loki', 'stage'),
+        ('fire', 4, 'fire-guardian-agni', 'stage'),
+        ('fire', 5, 'fire-monster-ravana', 'stage'),
+        ('fire', 6, 'fire-guardian-lvbu', 'stage'),
+        ('fire', 7, 'fire-guardian-zhurong', 'stage'),
+        ('fire', 8, 'fire-guardian-nobunaga', 'stage'),
+        ('fire', 9, 'fire-guardian-kagutsuchi', 'stage'),
+        ('fire', 10, 'fire-boss-surtr', 'stage'),
+        ('water', 1, 'water-guardian-poseidon', 'stage'),
+        ('water', 2, 'water-monster-kraken', 'stage'),
+        ('water', 3, 'water-guardian-aegir', 'stage'),
+        ('water', 4, 'water-guardian-njord', 'stage'),
+        ('water', 5, 'water-guardian-varuna', 'stage'),
+        ('water', 6, 'water-guardian-zhouyu', 'stage'),
+        ('water', 7, 'water-guardian-gonggong', 'stage'),
+        ('water', 8, 'water-guardian-kenshin', 'stage'),
+        ('water', 9, 'water-guardian-watatsumi', 'stage'),
+        ('water', 10, 'water-boss-leviathan', 'stage'),
+        ('thunder', 1, 'thunder-guardian-thor', 'stage'),
+        ('thunder', 2, 'thunder-monster-nue', 'stage'),
+        ('thunder', 3, 'thunder-guardian-perun', 'stage'),
+        ('thunder', 4, 'thunder-guardian-baron', 'stage'),
+        ('thunder', 5, 'thunder-guardian-indra', 'stage'),
+        ('thunder', 6, 'thunder-guardian-guanyu', 'stage'),
+        ('thunder', 7, 'thunder-guardian-leizhenzi', 'stage'),
+        ('thunder', 8, 'thunder-guardian-shingen', 'stage'),
+        ('thunder', 9, 'thunder-guardian-takemikazuchi', 'stage'),
+        ('thunder', 10, 'thunder-boss-susanoo', 'stage'),
+        ('wood', 1, 'wood-guardian-demeter', 'stage'),
+        ('wood', 2, 'wood-monster-alraune', 'stage'),
+        ('wood', 3, 'wood-guardian-vidar', 'stage'),
+        ('wood', 4, 'wood-guardian-idun', 'stage'),
+        ('wood', 5, 'wood-guardian-soma', 'stage'),
+        ('wood', 6, 'wood-guardian-liubei', 'stage'),
+        ('wood', 7, 'wood-guardian-shennong', 'stage'),
+        ('wood', 8, 'wood-guardian-motonari', 'stage'),
+        ('wood', 9, 'wood-guardian-sukunabikona', 'stage'),
+        ('wood', 10, 'wood-boss-ygdrasil', 'stage'),
+        ('rock', 1, 'rock-guardian-gaia', 'stage'),
+        ('rock', 2, 'rock-monster-behemoth', 'stage'),
+        ('rock', 3, 'rock-guardian-hades', 'stage'),
+        ('rock', 4, 'rock-guardian-forseti', 'stage'),
+        ('rock', 5, 'rock-guardian-prithvi', 'stage'),
+        ('rock', 6, 'rock-guardian-guanxiu', 'stage'),
+        ('rock', 7, 'rock-guardian-houji', 'stage'),
+        ('rock', 8, 'rock-guardian-iyeyasu', 'stage'),
+        ('rock', 9, 'rock-guardian-ohyamatsumi', 'stage'),
+        ('rock', 10, 'rock-boss-shiva', 'stage'),
+        ('light', 1, 'light-guardian-apollo', 'stage'),
+        ('light', 2, 'light-monster-sphinx', 'stage'),
+        ('light', 3, 'light-guardian-baldr', 'stage'),
+        ('light', 4, 'light-guardian-amaterasu', 'stage'),
+        ('light', 5, 'light-guardian-indra', 'stage'),
+        ('light', 6, 'light-guardian-arthur', 'stage'),
+        ('light', 7, 'light-guardian-joan', 'stage'),
+        ('light', 8, 'light-guardian-zhuge', 'stage'),
+        ('light', 9, 'light-boss-zeus', 'stage'),
+        ('light', 10, 'light-boss-lucifer', 'stage'),
+        ('shadow', 1, 'shadow-guardian-nyx', 'stage'),
+        ('shadow', 2, 'shadow-monster-fenrir', 'stage'),
+        ('shadow', 3, 'shadow-guardian-hel', 'stage'),
+        ('shadow', 4, 'shadow-guardian-hypnos', 'stage'),
+        ('shadow', 5, 'shadow-guardian-kali', 'stage'),
+        ('shadow', 5, 'shadow-guardian-simayi', 'final_pack'),
+        ('shadow', 5, 'shadow-guardian-chiyou', 'final_pack'),
+        ('shadow', 5, 'shadow-guardian-hanchou', 'final_pack'),
+        ('shadow', 5, 'shadow-guardian-tsukuyomi', 'final_pack'),
+        ('shadow', 5, 'shadow-boss-anubis', 'final_pack')
+)
+INSERT INTO child_heroes (
+    child_id, hero_id, hero_code, awarded_world_id, awarded_stage_number,
+    reward_type, awarded_at, created_at, updated_at
+)
+SELECT
+    progress.child_id,
+    heroes.id,
+    heroes.code,
+    reward_map.world_id,
+    reward_map.stage_number,
+    reward_map.reward_type,
+    COALESCE(progress.cleared_at, CURRENT_TIMESTAMP),
+    CURRENT_TIMESTAMP,
+    CURRENT_TIMESTAMP
+FROM child_world_stage_progress AS progress
+JOIN reward_map
+  ON reward_map.world_id = progress.world_id
+ AND reward_map.stage_number = progress.stage_number
+JOIN heroes
+  ON heroes.code = reward_map.hero_code
+WHERE progress.status = 'cleared'
+ON CONFLICT (child_id, hero_id) DO NOTHING;

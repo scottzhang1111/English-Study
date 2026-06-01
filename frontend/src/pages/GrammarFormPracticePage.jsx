@@ -10,7 +10,6 @@ import {
   EQPrimaryButton,
 } from '../components/eigo';
 import { getGrammarFormPractice, submitGrammarFormPracticeAnswer } from '../api';
-import { createMissionReward } from '../helpers/eigoQuestRewards';
 
 const CHILD_STORAGE_KEY = 'selected_child_id';
 const PRACTICE_QUESTION_LIMIT = 5;
@@ -74,8 +73,7 @@ export default function GrammarFormPracticePage() {
       return;
     }
     if (correctCount >= questions.length) {
-      createMissionReward({ childId });
-      navigate('/card-reward');
+      navigate('/grammar');
       return;
     }
     setIndex(questions.length);
@@ -194,7 +192,7 @@ export default function GrammarFormPracticePage() {
               <p className="eq-caption">選んだ答え: {answerResult.selectedExplanationJp}</p>
             )}
             <EQPrimaryButton type="button" onClick={handleNext} fullWidth>
-              {isLast ? (correctCount >= questions.length ? '報酬へ' : '結果を見る') : 'つぎへ'}
+              {isLast ? (correctCount >= questions.length ? '完了' : '結果を見る') : 'つぎへ'}
             </EQPrimaryButton>
           </EQPanel>
         )}

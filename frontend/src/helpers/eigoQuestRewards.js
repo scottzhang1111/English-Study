@@ -1,74 +1,51 @@
 import eigoQuestCards from '../config/eigoQuestCards';
-import eigoQuestWorlds from '../config/eigoQuestWorlds';
-import { getEigoQuestProgress } from './eigoQuestProgress';
 
-export const EIGO_QUEST_OWNED_CARD_IDS_KEY = 'eigo_quest_owned_card_ids';
 export const EIGO_QUEST_PENDING_REWARD_KEY = 'eigo_quest_pending_reward';
 
-export function getOwnedCardIds() {
+function normalizeReward(reward) {
+  if (!reward || typeof reward !== 'object') return null;
+  const cardId = reward.cardId || reward.card_id || reward.id || reward.code || '';
+  if (!cardId) return null;
+  return {
+    ...reward,
+    cardId: String(cardId),
+    code: String(reward.code || cardId),
+    worldId: reward.worldId || reward.world_id || '',
+  };
+}
+
+export function getPendingRewardQueue() {
   try {
-    const parsed = JSON.parse(localStorage.getItem(EIGO_QUEST_OWNED_CARD_IDS_KEY) || '[]');
-    return Array.isArray(parsed) ? parsed.filter(Boolean).map(String) : [];
+    const parsed = JSON.parse(localStorage.getItem(EIGO_QUEST_PENDING_REWARD_KEY) || 'null');
+    const rewards = Array.isArray(parsed) ? parsed : parsed?.queue || parsed?.rewards || (parsed ? [parsed] : []);
+    return rewards.map(normalizeReward).filter(Boolean);
   } catch {
     return [];
   }
 }
 
-export function saveOwnedCardIds(cardIds) {
-  const uniqueIds = Array.from(new Set((cardIds || []).filter(Boolean).map(String)));
-  localStorage.setItem(EIGO_QUEST_OWNED_CARD_IDS_KEY, JSON.stringify(uniqueIds));
-  return uniqueIds;
-}
-
-export function addOwnedCardId(cardId) {
-  if (!cardId) return getOwnedCardIds();
-  return saveOwnedCardIds([...getOwnedCardIds(), cardId]);
-}
-
-export function getPendingReward() {
-  try {
-    const parsed = JSON.parse(localStorage.getItem(EIGO_QUEST_PENDING_REWARD_KEY) || 'null');
-    return parsed && typeof parsed === 'object' ? parsed : null;
-  } catch {
-    return null;
-  }
-}
-
-export function savePendingReward(reward) {
-  if (!reward) {
+export function savePendingRewardQueue(rewards) {
+  const queue = (rewards || []).map(normalizeReward).filter(Boolean);
+  if (!queue.length) {
     localStorage.removeItem(EIGO_QUEST_PENDING_REWARD_KEY);
-    return null;
+    return [];
   }
-  localStorage.setItem(EIGO_QUEST_PENDING_REWARD_KEY, JSON.stringify(reward));
-  return reward;
+  localStorage.setItem(EIGO_QUEST_PENDING_REWARD_KEY, JSON.stringify(queue));
+  return queue;
 }
 
 export function clearPendingReward() {
   localStorage.removeItem(EIGO_QUEST_PENDING_REWARD_KEY);
 }
 
-export function pickRewardCardForProgress(learnedWordsCount = 0) {
-  const progress = getEigoQuestProgress(learnedWordsCount, eigoQuestWorlds);
-  const ownedIds = new Set(getOwnedCardIds());
-  const worldCards = eigoQuestCards.filter((card) => card.worldId === progress.currentWorld.id);
-  return worldCards.find((card) => !ownedIds.has(card.id)) || worldCards[0] || eigoQuestCards[0];
+export function getPendingReward() {
+  return getPendingRewardQueue()[0] || null;
 }
 
-export function createMissionReward({ learnedWordsCount = 0, childId = '' } = {}) {
-  const progress = getEigoQuestProgress(learnedWordsCount, eigoQuestWorlds);
-  const card = pickRewardCardForProgress(learnedWordsCount);
-  const reward = {
-    id: `mission-${childId || 'child'}-${new Date().toISOString().slice(0, 10)}`,
-    childId,
-    exp: 50,
-    coin: 30,
-    cardId: card?.id || '',
-    worldId: progress.currentWorld.id,
-    createdAt: new Date().toISOString(),
-  };
-  return savePendingReward(reward);
+export function savePendingReward(reward) {
+  return savePendingRewardQueue(reward ? [reward] : []);
 }
 
 export function getCardById(cardId) {
-  return eigoQuestCards.find((card) => card.id === cardId) || null;
+  return eigoQuestCards.find((card) => card.id === cardId || card.code === cardId) || null;
 }

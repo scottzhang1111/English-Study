@@ -60,6 +60,106 @@ EIGO_QUEST_WORLD_MAP = {world['id']: world for world in EIGO_QUEST_WORLDS}
 EIGO_QUEST_WORLD_ORDER = [world['id'] for world in EIGO_QUEST_WORLDS]
 EIGO_QUEST_TOTAL_STAGES = sum(world['stage_count'] for world in EIGO_QUEST_WORLDS)
 EIGO_QUEST_TOTAL_WORDS = sum(world['word_count'] for world in EIGO_QUEST_WORLDS)
+EIGO_QUEST_STAGE_REWARD_CODES = {
+    'wind': [
+        'wind-guardian-zephyrus',
+        'wind-monster-griffin',
+        'wind-guardian-odin',
+        'wind-guardian-hraesvelgr',
+        'wind-guardian-vayu',
+        'wind-guardian-zhaoyun',
+        'wind-guardian-feilian',
+        'wind-guardian-masamune',
+        'wind-guardian-shinato',
+        'wind-boss-typhoeus',
+    ],
+    'fire': [
+        'fire-guardian-hephaestus',
+        'fire-monster-chimera',
+        'fire-guardian-loki',
+        'fire-guardian-agni',
+        'fire-monster-ravana',
+        'fire-guardian-lvbu',
+        'fire-guardian-zhurong',
+        'fire-guardian-nobunaga',
+        'fire-guardian-kagutsuchi',
+        'fire-boss-surtr',
+    ],
+    'water': [
+        'water-guardian-poseidon',
+        'water-monster-kraken',
+        'water-guardian-aegir',
+        'water-guardian-njord',
+        'water-guardian-varuna',
+        'water-guardian-zhouyu',
+        'water-guardian-gonggong',
+        'water-guardian-kenshin',
+        'water-guardian-watatsumi',
+        'water-boss-leviathan',
+    ],
+    'thunder': [
+        'thunder-guardian-thor',
+        'thunder-monster-nue',
+        'thunder-guardian-perun',
+        'thunder-guardian-baron',
+        'thunder-guardian-indra',
+        'thunder-guardian-guanyu',
+        'thunder-guardian-leizhenzi',
+        'thunder-guardian-shingen',
+        'thunder-guardian-takemikazuchi',
+        'thunder-boss-susanoo',
+    ],
+    'wood': [
+        'wood-guardian-demeter',
+        'wood-monster-alraune',
+        'wood-guardian-vidar',
+        'wood-guardian-idun',
+        'wood-guardian-soma',
+        'wood-guardian-liubei',
+        'wood-guardian-shennong',
+        'wood-guardian-motonari',
+        'wood-guardian-sukunabikona',
+        'wood-boss-ygdrasil',
+    ],
+    'rock': [
+        'rock-guardian-gaia',
+        'rock-monster-behemoth',
+        'rock-guardian-hades',
+        'rock-guardian-forseti',
+        'rock-guardian-prithvi',
+        'rock-guardian-guanxiu',
+        'rock-guardian-houji',
+        'rock-guardian-iyeyasu',
+        'rock-guardian-ohyamatsumi',
+        'rock-boss-shiva',
+    ],
+    'light': [
+        'light-guardian-apollo',
+        'light-monster-sphinx',
+        'light-guardian-baldr',
+        'light-guardian-amaterasu',
+        'light-guardian-indra',
+        'light-guardian-arthur',
+        'light-guardian-joan',
+        'light-guardian-zhuge',
+        'light-boss-zeus',
+        'light-boss-lucifer',
+    ],
+    'shadow': [
+        'shadow-guardian-nyx',
+        'shadow-monster-fenrir',
+        'shadow-guardian-hel',
+        'shadow-guardian-hypnos',
+        'shadow-guardian-kali',
+    ],
+}
+EIGO_QUEST_FINAL_REWARD_CODES = [
+    'shadow-guardian-simayi',
+    'shadow-guardian-chiyou',
+    'shadow-guardian-hanchou',
+    'shadow-guardian-tsukuyomi',
+    'shadow-boss-anubis',
+]
 STARTER_POKEMON_IDS = [1, 10, 19]
 POKEMON_NAME_FALLBACKS = {
     1: 'フシギダネ',
@@ -2080,6 +2180,48 @@ def init_db(force=False):
                 PRIMARY KEY (child_id, world_id, stage_number),
                 FOREIGN KEY (child_id) REFERENCES children (id) ON UPDATE CASCADE ON DELETE CASCADE
             )
+            '''
+        )
+        conn.execute(
+            '''
+            CREATE TABLE IF NOT EXISTS child_stage_quiz_attempts (
+                attempt_id TEXT PRIMARY KEY,
+                child_id INTEGER NOT NULL,
+                world_id TEXT NOT NULL,
+                stage_number INTEGER NOT NULL,
+                total_questions INTEGER NOT NULL,
+                correct_count INTEGER NOT NULL,
+                passed INTEGER NOT NULL DEFAULT 0,
+                answers_json TEXT NOT NULL DEFAULT '[]',
+                submitted_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (child_id) REFERENCES children (id) ON UPDATE CASCADE ON DELETE CASCADE
+            )
+            '''
+        )
+        conn.execute(
+            '''
+            CREATE TABLE IF NOT EXISTS child_heroes (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                child_id INTEGER NOT NULL,
+                hero_id INTEGER NOT NULL,
+                hero_code TEXT NOT NULL,
+                awarded_world_id TEXT,
+                awarded_stage_number INTEGER,
+                reward_type TEXT NOT NULL DEFAULT 'stage',
+                awarded_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                UNIQUE (child_id, hero_id),
+                FOREIGN KEY (child_id) REFERENCES children (id) ON UPDATE CASCADE ON DELETE CASCADE,
+                FOREIGN KEY (hero_id) REFERENCES heroes (id) ON UPDATE CASCADE ON DELETE CASCADE
+            )
+            '''
+        )
+        conn.execute(
+            '''
+            CREATE INDEX IF NOT EXISTS idx_child_stage_quiz_attempts_child_stage
+            ON child_stage_quiz_attempts (child_id, world_id, stage_number, submitted_at)
             '''
         )
         conn.execute(
@@ -4519,13 +4661,20 @@ def api_today_review_quiz_payload(child_id=None, world_id=None, stage=None):
             'SELECT COUNT(*) AS count FROM child_vocab_progress WHERE child_id = ? AND mastered = 1',
             (child_id,),
         ).fetchone()
+        daily_row = conn.execute(
+            'SELECT studied_count FROM daily_study_log WHERE child_id = ? AND study_date = ?',
+            (child_id, get_today()),
+        ).fetchone()
     finally:
         conn.close()
-    progress_count = int(mastered_row['count'] or 0) if mastered_row else 0
+    progress_count = int(daily_row['studied_count'] or 0) if daily_row else 0
+    mastered_total = int(mastered_row['count'] or 0) if mastered_row else 0
     target = int(child_row['daily_target'] or 20)
     payload = {
         'day': int(progress_count // max(1, target)) + 1 if progress_count else 1,
         'progress': progress_count,
+        'studied_today': progress_count,
+        'mastered_total': mastered_total,
         'target': target,
         'questions': questions,
     }
@@ -7224,6 +7373,14 @@ def api_home():
                 'SELECT COUNT(*) AS count FROM child_vocab_progress WHERE child_id = ? AND mastered = 1',
                 (child_id,),
             ).fetchone()
+            review_needed_row = conn.execute(
+                '''
+                SELECT COUNT(*) AS count
+                FROM child_vocab_progress
+                WHERE child_id = ? AND status = 'review'
+                ''',
+                (child_id,),
+            ).fetchone()
             study_days_row = conn.execute(
                 'SELECT COUNT(DISTINCT study_date) AS count FROM daily_study_log WHERE child_id = ? AND studied_count > 0',
                 (child_id,),
@@ -7236,10 +7393,12 @@ def api_home():
         progress_count = int(daily_row['studied_count'] or 0) if daily_row else 0
         remain = max(0, target - progress_count)
         mastered_words = int(mastered_row['count'] or 0) if mastered_row else 0
+        review_needed = int(review_needed_row['count'] or 0) if review_needed_row else 0
         study_days = int(study_days_row['count'] or 0) if study_days_row else 0
         eigo_quest_progress = build_eigo_quest_progress_from_clears(stage_clear_set)
     else:
         mastered_words = len(progress.get('mastered_words', []))
+        review_needed = 0
         study_days = 1 if progress.get('count', 0) > 0 else 0
         eigo_quest_progress = build_eigo_quest_progress_from_clears(set())
 
@@ -7250,10 +7409,13 @@ def api_home():
         pet['completion'] = min(100, round((progress_count / max(1, target)) * 100))
     return jsonify(
         progress=progress_count,
+        studied_today=progress_count,
         target=target,
         remain=remain,
         total_words=total_words,
         mastered_words=mastered_words,
+        mastered_total=mastered_words,
+        review_needed=review_needed,
         study_days=study_days,
         pet=pet,
         eigo_quest_progress=eigo_quest_progress,
@@ -7720,6 +7882,281 @@ def mark_child_world_stage_cleared(child_id, world_id, stage):
     return get_child_world_stage_progress(child_id, normalized_world_id, stage_number)
 
 
+def get_stage_reward_codes(world_id, stage):
+    normalized_world_id = str(world_id or '').strip().lower()
+    try:
+        stage_number = int(stage)
+    except (TypeError, ValueError):
+        return []
+    world = EIGO_QUEST_WORLD_MAP.get(normalized_world_id)
+    if not world or stage_number < 1 or stage_number > world['stage_count']:
+        return []
+
+    reward_codes = []
+    stage_codes = EIGO_QUEST_STAGE_REWARD_CODES.get(normalized_world_id, [])
+    if 1 <= stage_number <= len(stage_codes):
+        reward_codes.append(stage_codes[stage_number - 1])
+    if normalized_world_id == 'shadow' and stage_number == world['stage_count']:
+        reward_codes.extend(EIGO_QUEST_FINAL_REWARD_CODES)
+    return reward_codes
+
+
+def get_child_owned_hero_code_set(conn, child_id):
+    if not _table_exists(conn, 'child_heroes') or not _table_exists(conn, 'heroes'):
+        return set()
+    rows = conn.execute(
+        '''
+        SELECT heroes.code
+        FROM child_heroes
+        JOIN heroes ON heroes.id = child_heroes.hero_id
+        WHERE child_heroes.child_id = ?
+        ''',
+        (child_id,),
+    ).fetchall()
+    return {str(row['code'] or '') for row in rows if row['code']}
+
+
+def get_table_columns(conn, table_name):
+    try:
+        return {row[1] for row in conn.execute(f'PRAGMA table_info({table_name})').fetchall()}
+    except Exception:
+        try:
+            conn.rollback()
+        except Exception:
+            pass
+        return set()
+
+
+def grant_child_hero_rewards(child_id, reward_codes, world_id=None, stage=None, reward_type='stage'):
+    reward_codes = [str(code or '').strip() for code in (reward_codes or []) if str(code or '').strip()]
+    if not reward_codes:
+        return []
+
+    conn = get_db_connection()
+    awarded_rows = []
+    try:
+        ensure_child_exists(conn, child_id)
+        if not _table_exists(conn, 'heroes'):
+            return []
+        if not _table_exists(conn, 'child_heroes'):
+            return []
+
+        now = get_now_iso()
+        child_hero_columns = get_table_columns(conn, 'child_heroes')
+        for code in reward_codes:
+            hero_row = conn.execute(
+                '''
+                SELECT id, world_id, code, name_ja, name_cn, rarity, image_url, description_ja
+                FROM heroes
+                WHERE code = ?
+                LIMIT 1
+                ''',
+                (code,),
+            ).fetchone()
+            if not hero_row:
+                continue
+
+            existing = conn.execute(
+                'SELECT id FROM child_heroes WHERE child_id = ? AND hero_id = ?',
+                (child_id, hero_row['id']),
+            ).fetchone()
+            if existing:
+                continue
+
+            insert_values = {
+                'child_id': child_id,
+                'hero_id': hero_row['id'],
+                'hero_code': code,
+                'awarded_world_id': str(world_id or '').strip().lower() or None,
+                'awarded_stage_number': int(stage) if stage not in [None, ''] else None,
+                'reward_type': reward_type,
+                'awarded_at': now,
+                'created_at': now,
+                'updated_at': now,
+            }
+            insert_columns = [
+                column for column in insert_values
+                if column in child_hero_columns or column in {'child_id', 'hero_id'}
+            ]
+            placeholders = ', '.join(['?'] * len(insert_columns))
+            conn.execute(
+                f'''
+                INSERT INTO child_heroes ({', '.join(insert_columns)})
+                VALUES ({placeholders})
+                ''',
+                tuple(insert_values[column] for column in insert_columns),
+            )
+            owned = conn.execute(
+                'SELECT id FROM child_heroes WHERE child_id = ? AND hero_id = ?',
+                (child_id, hero_row['id']),
+            ).fetchone()
+            if owned:
+                awarded_rows.append(hero_row_to_card(hero_row))
+        conn.commit()
+    finally:
+        conn.close()
+    return awarded_rows
+
+
+def grant_child_stage_rewards(child_id, world_id, stage):
+    reward_codes = get_stage_reward_codes(world_id, stage)
+    return grant_child_hero_rewards(
+        child_id,
+        reward_codes,
+        world_id=world_id,
+        stage=stage,
+        reward_type='final_pack' if str(world_id).strip().lower() == 'shadow' and int(stage) == 5 else 'stage',
+    )
+
+
+def get_stage_quiz_expected_answer(entry, question_type):
+    qtype = _clean_csv_value(question_type)
+    if qtype == 'Meaning':
+        return _clean_csv_value(entry.get('Japanese'))
+    return _clean_csv_value(entry.get('English'))
+
+
+def submit_child_stage_quiz_attempt(child_id, world_id, stage, answers, attempt_id=None):
+    stage_entries = select_stage_vocab_entries(world_id, stage, 20)
+    if stage_entries is None:
+        raise ValueError('valid world and stage are required')
+    if not isinstance(answers, list) or not answers:
+        raise ValueError('answers are required')
+
+    normalized_world_id = str(world_id or '').strip().lower()
+    stage_number = int(stage)
+    attempt_id = _clean_csv_value(attempt_id) or str(uuid.uuid4())
+    entries_by_id = {
+        _clean_csv_value(entry.get('ID')): entry
+        for entry in stage_entries
+        if _clean_csv_value(entry.get('ID'))
+    }
+    now = get_now_iso()
+
+    conn = get_db_connection()
+    try:
+        ensure_child_exists(conn, child_id)
+        existing = conn.execute(
+            '''
+            SELECT attempt_id, child_id, world_id, stage_number, total_questions,
+                   correct_count, passed, answers_json, submitted_at
+            FROM child_stage_quiz_attempts
+            WHERE attempt_id = ?
+            ''',
+            (attempt_id,),
+        ).fetchone()
+        if existing:
+            return {
+                'attempt_id': existing['attempt_id'],
+                'child_id': existing['child_id'],
+                'world': existing['world_id'],
+                'stage': existing['stage_number'],
+                'total': existing['total_questions'],
+                'score': existing['correct_count'],
+                'passed': bool(existing['passed']),
+                'stage_cleared': bool(existing['passed']),
+                'submitted_at': existing['submitted_at'],
+                'answers': json.loads(existing['answers_json'] or '[]'),
+                'reward_queue': [],
+                'duplicate': True,
+            }
+
+        normalized_answers = []
+        correct_count = 0
+        for answer in answers:
+            if not isinstance(answer, dict):
+                continue
+            vocab_id = _clean_csv_value(answer.get('id') or answer.get('vocab_id') or answer.get('vocabId'))
+            selected = _clean_csv_value(answer.get('selected') or answer.get('selected_answer') or answer.get('selectedAnswer'))
+            question_type = _clean_csv_value(answer.get('type') or answer.get('question_type') or answer.get('questionType'))
+            entry = entries_by_id.get(vocab_id)
+            if not entry:
+                continue
+            correct_answer = get_stage_quiz_expected_answer(entry, question_type)
+            is_correct = bool(selected and correct_answer and selected == correct_answer)
+            correct_count += 1 if is_correct else 0
+            normalized_answer = {
+                'id': vocab_id,
+                'word': _clean_csv_value(entry.get('English')),
+                'type': question_type,
+                'selected': selected,
+                'correct': correct_answer,
+                'is_correct': is_correct,
+            }
+            normalized_answers.append(normalized_answer)
+            if not is_correct:
+                try:
+                    numeric_vocab_id = int(vocab_id)
+                except (TypeError, ValueError):
+                    numeric_vocab_id = None
+                if numeric_vocab_id is not None:
+                    conn.execute('INSERT OR IGNORE INTO vocabulary (id) VALUES (?)', (numeric_vocab_id,))
+                    conn.execute(
+                        '''
+                        INSERT INTO child_vocab_progress (
+                            child_id, vocab_id, correct_count, wrong_count, review_count,
+                            memory_level, last_studied_at, mastered, created_at, updated_at,
+                            correct_streak, mastery, status, last_reviewed_at
+                        ) VALUES (?, ?, 0, 1, 1, 0, ?, 0, ?, ?, 0, 0, 'review', ?)
+                        ON CONFLICT(child_id, vocab_id) DO UPDATE SET
+                            wrong_count = child_vocab_progress.wrong_count + 1,
+                            review_count = child_vocab_progress.review_count + 1,
+                            correct_streak = 0,
+                            status = 'review',
+                            last_reviewed_at = excluded.last_reviewed_at,
+                            updated_at = excluded.updated_at
+                        ''',
+                        (child_id, numeric_vocab_id, now, now, now, now),
+                    )
+
+        total_questions = len(stage_entries)
+        passed = len(normalized_answers) >= total_questions and correct_count >= total_questions
+        conn.execute(
+            '''
+            INSERT INTO child_stage_quiz_attempts (
+                attempt_id, child_id, world_id, stage_number, total_questions,
+                correct_count, passed, answers_json, submitted_at, created_at
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            ''',
+            (
+                attempt_id,
+                child_id,
+                normalized_world_id,
+                stage_number,
+                total_questions,
+                correct_count,
+                1 if passed else 0,
+                json.dumps(normalized_answers, ensure_ascii=False),
+                now,
+                now,
+            ),
+        )
+        conn.commit()
+    finally:
+        conn.close()
+
+    reward_queue = []
+    if passed:
+        stage_progress = mark_child_world_stage_cleared(child_id, normalized_world_id, stage_number)
+        reward_queue = grant_child_stage_rewards(child_id, normalized_world_id, stage_number)
+    else:
+        stage_progress = get_child_world_stage_progress(child_id, normalized_world_id, stage_number)
+    return {
+        'attempt_id': attempt_id,
+        'child_id': child_id,
+        'world': normalized_world_id,
+        'stage': stage_number,
+        'total': total_questions,
+        'score': correct_count,
+        'passed': passed,
+        'stage_cleared': bool(stage_progress['cleared']),
+        'submitted_at': now,
+        'answers': normalized_answers,
+        'reward_queue': reward_queue,
+        'duplicate': False,
+    }
+
+
 def get_database_host_for_debug():
     database_url = get_database_url()
     if not database_url:
@@ -7784,6 +8221,42 @@ def api_heroes():
     finally:
         conn.close()
     return jsonify(heroes=[hero_row_to_card(row) for row in rows])
+
+
+@app.route('/api/children/<int:child_id>/heroes')
+def api_child_heroes(child_id):
+    conn = get_db_connection()
+    try:
+        ensure_child_exists(conn, child_id)
+        if not _table_exists(conn, 'heroes'):
+            return jsonify(heroes=[], owned_hero_ids=[], owned_codes=[])
+
+        owned_codes = get_child_owned_hero_code_set(conn, child_id)
+        rows = conn.execute(
+            '''
+            SELECT id, world_id, code, name_ja, name_cn, rarity, image_url, description_ja
+            FROM heroes
+            ORDER BY world_id, id
+            '''
+        ).fetchall()
+    except LookupError as exc:
+        abort(404, str(exc))
+    finally:
+        conn.close()
+
+    heroes = []
+    owned_hero_ids = []
+    for row in rows:
+        card = hero_row_to_card(row)
+        card['owned'] = card['code'] in owned_codes
+        if card['owned']:
+            owned_hero_ids.append(card['id'])
+        heroes.append(card)
+    return jsonify(
+        heroes=heroes,
+        owned_hero_ids=owned_hero_ids,
+        owned_codes=sorted(owned_codes),
+    )
 
 
 @app.route('/debug/db')
@@ -8094,31 +8567,36 @@ def api_mark_mastered():
             ensure_child_exists(conn, child_id)
             conn.execute('INSERT OR IGNORE INTO vocabulary (id) VALUES (?)', (vocab_id,))
             existing_progress = conn.execute(
-                'SELECT mastery FROM child_vocab_progress WHERE child_id = ? AND vocab_id = ?',
+                'SELECT mastery, mastered, status FROM child_vocab_progress WHERE child_id = ? AND vocab_id = ?',
                 (child_id, vocab_id),
             ).fetchone()
             current_mastery = int(existing_progress['mastery'] or 0) if existing_progress else 0
-            next_mastery = max(current_mastery, 100)
+            is_already_mastered = bool(existing_progress and existing_progress['mastered'])
+            next_mastery = 100 if is_already_mastered else min(99, max(current_mastery, 1))
             conn.execute(
                 '''
                 INSERT INTO child_vocab_progress (
                     child_id, vocab_id, correct_count, wrong_count, review_count,
                     memory_level, last_studied_at, mastered, created_at, updated_at,
                     correct_streak, mastery, status, mastered_at, last_reviewed_at
-                ) VALUES (?, ?, 1, 0, 1, 0, ?, 1, ?, ?, 1, ?, 'mastered', ?, ?)
+                ) VALUES (?, ?, 1, 0, 1, 0, ?, 0, ?, ?, 1, ?, 'learning', NULL, ?)
                 ON CONFLICT(child_id, vocab_id) DO UPDATE SET
                     correct_count = child_vocab_progress.correct_count + 1,
                     review_count = child_vocab_progress.review_count + 1,
                     last_studied_at = excluded.last_studied_at,
                     last_reviewed_at = excluded.last_reviewed_at,
-                    mastered = 1,
-                    status = 'mastered',
-                    mastered_at = COALESCE(child_vocab_progress.mastered_at, excluded.mastered_at),
+                    mastered = child_vocab_progress.mastered,
+                    status = CASE
+                        WHEN child_vocab_progress.mastered = 1 THEN 'mastered'
+                        WHEN child_vocab_progress.status = 'review' THEN 'learning'
+                        ELSE child_vocab_progress.status
+                    END,
+                    mastered_at = child_vocab_progress.mastered_at,
                     mastery = excluded.mastery,
                     correct_streak = child_vocab_progress.correct_streak + 1,
                     updated_at = excluded.updated_at
                 ''',
-                (child_id, vocab_id, now, now, now, next_mastery, now, now),
+                (child_id, vocab_id, now, now, now, next_mastery, now),
             )
             conn.execute(
                 '''
@@ -8153,15 +8631,27 @@ def api_mark_mastered():
                 '''
                 SELECT COUNT(*) AS count
                 FROM child_vocab_progress
-                WHERE child_id = ? AND status = 'mastered'
+                WHERE child_id = ? AND mastered = 1
                 ''',
                 (child_id,),
             ).fetchone()
-            progress['count'] = mastered_count['count'] if mastered_count else 0
+            studied_row = conn.execute(
+                'SELECT studied_count FROM daily_study_log WHERE child_id = ? AND study_date = ?',
+                (child_id, get_today()),
+            ).fetchone()
+            progress['count'] = int(studied_row['studied_count'] or 0) if studied_row else 0
+            progress['mastered_total'] = int(mastered_count['count'] or 0) if mastered_count else 0
         finally:
             conn.close()
     remain = max(0, target - progress['count'])
-    return jsonify(progress=progress['count'], target=target, remain=remain, mastered_words=progress['mastered_words'])
+    return jsonify(
+        progress=progress['count'],
+        studied_today=progress['count'],
+        target=target,
+        remain=remain,
+        mastered_total=progress.get('mastered_total', len(progress.get('mastered_words', []))),
+        mastered_words=progress.get('mastered_total', progress.get('mastered_words', [])),
+    )
 
 
 @app.route('/api/settings', methods=['GET', 'POST'])
@@ -8380,6 +8870,22 @@ def api_today_review_quiz():
         abort(404, str(exc))
     except ValueError as exc:
         abort(400, str(exc))
+
+
+@app.route('/api/children/<int:child_id>/stage-quiz-attempts', methods=['POST'])
+def api_child_stage_quiz_attempts(child_id):
+    data = request.get_json(silent=True) or {}
+    world_id = data.get('world') or data.get('world_id')
+    stage = data.get('stage') or data.get('stage_number')
+    answers = data.get('answers')
+    attempt_id = data.get('attempt_id') or data.get('attemptId')
+    try:
+        result = submit_child_stage_quiz_attempt(child_id, world_id, stage, answers, attempt_id)
+    except LookupError as exc:
+        abort(404, str(exc))
+    except ValueError as exc:
+        abort(400, str(exc))
+    return jsonify(result), 201
 
 
 @app.route('/api/ai-practice/next')

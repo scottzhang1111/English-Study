@@ -14,7 +14,6 @@ import {
   submitGrammarQuizAnswer,
 } from '../api';
 import { useChildren } from '../ChildrenContext';
-import { createMissionReward } from '../helpers/eigoQuestRewards';
 import CompactPageHeader from '../components/eigo/CompactPageHeader';
 
 const PASS_SCORE = 2;
@@ -224,11 +223,7 @@ export default function GrammarQuestPage() {
     setRewardSaving(true);
     setError('');
     try {
-      createMissionReward({
-        childId: selectedChildId,
-        learnedWordsCount: Number(homeData?.progress || 20),
-      });
-      navigate('/card-reward');
+      navigate('/grammar');
     } catch (err) {
       setError(err.message || 'Reward could not be created.');
       setRewardSaving(false);

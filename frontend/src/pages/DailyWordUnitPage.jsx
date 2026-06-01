@@ -338,14 +338,9 @@ export default function DailyWordUnitPage() {
   const nextStudyWord = () => {
 
     if (studyIndex >= todayWords.length - 1) {
-      setQuizQuestions(buildQuizQuestions(todayWords, allWords));
-      setRetryQueue([]);
-      setIsRetryMode(false);
-      setActiveRetryQuestion(null);
-      setQuizIndex(0);
-      setAnswers([]);
-      setSelectedChoice('');
-      setStage('quiz');
+      navigate(hasRequestedStage
+        ? `/today-review-quiz?world=${encodeURIComponent(requestedWorldId)}&stage=${encodeURIComponent(requestedStage)}`
+        : '/today-review-quiz');
       return;
     }
 
@@ -382,7 +377,7 @@ export default function DailyWordUnitPage() {
   };
 
   const finishQuiz = async () => {
-  const passed = true;
+  const passed = quizQuestions.length > 0 && correctCount >= quizQuestions.length;
 
   setResultStatus(passed ? 'passed' : 'failed');
   setStage('result');
@@ -423,55 +418,6 @@ export default function DailyWordUnitPage() {
   }
 };
 
- /*  const finishQuiz = async () => {
-    const passed = correctCount === quizQuestions.length;
-    const exp = passed ? DAILY_PASS_EXP : 0;
-    let nextPartnerExp = partnerExp;
-    setEarnedExp(exp);
-    setResultStatus(passed ? 'passed' : 'failed');
-    setStage('result');
-    setQuizSaving(true);
-    try {
-      await Promise.all(answers.map((answer) => {
-        const payload = {
-          id: answer.wordId,
-          word: answer.word,
-          selected: answer.selected,
-          correct: answer.correctAnswer,
-          childId: child.id,
-        };
-        return answer.correct
-          ? markMastered({ word: answer.word, childId: child.id, vocabId: answer.wordId })
-          : submitPracticeAnswer(payload);
-      }));
-    } catch (err) {
-      setError(err.message || '学習結果を保存できませんでした。');
-      setQuizSaving(false);
-      return;
-    }
-    if (passed) {
-      try {
-        const payload = await addPetExp(child.id, exp);
-        nextPartnerExp = Number(payload?.pet?.total_exp ?? payload?.pet?.exp ?? nextPartnerExp);
-      } catch (err) {
-        setError(err.message || 'EXPを保存できませんでした。');
-        setQuizSaving(false);
-        return;
-      }
-    } */
-
-/*     setPartnerExp(nextPartnerExp);
-    setQuizSaving(false);
-    if (passed) {
-      const latestHomeData = await getHomeData(child.id).catch(() => null);
-      createMissionReward({
-        childId: child.id,
-        learnedWordsCount: Number(latestHomeData?.mastered_words ?? latestHomeData?.learned_words ?? latestHomeData?.progress ?? targetCount),
-      });
-      navigate('/card-reward');
-    }
-  };
- */
   const nextQuiz = () => {
     if (isRetryMode) {
       if (retryQueue.length) {

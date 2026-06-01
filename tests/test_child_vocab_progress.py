@@ -1072,6 +1072,54 @@ class TodayReviewQuizTests(unittest.TestCase):
         finally:
             conn.close()
 
+    def seed_heroes(self, codes):
+        conn = app_module.get_db_connection()
+        try:
+            conn.execute(
+                '''
+                CREATE TABLE IF NOT EXISTS heroes (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    world_id TEXT NOT NULL,
+                    code TEXT NOT NULL UNIQUE,
+                    name_ja TEXT,
+                    name_cn TEXT,
+                    rarity TEXT,
+                    image_url TEXT,
+                    description_ja TEXT
+                )
+                '''
+            )
+            for code in codes:
+                world_id = code.split('-', 1)[0]
+                world_number = {
+                    'wind': '1',
+                    'fire': '2',
+                    'water': '3',
+                    'thunder': '4',
+                    'wood': '5',
+                    'rock': '6',
+                    'light': '7',
+                    'shadow': '8',
+                }.get(world_id, world_id)
+                conn.execute(
+                    '''
+                    INSERT OR IGNORE INTO heroes (
+                        world_id, code, name_ja, name_cn, rarity, image_url, description_ja
+                    ) VALUES (?, ?, ?, ?, ?, ?, ?)
+                    ''',
+                    (world_number, code, code, code, 'SR', f'/assets/{code}.png', ''),
+                )
+            conn.commit()
+        finally:
+            conn.close()
+
+    def passing_stage_answers(self, client, child_id, world, stage):
+        quiz = client.get(f'/api/today-review-quiz?child_id={child_id}&world={world}&stage={stage}').get_json()
+        return [
+            {'id': question['id'], 'type': question['type'], 'selected': question['correct']}
+            for question in quiz['questions']
+        ]
+
     def clear_stage(self, client, child_id, world, stage):
         response = client.post(
             f'/api/children/{child_id}/world-stage-progress',
@@ -1190,6 +1238,22 @@ class TodayReviewQuizTests(unittest.TestCase):
         )
         self.assertEqual(200, clear_response.status_code)
         self.assertTrue(clear_response.get_json()['cleared'])
+
+    def test_stage_review_quiz_uses_stage_words_after_stage_is_cleared(self):
+        child_id = self.create_child('Cleared Quiz')
+        client = app_module.app.test_client()
+        self.clear_stage(client, child_id, 'fire', 3)
+
+        quiz_response = client.get(f'/api/today-review-quiz?child_id={child_id}&world=fire&stage=3')
+        self.assertEqual(200, quiz_response.status_code)
+        payload = quiz_response.get_json()
+        self.assertEqual('stage', payload['review_mode'])
+        self.assertEqual('fire', payload['world'])
+        self.assertEqual(3, payload['stage'])
+        self.assertTrue(payload['stage_cleared'])
+        self.assertEqual(20, len(payload['questions']))
+        stage_words = {entry['English'] for entry in app_module.select_stage_vocab_entries('fire', 3, 20)}
+        self.assertTrue({question['word'] for question in payload['questions']}.issubset(stage_words))
 
     def test_eigo_quest_world_config_matches_product_stage_plan(self):
         expected_worlds = [
@@ -1398,6 +1462,317 @@ class TodayReviewQuizTests(unittest.TestCase):
         self.assertEqual(2, progress['current_stage'])
         self.assertEqual('cleared', wind['stages'][0]['status'])
 
+    def test_mark_mastered_records_studied_today_without_mastering_word(self):
+        child_id = self.create_child('Study Semantics')
+        vocab = app_module.vocab_list[0]
+        client = app_module.app.test_client()
+
+        response = client.post(
+            '/api/mark-mastered',
+            json={'child_id': child_id, 'vocab_id': int(vocab['ID']), 'word': vocab['English']},
+        )
+        self.assertEqual(200, response.status_code, response.get_data(as_text=True))
+        payload = response.get_json()
+        self.assertEqual(1, payload['progress'])
+        self.assertEqual(1, payload['studied_today'])
+        self.assertEqual(0, payload['mastered_total'])
+
+        home_response = client.get(f'/api/home?child_id={child_id}')
+        self.assertEqual(200, home_response.status_code)
+        home_payload = home_response.get_json()
+        self.assertEqual(1, home_payload['progress'])
+        self.assertEqual(1, home_payload['studied_today'])
+        self.assertEqual(0, home_payload['mastered_total'])
+
+        conn = app_module.get_db_connection()
+        try:
+            row = conn.execute(
+                'SELECT mastered, status FROM child_vocab_progress WHERE child_id = ? AND vocab_id = ?',
+                (child_id, int(vocab['ID'])),
+            ).fetchone()
+            self.assertEqual(0, row['mastered'])
+            self.assertEqual('learning', row['status'])
+        finally:
+            conn.close()
+
+        with patch.object(app_module, 'get_today', return_value='2026-06-02'):
+            next_day_response = client.get(f'/api/home?child_id={child_id}')
+        self.assertEqual(200, next_day_response.status_code)
+        self.assertEqual(0, next_day_response.get_json()['studied_today'])
+
+    def test_stage_quiz_failed_attempt_does_not_clear_stage(self):
+        child_id = self.create_child('Quiz Fail')
+        client = app_module.app.test_client()
+        quiz = client.get(f'/api/today-review-quiz?child_id={child_id}&world=wind&stage=1').get_json()
+        answers = [
+            {'id': question['id'], 'type': question['type'], 'selected': '__wrong__'}
+            for question in quiz['questions']
+        ]
+
+        response = client.post(
+            f'/api/children/{child_id}/stage-quiz-attempts',
+            json={'world': 'wind', 'stage': 1, 'attempt_id': f'fail-{child_id}', 'answers': answers},
+        )
+        self.assertEqual(201, response.status_code, response.get_data(as_text=True))
+        payload = response.get_json()
+        self.assertFalse(payload['passed'])
+        self.assertFalse(payload['stage_cleared'])
+
+        stage_response = client.get(f'/api/children/{child_id}/world-stage-progress?world=wind&stage=1')
+        self.assertFalse(stage_response.get_json()['cleared'])
+
+    def test_stage_quiz_passed_attempt_immediately_clears_and_survives_refresh(self):
+        child_id = self.create_child('Quiz Pass')
+        client = app_module.app.test_client()
+        quiz = client.get(f'/api/today-review-quiz?child_id={child_id}&world=wind&stage=1').get_json()
+        answers = [
+            {'id': question['id'], 'type': question['type'], 'selected': question['correct']}
+            for question in quiz['questions']
+        ]
+
+        response = client.post(
+            f'/api/children/{child_id}/stage-quiz-attempts',
+            json={'world': 'wind', 'stage': 1, 'attempt_id': f'pass-{child_id}', 'answers': answers},
+        )
+        self.assertEqual(201, response.status_code, response.get_data(as_text=True))
+        payload = response.get_json()
+        self.assertTrue(payload['passed'])
+        self.assertTrue(payload['stage_cleared'])
+
+        stage_response = client.get(f'/api/children/{child_id}/world-stage-progress?world=wind&stage=1')
+        self.assertTrue(stage_response.get_json()['cleared'])
+        progress = self.quest_progress(client, child_id)
+        self.assertEqual('wind', progress['current_world'])
+        self.assertEqual(2, progress['current_stage'])
+
+    def test_stage_quiz_attempt_submission_is_idempotent(self):
+        child_id = self.create_child('Quiz Repeat')
+        client = app_module.app.test_client()
+        quiz = client.get(f'/api/today-review-quiz?child_id={child_id}&world=wind&stage=1').get_json()
+        answers = [
+            {'id': question['id'], 'type': question['type'], 'selected': question['correct']}
+            for question in quiz['questions']
+        ]
+        attempt_id = f'repeat-{child_id}'
+        body = {'world': 'wind', 'stage': 1, 'attempt_id': attempt_id, 'answers': answers}
+
+        first = client.post(f'/api/children/{child_id}/stage-quiz-attempts', json=body)
+        second = client.post(f'/api/children/{child_id}/stage-quiz-attempts', json=body)
+        self.assertEqual(201, first.status_code)
+        self.assertEqual(201, second.status_code)
+        self.assertFalse(first.get_json()['duplicate'])
+        self.assertTrue(second.get_json()['duplicate'])
+        self.assertTrue(second.get_json()['stage_cleared'])
+
+        conn = app_module.get_db_connection()
+        try:
+            count = conn.execute(
+                'SELECT COUNT(*) AS count FROM child_stage_quiz_attempts WHERE attempt_id = ?',
+                (attempt_id,),
+            ).fetchone()['count']
+            self.assertEqual(1, count)
+        finally:
+            conn.close()
+
+    def test_stage_quiz_first_clear_awards_single_stage_card_once(self):
+        self.seed_heroes(['wind-guardian-zephyrus'])
+        child_id = self.create_child('Reward Wind')
+        client = app_module.app.test_client()
+        answers = self.passing_stage_answers(client, child_id, 'wind', 1)
+
+        first = client.post(
+            f'/api/children/{child_id}/stage-quiz-attempts',
+            json={'world': 'wind', 'stage': 1, 'attempt_id': f'reward-wind-{child_id}-1', 'answers': answers},
+        )
+        second = client.post(
+            f'/api/children/{child_id}/stage-quiz-attempts',
+            json={'world': 'wind', 'stage': 1, 'attempt_id': f'reward-wind-{child_id}-2', 'answers': answers},
+        )
+
+        self.assertEqual(201, first.status_code, first.get_data(as_text=True))
+        self.assertEqual(['wind-guardian-zephyrus'], [card['code'] for card in first.get_json()['reward_queue']])
+        self.assertEqual([], second.get_json()['reward_queue'])
+
+        conn = app_module.get_db_connection()
+        try:
+            count = conn.execute(
+                'SELECT COUNT(*) AS count FROM child_heroes WHERE child_id = ?',
+                (child_id,),
+            ).fetchone()['count']
+            self.assertEqual(1, count)
+        finally:
+            conn.close()
+
+    def test_shadow_stage_five_awards_stage_card_and_final_pack_once(self):
+        reward_codes = [
+            'shadow-guardian-kali',
+            'shadow-guardian-simayi',
+            'shadow-guardian-chiyou',
+            'shadow-guardian-hanchou',
+            'shadow-guardian-tsukuyomi',
+            'shadow-boss-anubis',
+        ]
+        self.seed_heroes(reward_codes)
+        child_id = self.create_child('Reward Shadow')
+        client = app_module.app.test_client()
+        answers = self.passing_stage_answers(client, child_id, 'shadow', 5)
+
+        first = client.post(
+            f'/api/children/{child_id}/stage-quiz-attempts',
+            json={'world': 'shadow', 'stage': 5, 'attempt_id': f'reward-shadow-{child_id}-1', 'answers': answers},
+        )
+        second = client.post(
+            f'/api/children/{child_id}/stage-quiz-attempts',
+            json={'world': 'shadow', 'stage': 5, 'attempt_id': f'reward-shadow-{child_id}-2', 'answers': answers},
+        )
+
+        self.assertEqual(201, first.status_code, first.get_data(as_text=True))
+        self.assertEqual(reward_codes, [card['code'] for card in first.get_json()['reward_queue']])
+        self.assertEqual([], second.get_json()['reward_queue'])
+
+        conn = app_module.get_db_connection()
+        try:
+            count = conn.execute(
+                'SELECT COUNT(*) AS count FROM child_heroes WHERE child_id = ?',
+                (child_id,),
+            ).fetchone()['count']
+            self.assertEqual(6, count)
+        finally:
+            conn.close()
+
+    def test_child_heroes_api_reports_owned_cards_from_backend(self):
+        self.seed_heroes(['wind-guardian-zephyrus', 'fire-guardian-hephaestus'])
+        child_id = self.create_child('Collection Source')
+        app_module.grant_child_hero_rewards(child_id, ['wind-guardian-zephyrus'], world_id='wind', stage=1)
+
+        response = app_module.app.test_client().get(f'/api/children/{child_id}/heroes')
+        self.assertEqual(200, response.status_code, response.get_data(as_text=True))
+        cards = {card['code']: card for card in response.get_json()['heroes']}
+
+        self.assertTrue(cards['wind-guardian-zephyrus']['owned'])
+        self.assertFalse(cards['fire-guardian-hephaestus']['owned'])
+
+    def test_e2e_wind_stage_one_clear_awards_card_and_unlocks_stage_two(self):
+        self.seed_heroes(['wind-guardian-zephyrus'])
+        child_id = self.create_child('E2E Wind 1')
+        client = app_module.app.test_client()
+        answers = self.passing_stage_answers(client, child_id, 'wind', 1)
+
+        response = client.post(
+            f'/api/children/{child_id}/stage-quiz-attempts',
+            json={'world': 'wind', 'stage': 1, 'attempt_id': f'e2e-wind-1-{child_id}', 'answers': answers},
+        )
+        self.assertEqual(201, response.status_code, response.get_data(as_text=True))
+        payload = response.get_json()
+        self.assertTrue(payload['passed'])
+        self.assertEqual(['wind-guardian-zephyrus'], [card['code'] for card in payload['reward_queue']])
+
+        progress = self.quest_progress(client, child_id)
+        wind = self.progress_world(progress, 'wind')
+        self.assertEqual('cleared', wind['stages'][0]['status'])
+        self.assertEqual('current', wind['stages'][1]['status'])
+        self.assertEqual('wind', progress['current_world'])
+        self.assertEqual(2, progress['current_stage'])
+
+    def test_e2e_wind_stage_ten_clear_unlocks_fire(self):
+        self.seed_heroes(['wind-boss-typhoeus'])
+        child_id = self.create_child('E2E Wind 10')
+        client = app_module.app.test_client()
+        self.seed_cleared_stages(child_id, {'wind': range(1, 10)})
+        answers = self.passing_stage_answers(client, child_id, 'wind', 10)
+
+        response = client.post(
+            f'/api/children/{child_id}/stage-quiz-attempts',
+            json={'world': 'wind', 'stage': 10, 'attempt_id': f'e2e-wind-10-{child_id}', 'answers': answers},
+        )
+        self.assertEqual(201, response.status_code, response.get_data(as_text=True))
+        self.assertEqual(['wind-boss-typhoeus'], [card['code'] for card in response.get_json()['reward_queue']])
+
+        progress = self.quest_progress(client, child_id)
+        fire = self.progress_world(progress, 'fire')
+        self.assertEqual('fire', progress['current_world'])
+        self.assertEqual(1, progress['current_stage'])
+        self.assertEqual('current', fire['stages'][0]['status'])
+
+    def test_e2e_cleared_stage_can_retest_without_duplicate_reward_and_refresh_keeps_clear(self):
+        self.seed_heroes(['wind-guardian-zephyrus'])
+        child_id = self.create_child('E2E Retest')
+        client = app_module.app.test_client()
+        answers = self.passing_stage_answers(client, child_id, 'wind', 1)
+
+        first = client.post(
+            f'/api/children/{child_id}/stage-quiz-attempts',
+            json={'world': 'wind', 'stage': 1, 'attempt_id': f'e2e-retest-{child_id}-1', 'answers': answers},
+        )
+        second = client.post(
+            f'/api/children/{child_id}/stage-quiz-attempts',
+            json={'world': 'wind', 'stage': 1, 'attempt_id': f'e2e-retest-{child_id}-2', 'answers': answers},
+        )
+
+        self.assertEqual(['wind-guardian-zephyrus'], [card['code'] for card in first.get_json()['reward_queue']])
+        self.assertEqual([], second.get_json()['reward_queue'])
+        refresh = client.get(f'/api/children/{child_id}/world-stage-progress?world=wind&stage=1')
+        self.assertTrue(refresh.get_json()['cleared'])
+
+    def test_e2e_new_day_starts_today_progress_from_zero(self):
+        child_id = self.create_child('E2E New Day')
+        vocab_id = next(int(entry['ID']) for entry in app_module.vocab_list if str(entry.get('ID', '')).strip().isdigit())
+
+        with patch.object(app_module, 'get_today', return_value='2026-06-01'):
+            app_module.recordStudyResult(child_id, vocab_id, True)
+            day_one = app_module.app.test_client().get(f'/api/home?child_id={child_id}').get_json()
+        with patch.object(app_module, 'get_today', return_value='2026-06-02'):
+            day_two = app_module.app.test_client().get(f'/api/home?child_id={child_id}').get_json()
+
+        self.assertEqual(1, day_one['studied_today'])
+        self.assertEqual(0, day_two['studied_today'])
+        self.assertEqual(20, day_two['target'])
+
+    def test_e2e_shadow_stage_five_completes_mainline_no_stage_six_and_backend_collection_recovers(self):
+        reward_codes = [
+            'shadow-guardian-kali',
+            'shadow-guardian-simayi',
+            'shadow-guardian-chiyou',
+            'shadow-guardian-hanchou',
+            'shadow-guardian-tsukuyomi',
+            'shadow-boss-anubis',
+        ]
+        self.seed_heroes(reward_codes)
+        child_id = self.create_child('E2E Shadow Complete')
+        client = app_module.app.test_client()
+        self.seed_cleared_stages(
+            child_id,
+            {
+                'wind': range(1, 11),
+                'fire': range(1, 11),
+                'water': range(1, 11),
+                'thunder': range(1, 11),
+                'wood': range(1, 11),
+                'rock': range(1, 11),
+                'light': range(1, 11),
+                'shadow': range(1, 5),
+            },
+        )
+        answers = self.passing_stage_answers(client, child_id, 'shadow', 5)
+
+        response = client.post(
+            f'/api/children/{child_id}/stage-quiz-attempts',
+            json={'world': 'shadow', 'stage': 5, 'attempt_id': f'e2e-shadow-5-{child_id}', 'answers': answers},
+        )
+        self.assertEqual(201, response.status_code, response.get_data(as_text=True))
+        self.assertEqual(reward_codes, [card['code'] for card in response.get_json()['reward_queue']])
+
+        progress = self.quest_progress(client, child_id)
+        shadow = self.progress_world(progress, 'shadow')
+        self.assertTrue(progress['mainline_complete'])
+        self.assertIsNone(progress['current_world'])
+        self.assertEqual(5, len(shadow['stages']))
+        self.assertFalse(any(stage['stage'] == 6 for stage in shadow['stages']))
+
+        collection = client.get(f'/api/children/{child_id}/heroes').get_json()
+        owned_codes = {card['code'] for card in collection['heroes'] if card['owned']}
+        self.assertTrue(set(reward_codes).issubset(owned_codes))
+
 
 class AiPracticeSystemTests(unittest.TestCase):
     def setUp(self):
@@ -1478,6 +1853,79 @@ class AiPracticeSystemTests(unittest.TestCase):
             self.assertEqual(progress['mastery'], record['mastery_after'])
         finally:
             conn.close()
+
+
+class FlashcardStageQuizFlowSourceTests(unittest.TestCase):
+    def flashcard_source(self):
+        path = Path(app_module.app.root_path) / 'frontend' / 'src' / 'pages' / 'FlashcardPage.jsx'
+        return path.read_text(encoding='utf-8')
+
+    def test_twentieth_stage_word_always_loads_stage_quiz(self):
+        source = self.flashcard_source()
+        handle_next = source[
+            source.index('const handleNextStudy = async () => {'):
+            source.index('const handlePreviousStudy = async () => {')
+        ]
+
+        self.assertNotIn('getWorldStageProgress', source)
+        self.assertNotIn('stageProgress?.cleared', handle_next)
+        self.assertNotIn('world-stage?world=', handle_next)
+        self.assertIn('await loadReviewQuiz();', handle_next)
+
+    def test_review_quiz_api_failure_enters_visible_error_state(self):
+        source = self.flashcard_source()
+        load_review = source[
+            source.index('const loadReviewQuiz = async () => {'):
+            source.index('useEffect(() => {')
+        ]
+
+        self.assertLess(load_review.index("setMode('review');"), load_review.index('await getTodayReviewQuiz'))
+        self.assertIn('Stage Quizを読み込めませんでした', load_review)
+        self.assertIn("if (reviewError && mode === 'review')", source)
+
+    def test_reward_queue_uses_local_storage_only_for_pending_display(self):
+        reward_helper = (
+            Path(app_module.app.root_path) / 'frontend' / 'src' / 'helpers' / 'eigoQuestRewards.js'
+        ).read_text(encoding='utf-8')
+        collection_source = (
+            Path(app_module.app.root_path) / 'frontend' / 'src' / 'pages' / 'CardCollectionPage.jsx'
+        ).read_text(encoding='utf-8')
+        reward_source = (
+            Path(app_module.app.root_path) / 'frontend' / 'src' / 'pages' / 'CardRewardPage.jsx'
+        ).read_text(encoding='utf-8')
+
+        self.assertIn('getPendingRewardQueue', reward_helper)
+        self.assertIn('savePendingRewardQueue', reward_helper)
+        self.assertNotIn('eigo_quest_owned_card_ids', reward_helper)
+        self.assertNotIn('createMissionReward', reward_helper)
+        self.assertIn('getChildHeroCards(childId)', collection_source)
+        self.assertNotIn('getProgressOwnedCardIds', collection_source)
+        self.assertNotIn('getHomeData', collection_source)
+        self.assertIn('hasNextReward', reward_source)
+        self.assertIn('setRewardIndex(nextIndex)', reward_source)
+
+    def test_reachable_frontend_paths_do_not_use_old_reward_or_forced_pass(self):
+        grammar_quest = (
+            Path(app_module.app.root_path) / 'frontend' / 'src' / 'pages' / 'GrammarQuestPage.jsx'
+        ).read_text(encoding='utf-8')
+        grammar_form = (
+            Path(app_module.app.root_path) / 'frontend' / 'src' / 'pages' / 'GrammarFormPracticePage.jsx'
+        ).read_text(encoding='utf-8')
+        daily_words = (
+            Path(app_module.app.root_path) / 'frontend' / 'src' / 'pages' / 'DailyWordUnitPage.jsx'
+        ).read_text(encoding='utf-8')
+        next_study_word = daily_words[
+            daily_words.index('const nextStudyWord = () => {'):
+            daily_words.index('const chooseAnswer = (choice) => {')
+        ]
+
+        self.assertNotIn('createMissionReward', grammar_quest)
+        self.assertNotIn('createMissionReward', grammar_form)
+        self.assertNotIn("navigate('/card-reward')", grammar_quest)
+        self.assertNotIn("navigate('/card-reward')", grammar_form)
+        self.assertNotIn('const passed = true', daily_words)
+        self.assertIn('today-review-quiz', next_study_word)
+        self.assertNotIn("setStage('quiz')", next_study_word)
 
 
 class QuizReviewApiTests(unittest.TestCase):

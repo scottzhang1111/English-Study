@@ -4,12 +4,12 @@ import { useNavigate } from 'react-router-dom';
 import { getHeroCards } from '../api';
 import { GoldQuestButton } from '../components/eigo';
 import {
-  addOwnedCardId,
   clearPendingReward,
   getCardById,
-  getPendingReward,
-  pickRewardCardForProgress,
+  getPendingRewardQueue,
+  savePendingRewardQueue,
 } from '../helpers/eigoQuestRewards';
+import eigoQuestCards from '../config/eigoQuestCards';
 
 const SPIRIT_IMAGE = '/assets/eigo-quest/spirit_assets/happy.png';
 
@@ -125,12 +125,17 @@ export default function CardRewardPage() {
   const [isFlipped, setIsFlipped] = useState(false);
   const [isAdvancing, setIsAdvancing] = useState(false);
   const [apiHeroes, setApiHeroes] = useState([]);
-  const pendingReward = useMemo(() => getPendingReward(), []);
-  const fallbackCard = useMemo(() => pickRewardCardForProgress(0), []);
-  const rewardCard = findRewardHero(apiHeroes, pendingReward, getCardById(pendingReward?.cardId) || fallbackCard);
+  const [pendingQueue, setPendingQueue] = useState(() => getPendingRewardQueue());
+  const [rewardIndex, setRewardIndex] = useState(0);
+  const pendingReward = pendingQueue[rewardIndex] || null;
+  const fallbackCard = useMemo(() => eigoQuestCards[0], []);
+  const rewardCard = pendingReward
+    ? findRewardHero(apiHeroes, pendingReward, getCardById(pendingReward?.cardId) || fallbackCard)
+    : null;
   const worldClass = getWorldClass(rewardCard?.worldId);
   const rewardImage = getRewardCardImage(rewardCard);
   const hero = getHeroCopy(rewardCard);
+  const hasNextReward = rewardIndex < pendingQueue.length - 1;
 
   useEffect(() => {
     let cancelled = false;
@@ -149,11 +154,11 @@ export default function CardRewardPage() {
   useEffect(() => {
     const timer = window.setTimeout(() => setIsFlipped(true), 520);
     return () => window.clearTimeout(timer);
-  }, []);
+  }, [rewardIndex]);
 
-  const claimReward = () => {
-    if (rewardCard?.id) addOwnedCardId(rewardCard.id);
+  const finishRewards = () => {
     clearPendingReward();
+    navigate('/app');
   };
 
   const showDetail = () => {
@@ -165,10 +170,36 @@ export default function CardRewardPage() {
     }, 360);
   };
 
-  const goHome = () => {
-    claimReward();
-    navigate('/app');
+  const showNextReward = () => {
+    if (!hasNextReward) {
+      finishRewards();
+      return;
+    }
+    const nextIndex = rewardIndex + 1;
+    savePendingRewardQueue(pendingQueue.slice(nextIndex));
+    setRewardIndex(nextIndex);
+    setRewardStep('reveal');
+    setIsFlipped(false);
   };
+
+  if (!rewardCard) {
+    return (
+      <div className="eq-card-page-wrap quest-reward-page-wrap is-detail">
+        <section className="quest-reward-detail" aria-label="報酬なし">
+          <div className="quest-reward-detail-card">
+            <div className="quest-reward-detail-copy">
+              <h1>報酬は受け取り済みです</h1>
+              <p>カードコレクションで仲間を確認できます。</p>
+            </div>
+          </div>
+
+          <GoldQuestButton onClick={finishRewards} className="eq-reward-claim-button">
+            ホームへ
+          </GoldQuestButton>
+        </section>
+      </div>
+    );
+  }
 
   return (
     <div className={`eq-card-page-wrap quest-reward-page-wrap is-${rewardStep}`}>
@@ -270,8 +301,8 @@ export default function CardRewardPage() {
             </div>
           </div>
 
-          <GoldQuestButton onClick={goHome} className="eq-reward-claim-button">
-            ホームへ
+          <GoldQuestButton onClick={showNextReward} className="eq-reward-claim-button">
+            {hasNextReward ? '次のカードへ' : 'ホームへ'}
           </GoldQuestButton>
         </section>
       )}
