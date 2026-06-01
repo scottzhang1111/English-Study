@@ -30,6 +30,16 @@ const DAILY_TARGET = 20;
 const CHILD_STORAGE_KEY = 'selected_child_id';
 const STAGE_QUIZ_ATTEMPT_STORAGE_PREFIX = 'eigo_quest_stage_quiz_attempt';
 const SPIRIT_IMAGE = '/assets/eigo-quest/spirit_assets/happy.png';
+const WORLD_NAME_JA = {
+  wind: '風の世界',
+  fire: '火の世界',
+  water: '水の世界',
+  thunder: '雷の世界',
+  wood: '木の世界',
+  rock: '岩の世界',
+  light: '光の世界',
+  shadow: '影の世界',
+};
 
 const WORLD_STUDY_DISPLAY = {
   wind: {
@@ -166,6 +176,10 @@ function createStageQuizAttemptId() {
   return `stage-${Date.now()}-${Math.random().toString(16).slice(2)}`;
 }
 
+function getReviewAnswerKey(question) {
+  return `${question?.id || ''}:${question?.type || ''}`;
+}
+
 export default function FlashcardPage() {
   const [homeData, setHomeData] = useState(null);
   const [flashcard, setFlashcard] = useState(null);
@@ -191,6 +205,8 @@ export default function FlashcardPage() {
   const [reviewStreak, setReviewStreak] = useState(0);
   const [reviewResult, setReviewResult] = useState(null);
   const [reviewAnswers, setReviewAnswers] = useState({});
+  const [stageReviewQuestions, setStageReviewQuestions] = useState([]);
+  const [reviewRetryQueue, setReviewRetryQueue] = useState([]);
   const audioRef = useRef(null);
   const reviewAttemptIdRef = useRef('');
   const navigate = useNavigate();
@@ -396,6 +412,8 @@ export default function FlashcardPage() {
       setReviewStreak(0);
       setReviewResult(null);
       setReviewAnswers({});
+      setReviewRetryQueue([]);
+      setStageReviewQuestions(hasRequestedStage ? (payload.questions || []) : []);
       reviewAttemptIdRef.current = hasRequestedStage
         ? (payload.attempt_id || stageAttemptId)
         : createStageQuizAttemptId();
@@ -557,7 +575,7 @@ const handlePreviousStudy = async () => {
     const isCorrect = choice === currentReviewQuestion.correct;
     setReviewAnswers((prev) => ({
       ...prev,
-      [reviewIndex]: {
+      [getReviewAnswerKey(currentReviewQuestion)]: {
         id: currentReviewQuestion.id,
         word: currentReviewQuestion.word,
         type: currentReviewQuestion.type,
@@ -582,6 +600,26 @@ const handlePreviousStudy = async () => {
     if (hasRequestedStage) {
       try {
         setReviewLoading(true);
+        const stageQuestions = stageReviewQuestions.length ? stageReviewQuestions : (reviewData?.questions || []);
+        const wrongQuestions = stageQuestions.filter((question) => {
+          const answer = reviewAnswers[getReviewAnswerKey(question)];
+          return !answer || answer.selected !== question.correct;
+        });
+        const stageScore = Math.max(0, stageQuestions.length - wrongQuestions.length);
+
+        if (wrongQuestions.length > 0) {
+          setReviewRetryQueue(wrongQuestions);
+          setReviewResult({
+            passed: false,
+            score: stageScore,
+            total: stageQuestions.length || reviewTotal,
+            wrongCount: wrongQuestions.length,
+            retryQueue: wrongQuestions,
+          });
+          setMode('review-result');
+          return;
+        }
+
         const result = await submitStageQuizAttempt({
           childId: selectedChildId,
           world: requestedWorldId,
@@ -623,6 +661,24 @@ const handlePreviousStudy = async () => {
     const passed = reviewTotal > 0 && finalScore >= reviewTotal;
     setReviewResult({ passed, score: finalScore, total: reviewTotal, stageCleared: false });
     setMode('review-result');
+  };
+
+  const startWrongQuestionRetry = () => {
+    const retryQuestions = reviewRetryQueue.length
+      ? reviewRetryQueue
+      : (reviewResult?.retryQueue || []);
+    if (!retryQuestions.length) return;
+    setReviewData((current) => ({
+      ...(current || {}),
+      questions: retryQuestions,
+    }));
+    setReviewIndex(0);
+    setReviewAnswer('');
+    setReviewLocked(false);
+    setReviewScore(0);
+    setReviewStreak(0);
+    setReviewResult(null);
+    setMode('review');
   };
 
   const progressWidth = mode === 'list'
@@ -885,6 +941,8 @@ const mobilePartOfSpeech =
         questionIndex={reviewIndex}
         questionTotal={reviewTotal}
         selectedChoice={reviewAnswer}
+        retryMode={hasRequestedStage && reviewRetryQueue.length > 0 && reviewTotal < (stageReviewQuestions.length || 20)}
+        retryRemaining={reviewTotal}
         onChoose={handleReviewChoice}
         onNext={handleReviewNext}
         quizSaving={reviewLoading}
@@ -903,26 +961,25 @@ const mobilePartOfSpeech =
       <div className="eq-purify-page lg:hidden">
         <EQMobileShell className="eq-purify-screen">
           <section
-            className="eq-purify-card"
+            className={`eq-purify-card ${reviewResult.passed ? 'is-clear-result' : 'is-try-again-result'}`}
             style={{
               '--quest-color': reviewResult.passed ? '#9fffdc' : '#ff9a9a',
               '--quest-glow': reviewResult.passed ? 'rgba(110, 255, 210, 0.45)' : 'rgba(255, 120, 140, 0.42)',
               backgroundImage: `linear-gradient(rgba(4,8,24,.42), rgba(4,8,24,.78)), url(${questWorld?.backgroundImage || '/assets/eigo-quest/worlds/wind.png'})`,
             }}
           >
-            <div className="eq-purify-header">
-              <span>Day {dayLabel.replace('Day ', '')}</span>
+            <div className="eq-purify-header quest-stage-result-header">
+              <span>{WORLD_NAME_JA[requestedWorldId] || questWorld?.nameJa || '風の世界'}・Stage {requestedStage || 1}</span>
               <h1>{reviewResult.passed ? 'CLEAR!' : 'TRY AGAIN'}</h1>
-              <p>{reviewResult.passed ? 'よくできました！' : 'もう一度チャレンジ'}</p>
-              <strong>{reviewResult.score} / {reviewResult.total}</strong>
+              <p>{reviewResult.passed ? 'よくできました！' : 'あと少し！'}</p>
             </div>
 
-            <div className="eq-purify-prompt">
-              <h2>
-                {reviewResult.passed
-                  ? '復習クイズをクリアしました。報酬カードを受け取りましょう。'
-                  : 'まちがえた単語をもう一度見てから進みましょう。'}
-              </h2>
+            <div className="eq-purify-prompt quest-stage-result-panel">
+              <h2>{reviewResult.passed ? 'カードを受け取りましょう。' : 'まちがえた問題だけ、もう一度チャレンジしよう。'}</h2>
+              <div className="quest-stage-result-stats">
+                <span>正解数 {reviewResult.score} / {reviewResult.total}</span>
+                {!reviewResult.passed ? <span>まちがえた問題 {reviewResult.wrongCount || reviewRetryQueue.length}問</span> : null}
+              </div>
             </div>
 
             <button
@@ -942,13 +999,22 @@ const mobilePartOfSpeech =
                   `${routePrefix}/world-stage?world=${encodeURIComponent(requestedWorldId)}`
                 );
                 } else {
-                  navigate(dailyWordsPath);
+                  startWrongQuestionRetry();
                 }
               }}
               disabled={reviewLoading}
             >
-              {reviewResult.passed ? 'カードを受け取る' : '単語リストへ'}
+              {reviewResult.passed ? 'カードを受け取る' : 'まちがえた問題に挑戦'}
             </button>
+            {!reviewResult.passed ? (
+              <button
+                type="button"
+                className="quest-stage-result-secondary"
+                onClick={() => navigate(dailyWordsPath)}
+              >
+                単語を確認する
+              </button>
+            ) : null}
           </section>
         </EQMobileShell>
 

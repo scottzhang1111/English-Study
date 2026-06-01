@@ -3,6 +3,17 @@ import EQMobileShell from './EQMobileShell';
 import { quizThemes } from '../../config/eigoQuestQuizThemes';
 import { getEigoQuestWorld } from '../../config/eigoQuestWorlds';
 
+const WORLD_NAME_JA = {
+  wind: '風の世界',
+  fire: '火の世界',
+  water: '水の世界',
+  thunder: '雷の世界',
+  wood: '木の世界',
+  rock: '岩の世界',
+  light: '光の世界',
+  shadow: '影の世界',
+};
+
 export default function PurificationQuizMobile({
   worldId = 'wind',
   question,
@@ -18,7 +29,7 @@ export default function PurificationQuizMobile({
 }) {
   const theme = quizThemes[worldId] || quizThemes.wind;
   const world = getEigoQuestWorld(worldId);
-  const worldName = theme.nameJa || world?.nameJa || '風の世界';
+  const worldName = WORLD_NAME_JA[worldId] || theme.nameJa || world?.nameJa || '風の世界';
   const coverImage = theme.coverImage || world?.backgroundImage || '/assets/eigo-quest/worlds/wind.png';
   const targetTotal = questionTotal || 20;
   const locked = Boolean(selectedChoice);
@@ -55,7 +66,7 @@ export default function PurificationQuizMobile({
             </div>
             {retryMode ? (
               <div className="eq-purify-retry-label">
-                <span>まちがい浄化中</span>
+                <span>まちがえた問題</span>
                 <strong>あと {retryRemaining} 問</strong>
               </div>
             ) : null}
