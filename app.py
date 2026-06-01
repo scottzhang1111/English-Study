@@ -160,6 +160,15 @@ EIGO_QUEST_FINAL_REWARD_CODES = [
     'shadow-guardian-tsukuyomi',
     'shadow-boss-anubis',
 ]
+EIGO_QUEST_LEGACY_REWARD_CODE_MAP = {
+    code: f'{world_id}-guardian{index + 1}'
+    for world_id, codes in EIGO_QUEST_STAGE_REWARD_CODES.items()
+    for index, code in enumerate(codes)
+}
+EIGO_QUEST_LEGACY_REWARD_CODE_MAP.update({
+    code: f'shadow-guardian{index + 6}'
+    for index, code in enumerate(EIGO_QUEST_FINAL_REWARD_CODES)
+})
 STARTER_POKEMON_IDS = [1, 10, 19]
 POKEMON_NAME_FALLBACKS = {
     1: 'フシギダネ',
@@ -7927,6 +7936,29 @@ def get_table_columns(conn, table_name):
         return set()
 
 
+def get_hero_row_for_reward_code(conn, reward_code):
+    code = str(reward_code or '').strip()
+    if not code:
+        return None
+    codes_to_try = [code]
+    legacy_code = EIGO_QUEST_LEGACY_REWARD_CODE_MAP.get(code)
+    if legacy_code and legacy_code not in codes_to_try:
+        codes_to_try.append(legacy_code)
+    for candidate in codes_to_try:
+        row = conn.execute(
+            '''
+            SELECT id, world_id, code, name_ja, name_cn, rarity, image_url, description_ja
+            FROM heroes
+            WHERE code = ?
+            LIMIT 1
+            ''',
+            (candidate,),
+        ).fetchone()
+        if row:
+            return row
+    return None
+
+
 def grant_child_hero_rewards(child_id, reward_codes, world_id=None, stage=None, reward_type='stage'):
     reward_codes = [str(code or '').strip() for code in (reward_codes or []) if str(code or '').strip()]
     if not reward_codes:
@@ -7944,15 +7976,7 @@ def grant_child_hero_rewards(child_id, reward_codes, world_id=None, stage=None, 
         now = get_now_iso()
         child_hero_columns = get_table_columns(conn, 'child_heroes')
         for code in reward_codes:
-            hero_row = conn.execute(
-                '''
-                SELECT id, world_id, code, name_ja, name_cn, rarity, image_url, description_ja
-                FROM heroes
-                WHERE code = ?
-                LIMIT 1
-                ''',
-                (code,),
-            ).fetchone()
+            hero_row = get_hero_row_for_reward_code(conn, code)
             if not hero_row:
                 continue
 

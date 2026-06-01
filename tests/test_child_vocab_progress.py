@@ -1652,6 +1652,19 @@ class TodayReviewQuizTests(unittest.TestCase):
         self.assertTrue(cards['wind-guardian-zephyrus']['owned'])
         self.assertFalse(cards['fire-guardian-hephaestus']['owned'])
 
+    def test_stage_reward_falls_back_to_legacy_hero_code_slots(self):
+        self.seed_heroes(['wind-guardian1', 'wind-guardian2'])
+        child_id = self.create_child('Legacy Hero Code')
+
+        reward_queue = app_module.grant_child_stage_rewards(child_id, 'wind', 1)
+        self.assertEqual(['wind-guardian1'], [card['code'] for card in reward_queue])
+
+        response = app_module.app.test_client().get(f'/api/children/{child_id}/heroes')
+        self.assertEqual(200, response.status_code, response.get_data(as_text=True))
+        cards = {card['code']: card for card in response.get_json()['heroes']}
+        self.assertTrue(cards['wind-guardian1']['owned'])
+        self.assertFalse(cards['wind-guardian2']['owned'])
+
     def test_e2e_wind_stage_one_clear_awards_card_and_unlocks_stage_two(self):
         self.seed_heroes(['wind-guardian-zephyrus'])
         child_id = self.create_child('E2E Wind 1')
