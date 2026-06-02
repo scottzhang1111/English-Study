@@ -5546,6 +5546,40 @@ def _grammar_quiz_order_sql(conn):
     return 'quiz_order ASC, quiz_id ASC' if 'quiz_order' in columns else 'quiz_id ASC'
 
 
+def get_grammar_id_for_lesson(lesson_id):
+    lesson_id = str(lesson_id or '').strip()
+    if not lesson_id:
+        raise ValueError('lesson_id is required')
+
+    lesson_conn = get_grammar_lesson_db_connection()
+    try:
+        lesson_columns = _sqlite_table_columns(lesson_conn, 'grammar_lessons')
+        if 'grammar_id' in lesson_columns:
+            grammar_id_column = 'grammar_id'
+        elif 'display_order' in lesson_columns:
+            grammar_id_column = 'display_order'
+        else:
+            raise LookupError('grammar_id mapping not found')
+
+        row = lesson_conn.execute(
+            f'''
+            SELECT {grammar_id_column} AS grammar_id
+            FROM grammar_lessons
+            WHERE lesson_id = ?
+            ''',
+            (lesson_id,),
+        ).fetchone()
+    finally:
+        lesson_conn.close()
+
+    if not row:
+        raise LookupError('grammar lesson not found')
+    grammar_id = row['grammar_id']
+    if grammar_id in [None, '']:
+        raise LookupError('grammar_id mapping not found')
+    return int(grammar_id)
+
+
 def _grammar_correct_quiz_count_map(child_id):
     conn = get_db_connection()
     try:
@@ -5664,26 +5698,47 @@ def get_grammar_lesson_detail(child_id, lesson_id):
 
 def mark_grammar_lesson_viewed(child_id, lesson_id):
     child_id = require_child_id(child_id)
+    grammar_id = get_grammar_id_for_lesson(lesson_id)
     now = get_now_iso()
     conn = get_db_connection()
     try:
-        conn.execute(
-            '''
-            INSERT INTO child_grammar_progress (
-                child_id, lesson_id, status, view_count, last_studied_at, created_at, updated_at
+        progress_columns = _sqlite_table_columns(conn, 'child_grammar_progress')
+        if 'grammar_id' in progress_columns:
+            conn.execute(
+                '''
+                INSERT INTO child_grammar_progress (
+                    child_id, grammar_id, lesson_id, status, view_count, last_studied_at, created_at, updated_at
+                )
+                VALUES (?, ?, ?, 'learning', 1, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+                ON CONFLICT(child_id, lesson_id) DO UPDATE SET
+                    status = CASE
+                        WHEN child_grammar_progress.status = 'mastered' THEN 'mastered'
+                        ELSE 'learning'
+                    END,
+                    view_count = child_grammar_progress.view_count + 1,
+                    last_studied_at = excluded.last_studied_at,
+                    updated_at = CURRENT_TIMESTAMP
+                ''',
+                (child_id, grammar_id, lesson_id, now),
             )
-            VALUES (?, ?, 'learning', 1, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
-            ON CONFLICT(child_id, lesson_id) DO UPDATE SET
-                status = CASE
-                    WHEN child_grammar_progress.status = 'mastered' THEN 'mastered'
-                    ELSE 'learning'
-                END,
-                view_count = child_grammar_progress.view_count + 1,
-                last_studied_at = excluded.last_studied_at,
-                updated_at = CURRENT_TIMESTAMP
-            ''',
-            (child_id, lesson_id, now),
-        )
+        else:
+            conn.execute(
+                '''
+                INSERT INTO child_grammar_progress (
+                    child_id, lesson_id, status, view_count, last_studied_at, created_at, updated_at
+                )
+                VALUES (?, ?, 'learning', 1, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+                ON CONFLICT(child_id, lesson_id) DO UPDATE SET
+                    status = CASE
+                        WHEN child_grammar_progress.status = 'mastered' THEN 'mastered'
+                        ELSE 'learning'
+                    END,
+                    view_count = child_grammar_progress.view_count + 1,
+                    last_studied_at = excluded.last_studied_at,
+                    updated_at = CURRENT_TIMESTAMP
+                ''',
+                (child_id, lesson_id, now),
+            )
         conn.commit()
     finally:
         conn.close()
@@ -5717,6 +5772,7 @@ def submit_grammar_quiz_answer(child_id, quiz_id, selected_index):
 
     correct_index = int(quiz['answer_index'])
     is_correct = selected_index == correct_index
+    grammar_id = get_grammar_id_for_lesson(quiz['lesson_id'])
     now = get_now_iso()
     correct_quiz_count = 0
     conn = get_db_connection()
@@ -5739,40 +5795,78 @@ def submit_grammar_quiz_answer(child_id, quiz_id, selected_index):
         correct_quiz_count = int(correct_quiz_row['count'] or 0) if correct_quiz_row else 0
         last_score = round((correct_quiz_count / max(1, total_quizzes)) * 100)
         status = 'mastered' if total_quizzes and correct_quiz_count >= total_quizzes else 'learning'
-        conn.execute(
-            '''
-            INSERT INTO child_grammar_progress (
-                child_id, lesson_id, status, view_count, correct_count, wrong_count, last_score,
-                mastered_at, last_studied_at, created_at, updated_at
+        progress_columns = _sqlite_table_columns(conn, 'child_grammar_progress')
+        if 'grammar_id' in progress_columns:
+            conn.execute(
+                '''
+                INSERT INTO child_grammar_progress (
+                    child_id, grammar_id, lesson_id, status, view_count, correct_count, wrong_count, last_score,
+                    mastered_at, last_studied_at, created_at, updated_at
+                )
+                VALUES (?, ?, ?, ?, 1, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+                ON CONFLICT(child_id, lesson_id) DO UPDATE SET
+                    status = CASE
+                        WHEN excluded.status = 'mastered' THEN 'mastered'
+                        WHEN child_grammar_progress.status = 'mastered' THEN 'mastered'
+                        ELSE 'learning'
+                    END,
+                    correct_count = child_grammar_progress.correct_count + excluded.correct_count,
+                    wrong_count = child_grammar_progress.wrong_count + excluded.wrong_count,
+                    last_score = excluded.last_score,
+                    mastered_at = CASE
+                        WHEN excluded.mastered_at IS NOT NULL THEN excluded.mastered_at
+                        ELSE child_grammar_progress.mastered_at
+                    END,
+                    last_studied_at = excluded.last_studied_at,
+                    updated_at = CURRENT_TIMESTAMP
+                ''',
+                (
+                    child_id,
+                    grammar_id,
+                    quiz['lesson_id'],
+                    status,
+                    1 if is_correct else 0,
+                    0 if is_correct else 1,
+                    last_score,
+                    now if status == 'mastered' else None,
+                    now,
+                ),
             )
-            VALUES (?, ?, ?, 1, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
-            ON CONFLICT(child_id, lesson_id) DO UPDATE SET
-                status = CASE
-                    WHEN excluded.status = 'mastered' THEN 'mastered'
-                    WHEN child_grammar_progress.status = 'mastered' THEN 'mastered'
-                    ELSE 'learning'
-                END,
-                correct_count = child_grammar_progress.correct_count + excluded.correct_count,
-                wrong_count = child_grammar_progress.wrong_count + excluded.wrong_count,
-                last_score = excluded.last_score,
-                mastered_at = CASE
-                    WHEN excluded.mastered_at IS NOT NULL THEN excluded.mastered_at
-                    ELSE child_grammar_progress.mastered_at
-                END,
-                last_studied_at = excluded.last_studied_at,
-                updated_at = CURRENT_TIMESTAMP
-            ''',
-            (
-                child_id,
-                quiz['lesson_id'],
-                status,
-                1 if is_correct else 0,
-                0 if is_correct else 1,
-                last_score,
-                now if status == 'mastered' else None,
-                now,
-            ),
-        )
+        else:
+            conn.execute(
+                '''
+                INSERT INTO child_grammar_progress (
+                    child_id, lesson_id, status, view_count, correct_count, wrong_count, last_score,
+                    mastered_at, last_studied_at, created_at, updated_at
+                )
+                VALUES (?, ?, ?, 1, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+                ON CONFLICT(child_id, lesson_id) DO UPDATE SET
+                    status = CASE
+                        WHEN excluded.status = 'mastered' THEN 'mastered'
+                        WHEN child_grammar_progress.status = 'mastered' THEN 'mastered'
+                        ELSE 'learning'
+                    END,
+                    correct_count = child_grammar_progress.correct_count + excluded.correct_count,
+                    wrong_count = child_grammar_progress.wrong_count + excluded.wrong_count,
+                    last_score = excluded.last_score,
+                    mastered_at = CASE
+                        WHEN excluded.mastered_at IS NOT NULL THEN excluded.mastered_at
+                        ELSE child_grammar_progress.mastered_at
+                    END,
+                    last_studied_at = excluded.last_studied_at,
+                    updated_at = CURRENT_TIMESTAMP
+                ''',
+                (
+                    child_id,
+                    quiz['lesson_id'],
+                    status,
+                    1 if is_correct else 0,
+                    0 if is_correct else 1,
+                    last_score,
+                    now if status == 'mastered' else None,
+                    now,
+                ),
+            )
         conn.commit()
     finally:
         conn.close()
