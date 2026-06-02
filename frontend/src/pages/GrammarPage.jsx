@@ -130,13 +130,14 @@ export default function GrammarPage() {
 
   const handleGoPractice = () => {
     if (!lesson) return;
+    const lessonId = lesson.lessonId;
     setDetailLoading(true);
-    markGrammarLessonViewed({ childId, lessonId: lesson.lessonId })
+    markGrammarLessonViewed({ childId, lessonId })
       .then((payload) => {
         setLesson(payload.lesson);
         return refreshLessons();
       })
-      .then(() => navigate('/grammar-practice'))
+      .then(() => navigate(`/grammar-practice?lessonId=${encodeURIComponent(lessonId)}`))
       .catch((err) => setError(err.message || '学習を記録できませんでした。'))
       .finally(() => setDetailLoading(false));
   };
@@ -172,7 +173,7 @@ export default function GrammarPage() {
 
   if (loading) {
     return (
-      <WebLearningLayout title="文法練習" subtitle="1日1レッスン" mobileTight>
+      <WebLearningLayout title="文法練習" subtitle="1日1レッスン" mobileTight hideMobileHeader>
         <div className="panel p-6 text-center font-bold text-[#6f7da8]">文法レッスンを準備しています...</div>
       </WebLearningLayout>
     );

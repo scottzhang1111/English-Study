@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import {
   EQBadge,
   EQBottomNav,
@@ -16,7 +16,9 @@ const PRACTICE_QUESTION_LIMIT = 5;
 
 export default function GrammarFormPracticePage() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const childId = useMemo(() => localStorage.getItem(CHILD_STORAGE_KEY) || '', []);
+  const lessonId = searchParams.get('lessonId') || '';
   const [questions, setQuestions] = useState([]);
   const [index, setIndex] = useState(0);
   const [selectedIndex, setSelectedIndex] = useState(null);
@@ -39,7 +41,13 @@ export default function GrammarFormPracticePage() {
     setSelectedIndex(null);
     setAnswerResult(null);
     setResults([]);
-    getGrammarFormPractice({ childId, limit: PRACTICE_QUESTION_LIMIT })
+    if (!lessonId) {
+      setQuestions([]);
+      setError('文法レッスンからテストへ進んでください。');
+      setLoading(false);
+      return;
+    }
+    getGrammarFormPractice({ childId, lessonId, limit: PRACTICE_QUESTION_LIMIT })
       .then((payload) => setQuestions(payload.questions || []))
       .catch((err) => setError(err.message || '文法練習を読み込めませんでした。'))
       .finally(() => setLoading(false));
@@ -51,7 +59,7 @@ export default function GrammarFormPracticePage() {
       return;
     }
     loadPractice();
-  }, [childId, navigate]);
+  }, [childId, lessonId, navigate]);
 
   const handleAnswer = () => {
     if (!question || selectedIndex === null || submitting || answerResult) return;

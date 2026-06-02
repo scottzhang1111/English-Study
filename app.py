@@ -5265,11 +5265,14 @@ def get_child_learned_grammar_lesson_ids(child_id):
     return [row['lesson_id'] for row in rows]
 
 
-def get_grammar_form_practice(child_id, limit=5):
+def get_grammar_form_practice(child_id, limit=5, lesson_id=None):
     child_id = require_child_id(child_id)
     learned_lesson_ids = get_child_learned_grammar_lesson_ids(child_id)
     if not learned_lesson_ids:
         raise LookupError('まず文法レッスンを学習しましょう。')
+    selected_lesson_id = str(lesson_id or '').strip()
+    if selected_lesson_id and selected_lesson_id not in learned_lesson_ids:
+        raise ValueError('この文法はまだ学習していません。')
     try:
         limit = max(1, min(5, int(limit or 5)))
     except (TypeError, ValueError):
@@ -5277,15 +5280,25 @@ def get_grammar_form_practice(child_id, limit=5):
 
     form_conn = get_grammar_form_test_db_connection()
     try:
-        placeholders = ','.join('?' for _ in learned_lesson_ids)
-        rows = form_conn.execute(
-            f'''
-            SELECT *
-            FROM grammar_form_test_items
-            WHERE is_active = 1 AND lesson_id IN ({placeholders})
-            ''',
-            learned_lesson_ids,
-        ).fetchall()
+        if selected_lesson_id:
+            rows = form_conn.execute(
+                '''
+                SELECT *
+                FROM grammar_form_test_items
+                WHERE is_active = 1 AND lesson_id = ?
+                ''',
+                (selected_lesson_id,),
+            ).fetchall()
+        else:
+            placeholders = ','.join('?' for _ in learned_lesson_ids)
+            rows = form_conn.execute(
+                f'''
+                SELECT *
+                FROM grammar_form_test_items
+                WHERE is_active = 1 AND lesson_id IN ({placeholders})
+                ''',
+                learned_lesson_ids,
+            ).fetchall()
     finally:
         form_conn.close()
     if not rows:
@@ -5293,6 +5306,7 @@ def get_grammar_form_practice(child_id, limit=5):
     selected_rows = random.sample(rows, min(limit, len(rows)))
     return {
         'childId': child_id,
+        'lessonId': selected_lesson_id or None,
         'learnedLessonCount': len(learned_lesson_ids),
         'questions': [_grammar_form_test_payload(row) for row in selected_rows],
     }
@@ -9145,8 +9159,9 @@ def api_grammar_quiz_answer(quiz_id):
 @app.route('/api/grammar/form-practice')
 def api_grammar_form_practice():
     child_id = request.args.get('child_id') or request.args.get('childId')
+    lesson_id = request.args.get('lesson_id') or request.args.get('lessonId')
     try:
-        result = get_grammar_form_practice(child_id, request.args.get('limit') or 5)
+        result = get_grammar_form_practice(child_id, request.args.get('limit') or 5, lesson_id)
     except ValueError as exc:
         abort(400, str(exc))
     except LookupError as exc:
