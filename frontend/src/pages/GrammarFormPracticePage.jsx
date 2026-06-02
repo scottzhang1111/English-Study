@@ -1,11 +1,9 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import {
-  EQBadge,
   EQBottomNav,
   EQChoiceButton,
   EQMobileShell,
-  EQPageHeader,
   EQPanel,
   EQPrimaryButton,
 } from '../components/eigo';
@@ -33,6 +31,7 @@ export default function GrammarFormPracticePage() {
   const correctCount = results.filter((item) => item.isCorrect).length;
   const passTarget = Math.min(questions.length || PRACTICE_QUESTION_LIMIT, PRACTICE_QUESTION_LIMIT);
   const remainingToPass = Math.max(0, passTarget - correctCount);
+  const currentCount = questions.length && index < questions.length ? index + 1 : 0;
 
   const loadPractice = () => {
     setLoading(true);
@@ -146,29 +145,33 @@ export default function GrammarFormPracticePage() {
     }
 
     return (
-      <EQPanel
-        title={question.targetGrammar || `${question.title || '現在完了'}・経験`}
-        eyebrow={`Question ${index + 1} / ${questions.length}`}
-        tone="gold"
-      >
-        <div className="flex flex-wrap gap-2">
-          <EQBadge tone="purple">{question.category || '文法'}</EQBadge>
-          <EQBadge tone="cyan">合格まで {remainingToPass} 問</EQBadge>
+      <section className="eq-grammar-test-card" aria-label="文法テスト問題">
+        <div className="eq-grammar-test-topic">
+          <span className="eq-grammar-test-emblem" aria-hidden="true">Grammar</span>
+          <div>
+            <p>学習テーマ</p>
+            <h2>{question.title || question.category || '文法'}</h2>
+          </div>
+          <div>
+            <p>ターゲット</p>
+            <strong>{question.targetGrammar || '文法ターゲット'}</strong>
+          </div>
         </div>
 
-        {question.questionJp ? <p className="eq-caption">{question.questionJp}</p> : null}
+        {question.questionJp ? <p className="eq-grammar-test-question">{question.questionJp}</p> : null}
 
-        <EQPanel tone="cyan">
-          <p className="text-xl font-black leading-8 text-[#fff0b5]">
+        <div className="eq-grammar-test-sentence">
+          <p>
             {question.promptEn || 'She ___ to Tokyo three times.'}
           </p>
-        </EQPanel>
+        </div>
 
-        <div className="grid gap-3">
+        <div className="eq-grammar-test-choices">
           {question.choices.map((choice, choiceIndex) => (
             <EQChoiceButton
               key={`${question.testId}-${choice}`}
               badge={String.fromCharCode(65 + choiceIndex)}
+              className="eq-grammar-test-choice"
               selected={selectedIndex === choiceIndex && !answerResult}
               correct={Boolean(answerResult && choiceIndex === answerResult.correctIndex)}
               wrong={Boolean(answerResult && choiceIndex === selectedIndex && !answerResult.isCorrect)}
@@ -185,44 +188,44 @@ export default function GrammarFormPracticePage() {
             type="button"
             disabled={selectedIndex === null || submitting}
             onClick={handleAnswer}
+            className="eq-grammar-test-main-button"
             fullWidth
           >
             {submitting ? '判定中...' : 'こたえる'}
           </EQPrimaryButton>
         ) : (
-          <EQPanel tone={answerResult.isCorrect ? 'green' : 'rose'}>
-            <h2 className="m-0 text-xl font-black text-[#fff0b5]">
+          <div className={`eq-grammar-test-result ${answerResult.isCorrect ? 'is-correct' : 'is-wrong'}`}>
+            <h2>
               {answerResult.isCorrect ? '正解！' : 'もう少し！'}
             </h2>
-            <p className="eq-caption">答え: {answerResult.correctAnswer}</p>
-            <p className="eq-caption">{answerResult.correctReasonJp}</p>
+            <p>答え: {answerResult.correctAnswer}</p>
+            <p>{answerResult.correctReasonJp}</p>
             {!answerResult.isCorrect && answerResult.selectedExplanationJp && (
-              <p className="eq-caption">選んだ答え: {answerResult.selectedExplanationJp}</p>
+              <p>選んだ答え: {answerResult.selectedExplanationJp}</p>
             )}
-            <EQPrimaryButton type="button" onClick={handleNext} fullWidth>
-              {isLast ? (correctCount >= questions.length ? '完了' : '結果を見る') : 'つぎへ'}
+            <EQPrimaryButton type="button" onClick={handleNext} className="eq-grammar-test-main-button" fullWidth>
+              {isLast ? (correctCount >= questions.length ? '完了' : '結果を見る') : '次へ'}
             </EQPrimaryButton>
-          </EQPanel>
+          </div>
         )}
-      </EQPanel>
+      </section>
     );
   };
 
   return (
-    <div className="eq-learning-hub-page">
-      <EQMobileShell className="eq-learning-hub-screen">
-        <EQPageHeader
-          eyebrow="Grammar Test"
-          title="文法テスト"
-          subtitle="ルールをつかえたら合格！"
-          icon="文"
-          meta={
-            <div className="flex flex-wrap gap-2">
-              <EQBadge tone="gold">{questions.length && index < questions.length ? index + 1 : 0} / {questions.length || PRACTICE_QUESTION_LIMIT}</EQBadge>
-              <EQBadge tone="cyan">合格まで {remainingToPass} 問</EQBadge>
+    <div className="eq-grammar-test-page">
+      <EQMobileShell className="eq-grammar-test-screen">
+        <header className="eq-grammar-test-hero">
+          <div>
+            <h1>文法テスト</h1>
+            <p>ルールをつかえたら合格！</p>
+            <div className="eq-grammar-test-meter">
+              <span>{currentCount} / {questions.length || PRACTICE_QUESTION_LIMIT}</span>
+              <strong>合格まであと {remainingToPass} 問</strong>
             </div>
-          }
-        />
+          </div>
+          <img src="/assets/eigo-quest/spirit_assets/happy.png" alt="" aria-hidden="true" />
+        </header>
 
         {renderBody()}
       </EQMobileShell>

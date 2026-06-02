@@ -159,6 +159,33 @@ function getHeroCopy(card) {
   };
 }
 
+function isGrammarRewardSource(reward) {
+  const source = [
+    reward?.source,
+    reward?.rewardSource,
+    reward?.reward_source,
+    reward?.rewardType,
+    reward?.reward_type,
+    reward?.type,
+    reward?.category,
+  ].filter(Boolean).join(' ').toLowerCase();
+  return source.includes('grammar');
+}
+
+function getGrammarRewardCopy(reward, fallbackTitle) {
+  const lessonTitle = reward?.lessonTitle || reward?.lesson_title || reward?.title || fallbackTitle || '文法';
+  const correct = Number(reward?.correctCount ?? reward?.correct_count ?? reward?.score ?? reward?.correct ?? 0);
+  const total = Number(reward?.totalCount ?? reward?.total_count ?? reward?.total ?? 0);
+  const hasScore = Number.isFinite(correct) && correct > 0 && Number.isFinite(total) && total > 0;
+  return {
+    stageLabel: '文法テスト クリア',
+    masteryText: `${lessonTitle}をマスター！`,
+    scoreText: hasScore ? `${correct} / ${total}` : '',
+    scoreLabel: hasScore ? '正解' : '',
+    gainText: '新しい文法英雄カードを獲得しました！',
+  };
+}
+
 export default function CardRewardPage() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
@@ -180,7 +207,11 @@ export default function CardRewardPage() {
   );
   const hero = getHeroCopy(rewardCard);
   const hasNextReward = rewardIndex < pendingQueue.length - 1;
-  const stageCompleteLabel = getStageCompleteLabel(pendingReward, rewardCard, searchParams);
+  const isGrammarReward = isGrammarRewardSource(pendingReward);
+  const grammarCopy = getGrammarRewardCopy(pendingReward, rewardCard?.nameJa);
+  const stageCompleteLabel = isGrammarReward
+    ? grammarCopy.stageLabel
+    : getStageCompleteLabel(pendingReward, rewardCard, searchParams);
 
   useEffect(() => {
     let cancelled = false;
@@ -243,7 +274,7 @@ export default function CardRewardPage() {
 
   return (
     <>
-      <div className={`eq-card-page-wrap quest-reward-page-wrap quest-reward-palace is-${rewardStep}`}>
+      <div className={`eq-card-page-wrap quest-reward-page-wrap quest-reward-palace ${isGrammarReward ? 'eq-grammar-reward-page' : ''} is-${rewardStep}`.trim()}>
         <div className="quest-reward-palace-stars" aria-hidden="true" />
 
         <section className="quest-reward-result" aria-label="クエストクリア">
@@ -252,13 +283,16 @@ export default function CardRewardPage() {
           </div>
           <h1>CLEAR!</h1>
           <p className="quest-reward-stage-label">{stageCompleteLabel}</p>
+          {isGrammarReward ? <p className="eq-grammar-reward-mastery">{grammarCopy.masteryText}</p> : null}
           <div className="quest-reward-score">
-            <strong>20 / 20</strong>
-            <span>Words Mastered</span>
+            <strong>{isGrammarReward ? (grammarCopy.scoreText || 'CLEAR') : '20 / 20'}</strong>
+            <span>{isGrammarReward ? (grammarCopy.scoreLabel || 'Grammar Mastered') : 'Words Mastered'}</span>
           </div>
         </section>
 
-        <p className="quest-reward-gain-label">新しい英雄カードを獲得しました！</p>
+        <p className="quest-reward-gain-label">
+          {isGrammarReward ? grammarCopy.gainText : '新しい英雄カードを獲得しました！'}
+        </p>
 
         <section className="quest-reward-card-stage" aria-label="新しい英雄カード">
           <motion.div

@@ -5374,6 +5374,8 @@ def submit_grammar_form_practice_answer(child_id, test_id, selected_index):
                 1 if is_correct else 0,
             ),
         )
+        if is_correct:
+            mark_child_grammar_lesson_mastered(conn, child_id, row['lesson_id'], now)
         conn.commit()
     finally:
         conn.close()
@@ -5510,8 +5512,6 @@ def _grammar_progress_for_lesson(progress=None, quiz_count=0, correct_quiz_count
         payload['totalQuizCount'] = total
         if solved >= total:
             payload['status'] = 'mastered'
-        elif payload['status'] == 'mastered':
-            payload['status'] = 'learning'
     else:
         payload['correctQuizCount'] = solved
         payload['totalQuizCount'] = total
@@ -5600,6 +5600,56 @@ def _find_child_grammar_progress_row(conn, child_id, lesson_id, grammar_id, prog
         ''',
         (child_id, lesson_id),
     ).fetchone()
+
+
+def mark_child_grammar_lesson_mastered(conn, child_id, lesson_id, now):
+    grammar_id = get_grammar_id_for_lesson(lesson_id)
+    progress_columns = _sqlite_table_columns(conn, 'child_grammar_progress')
+    if 'grammar_id' in progress_columns:
+        existing = _find_child_grammar_progress_row(conn, child_id, lesson_id, grammar_id, progress_columns)
+        if existing:
+            conn.execute(
+                '''
+                UPDATE child_grammar_progress
+                SET grammar_id = ?,
+                    lesson_id = ?,
+                    status = 'mastered',
+                    last_score = 100,
+                    mastered_at = COALESCE(mastered_at, ?),
+                    last_studied_at = ?,
+                    updated_at = CURRENT_TIMESTAMP
+                WHERE child_id = ? AND (lesson_id = ? OR grammar_id = ?)
+                ''',
+                (grammar_id, lesson_id, now, now, child_id, lesson_id, grammar_id),
+            )
+        else:
+            conn.execute(
+                '''
+                INSERT INTO child_grammar_progress (
+                    child_id, grammar_id, lesson_id, status, view_count, last_score,
+                    mastered_at, last_studied_at, created_at, updated_at
+                )
+                VALUES (?, ?, ?, 'mastered', 1, 100, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+                ''',
+                (child_id, grammar_id, lesson_id, now, now),
+            )
+    else:
+        conn.execute(
+            '''
+            INSERT INTO child_grammar_progress (
+                child_id, lesson_id, status, view_count, last_score,
+                mastered_at, last_studied_at, created_at, updated_at
+            )
+            VALUES (?, ?, 'mastered', 1, 100, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+            ON CONFLICT(child_id, lesson_id) DO UPDATE SET
+                status = 'mastered',
+                last_score = 100,
+                mastered_at = COALESCE(child_grammar_progress.mastered_at, excluded.mastered_at),
+                last_studied_at = excluded.last_studied_at,
+                updated_at = CURRENT_TIMESTAMP
+            ''',
+            (child_id, lesson_id, now, now),
+        )
 
 
 def _grammar_correct_quiz_count_map(child_id):
