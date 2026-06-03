@@ -9,6 +9,7 @@ export default function CompactPageHeader({
   progressText,
   progressValue,
   progressMax,
+  metaItems,
   helperImage,
   guidanceText,
   variant = 'default',
@@ -33,7 +34,8 @@ export default function CompactPageHeader({
     if (!Number.isFinite(value) || !Number.isFinite(max) || max <= 0) return 0;
     return Math.min(100, Math.max(0, (value / max) * 100));
   }, [progressValue, progressMax]);
-  const hasMeta = Boolean(elementLabel || progressText);
+  const normalizedMetaItems = Array.isArray(metaItems) ? metaItems.filter(Boolean) : [];
+  const hasMeta = Boolean(elementLabel || progressText || normalizedMetaItems.length);
 
   return (
     <section
@@ -55,6 +57,12 @@ export default function CompactPageHeader({
 
         {hasMeta ? (
           <div className="compact-page-header__meta">
+            {normalizedMetaItems.map((item) => (
+              <span key={String(item)} className="compact-page-header__progress-text">
+                {item}
+              </span>
+            ))}
+
             {elementLabel ? (
               <span className="compact-page-header__pill">{elementLabel}</span>
             ) : null}

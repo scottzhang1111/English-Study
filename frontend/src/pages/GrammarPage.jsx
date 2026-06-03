@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import WebLearningLayout from '../components/WebLearningLayout';
 import {
   AudioButton,
+  EQBottomNav,
   GoldQuestButton,
   MagicPanel,
 } from '../components/eigo';
@@ -169,93 +170,97 @@ export default function GrammarPage() {
 
   if (loading) {
     return (
+      <>
+        <WebLearningLayout title="文法練習" subtitle="1日1レッスン" mobileTight hideMobileHeader>
+          <div className="quest-grammar-learn-page lg:hidden">
+            <CompactPageHeader
+              title="文法学習"
+              subtitle="ことばの使い方を学ぼう"
+              backgroundImage="/assets/eigo-quest/learning-hub/文法練習.png"
+              elementLabel="文"
+              progressText="0 / 0"
+              helperImage="/assets/eigo-quest/spirit_assets/happy.png"
+              variant="grammar"
+            />
+            <section className="eq-grammar-learning-card is-loading">
+              <span className="eq-grammar-learning-badge">今日の文法</span>
+              <h2>文法を読み込み中...</h2>
+              <p>魔法図書館で今日のレッスンを準備しています。</p>
+            </section>
+          </div>
+          <div className="panel hidden p-6 text-center font-bold text-[#6f7da8] lg:block">文法レッスンを準備しています...</div>
+        </WebLearningLayout>
+        <EQBottomNav />
+      </>
+    );
+  }
+
+  return (
+    <>
       <WebLearningLayout title="文法練習" subtitle="1日1レッスン" mobileTight hideMobileHeader>
+        {error && <div className="panel mb-4 p-5 text-sm font-bold text-rose-700">{error}</div>}
+
         <div className="quest-grammar-learn-page lg:hidden">
           <CompactPageHeader
             title="文法学習"
             subtitle="ことばの使い方を学ぼう"
             backgroundImage="/assets/eigo-quest/learning-hub/文法練習.png"
             elementLabel="文"
-            progressText="0 / 0"
+            progressText={`${stats.mastered || 0} / ${stats.total || 0}`}
             helperImage="/assets/eigo-quest/spirit_assets/happy.png"
             variant="grammar"
           />
-          <section className="eq-grammar-learning-card is-loading">
-            <span className="eq-grammar-learning-badge">今日の文法</span>
-            <h2>文法を読み込み中...</h2>
-            <p>魔法図書館で今日のレッスンを準備しています。</p>
-          </section>
-        </div>
-        <div className="panel hidden p-6 text-center font-bold text-[#6f7da8] lg:block">文法レッスンを準備しています...</div>
-      </WebLearningLayout>
-    );
-  }
 
-  return (
-    <WebLearningLayout title="文法練習" subtitle="1日1レッスン" mobileTight hideMobileHeader>
-      {error && <div className="panel mb-4 p-5 text-sm font-bold text-rose-700">{error}</div>}
+          {detailLoading || !lesson ? (
+            <MagicPanel className="eq-grammar-learning-card is-loading">
+              <span className="eq-grammar-learning-badge">今日の文法</span>
+              <h2>文法を読み込み中...</h2>
+              <p>魔法図書館で今日のレッスンを準備しています。</p>
+            </MagicPanel>
+          ) : (
+            <MagicPanel
+              className="eq-grammar-learning-card"
+              initial={{ opacity: 0, y: 18 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.32, ease: 'easeOut' }}
+            >
+              <span className="eq-grammar-learning-badge">今日の文法</span>
+              <h2>{lesson.title || '今日の文法'}</h2>
+              <p className="eq-grammar-learning-rule">
+                {lesson.grammarPoint ? `『${lesson.grammarPoint}』で、経験・完了・継続を表すよ。` : '文のルールを見つけて、英語の使い方を覚えよう。'}
+              </p>
 
-      <div className="quest-grammar-learn-page lg:hidden">
-        <CompactPageHeader
-          title="文法学習"
-          subtitle="ことばの使い方を学ぼう"
-          backgroundImage="/assets/eigo-quest/learning-hub/文法練習.png"
-          elementLabel="文"
-          progressText={`${stats.mastered || 0} / ${stats.total || 0}`}
-          helperImage="/assets/eigo-quest/spirit_assets/happy.png"
-          variant="grammar"
-        />
-
-        {detailLoading || !lesson ? (
-          <MagicPanel className="eq-grammar-learning-card is-loading">
-            <span className="eq-grammar-learning-badge">今日の文法</span>
-            <h2>文法を読み込み中...</h2>
-            <p>魔法図書館で今日のレッスンを準備しています。</p>
-          </MagicPanel>
-        ) : (
-          <MagicPanel
-            className="eq-grammar-learning-card"
-            initial={{ opacity: 0, y: 18 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.32, ease: 'easeOut' }}
-          >
-            <span className="eq-grammar-learning-badge">今日の文法</span>
-            <h2>{lesson.title || '今日の文法'}</h2>
-            <p className="eq-grammar-learning-rule">
-              {lesson.grammarPoint ? `『${lesson.grammarPoint}』で、経験・完了・継続を表すよ。` : '文のルールを見つけて、英語の使い方を覚えよう。'}
-            </p>
-
-            <div className="eq-grammar-example-card">
-              <button type="button" onClick={() => speak(lesson.enExample)} aria-label="例文を聞く" className="eq-grammar-play-button">
-                <span aria-hidden="true">▶</span>
-              </button>
-              <div>
-                <p>{lesson.enExample || 'I have finished my homework.'}</p>
-                <span>{lesson.jpExample || '私は宿題を終えました。'}</span>
+              <div className="eq-grammar-example-card">
+                <button type="button" onClick={() => speak(lesson.enExample)} aria-label="例文を聞く" className="eq-grammar-play-button">
+                  <span aria-hidden="true">▶</span>
+                </button>
+                <div>
+                  <p>{lesson.enExample || 'I have finished my homework.'}</p>
+                  <span>{lesson.jpExample || '私は宿題を終えました。'}</span>
+                </div>
               </div>
-            </div>
 
-            <div className="eq-grammar-point-card">
-              <h3>ポイント</h3>
-              <ul>
-                {grammarPoints.map((point) => (
-                  <li key={String(point)}>{String(point)}</li>
-                ))}
-              </ul>
-            </div>
+              <div className="eq-grammar-point-card">
+                <h3>ポイント</h3>
+                <ul>
+                  {grammarPoints.map((point) => (
+                    <li key={String(point)}>{String(point)}</li>
+                  ))}
+                </ul>
+              </div>
 
-            <div className="eq-grammar-learning-actions">
-              <AudioButton onClick={() => speak(lesson.enExample)}>
-                例文を聞く
-              </AudioButton>
-              <GoldQuestButton onClick={handleGoPractice} disabled={detailLoading} className="eq-grammar-test-button">
-                テストへ進む
-              </GoldQuestButton>
-            </div>
-          </MagicPanel>
-        )}
+              <div className="eq-grammar-learning-actions">
+                <AudioButton onClick={() => speak(lesson.enExample)}>
+                  例文を聞く
+                </AudioButton>
+                <GoldQuestButton onClick={handleGoPractice} disabled={detailLoading} className="eq-grammar-test-button">
+                  テストへ進む
+                </GoldQuestButton>
+              </div>
+            </MagicPanel>
+          )}
 
-      </div>
+        </div>
 
       <div className="mb-4 hidden gap-2 overflow-x-auto pb-2 lg:flex">
         {lessons.map((item) => {
@@ -491,6 +496,8 @@ export default function GrammarPage() {
           </main>
         </div>
       </section>
-    </WebLearningLayout>
+      </WebLearningLayout>
+      <EQBottomNav />
+    </>
   );
 }

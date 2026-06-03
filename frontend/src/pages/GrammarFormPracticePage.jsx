@@ -1,27 +1,33 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import {
+  EQBadge,
   EQBottomNav,
   EQChoiceButton,
   EQMobileShell,
   EQPanel,
   EQPrimaryButton,
 } from '../components/eigo';
-import { getGrammarFormPractice, submitGrammarFormPracticeAnswer } from '../api';
+import { getGrammarLesson, submitGrammarQuizAnswer } from '../api';
+import CompactPageHeader from '../components/eigo/CompactPageHeader';
 
 const CHILD_STORAGE_KEY = 'selected_child_id';
 const PRACTICE_QUESTION_LIMIT = 5;
+const GRAMMAR_HERO_IMAGE = '/assets/eigo-quest/learning-hub/文法練習.png';
+const SPIRIT_IMAGE = '/assets/eigo-quest/spirit_assets/happy.png';
 
 export default function GrammarFormPracticePage() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const childId = useMemo(() => localStorage.getItem(CHILD_STORAGE_KEY) || '', []);
   const lessonId = searchParams.get('lessonId') || '';
+  const [lesson, setLesson] = useState(null);
   const [questions, setQuestions] = useState([]);
   const [index, setIndex] = useState(0);
   const [selectedIndex, setSelectedIndex] = useState(null);
   const [answerResult, setAnswerResult] = useState(null);
   const [results, setResults] = useState([]);
+  const [retryQuestions, setRetryQuestions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
@@ -31,7 +37,10 @@ export default function GrammarFormPracticePage() {
   const correctCount = results.filter((item) => item.isCorrect).length;
   const passTarget = Math.min(questions.length || PRACTICE_QUESTION_LIMIT, PRACTICE_QUESTION_LIMIT);
   const remainingToPass = Math.max(0, passTarget - correctCount);
-  const currentCount = questions.length && index < questions.length ? index + 1 : 0;
+  const currentCount = questions.length ? Math.min(index + 1, questions.length) : 0;
+  const missedQuizIds = results
+    .filter((item) => !item.isCorrect && item.quizId)
+    .map((item) => item.quizId);
 
   const loadPractice = () => {
     setLoading(true);
@@ -40,14 +49,20 @@ export default function GrammarFormPracticePage() {
     setSelectedIndex(null);
     setAnswerResult(null);
     setResults([]);
+    setRetryQuestions([]);
+    setLesson(null);
     if (!lessonId) {
       setQuestions([]);
       setError('文法レッスンからテストへ進んでください。');
       setLoading(false);
       return;
     }
-    getGrammarFormPractice({ childId, lessonId, limit: PRACTICE_QUESTION_LIMIT })
-      .then((payload) => setQuestions(payload.questions || []))
+    getGrammarLesson({ childId, lessonId })
+      .then((payload) => {
+        const nextLesson = payload.lesson || null;
+        setLesson(nextLesson);
+        setQuestions((nextLesson?.quizzes || []).slice(0, PRACTICE_QUESTION_LIMIT));
+      })
       .catch((err) => setError(err.message || '文法練習を読み込めませんでした。'))
       .finally(() => setLoading(false));
   };
@@ -63,10 +78,11 @@ export default function GrammarFormPracticePage() {
   const handleAnswer = () => {
     if (!question || selectedIndex === null || submitting || answerResult) return;
     setSubmitting(true);
-    submitGrammarFormPracticeAnswer({ childId, testId: question.testId, selectedIndex })
+    submitGrammarQuizAnswer({ childId, quizId: question.quizId, selectedIndex })
       .then((payload) => {
-        setAnswerResult(payload);
-        setResults((items) => [...items, payload]);
+        const nextResult = { ...payload, quizId: question.quizId };
+        setAnswerResult(nextResult);
+        setResults((items) => [...items, nextResult]);
       })
       .catch((err) => setError(err.message || '答えを保存できませんでした。'))
       .finally(() => setSubmitting(false));
@@ -79,11 +95,17 @@ export default function GrammarFormPracticePage() {
       setAnswerResult(null);
       return;
     }
-    if (correctCount >= questions.length) {
-      navigate('/grammar');
-      return;
-    }
+    setRetryQuestions(questions.filter((item) => missedQuizIds.includes(item.quizId)));
     setIndex(questions.length);
+  };
+
+  const handleRetryMissed = () => {
+    setQuestions(retryQuestions);
+    setIndex(0);
+    setSelectedIndex(null);
+    setAnswerResult(null);
+    setResults([]);
+    setRetryQuestions([]);
   };
 
   const renderBody = () => {
@@ -123,22 +145,30 @@ export default function GrammarFormPracticePage() {
     }
 
     if (index >= questions.length) {
+      const hasMissedQuestions = retryQuestions.length > 0;
       return (
-        <EQPanel title="結果" tone="gold">
+        <EQPanel title={hasMissedQuestions ? 'あと少し！' : '結果'} tone="gold">
           <div className="flex flex-wrap gap-2">
             <EQBadge tone="gold">正解 {correctCount} / {questions.length}</EQBadge>
             <EQBadge tone={remainingToPass === 0 ? 'green' : 'rose'}>
               合格まで {remainingToPass} 問
             </EQBadge>
           </div>
-          <p className="eq-caption">まちがえた問題は復習リストで確認できます。</p>
+          <p className="eq-caption">
+            {hasMissedQuestions
+              ? 'まちがえた問題だけ、もう一度チャレンジしよう。'
+              : 'よくできました。文法レッスンにもどりましょう。'}
+          </p>
           <div className="grid gap-3">
-            <EQPrimaryButton type="button" onClick={loadPractice} fullWidth>
-              もう一度
-            </EQPrimaryButton>
-            <EQPrimaryButton type="button" onClick={() => navigate('/review')} fullWidth>
-              復習へ
-            </EQPrimaryButton>
+            {hasMissedQuestions ? (
+              <EQPrimaryButton type="button" onClick={handleRetryMissed} fullWidth>
+                まちがえた問題に挑戦
+              </EQPrimaryButton>
+            ) : (
+              <EQPrimaryButton type="button" onClick={() => navigate('/grammar')} fullWidth>
+                文法へ
+              </EQPrimaryButton>
+            )}
           </div>
         </EQPanel>
       );
@@ -150,26 +180,20 @@ export default function GrammarFormPracticePage() {
           <span className="eq-grammar-test-emblem" aria-hidden="true">Grammar</span>
           <div>
             <p>学習テーマ</p>
-            <h2>{question.title || question.category || '文法'}</h2>
+            <h2>{lesson?.title || '文法'}</h2>
           </div>
           <div>
             <p>ターゲット</p>
-            <strong>{question.targetGrammar || '文法ターゲット'}</strong>
+            <strong>{lesson?.grammarPoint || '文法ターゲット'}</strong>
           </div>
         </div>
 
         {question.questionJp ? <p className="eq-grammar-test-question">{question.questionJp}</p> : null}
 
-        <div className="eq-grammar-test-sentence">
-          <p>
-            {question.promptEn || 'She ___ to Tokyo three times.'}
-          </p>
-        </div>
-
         <div className="eq-grammar-test-choices">
           {question.choices.map((choice, choiceIndex) => (
             <EQChoiceButton
-              key={`${question.testId}-${choice}`}
+              key={`${question.quizId}-${choiceIndex}`}
               badge={String.fromCharCode(65 + choiceIndex)}
               className="eq-grammar-test-choice"
               selected={selectedIndex === choiceIndex && !answerResult}
@@ -198,11 +222,8 @@ export default function GrammarFormPracticePage() {
             <h2>
               {answerResult.isCorrect ? '正解！' : 'もう少し！'}
             </h2>
-            <p>答え: {answerResult.correctAnswer}</p>
-            <p>{answerResult.correctReasonJp}</p>
-            {!answerResult.isCorrect && answerResult.selectedExplanationJp && (
-              <p>選んだ答え: {answerResult.selectedExplanationJp}</p>
-            )}
+            <p>答え: {question.choices[answerResult.correctIndex]}</p>
+            {answerResult.explanationJp ? <p>{answerResult.explanationJp}</p> : null}
             <EQPrimaryButton type="button" onClick={handleNext} className="eq-grammar-test-main-button" fullWidth>
               {isLast ? (correctCount >= questions.length ? '完了' : '結果を見る') : '次へ'}
             </EQPrimaryButton>
@@ -215,17 +236,17 @@ export default function GrammarFormPracticePage() {
   return (
     <div className="eq-grammar-test-page">
       <EQMobileShell className="eq-grammar-test-screen">
-        <header className="eq-grammar-test-hero">
-          <div>
-            <h1>文法テスト</h1>
-            <p>ルールをつかえたら合格！</p>
-            <div className="eq-grammar-test-meter">
-              <span>{currentCount} / {questions.length || PRACTICE_QUESTION_LIMIT}</span>
-              <strong>合格まであと {remainingToPass} 問</strong>
-            </div>
-          </div>
-          <img src="/assets/eigo-quest/spirit_assets/happy.png" alt="" aria-hidden="true" />
-        </header>
+        <CompactPageHeader
+          title="文法テスト"
+          backgroundImage={GRAMMAR_HERO_IMAGE}
+          helperImage={SPIRIT_IMAGE}
+          guidanceText="ルールをつかえたら合格！"
+          metaItems={[
+            `${currentCount} / ${questions.length || PRACTICE_QUESTION_LIMIT}`,
+            `あと ${remainingToPass} 問`,
+          ]}
+          variant="grammar"
+        />
 
         {renderBody()}
       </EQMobileShell>
