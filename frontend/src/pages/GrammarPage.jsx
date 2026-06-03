@@ -49,6 +49,29 @@ function speak(text, lang = 'en-US') {
   window.speechSynthesis.speak(utterance);
 }
 
+function getLessonValue(lesson, fieldName) {
+  if (!lesson) return '';
+  if (lesson[fieldName]) return lesson[fieldName];
+  const fallbackEntry = Object.entries(lesson).find(([key, value]) => (
+    value && String(key).trim().endsWith(fieldName)
+  ));
+  return fallbackEntry?.[1] || '';
+}
+
+function buildGrammarPoints(lesson) {
+  const apiPoints = lesson?.points || lesson?.keyPoints;
+  if (Array.isArray(apiPoints) && apiPoints.length) return apiPoints.slice(0, 3);
+
+  const grammarPoint = getLessonValue(lesson, 'grammarPoint');
+  const jpExplanation = getLessonValue(lesson, 'jpExplanation');
+
+  return [
+    lesson?.learningGoal,
+    jpExplanation,
+    grammarPoint ? `形: ${grammarPoint}` : '',
+  ].filter(Boolean).slice(0, 3);
+}
+
 export default function GrammarPage() {
   const navigate = useNavigate();
   const childId = useMemo(() => localStorage.getItem(CHILD_STORAGE_KEY) || '', []);
@@ -70,11 +93,10 @@ export default function GrammarPage() {
   const quizCount = lesson?.quizzes?.length || 0;
   const isLastQuiz = quizIndex >= quizCount - 1;
   const progressPercent = stats.total ? Math.round((stats.mastered / stats.total) * 100) : 0;
-  const grammarPoints = (lesson?.points || lesson?.keyPoints || [
-    'すでに終わったこと（完了）を表すよ。',
-    'したことがある経験（経験）も表せるよ。',
-    'already / yet / just などと一緒によく使う。',
-  ]).slice(0, 3);
+  const grammarPoint = getLessonValue(lesson, 'grammarPoint');
+  const jpExplanation = getLessonValue(lesson, 'jpExplanation');
+  const grammarPoints = buildGrammarPoints(lesson);
+  const isLongGrammarTitle = String(lesson?.title || '').length >= 8;
 
   const refreshLessons = () => (
     getGrammarLessons(childId).then((payload) => {
@@ -225,9 +247,9 @@ export default function GrammarPage() {
               transition={{ duration: 0.32, ease: 'easeOut' }}
             >
               <span className="eq-grammar-learning-badge">今日の文法</span>
-              <h2>{lesson.title || '今日の文法'}</h2>
+              <h2 className={isLongGrammarTitle ? 'is-long-title' : ''}>{lesson.title || '今日の文法'}</h2>
               <p className="eq-grammar-learning-rule">
-                {lesson.grammarPoint ? `『${lesson.grammarPoint}』で、経験・完了・継続を表すよ。` : '文のルールを見つけて、英語の使い方を覚えよう。'}
+                {grammarPoint ? `『${grammarPoint}』を使うルールを確認しよう。` : '文のルールを見つけて、英語の使い方を覚えよう。'}
               </p>
 
               <div className="eq-grammar-example-card">
@@ -362,7 +384,7 @@ export default function GrammarPage() {
                   <div>
                     <p className="text-sm font-black text-[#8fa0c2]">{lesson.category}</p>
                     <h2 className="display-font mt-1 text-3xl font-black leading-tight text-[#31406f] max-md:text-2xl">{lesson.title}</h2>
-                    <p className="mt-2 hidden text-lg font-semibold leading-7 text-[#354172] max-md:block">{lesson.grammarPoint}</p>
+                    <p className="mt-2 hidden text-lg font-semibold leading-7 text-[#354172] max-md:block">{grammarPoint}</p>
                   </div>
                   <span className={`rounded-full px-4 py-2 text-sm font-black ${statusClass(lesson.progress?.status)}`}>
                     {statusLabel(lesson.progress?.status)}
@@ -371,13 +393,13 @@ export default function GrammarPage() {
 
                 <div className="rounded-[26px] bg-[#f8fbff] p-5 max-md:hidden">
                   <p className="text-xs font-black text-[#8fa0c2]">文法ポイント</p>
-                  <p className="mt-2 text-2xl font-black leading-9 text-[#354172]">{lesson.grammarPoint}</p>
+                  <p className="mt-2 text-2xl font-black leading-9 text-[#354172]">{grammarPoint}</p>
                 </div>
 
                 <div className="grid gap-4 md:grid-cols-2">
                   <article className="rounded-[26px] bg-[#fff8d9] p-5 text-[#665220] max-md:rounded-[20px] max-md:p-4">
                     <h3 className="text-base font-black">どういう意味？</h3>
-                    <p className="mt-3 text-sm font-bold leading-7 max-md:text-base">{lesson.jpExplanation}</p>
+                    <p className="mt-3 text-sm font-bold leading-7 max-md:text-base">{jpExplanation}</p>
                   </article>
                   <article className="rounded-[26px] bg-[#eef8ff] p-5 text-[#354172] max-md:rounded-[20px] max-md:p-4">
                     <h3 className="text-base font-black">今日できるようになること</h3>

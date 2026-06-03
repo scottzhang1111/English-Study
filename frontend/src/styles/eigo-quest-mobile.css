@@ -12179,9 +12179,9 @@ body,
 .eq-grammar-test-card {
   position: relative;
   display: grid;
-  gap: 16px;
-  margin-top: 10px;
-  padding: 22px 16px 18px;
+  gap: 12px;
+  margin-top: 6px;
+  padding: 16px 12px 14px;
   overflow: hidden;
   border: 1px solid rgba(255, 220, 126, 0.74);
   border-radius: 28px;
@@ -12214,12 +12214,12 @@ body,
 
 .eq-grammar-learning-badge {
   justify-self: center;
-  padding: 8px 18px;
+  padding: 6px 14px;
   border: 1px solid rgba(255, 220, 126, 0.8);
   border-radius: 999px;
   background: linear-gradient(180deg, rgba(11, 31, 78, 0.94), rgba(4, 13, 42, 0.94));
   color: #ffe487;
-  font-size: 18px;
+  font-size: 16px;
   font-weight: 1000;
   box-shadow: 0 0 18px rgba(255, 211, 90, 0.22);
 }
@@ -12227,19 +12227,24 @@ body,
 .eq-grammar-learning-card h2 {
   margin: 0;
   color: #f8fbff;
-  font-size: clamp(44px, 12vw, 66px);
+  font-size: clamp(42px, 12vw, 50px);
   font-weight: 1000;
-  line-height: 1;
+  line-height: 0.98;
   text-align: center;
   text-shadow: 0 0 18px rgba(159, 206, 255, 0.42);
+}
+
+.eq-grammar-learning-card h2.is-long-title {
+  font-size: clamp(32px, 9.2vw, 38px);
+  line-height: 1.08;
 }
 
 .eq-grammar-learning-rule {
   margin: 0;
   color: #f6f8ff;
-  font-size: clamp(18px, 5vw, 25px);
+  font-size: clamp(18px, 5vw, 22px);
   font-weight: 950;
-  line-height: 1.42;
+  line-height: 1.32;
   text-align: center;
 }
 
@@ -12252,8 +12257,8 @@ body,
   display: grid;
   grid-template-columns: auto minmax(0, 1fr);
   align-items: center;
-  gap: 14px;
-  padding: 16px 14px;
+  gap: 12px;
+  padding: 13px 12px;
   border: 1px solid rgba(255, 220, 126, 0.7);
   border-radius: 24px;
   background:
@@ -12264,14 +12269,14 @@ body,
 
 .eq-grammar-play-button {
   display: grid;
-  width: 58px;
-  height: 58px;
+  width: 50px;
+  height: 50px;
   place-items: center;
   border: 1px solid rgba(255, 220, 126, 0.78);
   border-radius: 999px;
   background: radial-gradient(circle at 35% 30%, rgba(255, 236, 149, 0.18), rgba(11, 17, 49, 0.92));
   color: #ffdf72;
-  font-size: 24px;
+  font-size: 21px;
   box-shadow: 0 0 16px rgba(255, 211, 90, 0.22), inset 0 0 14px rgba(80, 166, 255, 0.16);
 }
 
@@ -12279,37 +12284,37 @@ body,
 .eq-grammar-test-sentence p {
   margin: 0;
   color: #f8fbff;
-  font-size: clamp(24px, 7vw, 38px);
+  font-size: clamp(28px, 8vw, 32px);
   font-weight: 1000;
-  line-height: 1.18;
+  line-height: 1.12;
 }
 
 .eq-grammar-example-card span {
   display: block;
-  margin-top: 9px;
+  margin-top: 6px;
   color: rgba(224, 234, 255, 0.78);
-  font-size: clamp(15px, 4.2vw, 18px);
+  font-size: clamp(16px, 4.2vw, 18px);
   font-weight: 900;
-  line-height: 1.35;
+  line-height: 1.26;
 }
 
 .eq-grammar-point-card {
-  padding: 15px 14px;
+  padding: 12px 12px;
   border: 1px solid rgba(255, 220, 126, 0.32);
   border-radius: 20px;
   background: rgba(2, 10, 32, 0.46);
 }
 
 .eq-grammar-point-card h3 {
-  margin: 0 0 10px;
+  margin: 0 0 8px;
   color: #ffe487;
-  font-size: 22px;
+  font-size: clamp(22px, 6vw, 26px);
   font-weight: 1000;
 }
 
 .eq-grammar-point-card ul {
   display: grid;
-  gap: 9px;
+  gap: 7px;
   margin: 0;
   padding: 0;
   list-style: none;
@@ -12317,11 +12322,15 @@ body,
 
 .eq-grammar-point-card li {
   position: relative;
-  padding-left: 24px;
+  padding-left: 22px;
   color: #eef4ff;
-  font-size: clamp(16px, 4.5vw, 20px);
+  display: -webkit-box;
+  overflow: hidden;
+  font-size: clamp(15px, 4.2vw, 17px);
   font-weight: 900;
-  line-height: 1.35;
+  line-height: 1.24;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
 }
 
 .eq-grammar-point-card li::before {
@@ -12334,14 +12343,14 @@ body,
 .eq-grammar-learning-actions {
   display: grid;
   grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
-  gap: 12px;
+  gap: 10px;
 }
 
 .eq-grammar-learning-actions .audio-quest-button,
 .eq-grammar-learning-actions .gold-quest-button {
-  min-height: 58px;
+  min-height: 52px;
   margin: 0;
-  font-size: clamp(16px, 4.8vw, 22px);
+  font-size: clamp(15px, 4.4vw, 20px);
   white-space: nowrap;
 }
 
@@ -12350,24 +12359,24 @@ body,
 }
 
 .eq-grammar-test-screen {
-  gap: 14px;
+  gap: 10px;
 }
 
 .eq-grammar-test-topic {
   display: grid;
-  grid-template-columns: 78px minmax(0, 1fr);
-  gap: 12px;
+  grid-template-columns: 56px minmax(0, 1fr);
+  gap: 8px;
   align-items: center;
 }
 
 .eq-grammar-test-topic > div:last-child {
   grid-column: 2;
-  padding-top: 8px;
+  padding-top: 6px;
   border-top: 1px solid rgba(255, 220, 126, 0.24);
 }
 
 .eq-grammar-test-topic p {
-  margin: 0 0 5px;
+  margin: 0 0 4px;
   color: #ffe487;
   font-size: 13px;
   font-weight: 1000;
@@ -12377,21 +12386,26 @@ body,
 .eq-grammar-test-topic strong {
   margin: 0;
   color: #f8fbff;
-  font-size: clamp(30px, 9vw, 46px);
+  font-size: clamp(24px, 7vw, 34px);
   font-weight: 1000;
   line-height: 1.02;
   text-shadow: 0 0 14px rgba(156, 207, 255, 0.4);
 }
 
 .eq-grammar-test-topic strong {
+  display: -webkit-box;
+  overflow: hidden;
   color: #ffe487;
-  font-size: clamp(22px, 6vw, 31px);
+  font-size: clamp(16px, 4.6vw, 20px);
+  line-height: 1.18;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
 }
 
 .eq-grammar-test-emblem {
   display: grid;
-  width: 76px;
-  height: 76px;
+  width: 54px;
+  height: 54px;
   place-items: end center;
   padding-bottom: 8px;
   border: 1px solid rgba(255, 220, 126, 0.66);
@@ -12400,7 +12414,7 @@ body,
     radial-gradient(circle at 50% 30%, rgba(255, 220, 126, 0.22), transparent 31%),
     linear-gradient(180deg, rgba(13, 44, 104, 0.94), rgba(4, 12, 38, 0.96));
   color: #ffe487;
-  font-size: 12px;
+  font-size: 10px;
   font-weight: 1000;
   box-shadow: inset 0 0 18px rgba(80, 166, 255, 0.16);
 }
@@ -12410,45 +12424,53 @@ body,
   margin-bottom: 3px;
   color: #fff2b4;
   content: "📖";
-  font-size: 30px;
+  font-size: 22px;
   line-height: 1;
 }
 
 .eq-grammar-test-question {
   margin: 0;
-  padding: 14px 14px 0;
+  padding: 8px 10px 0;
   color: #eef4ff;
-  font-size: clamp(17px, 4.8vw, 22px);
+  font-size: clamp(19px, 5.4vw, 24px);
   font-weight: 900;
-  line-height: 1.45;
+  line-height: 1.3;
 }
 
 .eq-grammar-test-card .eq-grammar-test-sentence {
   grid-template-columns: minmax(0, 1fr);
-  min-height: 118px;
+  min-height: 92px;
   place-items: center;
   text-align: center;
 }
 
 .eq-grammar-test-choices {
   display: grid;
-  gap: 10px;
+  gap: 8px;
 }
 
 .eq-grammar-test-choice.eq-choice-button {
-  min-height: 58px;
+  min-height: 42px;
+  padding: 8px 10px;
   border: 1px solid rgba(255, 220, 126, 0.48);
-  border-radius: 16px;
+  border-radius: 14px;
   background: linear-gradient(180deg, rgba(13, 35, 82, 0.92), rgba(5, 14, 42, 0.94));
   color: #f3f7ff;
-  font-size: clamp(19px, 5.4vw, 27px);
+  font-size: clamp(20px, 5.7vw, 26px);
   font-weight: 950;
   box-shadow: inset 0 0 18px rgba(80, 166, 255, 0.1);
 }
 
-.eq-grammar-test-choice.eq-choice-button .eq-choice-button__badge {
+.eq-grammar-test-choice.eq-choice-button .eq-choice-text {
+  line-height: 1.15;
+}
+
+.eq-grammar-test-choice.eq-choice-button .eq-choice-badge {
   border-color: rgba(255, 220, 126, 0.86);
   color: #ffe487;
+  width: 28px;
+  height: 28px;
+  font-size: 14px;
 }
 
 .eq-grammar-test-choice.eq-choice-button.is-selected {
@@ -12472,23 +12494,31 @@ body,
 }
 
 .eq-grammar-test-main-button.eq-fantasy-primary-button {
-  min-height: 58px;
+  min-height: 52px;
   border-radius: 999px;
   background:
     linear-gradient(180deg, #fff0a2, #f5be37 54%, #a96f14);
   color: #382300;
-  font-size: clamp(22px, 6vw, 31px);
+  font-size: clamp(20px, 5.6vw, 28px);
   font-weight: 1000;
   box-shadow: 0 0 20px rgba(255, 211, 90, 0.48), inset 0 1px 0 rgba(255, 255, 255, 0.6);
 }
 
 .eq-grammar-test-result {
   display: grid;
-  gap: 8px;
-  padding: 14px;
+  gap: 7px;
+  padding: 11px 12px;
   border: 1px solid rgba(255, 220, 126, 0.34);
-  border-radius: 18px;
+  border-radius: 16px;
   background: rgba(2, 10, 32, 0.54);
+}
+
+.eq-grammar-test-result-heading {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 6px 10px;
 }
 
 .eq-grammar-test-result h2,
@@ -12498,15 +12528,30 @@ body,
 
 .eq-grammar-test-result h2 {
   color: #fff0a2;
-  font-size: 24px;
+  font-size: 22px;
   font-weight: 1000;
 }
 
 .eq-grammar-test-result p {
   color: #e8f0ff;
-  font-size: 15px;
+  font-size: 14px;
   font-weight: 850;
-  line-height: 1.4;
+  line-height: 1.32;
+}
+
+.eq-grammar-test-result-heading p {
+  color: #ffe487;
+  font-size: 15px;
+  font-weight: 1000;
+}
+
+.eq-grammar-test-explanation {
+  white-space: pre-line;
+}
+
+.eq-grammar-test-selected-answer {
+  color: rgba(232, 240, 255, 0.78) !important;
+  font-size: 13px !important;
 }
 
 .quest-reward-palace.eq-grammar-reward-page {

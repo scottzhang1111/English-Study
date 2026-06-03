@@ -16,6 +16,15 @@ const PRACTICE_QUESTION_LIMIT = 5;
 const GRAMMAR_HERO_IMAGE = '/assets/eigo-quest/learning-hub/文法練習.png';
 const SPIRIT_IMAGE = '/assets/eigo-quest/spirit_assets/happy.png';
 
+function getLessonValue(lesson, fieldName) {
+  if (!lesson) return '';
+  if (lesson[fieldName]) return lesson[fieldName];
+  const fallbackEntry = Object.entries(lesson).find(([key, value]) => (
+    value && String(key).trim().endsWith(fieldName)
+  ));
+  return fallbackEntry?.[1] || '';
+}
+
 export default function GrammarFormPracticePage() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
@@ -38,6 +47,8 @@ export default function GrammarFormPracticePage() {
   const passTarget = Math.min(questions.length || PRACTICE_QUESTION_LIMIT, PRACTICE_QUESTION_LIMIT);
   const remainingToPass = Math.max(0, passTarget - correctCount);
   const currentCount = questions.length ? Math.min(index + 1, questions.length) : 0;
+  const selectedAnswerText = question && selectedIndex !== null ? question.choices[selectedIndex] : '';
+  const grammarPoint = getLessonValue(lesson, 'grammarPoint');
   const missedQuizIds = results
     .filter((item) => !item.isCorrect && item.quizId)
     .map((item) => item.quizId);
@@ -184,7 +195,7 @@ export default function GrammarFormPracticePage() {
           </div>
           <div>
             <p>ターゲット</p>
-            <strong>{lesson?.grammarPoint || '文法ターゲット'}</strong>
+            <strong>{grammarPoint || '文法ターゲット'}</strong>
           </div>
         </div>
 
@@ -219,13 +230,18 @@ export default function GrammarFormPracticePage() {
           </EQPrimaryButton>
         ) : (
           <div className={`eq-grammar-test-result ${answerResult.isCorrect ? 'is-correct' : 'is-wrong'}`}>
-            <h2>
-              {answerResult.isCorrect ? '正解！' : 'もう少し！'}
-            </h2>
-            <p>答え: {question.choices[answerResult.correctIndex]}</p>
-            {answerResult.explanationJp ? <p>{answerResult.explanationJp}</p> : null}
+            <div className="eq-grammar-test-result-heading">
+              <h2>{answerResult.isCorrect ? '正解！' : 'もう少し！'}</h2>
+              <p>正解: {question.choices[answerResult.correctIndex]}</p>
+            </div>
+            {answerResult.explanationJp ? (
+              <p className="eq-grammar-test-explanation">{answerResult.explanationJp}</p>
+            ) : null}
+            {!answerResult.isCorrect && selectedAnswerText ? (
+              <p className="eq-grammar-test-selected-answer">選んだ答え: {selectedAnswerText}</p>
+            ) : null}
             <EQPrimaryButton type="button" onClick={handleNext} className="eq-grammar-test-main-button" fullWidth>
-              {isLast ? (correctCount >= questions.length ? '完了' : '結果を見る') : '次へ'}
+              {isLast ? '結果を見る' : '次へ'}
             </EQPrimaryButton>
           </div>
         )}
