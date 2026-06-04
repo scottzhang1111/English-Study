@@ -178,12 +178,11 @@ export default function CardCollectionPage() {
         <EQBackPill to="/app">← ホームに戻る</EQBackPill>
 
         <CompactPageHeader
-          title="カードコレクション"
+          title="カード一覧"
           subtitle="集めたカードを確認しよう"
           backgroundImage="/assets/eigo-quest/learning-hub/上の背景.png"
           elementLabel={selectedWorld.symbol}
           progressText={`${ownedCount} / ${cards.length}`}
-          helperImage="/assets/eigo-quest/spirit_assets/happy.png"
           variant="cards"
         />
 
