@@ -33,6 +33,8 @@ function normalizeHeroCard(card, index = 0) {
     sourceJa: card.sourceJa || card.source_ja || card.originJa || card.origin_ja || '',
     rarity: card.rarity || 'R',
     image: card.image || card.imageUrl || card.image_url || '',
+    collectionType: card.collectionType || card.collection_type || '',
+    collectionKey: card.collectionKey || card.collection_key || '',
     descriptionJa: card.descriptionJa || card.description_ja || '',
     unlockCondition: card.unlockCondition || card.unlock_condition || '',
   };
@@ -55,6 +57,9 @@ function getWorldClass(worldId) {
 function getRewardCardImage(card) {
   if (!card?.image) return '';
   const image = card.image;
+  if ((card.collectionType || card.collection_type) === 'grammar') {
+    return image.replace('/grammar-cards/', '/grammar card/');
+  }
   const worldId = card.worldId || 'wind';
   if (image.includes(`/cards/${worldId}/`)) return image;
   return image.replace('/assets/eigo-quest/cards/', `/assets/eigo-quest/cards/${worldId}/`);
@@ -359,7 +364,15 @@ export default function CardRewardPage() {
               <div className="quest-reward-card-face quest-reward-card-front">
                 <span className="quest-reward-rarity-badge">{hero.rarity}</span>
                 {rewardImage ? (
-                  <img src={rewardImage} alt={hero.name} />
+                  <img
+                    src={rewardImage}
+                    alt={hero.name}
+                    onError={() => {
+                      if (import.meta.env.DEV) {
+                        console.warn('Failed to load reward hero image:', rewardImage, { rewardCard });
+                      }
+                    }}
+                  />
                 ) : (
                   <div className={`eq-card-art eq-card-world-${worldClass} is-large`}>
                     <div className="eq-card-art-symbol">{worldClass}</div>

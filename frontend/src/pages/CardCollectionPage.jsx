@@ -9,6 +9,7 @@ import CompactPageHeader from '../components/eigo/CompactPageHeader';
 const CHILD_STORAGE_KEY = 'selected_child_id';
 
 const WORLD_META = {
+  grammar: { label: '文法', name: '文法の神殿', color: '#f3b64d', symbol: '文' },
   all: { label: 'すべて', name: 'すべて', color: '#ffd35a', symbol: '★' },
   wind: { label: '風', name: '風の世界', color: '#45d7ff', symbol: '風' },
   fire: { label: '火', name: '火の世界', color: '#ff6b3d', symbol: '火' },
@@ -20,15 +21,44 @@ const WORLD_META = {
   light: { label: '光', name: '光の世界', color: '#ffd86b', symbol: '光' },
 };
 
-const CARD_FILTERS = ['all', ...eigoQuestWorlds.map((world) => world.id)];
+const CARD_FILTERS = ['all', ...eigoQuestWorlds.map((world) => world.id), 'grammar'];
 
 function getWorldMeta(worldId) {
   return WORLD_META[worldId] || WORLD_META.wind;
 }
 
+function getCardCollectionType(card) {
+  return String(card?.collectionType || card?.collection_type || '').trim().toLowerCase();
+}
+
+function isGrammarCard(card) {
+  return getCardCollectionType(card) === 'grammar';
+}
+
+function getCardWorldId(card) {
+  return isGrammarCard(card) ? 'grammar' : card?.worldId;
+}
+
+function getCollectionMeta(cardOrWorldId) {
+  if (typeof cardOrWorldId === 'string') return getWorldMeta(cardOrWorldId);
+  return getWorldMeta(getCardWorldId(cardOrWorldId));
+}
+
+function withGrammarImageAliases(image) {
+  if (!image) return [];
+  return [
+    image,
+    image.replace('/grammar-cards/', '/grammar card/'),
+    image.replace('/grammar card/', '/grammar-cards/'),
+  ];
+}
+
 function getImageCandidates(card) {
   const candidates = [];
   const image = card?.image || '';
+  if (isGrammarCard(card)) {
+    return Array.from(new Set(withGrammarImageAliases(image).filter(Boolean)));
+  }
   const fileName = image.split('/').pop();
   const worldFolder = card?.worldId;
   const number = fileName?.match(/(\d+)\.png$/)?.[1];
@@ -41,6 +71,7 @@ function getImageCandidates(card) {
 }
 
 function getCoverImageCandidates(card) {
+  if (isGrammarCard(card)) return [];
   if (!card?.worldId) return [];
   return [
     `/assets/eigo-quest/cards/back/${card.worldId}-cover.png`,
@@ -57,6 +88,8 @@ function normalizeHeroCard(card, index) {
     type: card.type || 'hero',
     rarity: card.rarity || 'R',
     image: card.image || card.image_url || '',
+    collectionType: card.collectionType || card.collection_type || '',
+    collectionKey: card.collectionKey || card.collection_key || '',
     descriptionJa: card.descriptionJa || card.description_ja || '',
     unlockCondition: card.unlockCondition || '',
     reviewMode: card.reviewMode || 'mixed',
@@ -74,7 +107,7 @@ function CardImage({ card, large = false }) {
     },
     [card],
   );
-  const world = getWorldMeta(card.worldId);
+  const world = getCollectionMeta(card);
   const src = candidates[index];
 
   useEffect(() => {
@@ -88,7 +121,12 @@ function CardImage({ card, large = false }) {
           src={src}
           alt={card.owned ? card.nameJa : ''}
           loading="lazy"
-          onError={() => setIndex((current) => current + 1)}
+          onError={() => {
+            if (import.meta.env.DEV) {
+              console.warn('Failed to load hero card image:', src, { card });
+            }
+            setIndex((current) => current + 1);
+          }}
         />
       ) : (
         <span className="eq-card-art-symbol">{world.symbol}</span>
@@ -128,7 +166,7 @@ export default function CardCollectionPage() {
     [cardSource],
   );
   const visibleCards = useMemo(
-    () => cards.filter((card) => activeFilter === 'all' || card.worldId === activeFilter),
+    () => cards.filter((card) => activeFilter === 'all' || getCardWorldId(card) === activeFilter),
     [activeFilter, cards],
   );
   const ownedCount = cards.filter((card) => card.owned).length;
@@ -188,7 +226,7 @@ export default function CardCollectionPage() {
 
         <section className="eq-card-grid" aria-label="カード一覧">
           {visibleCards.map((card) => {
-            const world = getWorldMeta(card.worldId);
+            const world = getCollectionMeta(card);
             return (
               <button
                 key={card.id}
@@ -198,7 +236,7 @@ export default function CardCollectionPage() {
                 }}
                 disabled={!card.owned}
                 aria-disabled={!card.owned}
-                className={`eq-collection-card is-${card.worldId} ${card.owned ? 'is-owned' : 'is-locked'}`}
+                className={`eq-collection-card is-${getCardWorldId(card)} ${card.owned ? 'is-owned' : 'is-locked'}`}
                 style={{ '--world-color': world.color }}
               >
                 <span className={`eq-rarity-badge rarity-${card.rarity}`}>{card.rarity}</span>
@@ -234,7 +272,7 @@ export default function CardCollectionPage() {
             <div className="eq-card-detail-body">
               <span className={`eq-rarity-badge rarity-${detailCard.rarity}`}>{detailCard.rarity}</span>
               <h2>{detailCard.nameJa || '???'}</h2>
-              <p className="eq-card-world">ワールド: {getWorldMeta(detailCard.worldId).name}</p>
+              <p className="eq-card-world">ワールド: {getCollectionMeta(detailCard).name}</p>
               <div className="eq-card-detail-story">
                 <h3>英雄の詳細</h3>
                 <p>

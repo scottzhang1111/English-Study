@@ -8305,8 +8305,8 @@ def get_hero_row_for_reward_code(conn, reward_code):
         codes_to_try.append(legacy_code)
     for candidate in codes_to_try:
         row = conn.execute(
-            '''
-            SELECT id, world_id, code, name_ja, name_cn, rarity, image_url, description_ja
+            f'''
+            SELECT {get_hero_select_sql(conn)}
             FROM heroes
             WHERE code = ?
             LIMIT 1
@@ -8398,9 +8398,13 @@ def get_grammar_lesson_reward_hero_row(conn, lesson_id):
         return None
     if not _table_exists(conn, 'grammar_lesson_rewards') or not _table_exists(conn, 'heroes'):
         return None
+    hero_columns = get_table_columns(conn, 'heroes')
+    collection_type_select = 'h.collection_type' if 'collection_type' in hero_columns else "NULL AS collection_type"
+    collection_key_select = 'h.collection_key' if 'collection_key' in hero_columns else "NULL AS collection_key"
     return conn.execute(
-        '''
-        SELECT h.id, h.world_id, h.code, h.name_ja, h.name_cn, h.rarity, h.image_url, h.description_ja
+        f'''
+        SELECT h.id, h.world_id, h.code, h.name_ja, h.name_cn, h.rarity, h.image_url, h.description_ja,
+               {collection_type_select}, {collection_key_select}
         FROM grammar_lesson_rewards glr
         JOIN heroes h ON h.id = glr.hero_id
         WHERE glr.lesson_id = ?
@@ -8626,6 +8630,17 @@ def get_table_count_for_debug(conn, table_name):
 def hero_row_to_card(row):
     code = str(row['code'] or '').strip()
     world_id = str(row['world_id'] or '').strip()
+    image_url = row['image_url'] or ''
+    collection_type = str(_row_value(row, 'collection_type') or '').strip().lower()
+    collection_key = str(_row_value(row, 'collection_key') or '').strip().lower()
+    if not collection_type and (
+        code.startswith('grammar-')
+        or '/grammar card/' in image_url
+        or '/grammar-cards/' in image_url
+    ):
+        collection_type = 'grammar'
+    if collection_type == 'grammar' and not collection_key:
+        collection_key = 'temple'
     return {
         'id': code or f'hero-{row["id"]}',
         'heroId': row['id'],
@@ -8644,11 +8659,27 @@ def hero_row_to_card(row):
         'nameZh': row['name_cn'] or '',
         'type': 'hero',
         'rarity': row['rarity'] or 'R',
-        'image': row['image_url'] or '',
+        'image': image_url,
+        'image_url': image_url,
+        'collectionType': collection_type,
+        'collection_type': collection_type,
+        'collectionKey': collection_key,
+        'collection_key': collection_key,
         'descriptionJa': row['description_ja'] or '',
         'unlockCondition': '',
         'reviewMode': 'mixed',
     }
+
+
+def get_hero_select_sql(conn, table_alias=''):
+    columns = get_table_columns(conn, 'heroes')
+    prefix = f'{table_alias}.' if table_alias else ''
+    collection_type_select = f'{prefix}collection_type' if 'collection_type' in columns else 'NULL AS collection_type'
+    collection_key_select = f'{prefix}collection_key' if 'collection_key' in columns else 'NULL AS collection_key'
+    return (
+        f'id, world_id, code, name_ja, name_cn, rarity, image_url, description_ja, '
+        f'{collection_type_select}, {collection_key_select}'
+    )
 
 
 @app.route('/api/heroes')
@@ -8658,8 +8689,8 @@ def api_heroes():
         if not _table_exists(conn, 'heroes'):
             return jsonify(heroes=[])
         rows = conn.execute(
-            '''
-            SELECT id, world_id, code, name_ja, name_cn, rarity, image_url, description_ja
+            f'''
+            SELECT {get_hero_select_sql(conn)}
             FROM heroes
             ORDER BY world_id, id
             '''
@@ -8679,8 +8710,8 @@ def api_child_heroes(child_id):
 
         owned_codes = get_child_owned_hero_code_set(conn, child_id)
         rows = conn.execute(
-            '''
-            SELECT id, world_id, code, name_ja, name_cn, rarity, image_url, description_ja
+            f'''
+            SELECT {get_hero_select_sql(conn)}
             FROM heroes
             ORDER BY world_id, id
             '''
