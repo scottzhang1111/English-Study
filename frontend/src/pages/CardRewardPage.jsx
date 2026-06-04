@@ -213,6 +213,11 @@ export default function CardRewardPage() {
     ? grammarCopy.stageLabel
     : getStageCompleteLabel(pendingReward, rewardCard, searchParams);
 
+  const rewardReturnTo = (() => {
+    const target = pendingReward?.returnTo || pendingReward?.return_to || '';
+    return typeof target === 'string' && target.startsWith('/') && !target.startsWith('//') ? target : '/app';
+  })();
+
   useEffect(() => {
     let cancelled = false;
     getHeroCards()
@@ -229,7 +234,7 @@ export default function CardRewardPage() {
 
   const finishRewards = () => {
     clearPendingReward();
-    navigate('/app');
+    navigate(rewardReturnTo);
   };
 
   const revealCard = () => {

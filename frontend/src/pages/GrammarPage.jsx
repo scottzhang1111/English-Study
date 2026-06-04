@@ -2,7 +2,6 @@ import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import WebLearningLayout from '../components/WebLearningLayout';
 import {
-  AudioButton,
   EQBottomNav,
   GoldQuestButton,
   MagicPanel,
@@ -272,9 +271,6 @@ export default function GrammarPage() {
               </div>
 
               <div className="eq-grammar-learning-actions">
-                <AudioButton onClick={() => speak(lesson.enExample)}>
-                  例文を聞く
-                </AudioButton>
                 <GoldQuestButton onClick={handleGoPractice} disabled={detailLoading} className="eq-grammar-test-button">
                   テストへ進む
                 </GoldQuestButton>

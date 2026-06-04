@@ -10,6 +10,7 @@ import {
 } from '../components/eigo';
 import { getGrammarLesson, submitGrammarQuizAnswer } from '../api';
 import CompactPageHeader from '../components/eigo/CompactPageHeader';
+import { savePendingRewardQueue } from '../helpers/eigoQuestRewards';
 
 const CHILD_STORAGE_KEY = 'selected_child_id';
 const PRACTICE_QUESTION_LIMIT = 5;
@@ -23,6 +24,13 @@ function getLessonValue(lesson, fieldName) {
     value && String(key).trim().endsWith(fieldName)
   ));
   return fallbackEntry?.[1] || '';
+}
+
+function collectRewardQueue(results) {
+  return (results || []).flatMap((result) => {
+    const queue = result?.reward_queue || result?.rewardQueue || [];
+    return Array.isArray(queue) ? queue : [];
+  });
 }
 
 export default function GrammarFormPracticePage() {
@@ -106,7 +114,27 @@ export default function GrammarFormPracticePage() {
       setAnswerResult(null);
       return;
     }
-    setRetryQuestions(questions.filter((item) => missedQuizIds.includes(item.quizId)));
+    const nextRetryQuestions = questions.filter((item) => missedQuizIds.includes(item.quizId));
+    if (nextRetryQuestions.length) {
+      setRetryQuestions(nextRetryQuestions);
+      setIndex(questions.length);
+      return;
+    }
+    const completedResults = answerResult && !results.some((item) => item.quizId === answerResult.quizId)
+      ? [...results, answerResult]
+      : results;
+    const rewardQueue = collectRewardQueue(completedResults);
+    if (rewardQueue.length) {
+      savePendingRewardQueue(rewardQueue.map((reward) => ({
+        ...reward,
+        rewardType: reward.rewardType || reward.reward_type || 'grammar_lesson',
+        lessonId: reward.lessonId || reward.lesson_id || lessonId || lesson?.lessonId || '',
+        returnTo: reward.returnTo || reward.return_to || '/grammar',
+      })));
+      navigate('/card-reward');
+      return;
+    }
+    setRetryQuestions([]);
     setIndex(questions.length);
   };
 

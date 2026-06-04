@@ -5977,6 +5977,16 @@ def submit_grammar_quiz_answer(child_id, quiz_id, selected_index):
         conn.commit()
     finally:
         conn.close()
+    lesson_payload = get_grammar_lesson_detail(child_id, quiz['lesson_id'])['lesson']
+    reward_queue = []
+    if is_correct and status == 'mastered':
+        reward_queue = grant_child_grammar_lesson_reward(
+            child_id,
+            quiz['lesson_id'],
+            lesson_title=lesson_payload.get('title') or '',
+            correct_count=correct_quiz_count,
+            total_count=total_quizzes,
+        )
     return {
         'childId': child_id,
         'quizId': quiz_id,
@@ -5987,7 +5997,9 @@ def submit_grammar_quiz_answer(child_id, quiz_id, selected_index):
         'explanationJp': quiz['explanation_jp'],
         'correctQuizCount': correct_quiz_count,
         'totalQuizCount': total_quizzes,
-        'lesson': get_grammar_lesson_detail(child_id, quiz['lesson_id'])['lesson'],
+        'reward_queue': reward_queue,
+        'rewardQueue': reward_queue,
+        'lesson': lesson_payload,
     }
 
 
@@ -8302,6 +8314,69 @@ def grant_child_stage_rewards(child_id, world_id, stage):
         stage=stage,
         reward_type='final_pack' if str(world_id).strip().lower() == 'shadow' and int(stage) == 5 else 'stage',
     )
+
+
+def get_grammar_lesson_reward_hero_row(conn, lesson_id):
+    lesson_id = str(lesson_id or '').strip()
+    if not lesson_id:
+        return None
+    if not _table_exists(conn, 'grammar_lesson_rewards') or not _table_exists(conn, 'heroes'):
+        return None
+    return conn.execute(
+        '''
+        SELECT h.id, h.world_id, h.code, h.name_ja, h.name_cn, h.rarity, h.image_url, h.description_ja
+        FROM grammar_lesson_rewards glr
+        JOIN heroes h ON h.id = glr.hero_id
+        WHERE glr.lesson_id = ?
+          AND COALESCE(glr.is_active, 1) = 1
+        LIMIT 1
+        ''',
+        (lesson_id,),
+    ).fetchone()
+
+
+def grant_child_grammar_lesson_reward(child_id, lesson_id, lesson_title='', correct_count=0, total_count=0):
+    lesson_id = str(lesson_id or '').strip()
+    if not lesson_id:
+        return []
+
+    conn = get_db_connection()
+    try:
+        ensure_child_exists(conn, child_id)
+        hero_row = get_grammar_lesson_reward_hero_row(conn, lesson_id)
+        if not hero_row:
+            return []
+        existing = None
+        if _table_exists(conn, 'child_heroes'):
+            existing = conn.execute(
+                'SELECT id FROM child_heroes WHERE child_id = ? AND hero_id = ?',
+                (child_id, hero_row['id']),
+            ).fetchone()
+    finally:
+        conn.close()
+
+    awarded_rows = grant_child_hero_rewards(
+        child_id,
+        [hero_row['code']],
+        reward_type='grammar_lesson',
+    )
+    reward_card = awarded_rows[0] if awarded_rows else hero_row_to_card(hero_row)
+    reward_card.update({
+        'rewardType': 'grammar_lesson',
+        'reward_type': 'grammar_lesson',
+        'source': 'grammar_lesson',
+        'lessonId': lesson_id,
+        'lesson_id': lesson_id,
+        'lessonTitle': lesson_title or '',
+        'lesson_title': lesson_title or '',
+        'correctCount': int(correct_count or 0),
+        'correct_count': int(correct_count or 0),
+        'totalCount': int(total_count or 0),
+        'total_count': int(total_count or 0),
+        'alreadyOwned': bool(existing and not awarded_rows),
+        'already_owned': bool(existing and not awarded_rows),
+    })
+    return [reward_card]
 
 
 def get_stage_quiz_expected_answer(entry, question_type):

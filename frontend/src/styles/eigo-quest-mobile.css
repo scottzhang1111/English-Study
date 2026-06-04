@@ -12365,11 +12365,10 @@ body,
 
 .eq-grammar-learning-actions {
   display: grid;
-  grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
-  gap: 8px;
+  grid-template-columns: minmax(0, 1fr);
+  justify-items: center;
 }
 
-.eq-grammar-learning-actions .audio-quest-button,
 .eq-grammar-learning-actions .gold-quest-button {
   min-height: 46px;
   margin: 0;
@@ -12378,7 +12377,7 @@ body,
 }
 
 .eq-grammar-test-button {
-  width: 100% !important;
+  width: min(100%, 340px) !important;
 }
 
 .eq-grammar-test-screen {
