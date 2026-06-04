@@ -20,25 +20,11 @@ const moduleEntries = [
     image: `${ASSET_BASE}/まちがい復習.png`,
   },
   {
-    title: '今日のクイズ',
-    subtitle: '今日の学びをクイズで確認しよう',
-    badge: '復習',
-    to: '/today-review-quiz',
-    image: `${ASSET_BASE}/今日の復習クイズ.png`,
-  },
-  {
     title: '文法の神殿',
     subtitle: '基礎から学べる文法のレッスン',
     badge: '文法',
     to: '/grammar',
     image: `${ASSET_BASE}/文法の神殿.png`,
-  },
-  {
-    title: '文法練習',
-    subtitle: '問題を解いて文法を定着させよう',
-    badge: '文法',
-    to: '/grammar-practice',
-    image: `${ASSET_BASE}/文法練習.png`,
   },
   {
     title: '英検クエスト',
