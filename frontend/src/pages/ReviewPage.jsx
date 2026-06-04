@@ -1,7 +1,6 @@
-import { useEffect, useState } from 'react';
-import { motion } from 'framer-motion';
+import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
-import TtsButton from '../components/TtsButton';
+import { motion } from 'framer-motion';
 import { useChildren } from '../ChildrenContext';
 import {
   EQBadge,
@@ -13,176 +12,87 @@ import {
   EQQuestCard,
 } from '../components/eigo';
 import CompactPageHeader from '../components/eigo/CompactPageHeader';
-import {
-  getBattleWrongQuestions,
-  getEikenPre2WrongQuestions,
-  getGrammarFormWrongQuestions,
-  getReviewList,
-  masterBattleWrongQuestion,
-  masterGrammarFormWrongQuestion,
-  submitPracticeAnswer,
-} from '../api';
+import { getGrammarQuizWrongQuestions, getReviewList } from '../api';
 
 const CHILD_STORAGE_KEY = 'selected_child_id';
 
-function ReviewStats({ reviewList, battleWrongList, grammarFormWrongList, eikenWrongList }) {
-  const totalReviewCount = reviewList.length + battleWrongList.length + grammarFormWrongList.length + eikenWrongList.length;
-
-  return (
-    <EQPanel title={`${totalReviewCount} 件`} eyebrow="Review Status" tone="gold">
-      <div className="grid grid-cols-2 gap-2 text-sm font-black text-[var(--eq-text-sub)]">
-        <EQBadge tone="cyan">単語 {reviewList.length}</EQBadge>
-        <EQBadge tone="purple">バトル {battleWrongList.length}</EQBadge>
-        <EQBadge tone="green">文法 {grammarFormWrongList.length}</EQBadge>
-        <EQBadge tone="amber">英検 {eikenWrongList.length}</EQBadge>
-      </div>
-      <EQPrimaryButton as={Link} to="/flashcard" fullWidth>
-        単語を学ぶ
-      </EQPrimaryButton>
-    </EQPanel>
-  );
-}
-
-function ReviewSection({ title, subtitle, tone = 'gold', children }) {
-  return (
-    <EQPanel title={title} tone={tone}>
-      {subtitle ? <p className="eq-caption">{subtitle}</p> : null}
-      <div className="grid gap-3">{children}</div>
-    </EQPanel>
-  );
-}
+const reviewEntries = [
+  {
+    key: 'words',
+    title: '単語の復習',
+    subtitle: 'まちがえた単語をもう一度チェック',
+    badge: '単語',
+    tone: 'gold',
+    icon: 'W',
+    to: '/today-review-quiz',
+  },
+  {
+    key: 'grammar',
+    title: '文法の復習',
+    subtitle: '文法テストでまちがえた問題をやり直す',
+    badge: '文法',
+    tone: 'green',
+    icon: 'G',
+    to: '/review/grammar',
+  },
+  {
+    key: 'eiken',
+    title: '英検の復習',
+    subtitle: '英検のまちがい復習は準備中',
+    badge: '準備中',
+    tone: 'amber',
+    icon: 'E',
+    to: '',
+  },
+];
 
 export default function ReviewPage() {
   const { selectedChildId: currentChildId } = useChildren();
-  const [reviewList, setReviewList] = useState([]);
-  const [battleWrongList, setBattleWrongList] = useState([]);
-  const [grammarFormWrongList, setGrammarFormWrongList] = useState([]);
-  const [eikenWrongList, setEikenWrongList] = useState([]);
-  const [selectedChildId, setSelectedChildId] = useState(() => localStorage.getItem(CHILD_STORAGE_KEY) || '');
-  const [selectedWord, setSelectedWord] = useState(null);
-  const [stage, setStage] = useState('list');
-  const [quiz, setQuiz] = useState(null);
-  const [answer, setAnswer] = useState('');
-  const [quizResult, setQuizResult] = useState(null);
+  const selectedChildId = currentChildId || localStorage.getItem(CHILD_STORAGE_KEY) || '';
+  const [counts, setCounts] = useState({ words: null, grammar: null });
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const totalReviewCount = reviewList.length + battleWrongList.length + grammarFormWrongList.length + eikenWrongList.length;
+  const [error, setError] = useState('');
 
   useEffect(() => {
-    const childId = currentChildId || localStorage.getItem(CHILD_STORAGE_KEY) || '';
-    setSelectedChildId(childId);
-
-    if (!childId) {
-      setReviewList([]);
-      setBattleWrongList([]);
-      setGrammarFormWrongList([]);
-      setEikenWrongList([]);
+    if (!selectedChildId) {
+      setCounts({ words: null, grammar: null });
       setLoading(false);
       return;
     }
 
-    let isActive = true;
+    let active = true;
     setLoading(true);
+    setError('');
+
     Promise.allSettled([
-      getReviewList(childId),
-      getBattleWrongQuestions(childId),
-      getGrammarFormWrongQuestions(childId),
-      getEikenPre2WrongQuestions({ childId, latestOnly: true, limit: 6 }),
+      getReviewList(selectedChildId),
+      getGrammarQuizWrongQuestions(selectedChildId),
     ])
-      .then(([reviewResult, battleResult, grammarFormResult, eikenResult]) => {
-        if (!isActive) return;
-        const failed = [reviewResult, battleResult, grammarFormResult, eikenResult].filter((result) => result.status === 'rejected');
-        const reviewPayload = reviewResult.status === 'fulfilled' ? reviewResult.value || {} : {};
-        const battlePayload = battleResult.status === 'fulfilled' ? battleResult.value || {} : {};
-        const grammarFormPayload = grammarFormResult.status === 'fulfilled' ? grammarFormResult.value || {} : {};
-        const eikenPayload = eikenResult.status === 'fulfilled' ? eikenResult.value || {} : {};
-
-        setReviewList(reviewPayload.review_list || reviewPayload.reviewList || []);
-        setBattleWrongList(battlePayload.wrongQuestions || battlePayload.wrong_questions || []);
-        setGrammarFormWrongList(grammarFormPayload.wrongQuestions || grammarFormPayload.wrong_questions || []);
-        setEikenWrongList(eikenPayload.wrong_questions || eikenPayload.wrongQuestions || []);
-
-        if (failed.length === 4) {
-          throw new Error(failed[0].reason?.message || '復習リストを読み込めませんでした。');
+      .then(([wordResult, grammarResult]) => {
+        if (!active) return;
+        const wordPayload = wordResult.status === 'fulfilled' ? wordResult.value || {} : {};
+        const grammarPayload = grammarResult.status === 'fulfilled' ? grammarResult.value || {} : {};
+        setCounts({
+          words: (wordPayload.review_list || wordPayload.reviewList || []).length,
+          grammar: (grammarPayload.wrongQuestions || grammarPayload.wrong_questions || []).length,
+        });
+        if (wordResult.status === 'rejected' && grammarResult.status === 'rejected') {
+          setError(wordResult.reason?.message || grammarResult.reason?.message || '復習リストを読み込めませんでした。');
         }
-        setError(null);
-      })
-      .catch((err) => {
-        if (isActive) setError(err.message);
       })
       .finally(() => {
-        if (isActive) setLoading(false);
+        if (active) setLoading(false);
       });
 
     return () => {
-      isActive = false;
+      active = false;
     };
-  }, [currentChildId]);
+  }, [selectedChildId]);
 
-  const handleMasterBattleWrong = (wrongId) => {
-    masterBattleWrongQuestion(wrongId)
-      .then(() => setBattleWrongList((items) => items.filter((item) => item.wrongId !== wrongId)))
-      .catch((err) => setError(err.message));
-  };
-
-  const handleMasterGrammarFormWrong = (testId) => {
-    const childId = selectedChildId || localStorage.getItem(CHILD_STORAGE_KEY) || '';
-    masterGrammarFormWrongQuestion({ childId, testId })
-      .then(() => setGrammarFormWrongList((items) => items.filter((item) => item.testId !== testId)))
-      .catch((err) => setError(err.message));
-  };
-
-  const buildWrongWordQuiz = (wordItem) => {
-    const distractors = reviewList
-      .filter((item) => String(item.word_id) !== String(wordItem.word_id))
-      .map((item) => item.word)
-      .filter(Boolean)
-      .sort(() => Math.random() - 0.5)
-      .slice(0, 3);
-    const choices = [wordItem.word, ...distractors].sort(() => Math.random() - 0.5);
-    return {
-      id: wordItem.word_id || wordItem.id,
-      word: wordItem.word,
-      correct: wordItem.word,
-      choices,
-      question: wordItem.example
-        ? wordItem.example.replace(new RegExp(`\\b${String(wordItem.word).replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`, 'i'), '____')
-        : `「${wordItem.japanese}」の英語はどれ？`,
-    };
-  };
-
-  const openReviewWord = (item) => {
-    setSelectedWord(item);
-    setQuiz(null);
-    setAnswer('');
-    setQuizResult(null);
-    setStage('detail');
-  };
-
-  const startWrongQuiz = () => {
-    if (!selectedWord) return;
-    setQuiz(buildWrongWordQuiz(selectedWord));
-    setAnswer('');
-    setQuizResult(null);
-    setStage('quiz');
-  };
-
-  const handleQuizAnswer = async (choice) => {
-    if (!quiz || answer) return;
-    setAnswer(choice);
-    try {
-      const payload = await submitPracticeAnswer({
-        id: selectedWord.word_id || selectedWord.id,
-        word: selectedWord.word,
-        selected: choice,
-        correct: quiz.correct,
-        childId: selectedChildId || localStorage.getItem(CHILD_STORAGE_KEY) || '',
-      });
-      setQuizResult(payload);
-    } catch (err) {
-      setError(err.message);
-    }
-  };
+  const totalCount = useMemo(
+    () => Number(counts.words || 0) + Number(counts.grammar || 0),
+    [counts],
+  );
 
   return (
     <div className="eq-learning-hub-page">
@@ -190,219 +100,56 @@ export default function ReviewPage() {
         <CompactPageHeader
           title="まちがい復習"
           subtitle="苦手な問題をもう一度クリアしよう"
-          backgroundImage="/assets/eigo-quest/learning-hub/まちがい復習.png"
-          elementLabel="復"
-          progressText={`${totalReviewCount} 件`}
+          backgroundImage="/assets/eigo-quest/learning-hub/縺ｾ縺｡縺後＞蠕ｩ鄙・png"
+          elementLabel="復習"
+          progressText={loading ? '確認中' : `${totalCount} 問`}
           helperImage="/assets/eigo-quest/spirit_assets/happy.png"
           variant="review"
         />
         <EQPageHeader
           eyebrow="Wrong Review"
-          title="まちがい直し"
-          subtitle="苦手な問題をもう一度クリアしよう"
+          title="復習メニュー"
+          subtitle="復習したいジャンルを選ぼう"
           icon="!"
         />
 
         <motion.section initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="grid gap-4">
-          <ReviewStats
-            reviewList={reviewList}
-            battleWrongList={battleWrongList}
-            grammarFormWrongList={grammarFormWrongList}
-            eikenWrongList={eikenWrongList}
-          />
-
-          {loading ? (
-            <EQPanel tone="cyan">
-              <p className="eq-caption text-center">復習リストを読み込み中...</p>
-            </EQPanel>
-          ) : error ? (
+          {error ? (
             <EQPanel title="読み込みエラー" tone="rose">
               <p className="eq-caption">{error}</p>
             </EQPanel>
-          ) : totalReviewCount === 0 ? (
-            <EQPanel title="復習する問題はありません" tone="green">
-              <p className="eq-caption">よくできました！次のクエストへ進みましょう。</p>
-              <div className="flex flex-wrap gap-3">
-                <EQPrimaryButton as={Link} to="/" fullWidth>
-                  ホームへ
-                </EQPrimaryButton>
-                <EQPrimaryButton as={Link} to="/flashcard" fullWidth>
-                  単語を学ぶ
-                </EQPrimaryButton>
-              </div>
-            </EQPanel>
-          ) : stage === 'detail' && selectedWord ? (
-            <EQPanel title={selectedWord.word} tone="gold">
-              <div className="flex flex-wrap items-center gap-2">
-                <TtsButton text={selectedWord.word} label="単語" />
-                <EQBadge tone="amber">まちがい {selectedWord.error_count}</EQBadge>
-              </div>
-              <p className="eq-caption text-lg font-black">{selectedWord.japanese}</p>
-              {selectedWord.example && (
-                <EQPanel tone="cyan">
-                  <div className="flex flex-wrap items-start justify-between gap-2">
-                    <p className="eq-caption">例文: {selectedWord.example}</p>
-                    <TtsButton text={selectedWord.example} label="例文" />
-                  </div>
-                </EQPanel>
-              )}
-              {(selectedWord.example_japanese || selectedWord.sentence_jp) && (
-                <EQPanel tone="purple">
-                  <p className="eq-caption">意味: {selectedWord.example_japanese || selectedWord.sentence_jp}</p>
-                </EQPanel>
-              )}
-              <div className="grid gap-3">
-                <EQPrimaryButton type="button" onClick={startWrongQuiz} fullWidth>
-                  この問題をやり直す
-                </EQPrimaryButton>
-                <EQPrimaryButton as="button" type="button" onClick={() => setStage('list')} fullWidth>
-                  一覧へ戻る
-                </EQPrimaryButton>
-              </div>
-            </EQPanel>
-          ) : stage === 'quiz' && selectedWord && quiz ? (
-            <EQPanel title="まちがい直し" tone="gold">
-              <p className="eq-caption text-lg font-black">{quiz.question}</p>
-              {quiz.choices.length < 2 ? (
-                <EQPanel tone="rose">
-                  <p className="eq-caption">選択肢を作るには、まちがえた単語がもう少し必要です。</p>
-                </EQPanel>
-              ) : (
-                <div className="grid gap-3">
-                  {quiz.choices.map((choice) => {
-                    const isCorrect = answer && choice === quiz.correct;
-                    const isWrong = answer === choice && choice !== quiz.correct;
-                    return (
-                      <button
-                        key={choice}
-                        type="button"
-                        onClick={() => handleQuizAnswer(choice)}
-                        disabled={!!answer}
-                        className={`eq-choice-button eq-fantasy-choice-button ${isCorrect ? 'is-correct' : ''} ${isWrong ? 'is-wrong' : ''}`}
-                      >
-                        <span className="eq-choice-text">{choice}</span>
-                      </button>
-                    );
-                  })}
+          ) : null}
+
+          <div className="grid gap-4">
+            {reviewEntries.map((entry) => {
+              const count = entry.key === 'eiken' ? null : counts[entry.key];
+              const badges = (
+                <div className="flex flex-wrap gap-2">
+                  <EQBadge tone={entry.tone}>{entry.badge}</EQBadge>
+                  {count !== null ? <EQBadge tone="cyan">{loading ? '...' : `${count} 問`}</EQBadge> : null}
                 </div>
-              )}
-              {answer && (
-                <EQPanel tone={answer === quiz.correct ? 'green' : 'rose'}>
-                  <p className="eq-caption text-base font-black">
-                    {answer === quiz.correct ? 'せいかい！' : `こたえ: ${quiz.correct}`}
-                  </p>
-                  {quizResult?.pet_exp_awarded > 0 && <EQBadge tone="gold">EXP +{quizResult.pet_exp_awarded}</EQBadge>}
-                  <div className="grid gap-3">
-                    <EQPrimaryButton type="button" onClick={startWrongQuiz} fullWidth>
-                      もう一度
-                    </EQPrimaryButton>
-                    <EQPrimaryButton type="button" onClick={() => setStage('list')} fullWidth>
-                      一覧へ戻る
-                    </EQPrimaryButton>
-                  </div>
-                </EQPanel>
-              )}
-            </EQPanel>
-          ) : (
-            <div className="grid gap-4">
-              <ReviewSection
-                title="単語のまちがい"
-                subtitle="まちがえた単語を選んで、もう一度学習してから問題をやり直しましょう。"
-                tone="gold"
-              >
-                {reviewList.map((item) => (
-                  <EQQuestCard
-                    key={item.word_id}
-                    as="article"
-                    tone="gold"
-                    icon="単"
-                    title={item.word}
-                    subtitle={item.japanese}
-                    badges={<EQBadge tone="amber">まちがい {item.error_count}</EQBadge>}
-                    action={
-                      <div className="flex flex-wrap gap-2">
-                        <TtsButton text={item.word} label="Word" />
-                        <EQPrimaryButton type="button" onClick={() => openReviewWord(item)}>
-                          開く
-                        </EQPrimaryButton>
-                      </div>
-                    }
-                  />
-                ))}
-              </ReviewSection>
+              );
+              const action = entry.to ? (
+                <EQPrimaryButton as={Link} to={entry.to}>
+                  開く
+                </EQPrimaryButton>
+              ) : (
+                <EQBadge tone="amber">準備中</EQBadge>
+              );
 
-              {battleWrongList.length > 0 && (
-                <ReviewSection title="文法バトルのまちがい" subtitle="確認できたらクリア済みにできます。" tone="purple">
-                  {battleWrongList.map((item) => (
-                    <EQQuestCard
-                      key={item.wrongId}
-                      tone="purple"
-                      icon="文"
-                      title={item.category}
-                      subtitle={item.questionText}
-                      meta={`正解: ${item.correctAnswer}`}
-                      action={
-                        <EQPrimaryButton type="button" onClick={() => handleMasterBattleWrong(item.wrongId)}>
-                          できた！
-                        </EQPrimaryButton>
-                      }
-                    >
-                      <p className="eq-caption">{item.explanation || '解説はまだ準備中です。'}</p>
-                    </EQQuestCard>
-                  ))}
-                </ReviewSection>
-              )}
-
-              {grammarFormWrongList.length > 0 && (
-                <ReviewSection title="文法練習のまちがい" subtitle="練習で間違えた文法問題です。" tone="green">
-                  {grammarFormWrongList.map((item) => (
-                    <EQQuestCard
-                      key={item.testId}
-                      tone="green"
-                      icon="G"
-                      title={`${item.category} / ${item.title}`}
-                      subtitle={item.questionJp}
-                      meta={`答え: ${item.correctAnswer}`}
-                      action={
-                        <EQPrimaryButton type="button" onClick={() => handleMasterGrammarFormWrong(item.testId)}>
-                          できた！
-                        </EQPrimaryButton>
-                      }
-                    >
-                      <p className="eq-caption">{item.promptEn}</p>
-                      <p className="eq-caption">{item.correctReasonJp}</p>
-                    </EQQuestCard>
-                  ))}
-                </ReviewSection>
-              )}
-
-              {eikenWrongList.length > 0 && (
-                <ReviewSection title="英検チャレンジのまちがい" subtitle="模試で間違えた問題を英検復習へ送ります。" tone="amber">
-                  <EQPrimaryButton
-                    as={Link}
-                    to={`/eiken-pre2/wrong-review?student_id=${encodeURIComponent(selectedChildId)}`}
-                    fullWidth
-                  >
-                    英検問題を練習
-                  </EQPrimaryButton>
-                  {eikenWrongList.slice(0, 3).map((item) => (
-                    <EQQuestCard
-                      key={item.question_id}
-                      tone="amber"
-                      icon="E"
-                      title={item.question_type || item.section || '問題'}
-                      subtitle={item.question_text || item.prompt}
-                      meta={`正解: ${item.correct_option || ''}`}
-                      badges={item.weak_point_tag ? <EQBadge tone="rose">{item.weak_point_tag}</EQBadge> : null}
-                    />
-                  ))}
-                  {eikenWrongList.length > 3 && (
-                    <EQBadge tone="amber">ほか {eikenWrongList.length - 3} 問</EQBadge>
-                  )}
-                </ReviewSection>
-              )}
-            </div>
-          )}
+              return (
+                <EQQuestCard
+                  key={entry.key}
+                  tone={entry.tone}
+                  icon={entry.icon}
+                  title={entry.title}
+                  subtitle={entry.subtitle}
+                  badges={badges}
+                  action={action}
+                />
+              );
+            })}
+          </div>
         </motion.section>
       </EQMobileShell>
       <EQBottomNav className="eq-learning-hub-bottom-nav" />

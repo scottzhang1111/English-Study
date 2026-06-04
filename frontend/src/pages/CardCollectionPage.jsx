@@ -22,25 +22,6 @@ const WORLD_META = {
 
 const CARD_FILTERS = ['all', ...eigoQuestWorlds.map((world) => world.id)];
 
-const WORD_REVIEW_MODES = new Set([
-  'antonym',
-  'audioQuiz',
-  'cloze',
-  'dailyReview',
-  'example',
-  'flashcard',
-  'listening',
-  'mixed',
-  'multipleChoice',
-  'sentence',
-  'speedQuiz',
-  'synonym',
-  'timedReview',
-  'vocabExpansion',
-  'weakness',
-  'wrongWords',
-]);
-
 function getWorldMeta(worldId) {
   return WORLD_META[worldId] || WORLD_META.wind;
 }
@@ -65,18 +46,6 @@ function getCoverImageCandidates(card) {
     `/assets/eigo-quest/cards/back/${card.worldId}-cover.png`,
     `/assets/eigo-quest/cards/${card.worldId}/${card.worldId}-cover.png`,
   ];
-}
-
-function getCardReviewPath(card) {
-  if (!card?.owned) return '/review';
-  if (!WORD_REVIEW_MODES.has(card.reviewMode)) return '/review';
-
-  const params = new URLSearchParams({
-    worldId: card.worldId,
-    cardId: card.id,
-    reviewMode: card.reviewMode,
-  });
-  return `/review?${params.toString()}`;
 }
 
 function normalizeHeroCard(card, index) {
@@ -224,7 +193,11 @@ export default function CardCollectionPage() {
               <button
                 key={card.id}
                 type="button"
-                onClick={() => setDetailCard(card)}
+                onClick={() => {
+                  if (card.owned) setDetailCard(card);
+                }}
+                disabled={!card.owned}
+                aria-disabled={!card.owned}
                 className={`eq-collection-card is-${card.worldId} ${card.owned ? 'is-owned' : 'is-locked'}`}
                 style={{ '--world-color': world.color }}
               >
@@ -262,21 +235,17 @@ export default function CardCollectionPage() {
               <span className={`eq-rarity-badge rarity-${detailCard.rarity}`}>{detailCard.rarity}</span>
               <h2>{detailCard.nameJa || '???'}</h2>
               <p className="eq-card-world">ワールド: {getWorldMeta(detailCard.worldId).name}</p>
-              <p>
-                {detailCard.descriptionJa || '英雄の物語はまだ記録されていません。'}
-              </p>
+              <div className="eq-card-detail-story">
+                <h3>英雄の詳細</h3>
+                <p>
+                  {detailCard.descriptionJa || '英雄の物語はまだ記録されていません。'}
+                </p>
+              </div>
               <div className="eq-card-detail-meta">
                 <span>Type: {detailCard.type}</span>
-                <span>Review: {detailCard.reviewMode}</span>
+                <span>Rarity: {detailCard.rarity}</span>
+                {detailCard.nameZh ? <span>Name CN: {detailCard.nameZh}</span> : null}
               </div>
-              <button
-                type="button"
-                onClick={() => navigate(getCardReviewPath(detailCard))}
-                disabled={!detailCard.owned}
-                className="eq-gold-button"
-              >
-                このカードで復習する
-              </button>
             </div>
           </EQCard>
         </div>

@@ -6003,6 +6003,82 @@ def submit_grammar_quiz_answer(child_id, quiz_id, selected_index):
     }
 
 
+def get_grammar_quiz_wrong_questions(child_id):
+    child_id = require_child_id(child_id)
+    conn = get_db_connection()
+    try:
+        rows = conn.execute(
+            '''
+            SELECT attempt_id, child_id, lesson_id, quiz_id, selected_index, is_correct, attempted_at
+            FROM child_grammar_quiz_attempts
+            WHERE child_id = ?
+            ORDER BY quiz_id ASC, attempted_at DESC, attempt_id DESC
+            ''',
+            (child_id,),
+        ).fetchall()
+    finally:
+        conn.close()
+
+    latest_by_quiz = {}
+    for row in rows:
+        quiz_id = row['quiz_id']
+        if quiz_id not in latest_by_quiz:
+            latest_by_quiz[quiz_id] = row
+
+    unresolved_attempts = [
+        row for row in latest_by_quiz.values()
+        if int(row['is_correct'] or 0) == 0
+    ]
+    if not unresolved_attempts:
+        return {'childId': child_id, 'wrongQuestions': []}
+
+    quiz_ids = [row['quiz_id'] for row in unresolved_attempts]
+    latest_by_quiz_id = {row['quiz_id']: row for row in unresolved_attempts}
+    lesson_conn = get_grammar_lesson_db_connection()
+    try:
+        placeholders = ','.join('?' for _ in quiz_ids)
+        rows = lesson_conn.execute(
+            f'''
+            SELECT q.quiz_id, q.lesson_id, q.question_jp, q.choice_a, q.choice_b, q.choice_c, q.choice_d,
+                   q.answer_index, q.explanation_jp, q.difficulty, l.title, l.category
+            FROM grammar_quizzes AS q
+            JOIN grammar_lessons AS l ON l.lesson_id = q.lesson_id
+            WHERE q.quiz_id IN ({placeholders})
+            ''',
+            quiz_ids,
+        ).fetchall()
+    finally:
+        lesson_conn.close()
+
+    items = []
+    for row in rows:
+        attempt = latest_by_quiz_id.get(row['quiz_id'])
+        if not attempt:
+            continue
+        choices = [row['choice_a'], row['choice_b'], row['choice_c'], row['choice_d']]
+        correct_index = int(row['answer_index'])
+        selected_index = int(attempt['selected_index'])
+        items.append({
+            'attemptId': attempt['attempt_id'],
+            'quizId': row['quiz_id'],
+            'lessonId': row['lesson_id'],
+            'lessonTitle': row['title'],
+            'category': row['category'],
+            'questionJp': row['question_jp'],
+            'choices': choices,
+            'selectedIndex': selected_index,
+            'selectedAnswer': choices[selected_index] if 0 <= selected_index < len(choices) else '',
+            'correctIndex': correct_index,
+            'correctAnswer': choices[correct_index] if 0 <= correct_index < len(choices) else '',
+            'explanationJp': row['explanation_jp'] or '',
+            'difficulty': int(row['difficulty'] or 2),
+            'attemptedAt': attempt['attempted_at'],
+        })
+
+    items.sort(key=lambda item: (item['lessonId'], item['quizId']))
+    return {'childId': child_id, 'wrongQuestions': items}
+
+
 def get_child_recent_accuracy(child_id, limit=20):
     conn = get_db_connection()
     try:
@@ -9423,6 +9499,20 @@ def api_grammar_quiz_answer(quiz_id):
             quiz_id,
             data.get('selected_index') if 'selected_index' in data else data.get('selectedIndex'),
         )
+    except ValueError as exc:
+        abort(400, str(exc))
+    except LookupError as exc:
+        abort(404, str(exc))
+    except FileNotFoundError as exc:
+        abort(500, str(exc))
+    return jsonify(result)
+
+
+@app.route('/api/grammar/quiz-wrong-questions')
+def api_grammar_quiz_wrong_questions():
+    child_id = request.args.get('child_id') or request.args.get('childId')
+    try:
+        result = get_grammar_quiz_wrong_questions(child_id)
     except ValueError as exc:
         abort(400, str(exc))
     except LookupError as exc:

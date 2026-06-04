@@ -236,6 +236,10 @@ export const submitGrammarQuizAnswer = async ({ childId, quizId, selectedIndex }
   });
 };
 
+export const getGrammarQuizWrongQuestions = async (childId) => {
+  return fetchJson('/api/grammar/quiz-wrong-questions', { params: { child_id: childId } });
+};
+
 export const getGrammarFormPractice = async ({ childId, lessonId, limit = 5 } = {}) => {
   return fetchJson('/api/grammar/form-practice', { params: { child_id: childId, lesson_id: lessonId, limit } });
 };

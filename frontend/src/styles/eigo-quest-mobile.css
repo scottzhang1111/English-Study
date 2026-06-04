@@ -5051,6 +5051,10 @@ body,
   color: var(--eq-text-muted);
 }
 
+.eq-collection-card.is-locked:disabled {
+  cursor: not-allowed;
+}
+
 .eq-collection-card.is-locked .eq-rarity-badge {
   opacity: 0.55;
 }
@@ -5291,6 +5295,22 @@ body,
 .eq-card-detail-body .eq-card-world {
   color: var(--eq-primary);
   font-weight: 900;
+}
+
+.eq-card-detail-story {
+  display: grid;
+  gap: 6px;
+  padding: 12px;
+  border: 1px solid rgba(255, 211, 90, 0.24);
+  border-radius: 16px;
+  background: rgba(255, 211, 90, 0.08);
+}
+
+.eq-card-detail-story h3 {
+  margin: 0;
+  color: var(--eq-gold);
+  font-size: 15px;
+  font-weight: 950;
 }
 
 .eq-card-detail-meta {
@@ -11707,10 +11727,8 @@ body,
     linear-gradient(180deg, rgba(3, 8, 24, 0.32) 0%, rgba(3, 8, 24, 0.46) 48%, rgba(3, 8, 24, 0.86) 100%);
 }
 
-/* Card collection detail: hide database ability/rarity metadata */
-.eq-card-detail .eq-card-detail-body > .eq-rarity-badge,
-.eq-card-detail .eq-card-detail-body > p:not(.eq-card-world),
-.eq-card-detail .eq-card-detail-meta {
+/* Card collection detail: avoid a duplicate rarity badge above the title. */
+.eq-card-detail .eq-card-detail-body > .eq-rarity-badge {
   display: none !important;
 }
 

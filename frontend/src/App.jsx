@@ -19,6 +19,7 @@ import EikenPre2ResultPage from './pages/EikenPre2ResultPage';
 import EikenPre2WrongReviewPage from './pages/EikenPre2WrongReviewPage';
 import BattlePage from './pages/BattlePage';
 import ReviewPage from './pages/ReviewPage';
+import GrammarReviewPage from './pages/GrammarReviewPage';
 import ChildStatsPage from './pages/ChildStatsPage';
 import LearnedWordsPage from './pages/LearnedWordsPage';
 import HatchPage from './pages/HatchPage';
@@ -76,6 +77,7 @@ const STUDY_ROUTE_PREFIXES = [
   '/eiken-pre2',
   '/eiken-real',
   '/review',
+  '/review/grammar',
   '/error-review',
   '/today-review-quiz',
   '/cards',
@@ -128,6 +130,7 @@ function App() {
             <Route path="/eiken-pre2/result/:attemptId" element={<AnimatedPage><EikenPre2ResultPage /></AnimatedPage>} />
             <Route path="/eiken-pre2/wrong-review" element={<AnimatedPage><EikenPre2WrongReviewPage /></AnimatedPage>} />
             <Route path="/review" element={<AnimatedPage><ChildRequiredPage><ReviewPage /></ChildRequiredPage></AnimatedPage>} />
+            <Route path="/review/grammar" element={<AnimatedPage><ChildRequiredPage><GrammarReviewPage /></ChildRequiredPage></AnimatedPage>} />
             <Route path="/error-review" element={<AnimatedPage><ChildRequiredPage><ReviewPage /></ChildRequiredPage></AnimatedPage>} />
             <Route path="/today-review-quiz" element={<AnimatedPage><ChildRequiredPage><FlashcardPage /></ChildRequiredPage></AnimatedPage>} />
             <Route path="/child-stats" element={<AnimatedPage><ChildRequiredPage><ChildStatsPage /></ChildRequiredPage></AnimatedPage>} />
