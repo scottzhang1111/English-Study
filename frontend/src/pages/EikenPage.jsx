@@ -19,6 +19,15 @@ const EIKEN_ASSET_BASE = '/assets/eigo-quest/learning-hub';
 const EIKEN_TOWER_IMAGE = `${EIKEN_ASSET_BASE}/英検クエスト.png`;
 const EIKEN_TRIAL_IMAGE = `${EIKEN_ASSET_BASE}/英検本番形式.png`;
 
+function getDisplayQuestionType(type) {
+  const normalized = String(type || '').trim();
+  if (!normalized || /vocabulary|word/i.test(normalized)) return '英単語問題';
+  return normalized
+    .replace(/Vocabulary ID\s*\d+/gi, '英単語問題')
+    .replace(/\bID\s*\d+\b/gi, '')
+    .trim() || '英単語問題';
+}
+
 export default function EikenPage() {
   const childId = localStorage.getItem('selected_child_id') || '';
   const [questions, setQuestions] = useState([]);
@@ -31,8 +40,6 @@ export default function EikenPage() {
   const [reviewError, setReviewError] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [questionSource, setQuestionSource] = useState('rule');
-  const [sourceWarning, setSourceWarning] = useState('');
   const [importance, setImportance] = useState('ALL');
   const [frequency, setFrequency] = useState('ALL');
   const [earnedExp, setEarnedExp] = useState(0);
@@ -46,11 +53,12 @@ export default function EikenPage() {
       forceAi,
       importance: importance === 'ALL' ? '' : importance,
       frequency: frequency === 'ALL' ? '' : frequency,
-    })
+      })
       .then((data) => {
         setQuestions(data.questions || []);
-        setQuestionSource(data.source || 'rule');
-        setSourceWarning(data.warning || '');
+        if (data.warning) {
+          console.warn('Eiken question generation warning:', data.warning);
+        }
         setCurrentIndex(0);
         setSelectedAnswer(null);
         setFeedback('');
@@ -59,7 +67,10 @@ export default function EikenPage() {
         setEarnedExp(0);
         setPetResult(null);
       })
-      .catch((err) => setError(err.message || '問題の読み込みに失敗しました。'))
+      .catch((err) => {
+        console.warn('Eiken question loading failed:', err);
+        setError('問題の読み込みに失敗しました。もう一度ためしてください。');
+      })
       .finally(() => setLoading(false));
   };
 
@@ -93,7 +104,8 @@ export default function EikenPage() {
         setFeedback(`正解は ${result.correct_answer} です。`);
       }
     } catch (err) {
-      setFeedback(err.message);
+      console.warn('Eiken answer submission failed:', err);
+      setFeedback('答えを保存できませんでした。もう一度ためしてください。');
     }
   };
 
@@ -101,7 +113,10 @@ export default function EikenPage() {
     setReviewError(null);
     getReviewList(childId)
       .then((data) => setReviewList(data.review_list || []))
-      .catch((err) => setReviewError(err.message || '復習リストの読み込みに失敗しました。'));
+      .catch((err) => {
+        console.warn('Eiken review list loading failed:', err);
+        setReviewError('復習リストの読み込みに失敗しました。');
+      });
   };
 
   const showNext = () => {
@@ -129,7 +144,6 @@ export default function EikenPage() {
           backgroundImage="/assets/eigo-quest/learning-hub/英検クエスト.png"
           elementLabel="英"
           progressText={`正解 ${correctCount} / ${answeredCount}`}
-          helperImage="/assets/eigo-quest/spirit_assets/happy.png"
           variant="eiken"
         />
         <header className="eq-eiken-trial-hero" style={{ '--eiken-hero-image': `url("${EIKEN_TOWER_IMAGE}")` }}>
@@ -146,8 +160,7 @@ export default function EikenPage() {
         </header>
 
         <motion.div initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} className="eq-eiken-trial-stack">
-          <EQPanel title="試練の紋章" eyebrow="Tower Gate" tone="gold" className="eq-eiken-trial-filter-panel">
-            <p className="eq-caption">重要度と出現頻度を選んで、英検の試練に挑戦しよう。</p>
+          <EQPanel title="試練設定" tone="gold" className="eq-eiken-trial-filter-panel">
             <div className="eq-eiken-trial-filter-grid">
               <label className="eq-eiken-trial-select-label">
                 重要度
@@ -197,25 +210,17 @@ export default function EikenPage() {
             >
               <div className="eq-eiken-trial-progress-card" style={{ '--eiken-trial-image': `url("${EIKEN_TRIAL_IMAGE}")` }}>
                 <div>
-                  <span>Trial Progress</span>
+                  <span>QUESTION {currentIndex + 1} / {questions.length}</span>
                   <strong>{progressPercent}%</strong>
                 </div>
                 <div className="eq-eiken-trial-progress-bar" style={{ '--eiken-progress': `${progressPercent}%` }} />
               </div>
 
-              <div className="eq-eiken-trial-badges">
-                <EQBadge tone="cyan">{questionSource === 'ai' ? 'AI生成' : 'ルール生成'}</EQBadge>
-                <EQBadge tone="gold">正解 {correctCount} / {answeredCount}</EQBadge>
-              </div>
-
               <EQInfoCard
-                title={currentQuestion.type || '問題'}
-                value={currentQuestion.id ? `ID ${currentQuestion.id}` : ''}
-                badges={sourceWarning ? <EQBadge tone="amber">Notice</EQBadge> : null}
+                title={getDisplayQuestionType(currentQuestion.type)}
                 tone="amber"
                 className="eq-eiken-trial-question-card"
               >
-                {sourceWarning ? <p className="mb-3">{sourceWarning}</p> : null}
                 <p className="eq-eiken-trial-question-text">{currentQuestion.question}</p>
               </EQInfoCard>
 

@@ -11570,6 +11570,141 @@ body,
   font-weight: 800;
 }
 
+.eq-eiken-trial-shell {
+  gap: 10px;
+  padding-bottom: calc(150px + env(safe-area-inset-bottom, 0px));
+}
+
+.eq-eiken-trial-stack {
+  gap: 10px;
+}
+
+.eq-eiken-trial-filter-panel {
+  padding: 12px !important;
+}
+
+.eq-eiken-trial-filter-panel .eq-fantasy-panel__header {
+  gap: 0;
+}
+
+.eq-eiken-trial-filter-panel .eq-fantasy-panel__header h2 {
+  font-size: 17px;
+}
+
+.eq-eiken-trial-filter-grid {
+  gap: 8px;
+}
+
+.eq-eiken-trial-select-label {
+  gap: 4px;
+  font-size: 11px;
+}
+
+.eq-eiken-trial-select-label select {
+  min-height: 38px;
+  padding: 0 12px;
+  font-size: 13px;
+}
+
+.eq-eiken-trial-filter-panel .eq-fantasy-primary-button {
+  min-height: 42px;
+  margin-top: 2px;
+}
+
+.eq-eiken-trial-question-panel {
+  padding: 12px !important;
+}
+
+.eq-eiken-trial-question-panel > .eq-fantasy-panel__header {
+  display: none;
+}
+
+.eq-eiken-trial-progress-card {
+  min-height: 58px;
+  gap: 8px;
+  padding: 10px 12px;
+  border-radius: 16px;
+  background:
+    linear-gradient(90deg, rgba(3, 8, 24, 0.88), rgba(3, 8, 24, 0.58)),
+    var(--eiken-trial-image) center / cover no-repeat;
+}
+
+.eq-eiken-trial-progress-card > div:first-child {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.eq-eiken-trial-progress-card span {
+  font-size: 11px;
+}
+
+.eq-eiken-trial-progress-card strong {
+  margin-top: 0;
+  font-size: 18px;
+}
+
+.eq-eiken-trial-progress-bar {
+  height: 7px;
+}
+
+.eq-eiken-trial-question-card {
+  padding: 12px !important;
+}
+
+.eq-eiken-trial-question-card .eq-fantasy-info-card__head {
+  align-items: center;
+}
+
+.eq-eiken-trial-question-card .eq-fantasy-info-card__icon,
+.eq-eiken-trial-question-card .eq-fantasy-badge-row,
+.eq-eiken-trial-question-card strong {
+  display: none;
+}
+
+.eq-eiken-trial-question-card h2 {
+  color: #ffe487;
+  font-size: 15px;
+}
+
+.eq-eiken-trial-question-text {
+  font-size: clamp(18px, 5vw, 20px);
+  font-weight: 900;
+  line-height: 1.35;
+}
+
+.eq-eiken-trial-choice-grid {
+  gap: 8px;
+}
+
+.eq-eiken-trial-choice {
+  min-height: 62px;
+  padding: 10px 13px;
+  font-size: clamp(17px, 4.6vw, 18px);
+  line-height: 1.25;
+}
+
+.eq-eiken-trial-result-panel,
+.eq-eiken-trial-pet-panel,
+.eq-eiken-trial-explain-card,
+.eq-eiken-trial-review-panel,
+.eq-eiken-trial-message-panel {
+  padding: 12px !important;
+}
+
+.eq-eiken-trial-actions {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  padding-bottom: 8px;
+}
+
+.eq-eiken-trial-actions .eq-fantasy-button {
+  min-height: 44px;
+  padding-inline: 10px;
+  font-size: 13px;
+}
+
 /* =========================================================
    Study Map Learning Hub World Cards
    ========================================================= */

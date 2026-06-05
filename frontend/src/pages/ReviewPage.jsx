@@ -23,7 +23,7 @@ const reviewEntries = [
     subtitle: 'まちがえた単語をもう一度チェック',
     badge: '単語',
     tone: 'gold',
-    icon: 'W',
+    icon: { main: '📖', sub: 'ABC', label: '単語の復習' },
     to: '/today-review-quiz',
   },
   {
@@ -32,7 +32,7 @@ const reviewEntries = [
     subtitle: '文法テストでまちがえた問題をやり直す',
     badge: '文法',
     tone: 'green',
-    icon: 'G',
+    icon: { main: '📜', sub: 'S→V', label: '文法の復習' },
     to: '/review/grammar',
   },
   {
@@ -41,10 +41,19 @@ const reviewEntries = [
     subtitle: '英検のまちがい復習は準備中',
     badge: '準備中',
     tone: 'amber',
-    icon: 'E',
+    icon: { main: '🛡', sub: '✓', label: '英検の復習' },
     to: '',
   },
 ];
+
+function ReviewCategoryIcon({ icon }) {
+  return (
+    <span className="review-category-icon" aria-label={icon.label} role="img">
+      <span className="review-category-icon-main">{icon.main}</span>
+      <span className="review-category-icon-sub">{icon.sub}</span>
+    </span>
+  );
+}
 
 export default function ReviewPage() {
   const { selectedChildId: currentChildId } = useChildren();
@@ -103,7 +112,6 @@ export default function ReviewPage() {
           backgroundImage="/assets/eigo-quest/learning-hub/縺ｾ縺｡縺後＞蠕ｩ鄙・png"
           elementLabel="復習"
           progressText={loading ? '確認中' : `${totalCount} 問`}
-          helperImage="/assets/eigo-quest/spirit_assets/happy.png"
           variant="review"
         />
         <EQPageHeader
@@ -141,7 +149,8 @@ export default function ReviewPage() {
                 <EQQuestCard
                   key={entry.key}
                   tone={entry.tone}
-                  icon={entry.icon}
+                  className={`eq-review-entry-card is-${entry.key}`}
+                  icon={<ReviewCategoryIcon icon={entry.icon} />}
                   title={entry.title}
                   subtitle={entry.subtitle}
                   badges={badges}

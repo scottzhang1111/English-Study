@@ -290,3 +290,110 @@
     height: 48px;
   }
 }
+
+.eq-review-entry-card {
+  grid-template-columns: 74px minmax(0, 1fr);
+  align-items: center;
+  min-height: 112px;
+  padding: 13px 14px;
+}
+
+.eq-review-entry-card .eq-fantasy-quest-card__icon {
+  width: 74px;
+  height: 74px;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+.review-category-icon {
+  position: relative;
+  display: grid;
+  width: 74px;
+  height: 74px;
+  place-items: center;
+  align-content: center;
+  border: 1.5px solid rgba(245, 210, 120, 0.75);
+  border-radius: 22px;
+  background:
+    radial-gradient(circle at 35% 25%, rgba(255, 255, 255, 0.22), transparent 28%),
+    radial-gradient(circle at 76% 72%, color-mix(in srgb, var(--eq-fantasy-accent) 24%, transparent), transparent 38%),
+    linear-gradient(145deg, rgba(17, 40, 86, 0.95), rgba(8, 15, 42, 0.96));
+  box-shadow:
+    0 0 18px rgba(90, 190, 255, 0.25),
+    inset 0 0 16px rgba(255, 230, 160, 0.12);
+}
+
+.review-category-icon::after {
+  position: absolute;
+  top: 10px;
+  right: 12px;
+  width: 7px;
+  height: 7px;
+  border-radius: 999px;
+  background: #fff0a8;
+  box-shadow:
+    -28px 19px 0 -2px rgba(255, 240, 168, 0.86),
+    0 0 10px rgba(255, 226, 116, 0.8);
+  content: "";
+}
+
+.review-category-icon-main {
+  font-size: 25px;
+  font-weight: 900;
+  line-height: 1;
+  filter: drop-shadow(0 2px 7px rgba(0, 0, 0, 0.42));
+}
+
+.review-category-icon-sub {
+  margin-top: 4px;
+  color: #fff1b8;
+  font-size: 12px;
+  font-weight: 950;
+  line-height: 1;
+  opacity: 0.94;
+  text-shadow: 0 0 10px color-mix(in srgb, var(--eq-fantasy-accent) 38%, transparent);
+}
+
+.eq-review-entry-card.is-grammar .review-category-icon {
+  border-color: rgba(113, 239, 210, 0.78);
+  box-shadow:
+    0 0 18px rgba(84, 230, 168, 0.3),
+    inset 0 0 18px rgba(120, 255, 220, 0.13);
+}
+
+.eq-review-entry-card.is-eiken .review-category-icon {
+  border-color: rgba(255, 215, 126, 0.82);
+  box-shadow:
+    0 0 18px rgba(165, 105, 255, 0.28),
+    inset 0 0 18px rgba(255, 224, 132, 0.14);
+}
+
+.eq-review-entry-card .eq-fantasy-quest-card__body {
+  gap: 6px;
+}
+
+.eq-review-entry-card .eq-fantasy-quest-card__topline {
+  align-items: center;
+}
+
+.eq-review-entry-card .eq-fantasy-quest-card__action {
+  grid-column: 2;
+  justify-self: start;
+  align-self: start;
+}
+
+@media (max-width: 380px) {
+  .eq-review-entry-card {
+    grid-template-columns: 68px minmax(0, 1fr);
+    min-height: 104px;
+  }
+
+  .eq-review-entry-card .eq-fantasy-quest-card__icon,
+  .review-category-icon {
+    width: 68px;
+    height: 68px;
+    border-radius: 20px;
+  }
+}
