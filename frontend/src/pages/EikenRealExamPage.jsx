@@ -214,6 +214,7 @@ export default function EikenRealExamPage() {
   const [mode, setMode] = useState('listening');
   const [selectedPartId, setSelectedPartId] = useState('');
   const [practiceStarted, setPracticeStarted] = useState(false);
+  const [isConfirming, setIsConfirming] = useState(false);
   const [currentQuestion, setCurrentQuestion] = useState(1);
   const [questionNumbers, setQuestionNumbers] = useState([]);
   const [expandedExplanations, setExpandedExplanations] = useState({});
@@ -285,6 +286,7 @@ export default function EikenRealExamPage() {
     setAnswers({});
     setResult(null);
     setPracticeStarted(false);
+    setIsConfirming(false);
     setCurrentQuestion(1);
     setExpandedExplanations({});
     setStartedAt(new Date().toISOString());
@@ -341,6 +343,14 @@ export default function EikenRealExamPage() {
     element.addEventListener('change', updateAnsweredCount);
     return () => element.removeEventListener('change', updateAnsweredCount);
   }, [partData?.part_id, questionCount, result]);
+
+  useEffect(() => {
+    const element = contentRef.current;
+    if (!element) return;
+    element.querySelectorAll('input[type="radio"]').forEach((input) => {
+      input.checked = answers[input.name] === input.value;
+    });
+  }, [normalizedHtml, practiceStarted, isConfirming, result, answers]);
 
   useEffect(() => {
     const element = contentRef.current;
@@ -409,17 +419,20 @@ export default function EikenRealExamPage() {
     setAnswers({});
     setResult(null);
     setPracticeStarted(false);
+    setIsConfirming(false);
     setCurrentQuestion(1);
     setExpandedExplanations({});
   };
 
   const goToQuestion = (questionNumber) => {
+    setIsConfirming(false);
     setCurrentQuestion(questionNumber);
     contentRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   };
 
   const startPractice = () => {
     setPracticeStarted(true);
+    setIsConfirming(false);
     setCurrentQuestion(visibleQuestionNumbers[0] || 1);
   };
 
@@ -431,11 +444,17 @@ export default function EikenRealExamPage() {
 
   const goToNextQuestion = () => {
     const currentIndex = visibleQuestionNumbers.indexOf(currentQuestion);
+    if (currentIndex >= visibleQuestionNumbers.length - 1) {
+      setIsConfirming(true);
+      return;
+    }
     const nextQuestion = visibleQuestionNumbers[Math.min(visibleQuestionNumbers.length - 1, currentIndex + 1)] || currentQuestion;
     goToQuestion(nextQuestion);
   };
 
   const isLastQuestion = visibleQuestionNumbers[visibleQuestionNumbers.length - 1] === currentQuestion;
+  const unansweredNumbers = visibleQuestionNumbers.filter((questionNumber) => !getQuestionAnswer(answers, questionNumber));
+  const unansweredCount = unansweredNumbers.length;
 
   const getQuestionChipClass = (questionNumber) => {
     const selectedAnswer = getQuestionAnswer(answers, questionNumber);
@@ -470,6 +489,7 @@ export default function EikenRealExamPage() {
         startedAt,
       });
       setResult(payload);
+      setIsConfirming(false);
     } catch (err) {
       setError(err.message);
     } finally {
@@ -494,6 +514,13 @@ export default function EikenRealExamPage() {
       ? wrongNumbers.map((questionNumber) => [questionNumber, true])
       : explanations.map((item) => [item.question_number, true]);
     setExpandedExplanations(Object.fromEntries(entries));
+  };
+  const reviewAnswers = () => {
+    const targetQuestion = unansweredNumbers[0] || visibleQuestionNumbers[0] || currentQuestion;
+    goToQuestion(targetQuestion);
+  };
+  const showAllExplanations = () => {
+    setExpandedExplanations(Object.fromEntries(explanations.map((item) => [item.question_number, true])));
   };
 
   return (
@@ -703,16 +730,16 @@ export default function EikenRealExamPage() {
             </button>
             <button
               type="button"
-              onClick={submitAnswers}
-              disabled={submitting || answeredCount === 0}
+              onClick={() => setIsConfirming(true)}
+              disabled={submitting}
               className="mt-3 w-full rounded-[16px] bg-[#26376d] px-3 py-3 text-sm font-bold text-white shadow-sm transition hover:bg-[#324681] disabled:opacity-45"
             >
-              {submitting ? '採点中...' : '採点する'}
+              回答確認へ
             </button>
           </aside>
 
           <main className={`mt-4 min-w-0 lg:mt-0 lg:max-w-[900px] ${isEntryScreen ? 'hidden' : ''}`}>
-            {(practiceStarted || result) && (
+            {((practiceStarted && !isConfirming) || result) && (
               <div className="sticky top-[57px] z-20 -mx-4 mb-3 flex gap-2 overflow-x-auto border-b border-[#dce9f6] bg-[#f8fcff]/95 px-4 py-3 backdrop-blur md:hidden">
                 {visibleQuestionNumbers.map((questionNumber) => (
                   <button
@@ -727,7 +754,7 @@ export default function EikenRealExamPage() {
                 ))}
               </div>
             )}
-            {!result ? (
+            {!result && !isConfirming ? (
               <section className="eiken-real-trial-quiz-panel">
                 <div className="eiken-real-trial-quiz-header">
                   <div>
@@ -760,8 +787,8 @@ export default function EikenRealExamPage() {
                     前へ
                   </button>
                   {isLastQuestion ? (
-                    <button type="button" onClick={submitAnswers} disabled={submitting || answeredCount === 0} className="eiken-real-trial-gold-action">
-                      {submitting ? '採点中...' : '採点する'}
+                    <button type="button" onClick={() => setIsConfirming(true)} className="eiken-real-trial-gold-action">
+                      回答確認へ
                     </button>
                   ) : (
                     <button type="button" onClick={goToNextQuestion} className="eiken-real-trial-gold-action">
@@ -770,24 +797,65 @@ export default function EikenRealExamPage() {
                   )}
                 </div>
               </section>
+            ) : !result && isConfirming ? (
+              <section className="eiken-real-trial-result-panel">
+                <div className="eiken-real-trial-result-hero">
+                  <div>
+                    <p className="text-sm font-bold text-[#6f7da8]">Answer Check</p>
+                    <h2 className="text-2xl font-bold text-[#26376d]">回答確認</h2>
+                    <p className="mt-1 text-sm font-bold text-[#52668c]">
+                      {questionCount || visibleQuestionNumbers.length || 0}問中 {answeredCount}問 回答済み
+                    </p>
+                    <p className={`mt-2 text-sm font-bold ${unansweredCount > 0 ? 'text-rose-700' : 'text-emerald-700'}`}>
+                      未回答 {unansweredCount}問
+                    </p>
+                  </div>
+                  <div className="eiken-real-trial-result-actions">
+                    <button type="button" onClick={reviewAnswers} className="eiken-real-trial-result-button">見直す</button>
+                    <button type="button" onClick={submitAnswers} disabled={submitting} className="eiken-real-trial-result-button">
+                      {submitting ? '提出中...' : '提出する'}
+                    </button>
+                  </div>
+                </div>
+
+                {unansweredCount > 0 ? (
+                  <div className="rounded-[20px] bg-rose-50/80 p-4 text-sm font-bold leading-7 text-rose-700">
+                    <p>未回答があります</p>
+                    <p>このまま提出しますか？</p>
+                    <div className="mt-3 flex flex-wrap gap-2">
+                      {unansweredNumbers.map((questionNumber) => (
+                        <button
+                          key={questionNumber}
+                          type="button"
+                          onClick={() => goToQuestion(questionNumber)}
+                          className="rounded-full bg-white px-3 py-1 text-xs font-bold text-rose-700 ring-1 ring-rose-100"
+                        >
+                          問{questionNumber}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                ) : (
+                  <div className="rounded-[20px] bg-emerald-50/80 p-4 text-sm font-bold leading-7 text-emerald-700">
+                    すべて回答済みです。提出すると採点結果と解説を確認できます。
+                  </div>
+                )}
+              </section>
             ) : (
               <section className="eiken-real-trial-result-panel">
                 <div className="eiken-real-trial-result-hero">
                   <div>
-                    <p className="text-sm font-bold text-[#6f7da8]">採点結果</p>
+                    <p className="text-sm font-bold text-[#6f7da8]">英検試練 結果</p>
                     <h2 className="text-2xl font-bold text-[#26376d]">
                       {result.answer_key_available ? `正解 ${result.correct_count} / ${result.total_questions}` : '提出しました'}
                     </h2>
                     {result.answer_key_available && <p className="mt-1 text-sm font-bold text-[#52668c]">正答率 {result.score_percent}%</p>}
                     {result.answer_key_available && <span className="eiken-real-trial-rank-badge">Rank {rankBadge}</span>}
-                    <span className="eiken-real-trial-reward">英検バッジ</span>
                   </div>
                   <div className="eiken-real-trial-result-actions">
                     <button type="button" onClick={reviewMistakes} className="eiken-real-trial-result-button">まちがいを復習する</button>
                     <button type="button" onClick={resetAnswers} className="eiken-real-trial-result-button">もう一度挑戦</button>
-                    <Link to="/learning-hub" className="eiken-real-trial-result-button">学習メニューへ</Link>
-                    <button type="button" onClick={resetAnswers} className="rounded-full bg-[#ffe680] px-4 py-2 text-sm font-bold text-[#26376d] shadow-sm">もう一度やる</button>
-                    <Link to="/app" className="rounded-full bg-white px-4 py-2 text-sm font-bold text-[#52668c] ring-1 ring-[#dce9f6]">ホームに戻る</Link>
+                    <button type="button" onClick={showAllExplanations} className="eiken-real-trial-result-button">解説を見る</button>
                   </div>
                 </div>
 
@@ -843,7 +911,7 @@ export default function EikenRealExamPage() {
             )}
           </main>
 
-          {practiceStarted && !result && (
+          {practiceStarted && !result && !isConfirming && (
             <div className="eiken-real-trial-mobile-actions md:hidden">
               <div className="mx-auto flex max-w-md items-center justify-between gap-3">
                 <button
@@ -857,11 +925,10 @@ export default function EikenRealExamPage() {
                 {isLastQuestion ? (
                   <button
                     type="button"
-                    onClick={submitAnswers}
-                    disabled={submitting || answeredCount === 0}
+                    onClick={() => setIsConfirming(true)}
                     className="eiken-real-trial-gold-action"
                   >
-                    {submitting ? '採点中...' : '採点する'}
+                    回答確認へ
                   </button>
                 ) : (
                   <button
@@ -907,8 +974,8 @@ export default function EikenRealExamPage() {
                     </div>
                   </div>
                 )}
-                <button type="button" onClick={() => setExpandedExplanations(Object.fromEntries(explanations.map((item) => [item.question_number, true])))} className="mt-4 w-full rounded-[16px] bg-[#26376d] px-4 py-3 text-sm font-bold text-white shadow-sm">
-                  間違い直しをする
+                <button type="button" onClick={showAllExplanations} className="mt-4 w-full rounded-[16px] bg-[#26376d] px-4 py-3 text-sm font-bold text-white shadow-sm">
+                  解説を見る
                 </button>
               </div>
             )}
