@@ -15,22 +15,25 @@ const reviewEntries = [
   {
     key: 'words',
     title: '単語の復習',
-    cardImage: '/assets/eigo-quest/review/review-card-vocab.png',
-    ratio: '1448 / 1086',
+    subtitle: 'まちがえた単語をもう一度チェック',
+    typeLabel: '単語',
+    icon: '/assets/eigo-quest/review/review-icon-vocab.png',
     to: '/today-review-quiz',
   },
   {
     key: 'grammar',
     title: '文法の復習',
-    cardImage: '/assets/eigo-quest/review/review-card-grammar.png',
-    ratio: '1659 / 948',
+    subtitle: '文法テストでまちがえた問題をやり直す',
+    typeLabel: '文法',
+    icon: '/assets/eigo-quest/review/review-icon-grammar.png',
     to: '/review/grammar',
   },
   {
     key: 'eiken',
     title: '英検の復習',
-    cardImage: '/assets/eigo-quest/review/review-card-eiken.png',
-    ratio: '1484 / 1060',
+    subtitle: '英検の苦手分野を復習しよう',
+    typeLabel: '英検',
+    icon: '/assets/eigo-quest/review/review-icon-eiken.png',
     to: '',
   },
 ];
@@ -100,24 +103,33 @@ export default function ReviewPage() {
               const canReview = !loading && !isEiken && countValue > 0;
               const statusText = isEiken ? '準備中' : loading ? '...' : `${countValue} 問`;
               const actionText = canReview ? '復習する' : isEiken ? '準備中' : loading ? '確認中' : 'クリア';
-              const CardComponent = canReview ? Link : 'article';
-              const cardProps = canReview
+              const ActionComponent = canReview ? Link : 'button';
+              const actionProps = canReview
                 ? { to: entry.to, 'aria-label': `${entry.title}を開く` }
-                : { 'aria-label': entry.title, 'aria-disabled': 'true' };
+                : { type: 'button', disabled: true, 'aria-disabled': 'true' };
 
               return (
-                <CardComponent
+                <article
                   key={entry.key}
-                  className={`eq-review-entry-card is-${entry.key} ${canReview ? 'is-clickable' : 'is-disabled'}`}
-                  style={{
-                    '--eq-review-card-image': `url("${entry.cardImage}")`,
-                    '--eq-review-card-ratio': entry.ratio,
-                  }}
-                  {...cardProps}
+                  className={`eq-review-entry-card is-${entry.key}`}
                 >
-                  <span className="eq-review-card-status">{statusText}</span>
-                  <span className="eq-review-card-action">{actionText}</span>
-                </CardComponent>
+                  <span className="eq-review-card-icon" aria-hidden="true">
+                    <img src={entry.icon} alt="" />
+                  </span>
+                  <div className="eq-review-card-main">
+                    <div className="eq-review-card-head">
+                      <h2>{entry.title}</h2>
+                      <div className="eq-review-card-pills">
+                        <span>{entry.typeLabel}</span>
+                        <span>{statusText}</span>
+                      </div>
+                    </div>
+                    <p>{entry.subtitle}</p>
+                    <ActionComponent className="eq-review-card-action" {...actionProps}>
+                      {actionText}
+                    </ActionComponent>
+                  </div>
+                </article>
               );
             })}
           </div>
