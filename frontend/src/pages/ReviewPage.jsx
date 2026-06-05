@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useChildren } from '../ChildrenContext';
@@ -6,12 +6,10 @@ import {
   EQBadge,
   EQBottomNav,
   EQMobileShell,
-  EQPageHeader,
   EQPanel,
   EQPrimaryButton,
   EQQuestCard,
 } from '../components/eigo';
-import CompactPageHeader from '../components/eigo/CompactPageHeader';
 import { getGrammarQuizWrongQuestions, getReviewList } from '../api';
 
 const CHILD_STORAGE_KEY = 'selected_child_id';
@@ -23,7 +21,8 @@ const reviewEntries = [
     subtitle: 'まちがえた単語をもう一度チェック',
     badge: '単語',
     tone: 'gold',
-    icon: { main: '📖', sub: 'ABC', label: '単語の復習' },
+    icon: '/assets/eigo-quest/review/review-icon-vocab.png',
+    iconLabel: '単語の復習',
     to: '/today-review-quiz',
   },
   {
@@ -32,7 +31,8 @@ const reviewEntries = [
     subtitle: '文法テストでまちがえた問題をやり直す',
     badge: '文法',
     tone: 'green',
-    icon: { main: '📜', sub: 'S→V', label: '文法の復習' },
+    icon: '/assets/eigo-quest/review/review-icon-grammar.png',
+    iconLabel: '文法の復習',
     to: '/review/grammar',
   },
   {
@@ -41,16 +41,16 @@ const reviewEntries = [
     subtitle: '英検のまちがい復習は準備中',
     badge: '準備中',
     tone: 'amber',
-    icon: { main: '🛡', sub: '✓', label: '英検の復習' },
+    icon: '/assets/eigo-quest/review/review-icon-eiken.png',
+    iconLabel: '英検の復習',
     to: '',
   },
 ];
 
-function ReviewCategoryIcon({ icon }) {
+function ReviewCategoryIcon({ src, label }) {
   return (
-    <span className="review-category-icon" aria-label={icon.label} role="img">
-      <span className="review-category-icon-main">{icon.main}</span>
-      <span className="review-category-icon-sub">{icon.sub}</span>
+    <span className="review-category-icon" aria-label={label} role="img">
+      <img src={src} alt="" aria-hidden="true" />
     </span>
   );
 }
@@ -98,28 +98,12 @@ export default function ReviewPage() {
     };
   }, [selectedChildId]);
 
-  const totalCount = useMemo(
-    () => Number(counts.words || 0) + Number(counts.grammar || 0),
-    [counts],
-  );
-
   return (
     <div className="eq-learning-hub-page">
       <EQMobileShell className="eq-learning-hub-screen">
-        <CompactPageHeader
-          title="まちがい復習"
-          subtitle="苦手な問題をもう一度クリアしよう"
-          backgroundImage="/assets/eigo-quest/learning-hub/縺ｾ縺｡縺後＞蠕ｩ鄙・png"
-          elementLabel="復習"
-          progressText={loading ? '確認中' : `${totalCount} 問`}
-          variant="review"
-        />
-        <EQPageHeader
-          eyebrow="Wrong Review"
-          title="復習メニュー"
-          subtitle="復習したいジャンルを選ぼう"
-          icon="!"
-        />
+        <div className="eq-review-banner" aria-hidden="true">
+          <img src="/assets/eigo-quest/review/review-banner.png" alt="" />
+        </div>
 
         <motion.section initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="grid gap-4">
           {error ? (
@@ -150,7 +134,7 @@ export default function ReviewPage() {
                   key={entry.key}
                   tone={entry.tone}
                   className={`eq-review-entry-card is-${entry.key}`}
-                  icon={<ReviewCategoryIcon icon={entry.icon} />}
+                  icon={<ReviewCategoryIcon src={entry.icon} label={entry.iconLabel} />}
                   title={entry.title}
                   subtitle={entry.subtitle}
                   badges={badges}
