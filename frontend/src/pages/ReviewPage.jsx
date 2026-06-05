@@ -100,7 +100,7 @@ export default function ReviewPage() {
 
   return (
     <div className="eq-learning-hub-page">
-      <EQMobileShell className="eq-learning-hub-screen">
+      <EQMobileShell className="eq-learning-hub-screen eq-review-screen">
         <div className="eq-review-banner" aria-hidden="true">
           <img src="/assets/eigo-quest/review/review-banner.png" alt="" />
         </div>
@@ -114,19 +114,32 @@ export default function ReviewPage() {
 
           <div className="grid gap-4">
             {reviewEntries.map((entry) => {
-              const count = entry.key === 'eiken' ? null : counts[entry.key];
+              const isEiken = entry.key === 'eiken';
+              const count = isEiken ? null : counts[entry.key];
+              const countValue = Number(count || 0);
+              const canReview = !loading && !isEiken && countValue > 0;
               const badges = (
                 <div className="flex flex-wrap gap-2">
                   <EQBadge tone={entry.tone}>{entry.badge}</EQBadge>
                   {count !== null ? <EQBadge tone="cyan">{loading ? '...' : `${count} 問`}</EQBadge> : null}
                 </div>
               );
-              const action = entry.to ? (
+              const action = canReview ? (
                 <EQPrimaryButton as={Link} to={entry.to}>
-                  開く
+                  復習する
+                </EQPrimaryButton>
+              ) : isEiken ? (
+                <EQPrimaryButton disabled>
+                  準備中
+                </EQPrimaryButton>
+              ) : loading ? (
+                <EQPrimaryButton disabled>
+                  確認中
                 </EQPrimaryButton>
               ) : (
-                <EQBadge tone="amber">準備中</EQBadge>
+                <EQPrimaryButton disabled>
+                  クリア
+                </EQPrimaryButton>
               );
 
               return (
