@@ -20,6 +20,7 @@ import EikenPre2WrongReviewPage from './pages/EikenPre2WrongReviewPage';
 import BattlePage from './pages/BattlePage';
 import ReviewPage from './pages/ReviewPage';
 import GrammarReviewPage from './pages/GrammarReviewPage';
+import EikenReviewPage from './pages/EikenReviewPage';
 import ChildStatsPage from './pages/ChildStatsPage';
 import LearnedWordsPage from './pages/LearnedWordsPage';
 import HatchPage from './pages/HatchPage';
@@ -131,6 +132,7 @@ function App() {
             <Route path="/eiken-pre2/wrong-review" element={<AnimatedPage><EikenPre2WrongReviewPage /></AnimatedPage>} />
             <Route path="/review" element={<AnimatedPage><ChildRequiredPage><ReviewPage /></ChildRequiredPage></AnimatedPage>} />
             <Route path="/review/grammar" element={<AnimatedPage><ChildRequiredPage><GrammarReviewPage /></ChildRequiredPage></AnimatedPage>} />
+            <Route path="/review/eiken" element={<AnimatedPage><ChildRequiredPage><EikenReviewPage /></ChildRequiredPage></AnimatedPage>} />
             <Route path="/error-review" element={<AnimatedPage><ChildRequiredPage><ReviewPage /></ChildRequiredPage></AnimatedPage>} />
             <Route path="/today-review-quiz" element={<AnimatedPage><ChildRequiredPage><FlashcardPage /></ChildRequiredPage></AnimatedPage>} />
             <Route path="/child-stats" element={<AnimatedPage><ChildRequiredPage><ChildStatsPage /></ChildRequiredPage></AnimatedPage>} />

@@ -7612,6 +7612,74 @@ def submit_eiken_real_exam_attempt(child_id, part_id, answers, started_at=None):
     }
 
 
+def get_eiken_real_exam_wrong_questions(child_id, limit=None):
+    init_db()
+    conn = get_db_connection()
+    try:
+        sql = '''
+            SELECT
+                answer.id,
+                answer.attempt_id,
+                answer.child_id,
+                answer.part_id,
+                answer.question_number,
+                answer.student_answer,
+                answer.correct_answer,
+                answer.is_correct,
+                answer.answered_at,
+                attempt.exam_id,
+                attempt.mode,
+                attempt.submitted_at
+            FROM eiken_real_exam_student_answers AS answer
+            LEFT JOIN eiken_real_exam_attempts AS attempt
+                ON attempt.attempt_id = answer.attempt_id
+            WHERE answer.child_id = ? AND answer.is_correct = 0
+            ORDER BY answer.answered_at DESC, answer.id DESC
+        '''
+        params = [child_id]
+        if limit is not None:
+            sql += ' LIMIT ?'
+            params.append(limit)
+        rows = conn.execute(sql, params).fetchall()
+    finally:
+        conn.close()
+
+    wrong_questions = []
+    for row in rows:
+        student_answer = row['student_answer'] or ''
+        correct_answer = row['correct_answer'] or ''
+        item = {
+            'id': row['id'],
+            'attempt_id': row['attempt_id'],
+            'attemptId': row['attempt_id'],
+            'child_id': row['child_id'],
+            'childId': row['child_id'],
+            'part_id': row['part_id'],
+            'partId': row['part_id'],
+            'question_number': row['question_number'],
+            'questionNumber': row['question_number'],
+            'student_answer': student_answer,
+            'studentAnswer': student_answer,
+            'selected_answer': student_answer,
+            'selectedAnswer': student_answer,
+            'correct_answer': correct_answer,
+            'correctAnswer': correct_answer,
+            'is_correct': bool(row['is_correct']),
+            'isCorrect': bool(row['is_correct']),
+            'answered_at': row['answered_at'],
+            'answeredAt': row['answered_at'],
+            'created_at': row['answered_at'],
+            'createdAt': row['answered_at'],
+            'exam_id': row['exam_id'],
+            'examId': row['exam_id'],
+            'mode': row['mode'],
+            'submitted_at': row['submitted_at'],
+            'submittedAt': row['submitted_at'],
+        }
+        wrong_questions.append(item)
+    return wrong_questions
+
+
 @app.route('/api/eiken-real-exams')
 def api_eiken_real_exams():
     return jsonify({'exams': list_eiken_real_exams()})
@@ -7643,6 +7711,27 @@ def api_eiken_real_exam_attempts():
     except ValueError as exc:
         abort(400, str(exc))
     return jsonify(result)
+
+
+@app.route('/api/eiken-real-exam/wrong-questions')
+def api_eiken_real_exam_wrong_questions():
+    child_id = request.args.get('child_id') or request.args.get('childId')
+    raw_limit = request.args.get('limit')
+    if child_id in [None, '', 'null']:
+        abort(400, 'child_id is required')
+    try:
+        child_id = int(child_id)
+        limit = int(raw_limit) if raw_limit not in [None, '', 'null'] else None
+    except ValueError as exc:
+        abort(400, str(exc))
+    wrong_questions = get_eiken_real_exam_wrong_questions(child_id, limit)
+    return jsonify({
+        'child_id': child_id,
+        'childId': child_id,
+        'count': len(wrong_questions),
+        'wrong_questions': wrong_questions,
+        'wrongQuestions': wrong_questions,
+    })
 
 
 @app.route('/api/eiken-real-exams/assets/<path:asset_path>')

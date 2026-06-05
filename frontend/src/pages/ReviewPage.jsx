@@ -7,7 +7,7 @@ import {
   EQMobileShell,
   EQPanel,
 } from '../components/eigo';
-import { getGrammarQuizWrongQuestions, getReviewList } from '../api';
+import { getEikenRealExamWrongQuestions, getGrammarQuizWrongQuestions, getReviewList } from '../api';
 
 const CHILD_STORAGE_KEY = 'selected_child_id';
 
@@ -31,23 +31,23 @@ const reviewEntries = [
   {
     key: 'eiken',
     title: '英検の復習',
-    subtitle: '英検の苦手分野を復習しよう',
+    subtitle: '英検本番形式でまちがえた問題を見直す',
     typeLabel: '英検',
     icon: '/assets/eigo-quest/review/review-icon-eiken.png',
-    to: '',
+    to: '/review/eiken',
   },
 ];
 
 export default function ReviewPage() {
   const { selectedChildId: currentChildId } = useChildren();
   const selectedChildId = currentChildId || localStorage.getItem(CHILD_STORAGE_KEY) || '';
-  const [counts, setCounts] = useState({ words: null, grammar: null });
+  const [counts, setCounts] = useState({ words: null, grammar: null, eiken: null });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
   useEffect(() => {
     if (!selectedChildId) {
-      setCounts({ words: null, grammar: null });
+      setCounts({ words: null, grammar: null, eiken: null });
       setLoading(false);
       return;
     }
@@ -59,14 +59,19 @@ export default function ReviewPage() {
     Promise.allSettled([
       getReviewList(selectedChildId),
       getGrammarQuizWrongQuestions(selectedChildId),
+      getEikenRealExamWrongQuestions(selectedChildId),
     ])
-      .then(([wordResult, grammarResult]) => {
+      .then(([wordResult, grammarResult, eikenResult]) => {
         if (!active) return;
         const wordPayload = wordResult.status === 'fulfilled' ? wordResult.value || {} : {};
         const grammarPayload = grammarResult.status === 'fulfilled' ? grammarResult.value || {} : {};
+        const eikenPayload = eikenResult.status === 'fulfilled' ? eikenResult.value || {} : {};
         setCounts({
           words: (wordPayload.review_list || wordPayload.reviewList || []).length,
           grammar: (grammarPayload.wrongQuestions || grammarPayload.wrong_questions || []).length,
+          eiken: eikenResult.status === 'fulfilled'
+            ? (eikenPayload.wrongQuestions || eikenPayload.wrong_questions || []).length
+            : null,
         });
         if (wordResult.status === 'rejected' && grammarResult.status === 'rejected') {
           setError(wordResult.reason?.message || grammarResult.reason?.message || '復習リストを読み込めませんでした。');
@@ -97,12 +102,11 @@ export default function ReviewPage() {
 
           <div className="eq-review-card-list">
             {reviewEntries.map((entry) => {
-              const isEiken = entry.key === 'eiken';
-              const count = isEiken ? null : counts[entry.key];
+              const count = counts[entry.key];
               const countValue = Number(count || 0);
-              const canReview = !loading && !isEiken && countValue > 0;
-              const statusText = isEiken ? '準備中' : loading ? '...' : `${countValue} 問`;
-              const actionText = canReview ? '復習する' : isEiken ? '準備中' : loading ? '確認中' : 'クリア';
+              const canReview = !loading && countValue > 0 && Boolean(entry.to);
+              const statusText = loading ? '...' : count === null ? '-' : `${countValue} 問`;
+              const actionText = canReview ? '復習する' : loading ? '確認中' : count === null ? '準備中' : 'クリア';
               const ActionComponent = canReview ? Link : 'button';
               const actionProps = canReview
                 ? { to: entry.to, 'aria-label': `${entry.title}を開く` }

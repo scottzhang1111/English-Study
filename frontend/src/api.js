@@ -362,6 +362,10 @@ export const submitEikenRealExamAttempt = async ({ childId, partId, answers, sta
   });
 };
 
+export const getEikenRealExamWrongQuestions = async (childId) => {
+  return fetchJson('/api/eiken-real-exam/wrong-questions', { params: { child_id: childId } });
+};
+
 export const submitPracticeAnswer = async ({ id, word, selected, correct, childId }) => {
   return fetchJson('/api/practice-answer', {
     method: 'POST',
