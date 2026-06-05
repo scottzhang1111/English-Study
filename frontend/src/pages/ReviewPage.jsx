@@ -6,7 +6,6 @@ import {
   EQBottomNav,
   EQMobileShell,
   EQPanel,
-  EQPrimaryButton,
 } from '../components/eigo';
 import { getGrammarQuizWrongQuestions, getReviewList } from '../api';
 
@@ -86,7 +85,7 @@ export default function ReviewPage() {
           <img src="/assets/eigo-quest/review/review-banner.png" alt="" />
         </div>
 
-        <motion.section initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="grid gap-4">
+        <motion.section initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} className="eq-review-content">
           {error ? (
             <EQPanel title="読み込みエラー" tone="rose">
               <p className="eq-caption">{error}</p>
@@ -100,37 +99,25 @@ export default function ReviewPage() {
               const countValue = Number(count || 0);
               const canReview = !loading && !isEiken && countValue > 0;
               const statusText = isEiken ? '準備中' : loading ? '...' : `${countValue} 問`;
-              const action = canReview ? (
-                <EQPrimaryButton as={Link} to={entry.to}>
-                  復習する
-                </EQPrimaryButton>
-              ) : isEiken ? (
-                <EQPrimaryButton disabled>
-                  準備中
-                </EQPrimaryButton>
-              ) : loading ? (
-                <EQPrimaryButton disabled>
-                  確認中
-                </EQPrimaryButton>
-              ) : (
-                <EQPrimaryButton disabled>
-                  クリア
-                </EQPrimaryButton>
-              );
+              const actionText = canReview ? '復習する' : isEiken ? '準備中' : loading ? '確認中' : 'クリア';
+              const CardComponent = canReview ? Link : 'article';
+              const cardProps = canReview
+                ? { to: entry.to, 'aria-label': `${entry.title}を開く` }
+                : { 'aria-label': entry.title, 'aria-disabled': 'true' };
 
               return (
-                <article
+                <CardComponent
                   key={entry.key}
-                  className={`eq-review-entry-card is-${entry.key}`}
-                  aria-label={entry.title}
+                  className={`eq-review-entry-card is-${entry.key} ${canReview ? 'is-clickable' : 'is-disabled'}`}
                   style={{
                     '--eq-review-card-image': `url("${entry.cardImage}")`,
                     '--eq-review-card-ratio': entry.ratio,
                   }}
+                  {...cardProps}
                 >
                   <span className="eq-review-card-status">{statusText}</span>
-                  <div className="eq-review-card-action">{action}</div>
-                </article>
+                  <span className="eq-review-card-action">{actionText}</span>
+                </CardComponent>
               );
             })}
           </div>
