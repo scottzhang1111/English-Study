@@ -1057,7 +1057,7 @@ textarea {
 /* Eiken real exam entry trial screen */
 .eiken-real-trial-page {
   min-height: 100dvh;
-  padding-bottom: calc(7rem + env(safe-area-inset-bottom)) !important;
+  padding-bottom: calc(140px + env(safe-area-inset-bottom)) !important;
   background:
     radial-gradient(circle at 50% -8%, rgba(255, 211, 90, 0.2), transparent 30%),
     radial-gradient(circle at 0% 18%, rgba(84, 230, 168, 0.16), transparent 34%),
@@ -1066,7 +1066,7 @@ textarea {
 }
 
 .eiken-real-trial-compact-wrap {
-  margin-bottom: 8px;
+  margin-bottom: 14px;
 }
 
 .eiken-real-trial-compact-wrap .compact-page-header {
@@ -1100,8 +1100,8 @@ textarea {
 
 .eiken-real-trial-entry-layout {
   display: grid;
-  min-height: calc(100dvh - 6rem);
-  place-items: center;
+  min-height: auto;
+  place-items: start center;
 }
 
 .eiken-real-trial-entry-card {
@@ -1110,10 +1110,10 @@ textarea {
   display: grid;
   width: min(100%, 500px);
   overflow: hidden;
-  gap: 10px;
-  padding: 13px;
+  gap: 8px;
+  padding: 12px;
   border: 2px solid rgba(255, 218, 116, 0.9);
-  border-radius: 26px;
+  border-radius: 24px;
   background:
     linear-gradient(180deg, rgba(5, 13, 42, 0.86), rgba(4, 8, 28, 0.96)),
     radial-gradient(circle at 18% 0%, rgba(255, 211, 90, 0.22), transparent 34%);
@@ -1129,7 +1129,7 @@ textarea {
   inset: 6px;
   z-index: -1;
   border: 1px solid rgba(255, 231, 160, 0.46);
-  border-radius: 19px;
+  border-radius: 18px;
   content: "";
   pointer-events: none;
 }
@@ -1146,7 +1146,7 @@ textarea {
 .eiken-real-trial-entry-head {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
   text-shadow:
     0 3px 12px rgba(0, 0, 0, 0.82),
     0 0 18px rgba(255, 211, 90, 0.22);
@@ -1154,8 +1154,8 @@ textarea {
 
 .eiken-real-trial-crest {
   display: grid;
-  width: 46px;
-  height: 52px;
+  width: 44px;
+  height: 50px;
   flex: 0 0 auto;
   place-items: center;
   clip-path: polygon(50% 0, 100% 18%, 92% 74%, 50% 100%, 8% 74%, 0 18%);
@@ -1180,7 +1180,7 @@ textarea {
 .eiken-real-trial-entry-head h1 {
   margin: 0;
   color: #ffe7a1;
-  font-size: 28px;
+  font-size: 26px;
   font-weight: 950;
   line-height: 1;
 }
@@ -1189,7 +1189,7 @@ textarea {
   display: block;
   margin-top: 2px;
   color: rgba(245, 249, 255, 0.94);
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 900;
 }
 
@@ -1204,7 +1204,7 @@ textarea {
 }
 
 .eiken-real-trial-segmented button {
-  min-height: 36px;
+  min-height: 34px;
   border: 1px solid transparent;
   border-radius: 13px;
   background: transparent;
@@ -1224,8 +1224,8 @@ textarea {
 
 .eiken-real-trial-select-panel {
   display: grid;
-  gap: 8px;
-  padding: 10px;
+  gap: 6px;
+  padding: 8px;
   border: 1.5px solid rgba(255, 211, 90, 0.68);
   border-radius: 20px;
   background:
@@ -1236,14 +1236,14 @@ textarea {
 
 .eiken-real-trial-select-panel label {
   display: grid;
-  gap: 4px;
+  gap: 3px;
   color: rgba(226, 237, 255, 0.88);
   font-size: 12px;
   font-weight: 950;
 }
 
 .eiken-real-trial-select-panel select {
-  min-height: 38px;
+  min-height: 36px;
   width: 100%;
   border: 1px solid rgba(255, 211, 90, 0.44);
   border-radius: 999px;
@@ -1259,12 +1259,12 @@ textarea {
 .eiken-real-trial-badges {
   display: flex;
   flex-wrap: wrap;
-  gap: 5px;
+  gap: 4px;
 }
 
 .eiken-real-trial-badges span {
   display: inline-flex;
-  min-height: 24px;
+  min-height: 22px;
   align-items: center;
   border: 1px solid rgba(84, 230, 168, 0.32) !important;
   border-radius: 999px;
@@ -1273,7 +1273,7 @@ textarea {
   font-size: 10px;
   font-weight: 950;
   line-height: 1;
-  padding: 5px 8px !important;
+  padding: 4px 8px !important;
 }
 
 .eiken-real-trial-badges span::before {
@@ -1282,7 +1282,7 @@ textarea {
 
 .eiken-real-trial-start {
   display: inline-flex;
-  min-height: 44px;
+  min-height: 42px;
   width: 100%;
   align-items: center;
   justify-content: center;
