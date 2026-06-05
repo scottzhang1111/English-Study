@@ -7,6 +7,7 @@ import eigoQuestWorlds from '../config/eigoQuestWorlds';
 import CompactPageHeader from '../components/eigo/CompactPageHeader';
 
 const CHILD_STORAGE_KEY = 'selected_child_id';
+const GRAMMAR_CARD_BACK_IMAGE = '/assets/eigo-quest/learning-hub/grammar card/grammar-cover.png';
 
 const WORLD_META = {
   grammar: { label: '文法', name: '文法の神殿', color: '#f3b64d', symbol: '文' },
@@ -71,7 +72,7 @@ function getImageCandidates(card) {
 }
 
 function getCoverImageCandidates(card) {
-  if (isGrammarCard(card)) return [];
+  if (isGrammarCard(card)) return [GRAMMAR_CARD_BACK_IMAGE];
   if (!card?.worldId) return [];
   return [
     `/assets/eigo-quest/cards/back/${card.worldId}-cover.png`,

@@ -497,7 +497,7 @@ export default function EikenRealExamPage() {
   };
 
   return (
-    <div className={`eiken-exam-page eiken-real-trial-page mx-auto max-w-[1440px] px-4 pb-32 pt-4 text-[#26376d] lg:px-6 lg:py-6 ${practiceStarted && !result ? 'max-md:pb-36' : ''}`}>
+    <div className={`eiken-exam-page eiken-real-trial-page mx-auto max-w-[1440px] px-3 pb-28 pt-2 text-[#26376d] lg:px-5 lg:py-4 ${practiceStarted && !result ? 'max-md:pb-36' : ''}`}>
       <div className="eiken-real-trial-compact-wrap md:hidden">
         <CompactPageHeader
           title={result ? '試練結果' : '英検試練'}
@@ -549,7 +549,7 @@ export default function EikenRealExamPage() {
         <motion.div
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
-          className={`gap-6 ${isEntryScreen ? 'eiken-real-trial-entry-layout' : 'lg:grid lg:grid-cols-[220px_minmax(0,1fr)_300px]'}`}
+          className={`gap-4 ${isEntryScreen ? 'eiken-real-trial-entry-layout' : 'lg:grid lg:grid-cols-[220px_minmax(0,1fr)_300px]'}`}
         >
           {!practiceStarted && !result && (
             <section className="eiken-real-trial-entry-card">

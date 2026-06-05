@@ -12,6 +12,8 @@ import {
 } from '../helpers/eigoQuestRewards';
 import eigoQuestCards from '../config/eigoQuestCards';
 
+const GRAMMAR_CARD_BACK_IMAGE = '/assets/eigo-quest/learning-hub/grammar card/grammar-cover.png';
+
 const sparkleParticles = Array.from({ length: 26 }, (_, index) => ({
   id: index,
   left: `${7 + ((index * 19) % 86)}%`,
@@ -67,7 +69,8 @@ function getRewardCardImage(card) {
 
 const rewardBackWorldIds = new Set(['wind', 'fire', 'water', 'thunder', 'wood', 'rock', 'light', 'shadow']);
 
-function getRewardCardBackImage(worldId) {
+function getRewardCardBackImage(worldId, isGrammarReward = false) {
+  if (isGrammarReward) return GRAMMAR_CARD_BACK_IMAGE;
   const normalized = String(worldId || 'wind').trim().toLowerCase();
   const safeWorldId = rewardBackWorldIds.has(normalized) ? normalized : 'wind';
   return `/assets/eigo-quest/cards/back/${safeWorldId}-cover.png`;
@@ -207,12 +210,13 @@ export default function CardRewardPage() {
     : null;
   const worldClass = getWorldClass(rewardCard?.worldId);
   const rewardImage = getRewardCardImage(rewardCard);
+  const isGrammarReward = isGrammarRewardSource(pendingReward);
   const rewardBackImage = getRewardCardBackImage(
     pendingReward?.worldId || pendingReward?.world_id || rewardCard?.worldId,
+    isGrammarReward,
   );
   const hero = getHeroCopy(rewardCard);
   const hasNextReward = rewardIndex < pendingQueue.length - 1;
-  const isGrammarReward = isGrammarRewardSource(pendingReward);
   const grammarCopy = getGrammarRewardCopy(pendingReward, rewardCard?.nameJa);
   const stageCompleteLabel = isGrammarReward
     ? grammarCopy.stageLabel

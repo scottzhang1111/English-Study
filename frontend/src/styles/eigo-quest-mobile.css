@@ -11416,7 +11416,6 @@ body,
 .eq-eiken-trial-question-panel,
 .eq-eiken-trial-message-panel,
 .eq-eiken-trial-result-panel,
-.eq-eiken-trial-pet-panel,
 .eq-eiken-trial-review-panel {
   border-radius: 22px;
   background:
@@ -11686,7 +11685,6 @@ body,
 }
 
 .eq-eiken-trial-result-panel,
-.eq-eiken-trial-pet-panel,
 .eq-eiken-trial-explain-card,
 .eq-eiken-trial-review-panel,
 .eq-eiken-trial-message-panel {

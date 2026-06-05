@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
-import PetDisplay from '../components/PetDisplay';
 import TtsButton from '../components/TtsButton';
 import {
   EQBadge,
@@ -42,8 +41,6 @@ export default function EikenPage() {
   const [error, setError] = useState(null);
   const [importance, setImportance] = useState('ALL');
   const [frequency, setFrequency] = useState('ALL');
-  const [earnedExp, setEarnedExp] = useState(0);
-  const [petResult, setPetResult] = useState(null);
 
   const loadQuestions = ({ forceAi = false } = {}) => {
     setLoading(true);
@@ -64,8 +61,6 @@ export default function EikenPage() {
         setFeedback('');
         setCorrectCount(0);
         setAnsweredCount(0);
-        setEarnedExp(0);
-        setPetResult(null);
       })
       .catch((err) => {
         console.warn('Eiken question loading failed:', err);
@@ -94,14 +89,12 @@ export default function EikenPage() {
       });
 
       setAnsweredCount((prev) => prev + 1);
-      setEarnedExp(result.pet_exp_awarded || 0);
-      setPetResult(result.pet || null);
 
       if (result.correct) {
         setCorrectCount((prev) => prev + 1);
         setFeedback('正解です。');
       } else {
-        setFeedback(`正解は ${result.correct_answer} です。`);
+        setFeedback(`不正解です。正解は ${result.correct_answer} です。`);
       }
     } catch (err) {
       console.warn('Eiken answer submission failed:', err);
@@ -122,16 +115,12 @@ export default function EikenPage() {
   const showNext = () => {
     setSelectedAnswer(null);
     setFeedback('');
-    setPetResult(null);
-    setEarnedExp(0);
     setCurrentIndex((prev) => Math.min(questions.length - 1, prev + 1));
   };
 
   const showPrev = () => {
     setSelectedAnswer(null);
     setFeedback('');
-    setPetResult(null);
-    setEarnedExp(0);
     setCurrentIndex((prev) => Math.max(0, prev - 1));
   };
 
@@ -251,12 +240,6 @@ export default function EikenPage() {
                   {feedback && (
                     <EQPanel tone={selectedAnswer === currentQuestion.correct ? 'green' : 'rose'} className="eq-eiken-trial-result-panel">
                       <p className="eq-caption">{feedback}</p>
-                    </EQPanel>
-                  )}
-
-                  {petResult && (
-                    <EQPanel tone="gold" className="eq-eiken-trial-pet-panel">
-                      <PetDisplay pet={petResult} earnedExp={earnedExp} compact />
                     </EQPanel>
                   )}
 

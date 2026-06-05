@@ -293,6 +293,7 @@
 
 .eq-review-screen {
   padding-top: calc(12px + env(safe-area-inset-top));
+  padding-bottom: calc(96px + env(safe-area-inset-bottom));
 }
 
 .eq-review-banner {
@@ -306,93 +307,90 @@
   height: auto;
 }
 
+.eq-review-card-list {
+  display: grid;
+  gap: 12px;
+}
+
 .eq-review-entry-card {
-  grid-template-columns: 58px minmax(0, 1fr) auto;
-  grid-template-rows: auto auto;
-  align-items: center;
-  min-height: 86px;
-  column-gap: 10px;
-  row-gap: 4px;
-  padding: 10px 12px;
-}
-
-.eq-review-entry-card .eq-fantasy-quest-card__icon {
-  grid-row: 1 / 3;
-  width: 58px;
-  height: 58px;
-  border: 0;
-  border-radius: 0;
-  background: transparent;
-  box-shadow: none;
-}
-
-.review-category-icon {
-  display: block;
-  width: 58px;
-  height: 58px;
-  border-radius: 14px;
-}
-
-.review-category-icon img {
-  display: block;
+  position: relative;
+  overflow: hidden;
   width: 100%;
-  height: 100%;
-  object-fit: contain;
+  aspect-ratio: var(--eq-review-card-ratio);
+  border-radius: 18px;
+  background-image: var(--eq-review-card-image);
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: contain;
+  filter: drop-shadow(0 14px 24px rgba(0, 0, 0, 0.28));
 }
 
-.eq-review-entry-card .eq-fantasy-quest-card__body {
-  display: contents;
-}
-
-.eq-review-entry-card .eq-fantasy-quest-card__topline {
-  grid-column: 2 / 4;
-  grid-row: 1;
+.eq-review-card-status {
+  position: absolute;
+  top: 12px;
+  right: 14px;
+  display: inline-flex;
+  min-width: 54px;
+  min-height: 26px;
   align-items: center;
-  min-width: 0;
-}
-
-.eq-review-entry-card .eq-fantasy-quest-card__topline h2 {
-  min-width: 0;
-  font-size: 16px;
-}
-
-.eq-review-entry-card .eq-fantasy-badge-row {
-  flex: 0 0 auto;
-}
-
-.eq-review-entry-card p {
-  grid-column: 2 / 3;
-  grid-row: 2;
-  align-self: start;
+  justify-content: center;
+  padding: 5px 10px;
+  border: 1px solid rgba(255, 241, 184, 0.74);
+  border-radius: var(--eq-radius-pill);
+  background: rgba(8, 17, 45, 0.68);
+  color: #fff4c2;
   font-size: 12px;
-  line-height: 1.32;
+  font-weight: 950;
+  line-height: 1;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.42);
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.18);
 }
 
-.eq-review-entry-card .eq-fantasy-quest-card__action {
-  grid-column: 3;
-  grid-row: 2;
-  justify-self: end;
-  align-self: end;
+.eq-review-card-action {
+  position: absolute;
+  right: 14px;
+  bottom: 14px;
 }
 
-.eq-review-entry-card .eq-fantasy-primary-button {
-  min-height: 34px;
-  padding: 8px 13px;
+.eq-review-card-action .eq-fantasy-primary-button {
+  min-height: 38px;
+  padding: 9px 15px;
   font-size: 12px;
   line-height: 1;
 }
 
+.eq-review-card-action .eq-fantasy-primary-button:disabled {
+  border-color: rgba(255, 255, 255, 0.22);
+  background: rgba(18, 25, 52, 0.62);
+  color: rgba(255, 247, 216, 0.74);
+  box-shadow: none;
+}
+
 @media (max-width: 380px) {
-  .eq-review-entry-card {
-    grid-template-columns: 54px minmax(0, 1fr) auto;
-    min-height: 82px;
-    padding: 9px 10px;
+  .eq-review-card-list {
+    gap: 10px;
   }
 
-  .eq-review-entry-card .eq-fantasy-quest-card__icon,
-  .review-category-icon {
-    width: 54px;
-    height: 54px;
-    border-radius: 13px;
+  .eq-review-entry-card {
+    border-radius: 15px;
+  }
+
+  .eq-review-card-status {
+    top: 9px;
+    right: 10px;
+    min-height: 24px;
+    padding: 4px 8px;
+    font-size: 11px;
+  }
+
+  .eq-review-card-action {
+    right: 10px;
+    bottom: 10px;
+  }
+
+  .eq-review-card-action .eq-fantasy-primary-button {
+    min-height: 34px;
+    padding: 8px 12px;
+    font-size: 11px;
   }
 }
