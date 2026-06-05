@@ -84,6 +84,28 @@ function buildQuestionNumbers(count, fallback = []) {
   return [];
 }
 
+function getResultStatus(studentAnswer, correctAnswer) {
+  if (!studentAnswer) return 'unanswered';
+  return studentAnswer === correctAnswer ? 'correct' : 'wrong';
+}
+
+function getResultStatusLabel(status) {
+  if (status === 'correct') return '正解';
+  if (status === 'unanswered') return '未回答';
+  return '不正解';
+}
+
+function formatResultAnswer(answer) {
+  return answer || '未回答';
+}
+
+function getFallbackExplanation(status, studentAnswer, correctAnswer) {
+  if (status === 'unanswered') {
+    return `この問題は未回答でした。正解は ${correctAnswer || '-'} です。選択肢の意味を確認して、会話の最後に自然につながる返事を選びましょう。`;
+  }
+  return `最後の会話に合う返事を選ぶ問題です。正解は ${correctAnswer || '-'} です。あなたの答えは ${studentAnswer || '未回答'} でした。選択肢の意味を比べて、会話の流れに最も自然な返事を選びましょう。`;
+}
+
 function cleanPreviewText(value = '') {
   return String(value)
     .replace(/\u00a0/g, ' ')
@@ -206,9 +228,92 @@ function EikenResultQuestionPreview({ preview, studentAnswer, correctAnswer, exp
   );
 }
 
+function EikenResultExplanationCard({
+  questionNumber,
+  studentAnswer,
+  correctAnswer,
+  preview,
+  explanation,
+  expanded,
+  onToggle,
+}) {
+  const status = getResultStatus(studentAnswer, correctAnswer);
+  const statusLabel = getResultStatusLabel(status);
+  const hasChoices = preview?.choices?.length > 0;
+  const explanationHtml = explanation?.html ? normalizeEikenMediaHtml(explanation.html) : '';
+
+  return (
+    <article className={`eiken-real-result-row is-${status}`}>
+      <button type="button" className="eiken-real-result-row-head" onClick={onToggle}>
+        <span className="eiken-real-result-question">問{questionNumber}</span>
+        <span className={`eiken-real-result-status is-${status}`}>{statusLabel}</span>
+        <span className="eiken-real-result-answer is-student">あなた：{formatResultAnswer(studentAnswer)}</span>
+        <span className="eiken-real-result-answer is-correct">正解：{formatResultAnswer(correctAnswer)}</span>
+        <span className={`eiken-real-result-arrow ${expanded ? 'is-open' : ''}`} aria-hidden="true">⌄</span>
+      </button>
+
+      {expanded && (
+        <div className="eiken-real-result-detail">
+          <div className="eiken-real-result-detail-head">
+            <span>問{questionNumber}</span>
+            <strong className={`is-${status}`}>{statusLabel}</strong>
+            <em>あなた：{formatResultAnswer(studentAnswer)}</em>
+            <em>正解：{formatResultAnswer(correctAnswer)}</em>
+          </div>
+
+          <section>
+            <h3>問題</h3>
+            <p>{preview?.summary || '問題文を表示できませんでした。'}</p>
+          </section>
+
+          {hasChoices && (
+            <section>
+              <h3>選択肢</h3>
+              <div className="eiken-real-result-choices">
+                {preview.choices.map((choice) => {
+                  const isCorrectChoice = correctAnswer && choice.includes(correctAnswer);
+                  const isStudentChoice = studentAnswer && choice.includes(studentAnswer);
+                  return (
+                    <div
+                      key={choice}
+                      className={`eiken-real-result-choice ${isCorrectChoice ? 'is-correct' : ''} ${isStudentChoice && !isCorrectChoice ? 'is-student-wrong' : ''}`}
+                    >
+                      <span>{choice}</span>
+                      {isStudentChoice && <b>あなたの答え</b>}
+                      {isCorrectChoice && <b>正解</b>}
+                    </div>
+                  );
+                })}
+              </div>
+            </section>
+          )}
+
+          <section>
+            <h3>答え</h3>
+            <p className="eiken-real-result-correct-answer">{formatResultAnswer(correctAnswer)}</p>
+          </section>
+
+          <section>
+            <h3>解説</h3>
+            {explanationHtml ? (
+              <div
+                className="eiken-real-result-explanation-html"
+                dangerouslySetInnerHTML={{ __html: explanationHtml }}
+              />
+            ) : (
+              <p>{getFallbackExplanation(status, studentAnswer, correctAnswer)}</p>
+            )}
+          </section>
+        </div>
+      )}
+    </article>
+  );
+}
+
 export default function EikenRealExamPage() {
   const contentRef = useRef(null);
-  const { children, selectedChildId } = useChildren();
+  const audioRefs = useRef([]);
+  const { selectedChildId } = useChildren();
   const [exams, setExams] = useState([]);
   const [selectedExamId, setSelectedExamId] = useState('');
   const [mode, setMode] = useState('listening');
@@ -231,10 +336,6 @@ export default function EikenRealExamPage() {
   const selectedExam = useMemo(
     () => exams.find((exam) => exam.exam_id === selectedExamId) || exams[0] || null,
     [exams, selectedExamId],
-  );
-  const selectedChild = useMemo(
-    () => children.find((child) => String(child.id) === String(selectedChildId)) || null,
-    [children, selectedChildId],
   );
   const parts = useMemo(() => getPartList(selectedExam, mode), [selectedExam, mode]);
   const questionCount = partData?.question_count || 0;
@@ -452,6 +553,12 @@ export default function EikenRealExamPage() {
     goToQuestion(nextQuestion);
   };
 
+  const playAudioSource = (index) => {
+    const audio = audioRefs.current[index];
+    if (!audio) return;
+    audio.play();
+  };
+
   const isLastQuestion = visibleQuestionNumbers[visibleQuestionNumbers.length - 1] === currentQuestion;
   const unansweredNumbers = visibleQuestionNumbers.filter((questionNumber) => !getQuestionAnswer(answers, questionNumber));
   const unansweredCount = unansweredNumbers.length;
@@ -508,11 +615,28 @@ export default function EikenRealExamPage() {
     ? Math.round((correctForResult / totalForResult) * 100)
     : 0;
   const rankBadge = scorePercent >= 90 ? 'S' : scorePercent >= 75 ? 'A' : scorePercent >= 55 ? 'B' : 'C';
+  const resultRows = useMemo(() => {
+    const explanationMap = Object.fromEntries((explanations || []).map((item) => [Number(item.question_number), item]));
+    return visibleQuestionNumbers.map((questionNumber) => {
+      const studentAnswer = getQuestionAnswer(answers, questionNumber);
+      const correctAnswer = getCorrectAnswerForQuestion(result?.correct_answers, questionNumber);
+      return {
+        questionNumber,
+        studentAnswer,
+        correctAnswer,
+        status: getResultStatus(studentAnswer, correctAnswer),
+        explanation: explanationMap[Number(questionNumber)] || null,
+        preview: questionPreviews[questionNumber],
+      };
+    });
+  }, [answers, explanations, questionPreviews, result?.correct_answers, visibleQuestionNumbers]);
+  const incorrectForResult = resultRows.filter((item) => item.status === 'wrong').length;
+  const unansweredForResult = resultRows.filter((item) => item.status === 'unanswered').length;
   const reviewMistakes = () => {
-    const wrongNumbers = result?.wrong_questions?.map((item) => item.question_number) || [];
+    const wrongNumbers = resultRows.filter((item) => item.status !== 'correct').map((item) => item.questionNumber);
     const entries = wrongNumbers.length > 0
       ? wrongNumbers.map((questionNumber) => [questionNumber, true])
-      : explanations.map((item) => [item.question_number, true]);
+      : resultRows.map((item) => [item.questionNumber, true]);
     setExpandedExplanations(Object.fromEntries(entries));
   };
   const reviewAnswers = () => {
@@ -520,7 +644,7 @@ export default function EikenRealExamPage() {
     goToQuestion(targetQuestion);
   };
   const showAllExplanations = () => {
-    setExpandedExplanations(Object.fromEntries(explanations.map((item) => [item.question_number, true])));
+    setExpandedExplanations(Object.fromEntries(resultRows.map((item) => [item.questionNumber, true])));
   };
 
   return (
@@ -536,7 +660,7 @@ export default function EikenRealExamPage() {
           variant="eiken-real"
         />
       </div>
-      <header className={`${isEntryScreen ? 'hidden' : ''} mb-4 rounded-[24px] border border-white/80 bg-white/88 px-4 py-3 shadow-[0_14px_34px_rgba(129,164,199,0.14)] backdrop-blur lg:mb-6 lg:flex lg:min-h-[68px] lg:items-center lg:justify-between lg:px-5 max-md:hidden`}>
+      {false && (<header className={`${isEntryScreen ? 'hidden' : ''} mb-4 rounded-[24px] border border-white/80 bg-white/88 px-4 py-3 shadow-[0_14px_34px_rgba(129,164,199,0.14)] backdrop-blur lg:mb-6 lg:flex lg:min-h-[68px] lg:items-center lg:justify-between lg:px-5 max-md:hidden`}>
         <Link to="/app" className="text-sm font-bold text-[#52668c] transition hover:text-[#26376d]">
           ← ホームに戻る
         </Link>
@@ -549,11 +673,11 @@ export default function EikenRealExamPage() {
           <p>{selectedChild?.name || '学習中'}</p>
           <p className="text-xs text-[#7d8db5]">{result ? '採点済み' : currentStatus}</p>
         </div>
-      </header>
+      </header>)}
 
       {error && <div className="mb-4 rounded-[18px] bg-rose-50 p-4 text-sm font-bold text-rose-700">{error}</div>}
 
-      {(practiceStarted || result) && (
+      {false && (
         <div className="sticky top-0 z-30 -mx-4 border-b border-[#dce9f6] bg-white/90 px-4 py-3 shadow-[0_10px_24px_rgba(129,164,199,0.12)] backdrop-blur md:hidden">
           <div className="flex items-center justify-between gap-3">
             <Link to="/app" className="shrink-0 text-sm font-bold text-[#52668c]">← ホーム</Link>
@@ -576,7 +700,7 @@ export default function EikenRealExamPage() {
         <motion.div
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
-          className={`gap-4 ${isEntryScreen ? 'eiken-real-trial-entry-layout' : 'lg:grid lg:grid-cols-[220px_minmax(0,1fr)_300px]'}`}
+          className={`gap-4 ${isEntryScreen ? 'eiken-real-trial-entry-layout' : 'eiken-real-trial-practice-layout'}`}
         >
           {!practiceStarted && !result && (
             <section className="eiken-real-trial-entry-card">
@@ -648,7 +772,7 @@ export default function EikenRealExamPage() {
             </section>
           )}
 
-          <aside className={`${isEntryScreen ? 'hidden' : ''} eiken-exam-sidebar rounded-[24px] border border-white/80 bg-white/86 p-4 shadow-[0_14px_34px_rgba(129,164,199,0.13)] lg:sticky lg:top-6 lg:self-start max-md:hidden`}>
+          {false && (<aside className={`${isEntryScreen ? 'hidden' : ''} eiken-exam-sidebar rounded-[24px] border border-white/80 bg-white/86 p-4 shadow-[0_14px_34px_rgba(129,164,199,0.13)] lg:sticky lg:top-6 lg:self-start max-md:hidden`}>
             <div>
               <p className="text-xs font-bold text-[#7d8db5]">英検準2級</p>
               <h2 className="mt-1 text-lg font-bold leading-tight text-[#26376d]">{examLabel}</h2>
@@ -736,10 +860,10 @@ export default function EikenRealExamPage() {
             >
               回答確認へ
             </button>
-          </aside>
+          </aside>)}
 
           <main className={`mt-4 min-w-0 lg:mt-0 lg:max-w-[900px] ${isEntryScreen ? 'hidden' : ''}`}>
-            {((practiceStarted && !isConfirming) || result) && (
+            {false && (
               <div className="sticky top-[57px] z-20 -mx-4 mb-3 flex gap-2 overflow-x-auto border-b border-[#dce9f6] bg-[#f8fcff]/95 px-4 py-3 backdrop-blur md:hidden">
                 {visibleQuestionNumbers.map((questionNumber) => (
                   <button
@@ -761,7 +885,6 @@ export default function EikenRealExamPage() {
                     <p>{modeLabel}</p>
                     <h2 className="text-xl font-bold text-[#26376d] lg:text-2xl">問{currentQuestion} / {questionCount || visibleQuestionNumbers.length || '-'}</h2>
                   </div>
-                  <strong>{currentQuestion} / {questionCount || visibleQuestionNumbers.length || '-'}</strong>
                   <span className={currentAnswer ? 'is-answered' : ''}>
                     {currentStatus}
                   </span>
@@ -772,9 +895,26 @@ export default function EikenRealExamPage() {
                     <p className="mb-2 text-xs font-bold text-[#52668c]">音声</p>
                     <div>
                       {audioSources.map((src, index) => (
-                        <audio key={`${src}-${index}`} controls preload="metadata" src={src} className="eiken-real-trial-audio-button">
-                          <source src={src} type="audio/mpeg" />
-                        </audio>
+                        <div key={`${src}-${index}`} className="eiken-real-trial-audio-control">
+                          <button
+                            type="button"
+                            className="eiken-real-trial-audio-play"
+                            onClick={() => playAudioSource(index)}
+                            aria-label="音声を再生"
+                          >
+                            <span aria-hidden="true" />
+                          </button>
+                          <audio
+                            ref={(element) => {
+                              audioRefs.current[index] = element;
+                            }}
+                            preload="metadata"
+                            src={src}
+                            className="eiken-real-trial-audio-button"
+                          >
+                            <source src={src} type="audio/mpeg" />
+                          </audio>
+                        </div>
                       ))}
                     </div>
                   </div>
@@ -798,7 +938,63 @@ export default function EikenRealExamPage() {
                 </div>
               </section>
             ) : !result && isConfirming ? (
-              <section className="eiken-real-trial-result-panel">
+              <section className="eiken-real-trial-confirm-panel">
+                <div className="eiken-real-trial-confirm-ornament" aria-hidden="true" />
+                <div className="eiken-real-trial-confirm-head">
+                  <p>TRIAL RESULT</p>
+                  <h2>回答確認</h2>
+                </div>
+
+                <div className="eiken-real-trial-confirm-stats">
+                  <span>
+                    <i aria-hidden="true">□</i>
+                    {questionCount || visibleQuestionNumbers.length || 0}問中 {answeredCount}問 回答済み
+                  </span>
+                  <span className={unansweredCount > 0 ? 'is-warning' : ''}>
+                    <i aria-hidden="true">?</i>
+                    未回答 {unansweredCount}問
+                  </span>
+                </div>
+
+                <div className="eiken-real-trial-confirm-actions">
+                  <button
+                    type="button"
+                    onClick={submitAnswers}
+                    disabled={submitting}
+                    className="eiken-real-trial-confirm-primary"
+                  >
+                    {submitting ? '提出中...' : '提出する'}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={reviewAnswers}
+                    className="eiken-real-trial-confirm-secondary"
+                  >
+                    見直す
+                  </button>
+                </div>
+
+                {unansweredCount > 0 && (
+                  <div className="eiken-real-trial-unanswered-warning">
+                    <span className="eiken-real-trial-warning-icon" aria-hidden="true">!</span>
+                    <div>
+                      <h3>未回答があります</h3>
+                      <p>このまま提出しますか？</p>
+                    </div>
+                    <div className="eiken-real-trial-warning-pills">
+                      {unansweredNumbers.map((questionNumber) => (
+                        <button
+                          key={questionNumber}
+                          type="button"
+                          onClick={() => goToQuestion(questionNumber)}
+                        >
+                          問{questionNumber}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+                {false && (<>
                 <div className="eiken-real-trial-result-hero">
                   <div>
                     <p className="text-sm font-bold text-[#6f7da8]">Answer Check</p>
@@ -840,9 +1036,58 @@ export default function EikenRealExamPage() {
                     すべて回答済みです。提出すると採点結果と解説を確認できます。
                   </div>
                 )}
+                </>)}
               </section>
             ) : (
               <section className="eiken-real-trial-result-panel">
+                <div className="eiken-real-result-summary">
+                  <div className="eiken-real-result-score-grid">
+                    <div>
+                      <span>正解</span>
+                      <strong>{correctForResult} / {totalForResult}</strong>
+                    </div>
+                    <div>
+                      <span>正答率</span>
+                      <strong>{scorePercent}%</strong>
+                    </div>
+                    <div>
+                      <span>Rank</span>
+                      <strong className="eiken-real-result-rank">{rankBadge}</strong>
+                    </div>
+                  </div>
+
+                  <div className="eiken-real-result-counts">
+                    <span className="is-correct">正解 {correctForResult}問</span>
+                    <span className="is-wrong">不正解 {incorrectForResult}問</span>
+                    <span className="is-unanswered">未回答 {unansweredForResult}問</span>
+                  </div>
+
+                  <div className="eiken-real-result-actions">
+                    <button type="button" onClick={reviewMistakes} className="is-review">まちがいを復習する</button>
+                    <button type="button" onClick={resetAnswers} className="is-retry">もう一度挑戦</button>
+                    <button type="button" onClick={showAllExplanations} className="is-explain">解説を見る</button>
+                  </div>
+                </div>
+
+                <div className="eiken-real-result-list-head">解説一覧</div>
+                <div className="eiken-real-result-list">
+                  {resultRows.map((item) => (
+                    <EikenResultExplanationCard
+                      key={item.questionNumber}
+                      questionNumber={item.questionNumber}
+                      studentAnswer={item.studentAnswer}
+                      correctAnswer={item.correctAnswer}
+                      preview={item.preview}
+                      explanation={item.explanation}
+                      expanded={Boolean(expandedExplanations[item.questionNumber])}
+                      onToggle={() => setExpandedExplanations((prev) => ({
+                        ...prev,
+                        [item.questionNumber]: !prev[item.questionNumber],
+                      }))}
+                    />
+                  ))}
+                </div>
+                {false && (<>
                 <div className="eiken-real-trial-result-hero">
                   <div>
                     <p className="text-sm font-bold text-[#6f7da8]">英検試練 結果</p>
@@ -907,11 +1152,12 @@ export default function EikenRealExamPage() {
                     答えを保存しました。このパートの解答表が登録されると、自動採点できます。
                   </div>
                 )}
+                </>)}
               </section>
             )}
           </main>
 
-          {practiceStarted && !result && !isConfirming && (
+          {false && (
             <div className="eiken-real-trial-mobile-actions md:hidden">
               <div className="mx-auto flex max-w-md items-center justify-between gap-3">
                 <button
@@ -943,7 +1189,7 @@ export default function EikenRealExamPage() {
             </div>
           )}
 
-          <aside className={`${isEntryScreen ? 'hidden' : ''} hidden rounded-[24px] border border-white/80 bg-white/86 p-4 shadow-[0_14px_34px_rgba(129,164,199,0.13)] lg:sticky lg:top-6 lg:block lg:self-start`}>
+          {false && (<aside className={`${isEntryScreen ? 'hidden' : ''} hidden rounded-[24px] border border-white/80 bg-white/86 p-4 shadow-[0_14px_34px_rgba(129,164,199,0.13)] lg:sticky lg:top-6 lg:block lg:self-start`}>
             {!result ? (
               <div>
                 <p className="text-xs font-bold text-[#7d8db5]">今日の進み具合</p>
@@ -979,7 +1225,7 @@ export default function EikenRealExamPage() {
                 </button>
               </div>
             )}
-          </aside>
+          </aside>)}
         </motion.div>
       )}
       <EQBottomNav className="eiken-real-trial-bottom-nav" />
