@@ -1781,6 +1781,243 @@ textarea {
   opacity: 0.46;
 }
 
+.eiken-real-trial-page .eiken-real-trial-compact-wrap {
+  margin-bottom: 10px;
+}
+
+.eiken-real-trial-page .eiken-real-trial-compact-wrap .compact-page-header {
+  min-height: 104px;
+}
+
+.eiken-real-trial-page .eiken-real-trial-quiz-panel {
+  display: grid;
+  gap: 12px;
+  overflow: visible;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  padding: 0 0 12px;
+}
+
+.eiken-real-trial-page .eiken-real-trial-quiz-header {
+  display: none;
+}
+
+.eiken-real-trial-page .eiken-real-trial-audio-panel {
+  display: grid;
+  gap: 12px;
+  margin: 0;
+  padding: 14px 16px;
+  border: 1.5px solid rgba(255, 211, 90, 0.82);
+  border-radius: 22px;
+  background:
+    radial-gradient(circle at 42% -24%, rgba(255, 211, 90, 0.24), transparent 42%),
+    linear-gradient(180deg, rgba(10, 25, 69, 0.96), rgba(4, 9, 32, 0.98));
+  box-shadow:
+    0 0 20px rgba(255, 211, 90, 0.18),
+    0 14px 32px rgba(0, 0, 0, 0.34),
+    inset 0 0 26px rgba(255, 255, 255, 0.04);
+}
+
+.eiken-real-trial-audio-topline {
+  display: grid;
+  grid-template-columns: minmax(54px, 1fr) auto minmax(68px, 1fr);
+  align-items: center;
+  gap: 10px;
+}
+
+.eiken-real-trial-audio-topline p {
+  margin: 0;
+  color: rgba(207, 233, 255, 0.72);
+  font-size: 15px;
+  font-weight: 950;
+}
+
+.eiken-real-trial-audio-topline > span {
+  justify-self: end;
+  border: 1px solid rgba(255, 211, 90, 0.42);
+  border-radius: 999px;
+  background: rgba(255, 211, 90, 0.1);
+  color: #fff0b5;
+  font-size: 14px;
+  font-weight: 950;
+  padding: 6px 10px;
+}
+
+.eiken-real-trial-audio-topline > span.is-answered {
+  border-color: rgba(84, 230, 168, 0.5);
+  background: rgba(84, 230, 168, 0.14);
+  color: #d9fff0;
+}
+
+.eiken-real-trial-page .eiken-real-trial-audio-play {
+  width: 62px;
+  height: 62px;
+}
+
+.eiken-real-trial-page .eiken-real-trial-audio-play.is-playing span {
+  width: 18px;
+  height: 22px;
+  margin-left: 0;
+  border-width: 0 6px;
+  border-style: solid;
+  border-color: #3a2200;
+  filter: drop-shadow(0 1px 0 rgba(255, 244, 185, 0.55));
+}
+
+.eiken-real-trial-audio-progress-row {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 8px;
+  color: rgba(226, 237, 255, 0.72);
+  font-size: 14px;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.eiken-real-trial-audio-track {
+  position: relative;
+  overflow: hidden;
+  height: 8px;
+  border-radius: 999px;
+  background: rgba(226, 237, 255, 0.14);
+}
+
+.eiken-real-trial-audio-track::before {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background: #ffe7a1;
+  content: "";
+  transform: translateY(-50%);
+}
+
+.eiken-real-trial-audio-track i {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #ffe7a1, #f2bd37);
+}
+
+.eiken-real-trial-page .eiken-real-trial-audio-button,
+.eiken-real-trial-page .eiken-real-content audio {
+  display: none !important;
+}
+
+.eiken-real-trial-page .eiken-real-content {
+  display: grid;
+  gap: 12px;
+}
+
+.eiken-real-trial-page .eiken-real-content table.form {
+  display: grid;
+  gap: 0;
+  border-spacing: 0 !important;
+}
+
+.eiken-real-trial-page .eiken-real-content table.form > tbody {
+  display: contents;
+}
+
+.eiken-real-trial-page .eiken-real-content table.form > tbody > tr {
+  margin: 0;
+  border: 1.5px solid rgba(255, 211, 90, 0.72);
+  border-radius: 22px;
+  box-shadow:
+    0 14px 32px rgba(0, 0, 0, 0.32),
+    inset 0 0 24px rgba(255, 255, 255, 0.035);
+}
+
+.eiken-real-trial-page .eiken-real-content table.form > tbody > tr:first-child,
+.eiken-real-trial-page .eiken-real-content table.form > tbody > tr:nth-child(2) {
+  background:
+    radial-gradient(circle at 85% 30%, rgba(95, 141, 255, 0.18), transparent 26%),
+    linear-gradient(180deg, rgba(10, 25, 69, 0.96), rgba(4, 9, 32, 0.98)) !important;
+}
+
+.eiken-real-trial-page .eiken-real-content table.form > tbody > tr:first-child {
+  border-bottom: 0;
+  border-radius: 22px 22px 0 0;
+  box-shadow:
+    0 14px 32px rgba(0, 0, 0, 0.22),
+    inset 0 0 24px rgba(255, 255, 255, 0.035);
+}
+
+.eiken-real-trial-page .eiken-real-content table.form > tbody > tr:nth-child(2) {
+  border-top: 0;
+  border-radius: 0 0 22px 22px;
+}
+
+.eiken-real-trial-page .eiken-real-content table.form > tbody > tr.eiken-question-row {
+  margin-top: 12px;
+  background:
+    radial-gradient(circle at 12% 0%, rgba(255, 211, 90, 0.12), transparent 34%),
+    linear-gradient(180deg, rgba(9, 22, 62, 0.96), rgba(4, 9, 32, 0.98)) !important;
+}
+
+.eiken-real-trial-page .eiken-real-content table.form > tbody > tr:first-child > th,
+.eiken-real-trial-page .eiken-real-content table.form > tbody > tr:first-child > td,
+.eiken-real-trial-page .eiken-real-content table.form > tbody > tr:nth-child(2) > th,
+.eiken-real-trial-page .eiken-real-content table.form > tbody > tr:nth-child(2) > td,
+.eiken-real-trial-page .eiken-real-content table.form > tbody > tr.eiken-question-row > th,
+.eiken-real-trial-page .eiken-real-content table.form > tbody > tr.eiken-question-row > td {
+  padding: 14px 16px !important;
+}
+
+.eiken-real-trial-page .eiken-real-content table.form > tbody > tr > th:first-child {
+  color: #ffe7a1;
+  font-size: 19px !important;
+  font-weight: 950;
+  line-height: 1.2;
+}
+
+.eiken-real-trial-page .eiken-real-content table.form > tbody > tr > td,
+.eiken-real-trial-page .eiken-real-content table.form > tbody > tr > th[colspan='5'] {
+  color: rgba(247, 251, 255, 0.94);
+}
+
+.eiken-real-trial-page .eiken-real-content table.form font[color='#ff00ff'],
+.eiken-real-trial-page .eiken-real-content table.form font[color='#FF00FF'] {
+  color: #ffe58a !important;
+  font-weight: 950;
+}
+
+.eiken-real-trial-page .eiken-real-content .hpb-cnt-tb1 {
+  margin-top: 8px;
+  border-spacing: 0 8px !important;
+}
+
+.eiken-real-trial-page .eiken-real-content .hpb-cnt-tb1 td {
+  min-height: 42px;
+  border-color: rgba(255, 211, 90, 0.58) !important;
+  border-radius: 16px;
+  background: rgba(7, 17, 50, 0.9) !important;
+  color: rgba(247, 251, 255, 0.94);
+  padding: 9px 12px !important;
+  box-shadow: inset 0 0 18px rgba(255, 255, 255, 0.035);
+}
+
+.eiken-real-trial-page .eiken-real-content .hpb-cnt-tb1 td + td {
+  margin-top: 8px;
+}
+
+.eiken-real-trial-page .eiken-real-content input[type='radio'] {
+  width: 18px;
+  height: 18px;
+  margin-right: 10px;
+  accent-color: #f0c63e;
+}
+
+.eiken-real-trial-page .eiken-real-trial-quiz-actions {
+  margin-top: 0;
+  padding-bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+}
+
 .eiken-real-trial-mobile-actions {
   position: fixed;
   right: 0;

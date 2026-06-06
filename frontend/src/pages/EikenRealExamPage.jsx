@@ -99,6 +99,14 @@ function formatResultAnswer(answer) {
   return answer || '未回答';
 }
 
+function formatAudioTime(seconds) {
+  if (!Number.isFinite(seconds) || seconds <= 0) return '00:00';
+  const totalSeconds = Math.floor(seconds);
+  const minutes = Math.floor(totalSeconds / 60);
+  const remainingSeconds = totalSeconds % 60;
+  return `${String(minutes).padStart(2, '0')}:${String(remainingSeconds).padStart(2, '0')}`;
+}
+
 function getFallbackExplanation(status, studentAnswer, correctAnswer) {
   if (status === 'unanswered') {
     return `この問題は未回答でした。正解は ${correctAnswer || '-'} です。選択肢の意味を確認して、会話の最後に自然につながる返事を選びましょう。`;
@@ -332,6 +340,9 @@ export default function EikenRealExamPage() {
   const [loading, setLoading] = useState(true);
   const [partLoading, setPartLoading] = useState(false);
   const [error, setError] = useState('');
+  const [audioCurrentTime, setAudioCurrentTime] = useState(0);
+  const [audioDuration, setAudioDuration] = useState(0);
+  const [audioIsPlaying, setAudioIsPlaying] = useState(false);
 
   const selectedExam = useMemo(
     () => exams.find((exam) => exam.exam_id === selectedExamId) || exams[0] || null,
@@ -350,6 +361,7 @@ export default function EikenRealExamPage() {
     () => (partData?.audio_paths || []).map(getEikenAudioSrc).filter(Boolean),
     [partData?.audio_paths],
   );
+  const primaryAudioSource = audioSources[0] || '';
   const explanations = result?.explanations || [];
 
   useEffect(() => {
@@ -389,6 +401,9 @@ export default function EikenRealExamPage() {
     setPracticeStarted(false);
     setIsConfirming(false);
     setCurrentQuestion(1);
+    setAudioCurrentTime(0);
+    setAudioDuration(0);
+    setAudioIsPlaying(false);
     setExpandedExplanations({});
     setStartedAt(new Date().toISOString());
     getEikenRealExamPart(selectedPartId)
@@ -559,6 +574,16 @@ export default function EikenRealExamPage() {
     audio.play();
   };
 
+  const togglePrimaryAudio = () => {
+    const audio = audioRefs.current[0];
+    if (!audio) return;
+    if (audio.paused) {
+      playAudioSource(0);
+    } else {
+      audio.pause();
+    }
+  };
+
   const isLastQuestion = visibleQuestionNumbers[visibleQuestionNumbers.length - 1] === currentQuestion;
   const unansweredNumbers = visibleQuestionNumbers.filter((questionNumber) => !getQuestionAnswer(answers, questionNumber));
   const unansweredCount = unansweredNumbers.length;
@@ -608,6 +633,8 @@ export default function EikenRealExamPage() {
   const currentStatus = currentAnswer ? '回答済み' : '未回答';
   const examLabel = selectedExam?.label || '2025年第3回';
   const modeLabel = mode === 'listening' ? 'リスニング' : '筆記';
+  const audioProgress = audioDuration > 0 ? Math.min(100, (audioCurrentTime / audioDuration) * 100) : 0;
+  const audioRemaining = audioDuration > 0 ? Math.max(0, audioDuration - audioCurrentTime) : 0;
   const isEntryScreen = !practiceStarted && !result;
   const totalForResult = result?.total_questions || questionCount || visibleQuestionNumbers.length || 0;
   const correctForResult = result?.answer_key_available ? result.correct_count || 0 : 0;
@@ -890,7 +917,54 @@ export default function EikenRealExamPage() {
                   </span>
                 </div>
 
-                {audioSources.length > 0 && mode === 'listening' && (
+                {primaryAudioSource && mode === 'listening' && (
+                  <div className="eiken-real-trial-audio-panel">
+                    <div className="eiken-real-trial-audio-topline">
+                      <p>音声</p>
+                      <button
+                        type="button"
+                        className={`eiken-real-trial-audio-play ${audioIsPlaying ? 'is-playing' : ''}`}
+                        onClick={togglePrimaryAudio}
+                        aria-label={audioIsPlaying ? '音声を一時停止' : '音声を再生'}
+                      >
+                        <span aria-hidden="true" />
+                      </button>
+                      <span className={currentAnswer ? 'is-answered' : ''}>{currentStatus}</span>
+                    </div>
+                    <div className="eiken-real-trial-audio-progress-row">
+                      <span>{formatAudioTime(audioCurrentTime)}</span>
+                      <div className="eiken-real-trial-audio-track" aria-hidden="true">
+                        <i style={{ width: `${audioProgress}%` }} />
+                      </div>
+                      <span>-{formatAudioTime(audioRemaining)}</span>
+                    </div>
+                    <audio
+                      ref={(element) => {
+                        audioRefs.current[0] = element;
+                      }}
+                      preload="metadata"
+                      src={primaryAudioSource}
+                      className="eiken-real-trial-audio-button"
+                      onLoadedMetadata={(event) => {
+                        setAudioDuration(event.currentTarget.duration || 0);
+                        setAudioCurrentTime(event.currentTarget.currentTime || 0);
+                      }}
+                      onTimeUpdate={(event) => {
+                        setAudioCurrentTime(event.currentTarget.currentTime || 0);
+                      }}
+                      onPlay={() => setAudioIsPlaying(true)}
+                      onPause={() => setAudioIsPlaying(false)}
+                      onEnded={(event) => {
+                        setAudioIsPlaying(false);
+                        setAudioCurrentTime(event.currentTarget.duration || 0);
+                      }}
+                    >
+                      <source src={primaryAudioSource} type="audio/mpeg" />
+                    </audio>
+                  </div>
+                )}
+
+                {false && audioSources.length > 0 && mode === 'listening' && (
                   <div className="eiken-real-trial-audio-panel">
                     <p className="mb-2 text-xs font-bold text-[#52668c]">音声</p>
                     <div>
