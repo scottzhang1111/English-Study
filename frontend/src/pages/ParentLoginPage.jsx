@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getChildren } from '../api';
+import { getAuthMe, getChildren } from '../api';
 import { useAuth } from '../AuthContext';
 import { useChildren } from '../ChildrenContext';
 
@@ -12,7 +12,7 @@ const SOCIAL_LOGIN_OPTIONS = [
 
 export default function ParentLoginPage() {
   const navigate = useNavigate();
-  const { login, authLoading, authError } = useAuth();
+  const { login, authLoading } = useAuth();
   const { setSelectedChildId } = useChildren();
   const [email, setEmail] = useState('');
   const [codeNotice, setCodeNotice] = useState('');
@@ -24,6 +24,8 @@ export default function ParentLoginPage() {
 
   const handleSubmit = async (event) => {
     event.preventDefault();
+    console.log('[auth debug] login submit clicked');
+
     const trimmedEmail = email.trim();
     if (!trimmedEmail) {
       setFormError('メールアドレスを入力してください。');
@@ -33,6 +35,19 @@ export default function ParentLoginPage() {
     setFormError('');
     try {
       await login(trimmedEmail);
+    } catch (err) {
+      setFormError(err.message || 'ログインできませんでした。');
+      return;
+    }
+
+    try {
+      await getAuthMe();
+    } catch (err) {
+      setFormError('ログイン状態を確認できませんでした');
+      return;
+    }
+
+    try {
       const payload = await getChildren();
       const childList = payload.children || [];
       if (childList.length === 0) {
@@ -43,7 +58,7 @@ export default function ParentLoginPage() {
       setSelectedChildId(childList[0].id);
       navigate('/app', { replace: true });
     } catch (err) {
-      setFormError(err.message || 'ログインできませんでした。');
+      setFormError(err.message || '子どもプロフィールを確認できませんでした。');
     }
   };
 
@@ -90,9 +105,9 @@ export default function ParentLoginPage() {
           </label>
 
           <p className="parent-login-hint">※第一版はメールアドレスでログインできます</p>
-          {(codeNotice || formError || authError) && (
-            <p className={`parent-login-message ${formError || authError ? 'is-error' : ''}`}>
-              {formError || authError || codeNotice}
+          {(codeNotice || formError) && (
+            <p className={`parent-login-message ${formError ? 'is-error' : ''}`}>
+              {formError || codeNotice}
             </p>
           )}
 

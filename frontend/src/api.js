@@ -21,13 +21,25 @@ function toQuery(params = {}) {
 }
 
 async function fetchJson(path, { method = 'GET', params, body } = {}) {
+  const resolvedMethod = method || 'GET';
   const response = await fetch(`${API_BASE_URL}${path}${toQuery(params)}`, {
-    method,
+    method: resolvedMethod,
     headers: body ? { 'Content-Type': 'application/json' } : undefined,
     body: body ? JSON.stringify(body) : undefined,
     cache: 'no-store',
     credentials: 'include',
   });
+  if (['/api/auth/login', '/api/auth/me', '/api/children'].includes(path)) {
+    const debugContentType = response.headers.get('content-type') || '';
+    let debugBody = '';
+    if (debugContentType.includes('application/json')) {
+      debugBody = await response.clone().json().catch(() => null);
+    } else {
+      debugBody = await response.clone().text().catch(() => '');
+    }
+    console.log(`[auth debug] ${resolvedMethod} ${path} status`, response.status);
+    console.log(`[auth debug] ${resolvedMethod} ${path} response body`, debugBody);
+  }
   if (!response.ok) {
     const contentType = response.headers.get('content-type') || '';
     let message = '';
