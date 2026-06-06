@@ -924,14 +924,20 @@ textarea {
 
 .eiken-real-content .hpb-cnt-tb1 tbody,
 .eiken-real-content .hpb-cnt-tb1 tr {
-  display: block;
   width: 100%;
 }
 
+.eiken-real-content .hpb-cnt-tb1 tr {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: stretch;
+}
+
 .eiken-real-content .hpb-cnt-tb1 td {
-  display: block;
-  width: 100% !important;
+  display: flex;
+  width: auto !important;
   min-height: 52px;
+  align-items: center;
   border: 1px solid #d8e8f8 !important;
   border-radius: 16px;
   background: rgba(255, 255, 255, 0.94) !important;
@@ -949,7 +955,10 @@ textarea {
 }
 
 .eiken-real-content .hpb-cnt-tb1 td + td {
-  margin-top: 10px;
+  margin-top: 0;
+  margin-left: -1px;
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
 }
 
 .eiken-real-content .hpb-cnt-tb1 tr:hover td {
@@ -983,9 +992,11 @@ textarea {
 }
 
 .eiken-real-content .hpb-cnt-tb1 td:first-child {
-  width: 100% !important;
+  width: auto !important;
   white-space: nowrap;
   color: #52668c;
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
 }
 
 .eiken-real-content input[type='radio'] {
@@ -2005,8 +2016,16 @@ textarea {
   border-spacing: 0 8px !important;
 }
 
+.eiken-real-trial-page .eiken-real-content .hpb-cnt-tb1 tr {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+}
+
 .eiken-real-trial-page .eiken-real-content .hpb-cnt-tb1 td {
+  display: flex;
+  width: auto !important;
   min-height: 42px;
+  align-items: center;
   border-color: rgba(255, 211, 90, 0.58) !important;
   border-radius: 16px;
   background: rgba(7, 17, 50, 0.9) !important;
@@ -2016,7 +2035,15 @@ textarea {
 }
 
 .eiken-real-trial-page .eiken-real-content .hpb-cnt-tb1 td + td {
-  margin-top: 8px;
+  margin-top: 0;
+  margin-left: -1px;
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+}
+
+.eiken-real-trial-page .eiken-real-content .hpb-cnt-tb1 td:first-child {
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
 }
 
 .eiken-real-trial-page .eiken-real-content input[type='radio'] {
