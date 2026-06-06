@@ -10780,7 +10780,30 @@ body,
 .eq-world-mini-strip,
 .eq-card-detail,
 .eq-card-detail-overlay,
-.eq-learning-hub-screen {
+.eq-learning-hub-screen,
+.eq-app-mobile *,
+.eq-page *,
+.eq-mobile-screen *,
+.eq-mobile-shell *,
+.eq-home-mobile-root *,
+.eq-home-menu *,
+.quest-page-layout *,
+.eq-world-stage-screen *,
+.eq-study-screen *,
+.eq-quiz-screen *,
+.eq-grammar-screen *,
+.eq-card-screen *,
+.eq-settings-screen *,
+.eq-daily-words-shell *,
+.eq-word-study-screen *,
+.eq-study-map-screen *,
+.eq-world-overview-screen *,
+.eq-daily-word-list *,
+.eq-card-filter-tabs *,
+.eq-world-mini-strip *,
+.eq-card-detail *,
+.eq-card-detail-overlay *,
+.eq-learning-hub-screen * {
   -ms-overflow-style: none !important;
   scrollbar-width: none !important;
 }
@@ -10807,31 +10830,34 @@ body,
 .eq-world-mini-strip::-webkit-scrollbar,
 .eq-card-detail::-webkit-scrollbar,
 .eq-card-detail-overlay::-webkit-scrollbar,
-.eq-learning-hub-screen::-webkit-scrollbar {
+.eq-learning-hub-screen::-webkit-scrollbar,
+.eq-app-mobile *::-webkit-scrollbar,
+.eq-page *::-webkit-scrollbar,
+.eq-mobile-screen *::-webkit-scrollbar,
+.eq-mobile-shell *::-webkit-scrollbar,
+.eq-home-mobile-root *::-webkit-scrollbar,
+.eq-home-menu *::-webkit-scrollbar,
+.quest-page-layout *::-webkit-scrollbar,
+.eq-world-stage-screen *::-webkit-scrollbar,
+.eq-study-screen *::-webkit-scrollbar,
+.eq-quiz-screen *::-webkit-scrollbar,
+.eq-grammar-screen *::-webkit-scrollbar,
+.eq-card-screen *::-webkit-scrollbar,
+.eq-settings-screen *::-webkit-scrollbar,
+.eq-daily-words-shell *::-webkit-scrollbar,
+.eq-word-study-screen *::-webkit-scrollbar,
+.eq-study-map-screen *::-webkit-scrollbar,
+.eq-world-overview-screen *::-webkit-scrollbar,
+.eq-daily-word-list *::-webkit-scrollbar,
+.eq-card-filter-tabs *::-webkit-scrollbar,
+.eq-world-mini-strip *::-webkit-scrollbar,
+.eq-card-detail *::-webkit-scrollbar,
+.eq-card-detail-overlay *::-webkit-scrollbar,
+.eq-learning-hub-screen *::-webkit-scrollbar {
   display: none !important;
   width: 0 !important;
   height: 0 !important;
 }
-
-/* =========================================================
-   Learning Hub RPG Menu
-   ========================================================= */
-
-.eq-learning-hub-rpg-screen {
-  gap: 18px;
-  padding: max(18px, env(safe-area-inset-top, 0px)) 14px calc(118px + env(safe-area-inset-bottom, 0px));
-  background:
-    radial-gradient(circle at 50% -4%, rgba(255, 213, 103, 0.22), transparent 28%),
-    radial-gradient(circle at 0% 12%, rgba(66, 137, 255, 0.26), transparent 34%),
-    radial-gradient(circle at 100% 24%, rgba(139, 83, 255, 0.22), transparent 36%),
-    linear-gradient(180deg, #06143d 0%, #060922 42%, #02040e 100%);
-}
-
-.eq-learning-hub-rpg-header {
-  display: grid;
-  gap: 8px;
-  padding: 8px 4px 2px;
-  text-align: center;
   text-shadow:
     0 2px 0 rgba(63, 36, 10, 0.82),
     0 0 20px rgba(255, 211, 90, 0.36);
