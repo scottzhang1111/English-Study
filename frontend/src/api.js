@@ -1,13 +1,6 @@
 import { PET_STARTER_OPTIONS, buildStaticPetCollection, decoratePet } from './lib/petMaster';
 
-function getDefaultApiBaseUrl() {
-  if (import.meta.env.DEV) {
-    return '';
-  }
-  return '';
-}
-
-export const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL || getDefaultApiBaseUrl()).replace(/\/$/, '');
+export const API_BASE_URL = '';
 
 function toQuery(params = {}) {
   const searchParams = new URLSearchParams();
@@ -29,17 +22,6 @@ async function fetchJson(path, { method = 'GET', params, body } = {}) {
     cache: 'no-store',
     credentials: 'include',
   });
-  if (['/api/auth/login', '/api/auth/me', '/api/children'].includes(path)) {
-    const debugContentType = response.headers.get('content-type') || '';
-    let debugBody = '';
-    if (debugContentType.includes('application/json')) {
-      debugBody = await response.clone().json().catch(() => null);
-    } else {
-      debugBody = await response.clone().text().catch(() => '');
-    }
-    console.log(`[auth debug] ${resolvedMethod} ${path} status`, response.status);
-    console.log(`[auth debug] ${resolvedMethod} ${path} response body`, debugBody);
-  }
   if (!response.ok) {
     const contentType = response.headers.get('content-type') || '';
     let message = '';
