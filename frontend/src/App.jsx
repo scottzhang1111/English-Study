@@ -2,6 +2,8 @@ import { Routes, Route, useLocation, Navigate } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import HomePage from './pages/HomePage';
 import AddChildPage from './pages/AddChildPage';
+import OnboardingPage from './pages/OnboardingPage';
+import ParentLoginPage from './pages/ParentLoginPage';
 import ChildSelectPage from './pages/ChildSelectPage';
 import LearningHubPage from './pages/LearningHubPage';
 import DailyWordUnitPage from './pages/DailyWordUnitPage';
@@ -38,6 +40,7 @@ import ParentWordManagerPage from './pages/ParentWordManagerPage';
 /* import BottomNav from './components/BottomNav'; */
 import StartupGate, { RequireCurrentChild } from './components/StartupGate';
 import { LanguageProvider } from './LanguageContext';
+import { AuthProvider, useAuth } from './AuthContext';
 import { ChildrenProvider } from './ChildrenContext';
 import { ThemeSchemeProvider } from './ThemeContext';
 
@@ -59,6 +62,16 @@ function AnimatedPage({ children }) {
 
 function ChildRequiredPage({ children }) {
   return <RequireCurrentChild>{children}</RequireCurrentChild>;
+}
+
+function AuthRequiredPage({ children }) {
+  const { authLoading, isAuthenticated } = useAuth();
+
+  if (authLoading) {
+    return <div className="mx-auto max-w-5xl px-4 py-8 text-center text-sm font-bold text-[#6f7da8]">Loading...</div>;
+  }
+
+  return isAuthenticated ? children : <Navigate replace to="/onboarding" />;
 }
 
 const STUDY_ROUTE_PREFIXES = [
@@ -104,13 +117,17 @@ function App() {
   return (
     <ThemeSchemeProvider>
       <LanguageProvider>
-        <ChildrenProvider>
-          <div className="app-shell min-h-screen">
-            <AnimatePresence mode="wait" initial={false}>
+        <AuthProvider>
+          <ChildrenProvider>
+            <div className="app-shell min-h-screen">
+              <AnimatePresence mode="wait" initial={false}>
            
             <Routes location={location} key={location.pathname}>
             <Route path="/" element={<AnimatedPage><StartupGate /></AnimatedPage>} />
             <Route path="/app" element={<AnimatedPage><StartupGate /></AnimatedPage>} />
+            <Route path="/onboarding" element={<AnimatedPage><OnboardingPage /></AnimatedPage>} />
+            <Route path="/parent-login" element={<AnimatedPage><ParentLoginPage /></AnimatedPage>} />
+            <Route path="/create-child-profile" element={<AnimatedPage><AuthRequiredPage><AddChildPage /></AuthRequiredPage></AnimatedPage>} />
             <Route path="/select-child" element={<AnimatedPage><ChildSelectPage /></AnimatedPage>} />
             <Route path="/learning-hub" element={<AnimatedPage><ChildRequiredPage><LearningHubPage /></ChildRequiredPage></AnimatedPage>} />
             <Route path="/app/learning-hub" element={<AnimatedPage><ChildRequiredPage><LearningHubPage /></ChildRequiredPage></AnimatedPage>} />
@@ -158,10 +175,10 @@ function App() {
             <Route path="/app/parent/word-manager" element={<AnimatedPage><ChildRequiredPage><ParentWordManagerPage /></ChildRequiredPage></AnimatedPage>} />
             <Route path="/settings" element={<AnimatedPage><SettingsPage /></AnimatedPage>} />
             <Route path="/settings/children" element={<AnimatedPage><SettingsPage /></AnimatedPage>} />
-            <Route path="/settings/add-child" element={<AnimatedPage><AddChildPage /></AnimatedPage>} />
+            <Route path="/settings/add-child" element={<AnimatedPage><AuthRequiredPage><AddChildPage /></AuthRequiredPage></AnimatedPage>} />
             <Route path="*" element={<Navigate replace to="/" />} />
              </Routes>
-            </AnimatePresence>
+              </AnimatePresence>
 {/*             {hideBottomNav ? (
               null
             ) : hideBottomNavOnMobile ? (
@@ -175,8 +192,9 @@ function App() {
             ) : (
               <BottomNav />
             )} */}
-          </div>
-        </ChildrenProvider>
+            </div>
+          </ChildrenProvider>
+        </AuthProvider>
       </LanguageProvider>
     </ThemeSchemeProvider>
   );

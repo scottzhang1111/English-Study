@@ -1,11 +1,13 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { getChildren } from './api';
+import { useAuth } from './AuthContext';
 
 const ChildrenContext = createContext(null);
 let initialChildrenRequest = null;
 const CHILD_STORAGE_KEY = 'selected_child_id';
 
 export function ChildrenProvider({ children }) {
+  const { authLoading, isAuthenticated } = useAuth();
   const [childrenList, setChildrenList] = useState([]);
   const [childrenLoading, setChildrenLoading] = useState(true);
   const [childrenError, setChildrenError] = useState('');
@@ -27,9 +29,24 @@ export function ChildrenProvider({ children }) {
   }, []);
 
   const refreshChildren = useCallback(async ({ force = true } = {}) => {
+    if (authLoading) {
+      setChildrenLoading(true);
+      return [];
+    }
+    if (!isAuthenticated) {
+      initialChildrenRequest = null;
+      setChildrenList([]);
+      setChildrenError('');
+      setChildrenLoading(false);
+      return [];
+    }
+
     setChildrenLoading(true);
     setChildrenError('');
     try {
+      if (force) {
+        initialChildrenRequest = null;
+      }
       if (!force && initialChildrenRequest) {
         const cachedList = await initialChildrenRequest;
         setChildrenList(cachedList);
@@ -40,8 +57,6 @@ export function ChildrenProvider({ children }) {
       if (!force) {
         initialChildrenRequest = request;
       }
-      window.__childrenApiCallCount = (window.__childrenApiCallCount || 0) + 1;
-      console.log('[children api call count]', window.__childrenApiCallCount);
       const list = await request;
       setChildrenList(list);
       return list;
@@ -52,7 +67,7 @@ export function ChildrenProvider({ children }) {
     } finally {
       setChildrenLoading(false);
     }
-  }, []);
+  }, [authLoading, isAuthenticated]);
 
   useEffect(() => {
     localStorage.removeItem('children');
@@ -60,8 +75,33 @@ export function ChildrenProvider({ children }) {
   }, []);
 
   useEffect(() => {
+    if (authLoading) {
+      setChildrenLoading(true);
+      return;
+    }
+    if (!isAuthenticated) {
+      initialChildrenRequest = null;
+      setChildrenList([]);
+      setChildrenError('');
+      setChildrenLoading(false);
+      return;
+    }
     refreshChildren({ force: false });
-  }, [refreshChildren]);
+  }, [authLoading, isAuthenticated, refreshChildren]);
+
+  useEffect(() => {
+    if (childrenLoading || !isAuthenticated) return;
+    if (childrenList.length === 0) {
+      if (selectedChildId) {
+        setSelectedChildId('');
+      }
+      return;
+    }
+    const selectedExists = childrenList.some((child) => String(child.id) === String(selectedChildId));
+    if (!selectedExists) {
+      setSelectedChildId(childrenList[0].id);
+    }
+  }, [childrenList, childrenLoading, isAuthenticated, selectedChildId, setSelectedChildId]);
 
   const value = useMemo(
     () => ({

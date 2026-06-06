@@ -26,6 +26,7 @@ async function fetchJson(path, { method = 'GET', params, body } = {}) {
     headers: body ? { 'Content-Type': 'application/json' } : undefined,
     body: body ? JSON.stringify(body) : undefined,
     cache: 'no-store',
+    credentials: 'include',
   });
   if (!response.ok) {
     const contentType = response.headers.get('content-type') || '';
@@ -57,6 +58,21 @@ function normalizeApiChild(child) {
 
 export const getHomeData = async (childId) => {
   return fetchJson('/api/home', { params: { child_id: childId } });
+};
+
+export const loginAccount = async ({ email } = {}) => {
+  return fetchJson('/api/auth/login', {
+    method: 'POST',
+    body: { email },
+  });
+};
+
+export const getAuthMe = async () => {
+  return fetchJson('/api/auth/me');
+};
+
+export const logoutAccount = async () => {
+  return fetchJson('/api/auth/logout', { method: 'POST', body: {} });
 };
 
 export const getHeroCards = async () => {

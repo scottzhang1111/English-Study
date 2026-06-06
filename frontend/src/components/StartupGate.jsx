@@ -1,24 +1,28 @@
 import { useEffect } from 'react';
 import { Navigate } from 'react-router-dom';
 import HomePage from '../pages/HomePage';
-import ChildSelectPage from '../pages/ChildSelectPage';
 import { useChildren } from '../ChildrenContext';
+import { useAuth } from '../AuthContext';
 
 export default function StartupGate() {
+  const { authLoading, isAuthenticated } = useAuth();
   const { children, childrenLoading, childrenError, selectedChildId, setSelectedChildId, refreshChildren } = useChildren();
 
   useEffect(() => {
-    if (!childrenLoading && children.length === 1 && !selectedChildId) {
-      setSelectedChildId(children[0].id);
-      return;
+    if (!authLoading && isAuthenticated && !childrenLoading && children.length > 0) {
+      const selectedExists = children.some((child) => String(child.id) === String(selectedChildId));
+      if (!selectedExists) {
+        setSelectedChildId(children[0].id);
+      }
     }
-    if (!childrenLoading && selectedChildId && !children.some((child) => String(child.id) === String(selectedChildId))) {
-      setSelectedChildId('');
-    }
-  }, [children, childrenLoading, selectedChildId, setSelectedChildId]);
+  }, [authLoading, isAuthenticated, children, childrenLoading, selectedChildId, setSelectedChildId]);
 
-  if (childrenLoading) {
+  if (authLoading || childrenLoading) {
     return <div className="mx-auto max-w-5xl px-4 py-8 text-center text-sm font-bold text-[#6f7da8]">Loading...</div>;
+  }
+
+  if (!isAuthenticated) {
+    return <Navigate replace to="/onboarding" />;
   }
 
   if (childrenError) {
@@ -33,33 +37,33 @@ export default function StartupGate() {
   }
 
   if (children.length === 0) {
-    setSelectedChildId('');
-    return <HomePage />;
-  }
-
-  if (children.length === 1 && !selectedChildId) {
-    return <div className="mx-auto max-w-5xl px-4 py-8 text-center text-sm font-bold text-[#6f7da8]">Loading...</div>;
+    return <Navigate replace to="/create-child-profile" />;
   }
 
   if (children.some((child) => String(child.id) === String(selectedChildId))) {
     return <HomePage />;
   }
 
-  return <ChildSelectPage />;
+  return <div className="mx-auto max-w-5xl px-4 py-8 text-center text-sm font-bold text-[#6f7da8]">Loading...</div>;
 }
 
 export function RequireCurrentChild({ children }) {
+  const { authLoading, isAuthenticated } = useAuth();
   const { children: childList, childrenLoading, childrenError, selectedChildId, setSelectedChildId, refreshChildren } = useChildren();
   const selectedExists = childList.some((child) => String(child.id) === String(selectedChildId));
 
   useEffect(() => {
-    if (!childrenLoading && (!selectedChildId || !selectedExists)) {
-      setSelectedChildId('');
+    if (!authLoading && isAuthenticated && !childrenLoading && childList.length > 0 && (!selectedChildId || !selectedExists)) {
+      setSelectedChildId(childList[0].id);
     }
-  }, [childrenLoading, selectedChildId, selectedExists, setSelectedChildId]);
+  }, [authLoading, isAuthenticated, childList, childrenLoading, selectedChildId, selectedExists, setSelectedChildId]);
 
-  if (childrenLoading) {
+  if (authLoading || childrenLoading) {
     return <div className="mx-auto max-w-5xl px-4 py-8 text-center text-sm font-bold text-[#6f7da8]">Loading...</div>;
+  }
+
+  if (!isAuthenticated) {
+    return <Navigate replace to="/onboarding" />;
   }
 
   if (childrenError) {
@@ -73,5 +77,9 @@ export function RequireCurrentChild({ children }) {
     );
   }
 
-  return childList.length > 0 && selectedExists ? children : <Navigate replace to="/settings/children" />;
+  if (childList.length === 0) {
+    return <Navigate replace to="/create-child-profile" />;
+  }
+
+  return selectedExists ? children : <div className="mx-auto max-w-5xl px-4 py-8 text-center text-sm font-bold text-[#6f7da8]">Loading...</div>;
 }

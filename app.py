@@ -6,6 +6,7 @@ import json
 import os
 import random
 import re
+import secrets
 import sqlite3
 import time
 import urllib.error
@@ -60,6 +61,8 @@ EIGO_QUEST_WORLD_MAP = {world['id']: world for world in EIGO_QUEST_WORLDS}
 EIGO_QUEST_WORLD_ORDER = [world['id'] for world in EIGO_QUEST_WORLDS]
 EIGO_QUEST_TOTAL_STAGES = sum(world['stage_count'] for world in EIGO_QUEST_WORLDS)
 EIGO_QUEST_TOTAL_WORDS = sum(world['word_count'] for world in EIGO_QUEST_WORLDS)
+AUTH_SESSION_COOKIE_NAME = 'eq_auth_session'
+AUTH_SESSION_DAYS = 30
 # Stage reward cards use the existing official heroes rows in the database.
 # The heroes table already contains 80 cards using codes such as
 # wind-guardian1 ... shadow-guardian10.
@@ -187,7 +190,11 @@ def get_cors_origins():
     return origins
 
 
-CORS(app, resources={r'/api/*': {'origins': get_cors_origins()}, r'/debug/*': {'origins': get_cors_origins()}, r'/health': {'origins': get_cors_origins()}})
+CORS(
+    app,
+    resources={r'/api/*': {'origins': get_cors_origins()}, r'/debug/*': {'origins': get_cors_origins()}, r'/health': {'origins': get_cors_origins()}},
+    supports_credentials=True,
+)
 
 
 @app.errorhandler(HTTPException)
@@ -1787,8 +1794,36 @@ def init_db(force=False):
         )
         conn.execute(
             '''
+            CREATE TABLE IF NOT EXISTS accounts (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                email TEXT,
+                phone TEXT,
+                provider TEXT NOT NULL DEFAULT 'email',
+                display_name TEXT,
+                created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                UNIQUE (email)
+            )
+            '''
+        )
+        conn.execute(
+            '''
+            CREATE TABLE IF NOT EXISTS auth_sessions (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                account_id INTEGER NOT NULL,
+                session_token TEXT NOT NULL,
+                expires_at TEXT NOT NULL,
+                created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                UNIQUE (session_token),
+                FOREIGN KEY (account_id) REFERENCES accounts (id) ON UPDATE CASCADE ON DELETE CASCADE
+            )
+            '''
+        )
+        conn.execute(
+            '''
             CREATE TABLE IF NOT EXISTS children (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
+                account_id INTEGER,
                 name TEXT NOT NULL,
                 grade TEXT NOT NULL,
                 target_level TEXT NOT NULL,
@@ -1797,6 +1832,7 @@ def init_db(force=False):
                 starter_pokemon_id INTEGER,
                 created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
                 updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (account_id) REFERENCES accounts (id) ON UPDATE CASCADE ON DELETE SET NULL,
                 FOREIGN KEY (starter_pokemon_id) REFERENCES pokemon_catalog (pokemon_id) ON UPDATE CASCADE ON DELETE SET NULL
             )
             '''
@@ -2706,8 +2742,52 @@ def migrate_child_pokemon_collection(conn):
         )
 
 
+def ensure_default_account(conn):
+    default_email = 'default@local.eigoquest'
+    row = conn.execute(
+        'SELECT id FROM accounts WHERE email = ?',
+        (default_email,),
+    ).fetchone()
+    if row:
+        return row['id']
+
+    count_row = conn.execute('SELECT COUNT(*) AS count FROM accounts').fetchone()
+    now = get_now_iso()
+    if not count_row or int(count_row['count'] or 0) == 0:
+        conn.execute(
+            '''
+            INSERT INTO accounts (email, phone, provider, display_name, created_at, updated_at)
+            VALUES (?, NULL, 'default', 'Default Account', ?, ?)
+            ''',
+            (default_email, now, now),
+        )
+    else:
+        conn.execute(
+            '''
+            INSERT INTO accounts (email, phone, provider, display_name, created_at, updated_at)
+            VALUES (?, NULL, 'default', 'Default Account', ?, ?)
+            ON CONFLICT(email) DO NOTHING
+            ''',
+            (default_email, now, now),
+        )
+
+    row = conn.execute(
+        'SELECT id FROM accounts WHERE email = ?',
+        (default_email,),
+    ).fetchone()
+    if row:
+        return row['id']
+
+    fallback = conn.execute('SELECT id FROM accounts ORDER BY id ASC LIMIT 1').fetchone()
+    if not fallback:
+        raise RuntimeError('default account could not be created')
+    return fallback['id']
+
+
 def migrate_children_profile_fields(conn):
     columns = {row[1] for row in conn.execute('PRAGMA table_info(children)').fetchall()}
+    if 'account_id' not in columns:
+        conn.execute('ALTER TABLE children ADD COLUMN account_id INTEGER')
     if 'daily_target' not in columns:
         conn.execute('ALTER TABLE children ADD COLUMN daily_target INTEGER NOT NULL DEFAULT 20')
     if 'starter_pokemon_id' not in columns:
@@ -2752,6 +2832,21 @@ def migrate_children_profile_fields(conn):
             "UPDATE children SET daily_target = COALESCE(daily_target, 20), starter_pokemon_id = ?, study_mode = COALESCE(NULLIF(study_mode, ''), 'normal') WHERE id = ?",
             (starter_id, child_id),
         )
+    default_account_id = ensure_default_account(conn)
+    conn.execute(
+        '''
+        UPDATE children
+        SET account_id = ?
+        WHERE account_id IS NULL
+        ''',
+        (default_account_id,),
+    )
+    conn.execute(
+        '''
+        CREATE INDEX IF NOT EXISTS idx_children_account_id
+        ON children (account_id)
+        '''
+    )
     conn.commit()
 
 
@@ -3330,12 +3425,18 @@ def get_review_list(child_id=None):
     return review_items
 
 
-def get_children_list():
+def get_children_list(account_id):
     init_db()
     conn = get_db_connection()
     try:
         rows = conn.execute(
-            'SELECT id, name, grade, target_level, daily_target, study_mode, starter_pokemon_id, created_at, updated_at FROM children ORDER BY id ASC'
+            '''
+            SELECT id, name, grade, target_level, daily_target, study_mode, starter_pokemon_id, created_at, updated_at
+            FROM children
+            WHERE account_id = ?
+            ORDER BY id ASC
+            ''',
+            (account_id,),
         ).fetchall()
     finally:
         conn.close()
@@ -3376,7 +3477,7 @@ def get_child_starter_options(count=3):
         options.append(option)
 
     return options
-def upsert_child_profile(data):
+def upsert_child_profile(data, account_id):
     name = (data.get('name') or '').strip()
     grade = (data.get('grade') or '').strip()
     target_level = (data.get('target_level') or '').strip()
@@ -3422,22 +3523,28 @@ def upsert_child_profile(data):
                 child_id = int(child_id)
             except (TypeError, ValueError):
                 raise ValueError('id must be an integer')
+            existing_child = conn.execute(
+                'SELECT id FROM children WHERE id = ? AND account_id = ?',
+                (child_id, account_id),
+            ).fetchone()
+            if not existing_child:
+                raise LookupError('child not found')
             conn.execute(
                 '''
                 UPDATE children
                 SET name = ?, grade = ?, target_level = ?, daily_target = ?, study_mode = ?, starter_pokemon_id = ?
-                WHERE id = ?
+                WHERE id = ? AND account_id = ?
                 ''',
-                (name, grade, target_level, daily_target, study_mode, starter_pokemon_id, child_id),
+                (name, grade, target_level, daily_target, study_mode, starter_pokemon_id, child_id, account_id),
             )
             target_child_id = child_id
         else:
             cur = conn.execute(
                 '''
-                INSERT INTO children (name, grade, target_level, daily_target, study_mode, starter_pokemon_id)
-                VALUES (?, ?, ?, ?, ?, ?)
+                INSERT INTO children (account_id, name, grade, target_level, daily_target, study_mode, starter_pokemon_id)
+                VALUES (?, ?, ?, ?, ?, ?, ?)
                 ''',
-                (name, grade, target_level, daily_target, study_mode, starter_pokemon_id),
+                (account_id, name, grade, target_level, daily_target, study_mode, starter_pokemon_id),
             )
             target_child_id = cur.lastrowid
 
@@ -3475,9 +3582,9 @@ def upsert_child_profile(data):
             '''
             SELECT id, name, grade, target_level, daily_target, study_mode, starter_pokemon_id, created_at, updated_at
             FROM children
-            WHERE id = ?
+            WHERE id = ? AND account_id = ?
             ''',
-            (target_child_id,),
+            (target_child_id, account_id),
         ).fetchone()
         return dict(child_row) if child_row else None
     finally:
@@ -9321,6 +9428,111 @@ def ensure_child_exists(conn, child_id):
         abort(404, 'child not found')
 
 
+def require_child_belongs_to_current_account(child_id):
+    account = require_current_account()
+    account_id = account['id']
+    conn = get_db_connection()
+    try:
+        row = conn.execute(
+            'SELECT id FROM children WHERE id = ? AND account_id = ?',
+            (child_id, account_id),
+        ).fetchone()
+    finally:
+        conn.close()
+    if not row:
+        abort(404, 'child not found')
+    return row
+
+
+def get_auth_cookie_secure():
+    configured = os.getenv('AUTH_COOKIE_SECURE', '').strip().lower()
+    if configured in {'1', 'true', 'yes', 'on'}:
+        return True
+    if configured in {'0', 'false', 'no', 'off'}:
+        return False
+    return os.getenv('FLASK_ENV', '').strip().lower() == 'production' or os.getenv('ENV', '').strip().lower() == 'production'
+
+
+def auth_account_payload(row):
+    return {
+        'id': row['id'],
+        'email': row['email'],
+        'phone': row['phone'],
+        'provider': row['provider'],
+        'display_name': row['display_name'],
+        'displayName': row['display_name'],
+    }
+
+
+def create_auth_session(account_id):
+    if account_id is None:
+        raise ValueError('account_id is required')
+    init_db()
+    token = secrets.token_urlsafe(32)
+    now = get_now_iso()
+    expires_at = (datetime.datetime.now() + datetime.timedelta(days=AUTH_SESSION_DAYS)).isoformat(timespec='seconds')
+    conn = get_db_connection()
+    try:
+        row = conn.execute('SELECT id FROM accounts WHERE id = ?', (account_id,)).fetchone()
+        if not row:
+            raise LookupError('account not found')
+        conn.execute(
+            '''
+            INSERT INTO auth_sessions (account_id, session_token, expires_at, created_at)
+            VALUES (?, ?, ?, ?)
+            ''',
+            (account_id, token, expires_at, now),
+        )
+        conn.commit()
+    finally:
+        conn.close()
+    return {'session_token': token, 'expires_at': expires_at}
+
+
+def get_current_account_id():
+    init_db()
+    session_token = request.cookies.get(AUTH_SESSION_COOKIE_NAME)
+    if not session_token:
+        return None
+    now = get_now_iso()
+    conn = get_db_connection()
+    try:
+        row = conn.execute(
+            '''
+            SELECT account_id, expires_at
+            FROM auth_sessions
+            WHERE session_token = ?
+            ''',
+            (session_token,),
+        ).fetchone()
+        if not row:
+            return None
+        if row['expires_at'] <= now:
+            conn.execute('DELETE FROM auth_sessions WHERE session_token = ?', (session_token,))
+            conn.commit()
+            return None
+        return row['account_id']
+    finally:
+        conn.close()
+
+
+def require_current_account():
+    account_id = get_current_account_id()
+    if not account_id:
+        abort(401, 'login required')
+    conn = get_db_connection()
+    try:
+        row = conn.execute(
+            'SELECT id, email, phone, provider, display_name, created_at, updated_at FROM accounts WHERE id = ?',
+            (account_id,),
+        ).fetchone()
+    finally:
+        conn.close()
+    if not row:
+        abort(401, 'login required')
+    return row
+
+
 def upsert_child_word_status(child_id, vocab_id, status, parent_marked=False):
     status = normalize_word_status(status)
     now = get_now_iso()
@@ -9464,6 +9676,73 @@ def api_child_eigo_quest_progress(child_id):
         return jsonify(get_child_eigo_quest_progress(child_id))
     except LookupError as exc:
         abort(404, str(exc))
+
+
+@app.route('/api/auth/login', methods=['POST'])
+def api_auth_login():
+    init_db()
+    data = request.get_json(silent=True) or {}
+    email = _clean_csv_value(data.get('email')).lower()
+    if not email or '@' not in email:
+        abort(400, 'valid email is required')
+    display_name = _clean_csv_value(data.get('display_name') or data.get('displayName')) or email.split('@', 1)[0]
+    now = get_now_iso()
+
+    conn = get_db_connection()
+    try:
+        account = conn.execute(
+            'SELECT id, email, phone, provider, display_name, created_at, updated_at FROM accounts WHERE email = ?',
+            (email,),
+        ).fetchone()
+        if not account:
+            conn.execute(
+                '''
+                INSERT INTO accounts (email, phone, provider, display_name, created_at, updated_at)
+                VALUES (?, NULL, 'email', ?, ?, ?)
+                ''',
+                (email, display_name, now, now),
+            )
+            conn.commit()
+            account = conn.execute(
+                'SELECT id, email, phone, provider, display_name, created_at, updated_at FROM accounts WHERE email = ?',
+                (email,),
+            ).fetchone()
+    finally:
+        conn.close()
+
+    session = create_auth_session(account['id'])
+    response = jsonify(account=auth_account_payload(account))
+    response.set_cookie(
+        AUTH_SESSION_COOKIE_NAME,
+        session['session_token'],
+        max_age=AUTH_SESSION_DAYS * 24 * 60 * 60,
+        httponly=True,
+        secure=get_auth_cookie_secure(),
+        samesite='Lax',
+        path='/',
+    )
+    return response
+
+
+@app.route('/api/auth/me')
+def api_auth_me():
+    account = require_current_account()
+    return jsonify(account=auth_account_payload(account))
+
+
+@app.route('/api/auth/logout', methods=['POST'])
+def api_auth_logout():
+    session_token = request.cookies.get(AUTH_SESSION_COOKIE_NAME)
+    if session_token:
+        conn = get_db_connection()
+        try:
+            conn.execute('DELETE FROM auth_sessions WHERE session_token = ?', (session_token,))
+            conn.commit()
+        finally:
+            conn.close()
+    response = jsonify(ok=True)
+    response.delete_cookie(AUTH_SESSION_COOKIE_NAME, path='/', samesite='Lax')
+    return response
 
 
 @app.route('/api/mark-mastered', methods=['POST'])
@@ -10464,27 +10743,33 @@ def api_learned_words():
 @app.route('/api/children', methods=['GET', 'POST'])
 def api_children():
     started_at = time.perf_counter()
+    account = require_current_account()
+    account_id = account['id']
     if request.method == 'POST':
         data = request.get_json(silent=True) or {}
         try:
-            child = upsert_child_profile(data)
+            child = upsert_child_profile(data, account_id)
+        except LookupError as exc:
+            abort(404, str(exc))
         except ValueError as exc:
             abort(400, str(exc))
         app.logger.info('/api/children POST completed in %sms', int((time.perf_counter() - started_at) * 1000))
         return jsonify(child=child)
-    children = get_children_list()
+    children = get_children_list(account_id)
     app.logger.info('/api/children GET completed in %sms count=%s', int((time.perf_counter() - started_at) * 1000), len(children))
     return jsonify(children=children)
 
 
 @app.route('/api/children/<int:child_id>', methods=['DELETE'])
 def api_delete_child(child_id):
+    require_child_belongs_to_current_account(child_id)
     conn = get_db_connection()
     try:
-        row = conn.execute('SELECT id FROM children WHERE id = ?', (child_id,)).fetchone()
+        account_id = get_current_account_id()
+        row = conn.execute('SELECT id FROM children WHERE id = ? AND account_id = ?', (child_id, account_id)).fetchone()
         if not row:
             abort(404, 'child not found')
-        conn.execute('DELETE FROM children WHERE id = ?', (child_id,))
+        conn.execute('DELETE FROM children WHERE id = ? AND account_id = ?', (child_id, account_id))
         conn.commit()
     finally:
         conn.close()
