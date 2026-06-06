@@ -366,6 +366,18 @@ export const getEikenRealExamWrongQuestions = async (childId) => {
   return fetchJson('/api/eiken-real-exam/wrong-questions', { params: { child_id: childId } });
 };
 
+export const submitEikenRealExamReviewAnswer = async ({ childId, partId, questionNumber, selectedAnswer } = {}) => {
+  return fetchJson('/api/eiken-real-exam/wrong-questions/review', {
+    method: 'POST',
+    body: {
+      child_id: childId,
+      part_id: partId,
+      question_number: questionNumber,
+      selected_answer: selectedAnswer,
+    },
+  });
+};
+
 export const submitPracticeAnswer = async ({ id, word, selected, correct, childId }) => {
   return fetchJson('/api/practice-answer', {
     method: 'POST',

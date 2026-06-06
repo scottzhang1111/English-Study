@@ -470,6 +470,21 @@ export default function EikenRealExamPage() {
 
   useEffect(() => {
     const element = contentRef.current;
+    if (!element || mode !== 'listening') return undefined;
+    const selectOptionFromRow = (event) => {
+      const optionCell = event.target.closest('.hpb-cnt-tb1 td');
+      if (!optionCell || !element.contains(optionCell)) return;
+      const radio = optionCell.querySelector('input[type="radio"]') || optionCell.closest('tr')?.querySelector('input[type="radio"]');
+      if (!radio || event.target === radio) return;
+      radio.checked = true;
+      radio.dispatchEvent(new Event('change', { bubbles: true }));
+    };
+    element.addEventListener('click', selectOptionFromRow);
+    return () => element.removeEventListener('click', selectOptionFromRow);
+  }, [normalizedHtml, mode]);
+
+  useEffect(() => {
+    const element = contentRef.current;
     if (!element) return;
     element.querySelectorAll('.eiken-question-row').forEach((row) => {
       const rowQuestion = Number(row.dataset.eikenQuestionNumber || 0);
@@ -636,6 +651,9 @@ export default function EikenRealExamPage() {
   const audioProgress = audioDuration > 0 ? Math.min(100, (audioCurrentTime / audioDuration) * 100) : 0;
   const audioRemaining = audioDuration > 0 ? Math.max(0, audioDuration - audioCurrentTime) : 0;
   const isEntryScreen = !practiceStarted && !result;
+  const isListeningPractice = practiceStarted && !result && !isConfirming && mode === 'listening';
+  const examRoundLabel = selectedExam ? `${selectedExam.year}年第${selectedExam.round}回` : '2025年第3回';
+  const totalPracticeQuestions = questionCount || visibleQuestionNumbers.length || 0;
   const totalForResult = result?.total_questions || questionCount || visibleQuestionNumbers.length || 0;
   const correctForResult = result?.answer_key_available ? result.correct_count || 0 : 0;
   const scorePercent = result?.answer_key_available && totalForResult
@@ -675,8 +693,8 @@ export default function EikenRealExamPage() {
   };
 
   return (
-    <div className={`eiken-exam-page eiken-real-trial-page mx-auto max-w-[1440px] px-3 pb-28 pt-2 text-[#26376d] lg:px-5 lg:py-4 ${practiceStarted && !result ? 'max-md:pb-36' : ''}`}>
-      <div className="eiken-real-trial-compact-wrap md:hidden">
+    <div className={`eiken-exam-page eiken-real-trial-page mx-auto max-w-[1440px] px-3 pb-28 pt-2 text-[#26376d] lg:px-5 lg:py-4 ${practiceStarted && !result ? 'max-md:pb-36' : ''} ${isListeningPractice ? 'is-listening-practice' : ''}`}>
+      <div className={`eiken-real-trial-compact-wrap md:hidden ${isListeningPractice ? 'hidden' : ''}`}>
         <CompactPageHeader
           title={result ? '試練結果' : '英検試練'}
           subtitle={isEntryScreen ? '年度・パートを選んで挑戦' : `${examLabel} / ${modeLabel}`}
@@ -907,6 +925,17 @@ export default function EikenRealExamPage() {
             )}
             {!result && !isConfirming ? (
               <section className="eiken-real-trial-quiz-panel">
+                {isListeningPractice && (
+                  <section className="eiken-real-listening-exam-card" aria-label="試験情報">
+                    <div className="eiken-real-listening-emblem" aria-hidden="true">E</div>
+                    <div className="eiken-real-listening-exam-copy">
+                      <h1>英語検定(準2級) リスニング</h1>
+                      <p>{examRoundLabel}</p>
+                    </div>
+                    <strong>{currentQuestion} / {totalPracticeQuestions || '-'}</strong>
+                  </section>
+                )}
+
                 <div className="eiken-real-trial-quiz-header">
                   <div>
                     <p>{modeLabel}</p>
@@ -917,10 +946,16 @@ export default function EikenRealExamPage() {
                   </span>
                 </div>
 
-                {false && primaryAudioSource && mode === 'listening' && (
-                  <div className="eiken-real-trial-audio-panel">
-                    <div className="eiken-real-trial-audio-topline">
-                      <p>音声</p>
+                {isListeningPractice && primaryAudioSource && (
+                  <section className="eiken-real-trial-audio-panel" aria-label="音声">
+                    <div className="eiken-real-trial-audio-head">
+                      <span aria-hidden="true">♪</span>
+                      <div>
+                        <h2>音声</h2>
+                        <p>問1から問10は、対話を聞き、その最後の文に対する応答として最も適切なものを選ぶ形式です。</p>
+                      </div>
+                    </div>
+                    <div className="eiken-real-trial-audio-player">
                       <button
                         type="button"
                         className={`eiken-real-trial-audio-play ${audioIsPlaying ? 'is-playing' : ''}`}
@@ -929,14 +964,12 @@ export default function EikenRealExamPage() {
                       >
                         <span aria-hidden="true" />
                       </button>
-                      <span className={currentAnswer ? 'is-answered' : ''}>{currentStatus}</span>
-                    </div>
-                    <div className="eiken-real-trial-audio-progress-row">
                       <span>{formatAudioTime(audioCurrentTime)}</span>
                       <div className="eiken-real-trial-audio-track" aria-hidden="true">
                         <i style={{ width: `${audioProgress}%` }} />
                       </div>
                       <span>-{formatAudioTime(audioRemaining)}</span>
+                      <span className="eiken-real-trial-audio-volume" aria-hidden="true">⌕</span>
                     </div>
                     <audio
                       ref={(element) => {
@@ -961,7 +994,7 @@ export default function EikenRealExamPage() {
                     >
                       <source src={primaryAudioSource} type="audio/mpeg" />
                     </audio>
-                  </div>
+                  </section>
                 )}
 
                 {false && audioSources.length > 0 && mode === 'listening' && (
@@ -994,22 +1027,24 @@ export default function EikenRealExamPage() {
                   </div>
                 )}
 
-                <div ref={contentRef} className="eiken-real-content" dangerouslySetInnerHTML={{ __html: normalizedHtml }} />
+                <section className="eiken-real-listening-question-card">
+                  <div ref={contentRef} className="eiken-real-content" dangerouslySetInnerHTML={{ __html: normalizedHtml }} />
 
-                <div className="eiken-real-trial-quiz-actions">
-                  <button type="button" onClick={goToPreviousQuestion} disabled={currentQuestion === visibleQuestionNumbers[0]} className="eiken-real-trial-secondary-action">
-                    前へ
-                  </button>
-                  {isLastQuestion ? (
-                    <button type="button" onClick={() => setIsConfirming(true)} className="eiken-real-trial-gold-action">
-                      回答確認へ
+                  <div className="eiken-real-trial-quiz-actions">
+                    <button type="button" onClick={goToPreviousQuestion} disabled={currentQuestion === visibleQuestionNumbers[0]} className="eiken-real-trial-secondary-action">
+                      前へ
                     </button>
-                  ) : (
-                    <button type="button" onClick={goToNextQuestion} className="eiken-real-trial-gold-action">
-                      次へ
-                    </button>
-                  )}
-                </div>
+                    {isLastQuestion ? (
+                      <button type="button" onClick={() => setIsConfirming(true)} className="eiken-real-trial-gold-action">
+                        回答確認へ
+                      </button>
+                    ) : (
+                      <button type="button" onClick={goToNextQuestion} className="eiken-real-trial-gold-action">
+                        次へ
+                      </button>
+                    )}
+                  </div>
+                </section>
               </section>
             ) : !result && isConfirming ? (
               <section className="eiken-real-trial-confirm-panel">

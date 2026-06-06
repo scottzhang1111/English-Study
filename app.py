@@ -7617,24 +7617,45 @@ def get_eiken_real_exam_wrong_questions(child_id, limit=None):
     conn = get_db_connection()
     try:
         sql = '''
+            WITH latest_answers AS (
+                SELECT
+                    answer.id,
+                    answer.attempt_id,
+                    answer.child_id,
+                    answer.part_id,
+                    answer.question_number,
+                    answer.student_answer,
+                    answer.correct_answer,
+                    answer.is_correct,
+                    answer.answered_at,
+                    attempt.exam_id,
+                    attempt.mode,
+                    attempt.submitted_at,
+                    ROW_NUMBER() OVER (
+                        PARTITION BY answer.child_id, answer.part_id, answer.question_number
+                        ORDER BY answer.answered_at DESC, answer.id DESC
+                    ) AS rn
+                FROM eiken_real_exam_student_answers AS answer
+                LEFT JOIN eiken_real_exam_attempts AS attempt
+                    ON attempt.attempt_id = answer.attempt_id
+                WHERE answer.child_id = ?
+            )
             SELECT
-                answer.id,
-                answer.attempt_id,
-                answer.child_id,
-                answer.part_id,
-                answer.question_number,
-                answer.student_answer,
-                answer.correct_answer,
-                answer.is_correct,
-                answer.answered_at,
-                attempt.exam_id,
-                attempt.mode,
-                attempt.submitted_at
-            FROM eiken_real_exam_student_answers AS answer
-            LEFT JOIN eiken_real_exam_attempts AS attempt
-                ON attempt.attempt_id = answer.attempt_id
-            WHERE answer.child_id = ? AND answer.is_correct = 0
-            ORDER BY answer.answered_at DESC, answer.id DESC
+                id,
+                attempt_id,
+                child_id,
+                part_id,
+                question_number,
+                student_answer,
+                correct_answer,
+                is_correct,
+                answered_at,
+                exam_id,
+                mode,
+                submitted_at
+            FROM latest_answers
+            WHERE rn = 1 AND is_correct = 0
+            ORDER BY answered_at DESC, id DESC
         '''
         params = [child_id]
         if limit is not None:
@@ -7678,6 +7699,101 @@ def get_eiken_real_exam_wrong_questions(child_id, limit=None):
         }
         wrong_questions.append(item)
     return wrong_questions
+
+
+def submit_eiken_real_exam_review_answer(child_id, part_id, question_number, selected_answer):
+    meta = get_eiken_real_exam_part_meta(part_id)
+    if not meta:
+        raise LookupError('exam part not found')
+
+    part_data = sanitize_eiken_real_exam_html(meta['part_id'])
+    question_numbers = part_data.get('question_numbers') or []
+    normalized_question_number = int(question_number)
+    if normalized_question_number not in question_numbers:
+        raise LookupError('question not found')
+
+    parsed_answers = parse_eiken_real_exam_answer_page(meta['part_id'], question_numbers)
+    answer_key = parsed_answers.get('answer_key') or get_eiken_real_exam_answer_key(meta['part_id'])
+    correct_answer = answer_key.get(normalized_question_number, '')
+    if not correct_answer:
+        raise LookupError('answer key not found')
+
+    normalized_selected = normalize_eiken_answer(selected_answer)
+    is_correct = bool(normalized_selected and normalized_selected == correct_answer)
+    now = get_now_iso()
+    attempt_id = uuid.uuid4().hex
+
+    init_db()
+    conn = get_db_connection()
+    try:
+        child_row = conn.execute('SELECT id FROM children WHERE id = ?', (child_id,)).fetchone()
+        if not child_row:
+            raise LookupError('child not found')
+        conn.execute(
+            '''
+            INSERT INTO eiken_real_exam_attempts (
+                attempt_id, child_id, part_id, exam_id, mode, started_at, submitted_at,
+                total_questions, answered_count, correct_count, score_percent, answer_key_available
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            ''',
+            (
+                attempt_id,
+                child_id,
+                meta['part_id'],
+                meta['exam_id'],
+                meta['mode'],
+                now,
+                now,
+                1,
+                1 if normalized_selected else 0,
+                1 if is_correct else 0,
+                100.0 if is_correct else 0.0,
+                1,
+            ),
+        )
+        conn.execute(
+            '''
+            INSERT INTO eiken_real_exam_student_answers (
+                attempt_id, child_id, part_id, question_number, student_answer,
+                correct_answer, is_correct, answered_at
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+            ''',
+            (
+                attempt_id,
+                child_id,
+                meta['part_id'],
+                normalized_question_number,
+                normalized_selected,
+                correct_answer,
+                1 if is_correct else 0,
+                now,
+            ),
+        )
+        conn.commit()
+    finally:
+        conn.close()
+
+    return {
+        'attempt_id': attempt_id,
+        'attemptId': attempt_id,
+        'child_id': child_id,
+        'childId': child_id,
+        'part_id': meta['part_id'],
+        'partId': meta['part_id'],
+        'question_number': normalized_question_number,
+        'questionNumber': normalized_question_number,
+        'student_answer': normalized_selected,
+        'studentAnswer': normalized_selected,
+        'selected_answer': normalized_selected,
+        'selectedAnswer': normalized_selected,
+        'correct_answer': correct_answer,
+        'correctAnswer': correct_answer,
+        'is_correct': is_correct,
+        'isCorrect': is_correct,
+        'mastered': is_correct,
+        'resolved': is_correct,
+        'message': '復習済み' if is_correct else 'もう一度チャレンジ',
+    }
 
 
 @app.route('/api/eiken-real-exams')
@@ -7732,6 +7848,35 @@ def api_eiken_real_exam_wrong_questions():
         'wrong_questions': wrong_questions,
         'wrongQuestions': wrong_questions,
     })
+
+
+@app.route('/api/eiken-real-exam/wrong-questions/review', methods=['POST'])
+def api_eiken_real_exam_wrong_question_review():
+    data = request.get_json(silent=True) or {}
+    child_id = data.get('child_id') or data.get('childId')
+    part_id = data.get('part_id') or data.get('partId')
+    question_number = data.get('question_number') or data.get('questionNumber')
+    selected_answer = data.get('selected_answer') or data.get('selectedAnswer') or data.get('student_answer') or data.get('studentAnswer')
+    if child_id in [None, '', 'null']:
+        abort(400, 'child_id is required')
+    if not part_id:
+        abort(400, 'part_id is required')
+    if question_number in [None, '', 'null']:
+        abort(400, 'question_number is required')
+    if not selected_answer:
+        abort(400, 'selected_answer is required')
+    try:
+        result = submit_eiken_real_exam_review_answer(
+            int(child_id),
+            part_id,
+            int(question_number),
+            selected_answer,
+        )
+    except LookupError as exc:
+        abort(404, str(exc))
+    except ValueError as exc:
+        abort(400, str(exc))
+    return jsonify(result)
 
 
 @app.route('/api/eiken-real-exams/assets/<path:asset_path>')

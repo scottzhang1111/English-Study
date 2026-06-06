@@ -133,6 +133,7 @@ function App() {
             <Route path="/review" element={<AnimatedPage><ChildRequiredPage><ReviewPage /></ChildRequiredPage></AnimatedPage>} />
             <Route path="/review/grammar" element={<AnimatedPage><ChildRequiredPage><GrammarReviewPage /></ChildRequiredPage></AnimatedPage>} />
             <Route path="/review/eiken" element={<AnimatedPage><ChildRequiredPage><EikenReviewPage /></ChildRequiredPage></AnimatedPage>} />
+            <Route path="/review/eiken/question" element={<AnimatedPage><ChildRequiredPage><EikenReviewPage /></ChildRequiredPage></AnimatedPage>} />
             <Route path="/error-review" element={<AnimatedPage><ChildRequiredPage><ReviewPage /></ChildRequiredPage></AnimatedPage>} />
             <Route path="/today-review-quiz" element={<AnimatedPage><ChildRequiredPage><FlashcardPage /></ChildRequiredPage></AnimatedPage>} />
             <Route path="/child-stats" element={<AnimatedPage><ChildRequiredPage><ChildStatsPage /></ChildRequiredPage></AnimatedPage>} />

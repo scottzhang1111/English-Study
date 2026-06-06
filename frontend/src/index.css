@@ -2058,6 +2058,372 @@ textarea {
   padding-bottom: calc(16px + env(safe-area-inset-bottom, 0px));
 }
 
+.eiken-real-trial-page.is-listening-practice {
+  padding-bottom: calc(126px + env(safe-area-inset-bottom, 0px)) !important;
+}
+
+.eiken-real-trial-page.is-listening-practice .eiken-real-trial-practice-layout {
+  gap: 10px;
+}
+
+.eiken-real-trial-page.is-listening-practice .eiken-real-trial-practice-layout > main {
+  width: min(100%, 560px);
+}
+
+.eiken-real-trial-page.is-listening-practice .eiken-real-trial-quiz-panel {
+  gap: 12px;
+  padding-bottom: calc(24px + env(safe-area-inset-bottom, 0px));
+}
+
+.eiken-real-listening-exam-card,
+.eiken-real-trial-page.is-listening-practice .eiken-real-trial-audio-panel,
+.eiken-real-listening-question-card {
+  position: relative;
+  overflow: hidden;
+  border: 1.5px solid rgba(255, 211, 90, 0.76);
+  border-radius: 22px;
+  background:
+    radial-gradient(circle at 82% 18%, rgba(95, 141, 255, 0.2), transparent 32%),
+    radial-gradient(circle at 10% 0%, rgba(255, 211, 90, 0.12), transparent 34%),
+    linear-gradient(180deg, rgba(9, 24, 68, 0.97), rgba(3, 9, 34, 0.99));
+  box-shadow:
+    0 0 20px rgba(255, 211, 90, 0.16),
+    0 14px 34px rgba(0, 0, 0, 0.34),
+    inset 0 0 26px rgba(255, 255, 255, 0.035);
+}
+
+.eiken-real-listening-exam-card {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 12px;
+  min-height: 92px;
+  padding: 14px 16px;
+}
+
+.eiken-real-listening-emblem {
+  display: grid;
+  width: 54px;
+  height: 54px;
+  place-items: center;
+  border: 1px solid rgba(255, 211, 90, 0.78);
+  border-radius: 18px;
+  background:
+    radial-gradient(circle at 50% 20%, rgba(255, 244, 185, 0.22), transparent 36%),
+    rgba(3, 8, 24, 0.56);
+  color: #ffe7a1;
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 32px;
+  font-weight: 900;
+  line-height: 1;
+  text-shadow: 0 0 14px rgba(255, 211, 90, 0.32);
+}
+
+.eiken-real-listening-exam-copy {
+  min-width: 0;
+}
+
+.eiken-real-listening-exam-copy h1 {
+  margin: 0;
+  color: #ffe7a1;
+  font-size: 18px;
+  font-weight: 950;
+  line-height: 1.25;
+}
+
+.eiken-real-listening-exam-copy p {
+  margin: 6px 0 0;
+  color: #f2bd37;
+  font-size: 15px;
+  font-weight: 850;
+}
+
+.eiken-real-listening-exam-card > strong {
+  display: inline-flex;
+  min-width: 78px;
+  min-height: 42px;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(255, 211, 90, 0.72);
+  border-radius: 999px;
+  background: rgba(3, 8, 24, 0.42);
+  color: #fff4d0;
+  font-size: 18px;
+  font-weight: 950;
+}
+
+.eiken-real-trial-page.is-listening-practice .eiken-real-trial-audio-panel {
+  margin: 0;
+  padding: 18px 16px 16px;
+}
+
+.eiken-real-trial-audio-head {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 12px;
+  align-items: start;
+}
+
+.eiken-real-trial-audio-head > span {
+  display: grid;
+  width: 34px;
+  height: 34px;
+  place-items: center;
+  border-radius: 999px;
+  color: #ffe7a1;
+  font-size: 22px;
+  line-height: 1;
+}
+
+.eiken-real-trial-audio-head h2 {
+  margin: 0;
+  color: #ffe7a1;
+  font-size: 22px;
+  font-weight: 950;
+  line-height: 1.2;
+}
+
+.eiken-real-trial-audio-head p {
+  margin: 10px 0 0;
+  color: rgba(247, 251, 255, 0.94);
+  font-size: 15px;
+  font-weight: 800;
+  line-height: 1.75;
+}
+
+.eiken-real-trial-audio-player {
+  display: grid;
+  grid-template-columns: auto auto minmax(0, 1fr) auto auto;
+  align-items: center;
+  gap: 10px;
+  min-height: 58px;
+  margin-top: 2px;
+  border: 1px solid rgba(255, 211, 90, 0.16);
+  border-radius: 999px;
+  background:
+    radial-gradient(circle at 0% 0%, rgba(255, 211, 90, 0.1), transparent 38%),
+    rgba(3, 8, 24, 0.44);
+  padding: 8px 12px;
+}
+
+.eiken-real-trial-page.is-listening-practice .eiken-real-trial-audio-play {
+  width: 44px;
+  height: 44px;
+}
+
+.eiken-real-trial-page.is-listening-practice .eiken-real-trial-audio-play span {
+  border-top-width: 9px;
+  border-bottom-width: 9px;
+  border-left-width: 13px;
+}
+
+.eiken-real-trial-audio-player > span {
+  color: rgba(247, 251, 255, 0.84);
+  font-size: 14px;
+  font-weight: 850;
+  white-space: nowrap;
+}
+
+.eiken-real-trial-audio-player .eiken-real-trial-audio-volume {
+  color: #ffe7a1;
+  font-size: 20px;
+}
+
+.eiken-real-trial-page.is-listening-practice .eiken-real-content table.form > tbody > tr:first-child,
+.eiken-real-trial-page.is-listening-practice .eiken-real-content table.form > tbody > tr:nth-child(2),
+.eiken-real-trial-page.is-listening-practice .eiken-real-content audio {
+  display: none !important;
+}
+
+.eiken-real-listening-question-card {
+  padding: 18px 16px 16px;
+}
+
+.eiken-real-trial-page.is-listening-practice .eiken-real-content {
+  display: block;
+}
+
+.eiken-real-trial-page.is-listening-practice .eiken-real-content table.form {
+  display: block;
+}
+
+.eiken-real-trial-page.is-listening-practice .eiken-real-content table.form > tbody {
+  display: block;
+}
+
+.eiken-real-trial-page.is-listening-practice .eiken-real-content table.form > tbody > tr.eiken-question-row {
+  display: block;
+  border: 0;
+  border-radius: 0;
+  background: transparent !important;
+  box-shadow: none;
+}
+
+.eiken-real-trial-page.is-listening-practice .eiken-real-content table.form > tbody > tr.eiken-question-row > th,
+.eiken-real-trial-page.is-listening-practice .eiken-real-content table.form > tbody > tr.eiken-question-row > td {
+  padding: 0 !important;
+}
+
+.eiken-real-trial-page.is-listening-practice .eiken-real-content table.form > tbody > tr.eiken-question-row > th:first-child {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #ffe7a1;
+  font-size: 24px !important;
+  font-weight: 950;
+  line-height: 1.2;
+}
+
+.eiken-real-trial-page.is-listening-practice .eiken-real-content table.form > tbody > tr.eiken-question-row > th:first-child::before {
+  display: inline-grid;
+  width: 28px;
+  height: 28px;
+  place-items: center;
+  content: "✦";
+  color: #77c8ff;
+  font-size: 24px;
+  text-shadow: 0 0 14px rgba(119, 200, 255, 0.72);
+}
+
+.eiken-real-trial-page.is-listening-practice .eiken-real-content table.form > tbody > tr.eiken-question-row > td {
+  margin-top: 18px;
+  color: rgba(247, 251, 255, 0.94);
+  font-size: 16px;
+  font-weight: 800;
+  line-height: 1.8;
+}
+
+.eiken-real-trial-page.is-listening-practice .eiken-real-content table.form > tbody > tr.eiken-question-row > td > br:first-child {
+  display: none;
+}
+
+.eiken-real-trial-page.is-listening-practice .eiken-real-content .hpb-cnt-tb1 {
+  display: block;
+  margin-top: 14px;
+  border-spacing: 0 !important;
+}
+
+.eiken-real-trial-page.is-listening-practice .eiken-real-content .hpb-cnt-tb1 tbody {
+  display: grid;
+  gap: 10px;
+}
+
+.eiken-real-trial-page.is-listening-practice .eiken-real-content .hpb-cnt-tb1 tr {
+  display: block;
+}
+
+.eiken-real-trial-page.is-listening-practice .eiken-real-content .hpb-cnt-tb1 td {
+  display: flex;
+  width: 100% !important;
+  min-height: 56px;
+  align-items: center;
+  gap: 12px;
+  margin: 0 !important;
+  border: 1.5px solid rgba(255, 211, 90, 0.66) !important;
+  border-radius: 16px !important;
+  background:
+    radial-gradient(circle at 94% 50%, rgba(255, 211, 90, 0.08), transparent 18%),
+    rgba(8, 23, 62, 0.88) !important;
+  color: rgba(247, 251, 255, 0.9);
+  cursor: pointer;
+  padding: 12px 14px !important;
+  transition:
+    border-color 0.18s ease,
+    background-color 0.18s ease,
+    box-shadow 0.18s ease,
+    transform 0.18s ease;
+}
+
+.eiken-real-trial-page.is-listening-practice .eiken-real-content .hpb-cnt-tb1 td + td {
+  margin-top: 10px !important;
+  margin-left: 0;
+}
+
+.eiken-real-trial-page.is-listening-practice .eiken-real-content .hpb-cnt-tb1 tr:has(input[type='radio']:checked) td {
+  border-color: rgba(255, 211, 90, 0.66) !important;
+  background:
+    radial-gradient(circle at 94% 50%, rgba(255, 211, 90, 0.08), transparent 18%),
+    rgba(8, 23, 62, 0.88) !important;
+  color: rgba(247, 251, 255, 0.9);
+}
+
+.eiken-real-trial-page.is-listening-practice .eiken-real-content .hpb-cnt-tb1 td:has(input[type='radio']:checked) {
+  border-color: rgba(255, 232, 152, 0.98) !important;
+  background:
+    radial-gradient(circle at 92% 50%, rgba(255, 211, 90, 0.18), transparent 20%),
+    rgba(27, 43, 90, 0.96) !important;
+  box-shadow:
+    0 0 18px rgba(255, 211, 90, 0.24),
+    inset 0 0 20px rgba(255, 255, 255, 0.045);
+  color: #fff4d0;
+  transform: translateY(-1px);
+}
+
+.eiken-real-trial-page.is-listening-practice .eiken-real-content input[type='radio'] {
+  width: 22px;
+  height: 22px;
+  margin-right: 12px;
+  flex: 0 0 auto;
+  accent-color: #f0c63e;
+}
+
+.eiken-real-trial-page.is-listening-practice .eiken-real-trial-quiz-actions {
+  gap: 14px;
+  margin-top: 18px;
+  padding-bottom: 0;
+}
+
+.eiken-real-trial-page.is-listening-practice .eiken-real-trial-secondary-action,
+.eiken-real-trial-page.is-listening-practice .eiken-real-trial-gold-action {
+  min-height: 52px;
+  border-radius: 14px;
+  font-size: 17px;
+}
+
+.eiken-real-trial-page.is-listening-practice .eiken-real-trial-secondary-action {
+  border: 1.5px solid rgba(255, 211, 90, 0.52);
+  background:
+    linear-gradient(180deg, rgba(12, 20, 39, 0.92), rgba(3, 8, 24, 0.96));
+  color: rgba(247, 251, 255, 0.94);
+}
+
+.eiken-real-trial-page.is-listening-practice .eiken-real-trial-gold-action {
+  border: 1.5px solid rgba(255, 232, 152, 0.9);
+  background:
+    radial-gradient(circle at 34% 22%, rgba(255, 255, 255, 0.46), transparent 28%),
+    linear-gradient(180deg, #ffeaa6 0%, #f5bf38 48%, #9a5c12 100%);
+  color: #241800;
+  text-shadow: 0 1px 0 rgba(255, 244, 185, 0.64);
+  filter: drop-shadow(0 0 14px rgba(255, 211, 90, 0.28));
+}
+
+@media (max-width: 430px) {
+  .eiken-real-listening-exam-card {
+    grid-template-columns: auto minmax(0, 1fr);
+    padding: 12px;
+  }
+
+  .eiken-real-listening-exam-card > strong {
+    grid-column: 2;
+    justify-self: start;
+    min-width: 70px;
+    min-height: 36px;
+    font-size: 16px;
+  }
+
+  .eiken-real-trial-audio-player {
+    grid-template-columns: auto minmax(0, 1fr) auto;
+  }
+
+  .eiken-real-trial-audio-player > span:first-of-type {
+    display: none;
+  }
+
+  .eiken-real-trial-audio-player .eiken-real-trial-audio-volume {
+    display: none;
+  }
+}
+
 .eiken-real-trial-mobile-actions {
   position: fixed;
   right: 0;
@@ -2069,6 +2435,87 @@ textarea {
   box-shadow: 0 -12px 28px rgba(0, 0, 0, 0.34);
   padding: 12px 14px calc(12px + env(safe-area-inset-bottom));
   backdrop-filter: blur(10px);
+}
+
+.eq-eiken-review-card-link {
+  display: grid;
+  gap: 12px;
+  color: inherit;
+  text-decoration: none;
+}
+
+.eq-eiken-review-card-action {
+  display: inline-flex;
+  min-height: 42px;
+  width: fit-content;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(255, 211, 90, 0.58);
+  border-radius: 999px;
+  background: rgba(255, 211, 90, 0.12);
+  color: #fff0b5;
+  font-size: 13px;
+  font-weight: 950;
+  padding: 0 16px;
+}
+
+.eq-eiken-review-question {
+  display: grid;
+  gap: 14px;
+}
+
+.eq-eiken-review-original {
+  min-height: auto;
+  padding: 0 !important;
+  background: transparent;
+}
+
+.eq-eiken-review-original .eiken-real-listening-question-card {
+  padding: 16px;
+}
+
+.eq-eiken-review-original .eiken-real-content {
+  display: grid;
+  gap: 12px;
+}
+
+.eq-eiken-review-original .eiken-real-content table.form {
+  display: grid;
+  gap: 12px;
+  border-spacing: 0 !important;
+}
+
+.eq-eiken-review-original .eiken-real-content table.form > tbody {
+  display: contents;
+}
+
+.eq-eiken-review-original .eiken-real-content table.form > tbody > tr.eiken-question-row {
+  background:
+    radial-gradient(circle at 12% 0%, rgba(255, 211, 90, 0.12), transparent 34%),
+    linear-gradient(180deg, rgba(9, 22, 62, 0.96), rgba(4, 9, 32, 0.98)) !important;
+}
+
+.eq-eiken-review-submit-row {
+  display: flex;
+  margin-top: 14px;
+}
+
+.eq-eiken-review-submit-row .eiken-real-trial-gold-action {
+  min-height: 52px;
+  width: 100%;
+  border: 1.5px solid rgba(255, 232, 152, 0.9);
+  border-radius: 14px;
+  background:
+    radial-gradient(circle at 34% 22%, rgba(255, 255, 255, 0.46), transparent 28%),
+    linear-gradient(180deg, #ffeaa6 0%, #f5bf38 48%, #9a5c12 100%);
+  color: #241800;
+  font-size: 16px;
+  font-weight: 950;
+  text-shadow: 0 1px 0 rgba(255, 244, 185, 0.64);
+}
+
+.eq-eiken-review-submit-row .eiken-real-trial-gold-action:disabled {
+  opacity: 0.48;
 }
 
 .eiken-real-trial-result-hero {
