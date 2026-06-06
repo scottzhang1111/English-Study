@@ -10858,10 +10858,7 @@ body,
   width: 0 !important;
   height: 0 !important;
 }
-  text-shadow:
-    0 2px 0 rgba(63, 36, 10, 0.82),
-    0 0 20px rgba(255, 211, 90, 0.36);
-}
+
 
 .eq-learning-hub-rpg-header span {
   color: #cfe9ff;
@@ -10878,6 +10875,9 @@ body,
   font-weight: 950;
   letter-spacing: 0;
   line-height: 1;
+  text-shadow:
+  0 2px 0 rgba(63, 36, 10, 0.82),
+  0 0 20px rgba(255, 211, 90, 0.36);
 }
 
 .eq-learning-hub-rpg-header p {
