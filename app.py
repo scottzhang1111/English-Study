@@ -1904,6 +1904,28 @@ def init_db(force=False):
         )
         conn.execute(
             '''
+            CREATE TABLE IF NOT EXISTS child_vocab_wrong_reviews (
+                child_id INTEGER NOT NULL,
+                vocab_id INTEGER NOT NULL,
+                world_id TEXT,
+                stage_number INTEGER,
+                question_type TEXT,
+                wrong_count INTEGER NOT NULL DEFAULT 0,
+                last_wrong_at TEXT,
+                review_count INTEGER NOT NULL DEFAULT 0,
+                last_reviewed_at TEXT,
+                review_status TEXT NOT NULL DEFAULT 'pending',
+                mastered_at TEXT,
+                created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                PRIMARY KEY (child_id, vocab_id),
+                FOREIGN KEY (child_id) REFERENCES children (id) ON UPDATE CASCADE ON DELETE CASCADE,
+                FOREIGN KEY (vocab_id) REFERENCES vocabulary (id) ON UPDATE CASCADE ON DELETE CASCADE
+            )
+            '''
+        )
+        conn.execute(
+            '''
             CREATE TABLE IF NOT EXISTS ai_questions (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 child_id INTEGER,
@@ -7669,6 +7691,7 @@ def get_eiken_real_exam_wrong_questions(child_id, limit=None):
     for row in rows:
         student_answer = row['student_answer'] or ''
         correct_answer = row['correct_answer'] or ''
+        section_type = row['mode'] or ('written' if str(row['part_id'] or '').find('h_') >= 0 else 'listening')
         item = {
             'id': row['id'],
             'attempt_id': row['attempt_id'],
@@ -7694,6 +7717,10 @@ def get_eiken_real_exam_wrong_questions(child_id, limit=None):
             'exam_id': row['exam_id'],
             'examId': row['exam_id'],
             'mode': row['mode'],
+            'section_type': section_type,
+            'sectionType': section_type,
+            'question_type': section_type,
+            'questionType': section_type,
             'submitted_at': row['submitted_at'],
             'submittedAt': row['submitted_at'],
         }
@@ -8841,6 +8868,142 @@ def submit_child_stage_quiz_attempt(child_id, world_id, stage, answers, attempt_
     }
 
 
+def record_child_vocab_wrong_review(child_id, vocab_id, world_id=None, stage_number=None, question_type=None):
+    if child_id is None or vocab_id is None:
+        raise ValueError('child_id and vocab_id are required')
+    normalized_vocab_id = int(vocab_id)
+    normalized_world_id = _clean_csv_value(world_id) or None
+    normalized_question_type = _clean_csv_value(question_type) or None
+    normalized_stage_number = None
+    if stage_number not in [None, '', 'null']:
+        normalized_stage_number = int(stage_number)
+    now = get_now_iso()
+
+    conn = get_db_connection()
+    try:
+        ensure_child_exists(conn, child_id)
+        ensure_vocab_entry_exists(str(normalized_vocab_id))
+        vocab_row = conn.execute('SELECT id FROM vocabulary WHERE id = ?', (normalized_vocab_id,)).fetchone()
+        if not vocab_row:
+            conn.execute('INSERT INTO vocabulary (id) VALUES (?)', (normalized_vocab_id,))
+        conn.execute(
+            '''
+            INSERT INTO child_vocab_wrong_reviews (
+                child_id, vocab_id, world_id, stage_number, question_type,
+                wrong_count, last_wrong_at, review_count, last_reviewed_at,
+                review_status, mastered_at, created_at, updated_at
+            ) VALUES (?, ?, ?, ?, ?, 1, ?, 0, NULL, 'pending', NULL, ?, ?)
+            ON CONFLICT(child_id, vocab_id) DO UPDATE SET
+                world_id = COALESCE(excluded.world_id, child_vocab_wrong_reviews.world_id),
+                stage_number = COALESCE(excluded.stage_number, child_vocab_wrong_reviews.stage_number),
+                question_type = COALESCE(excluded.question_type, child_vocab_wrong_reviews.question_type),
+                wrong_count = child_vocab_wrong_reviews.wrong_count + 1,
+                last_wrong_at = excluded.last_wrong_at,
+                review_status = 'pending',
+                mastered_at = NULL,
+                updated_at = excluded.updated_at
+            ''',
+            (
+                child_id,
+                normalized_vocab_id,
+                normalized_world_id,
+                normalized_stage_number,
+                normalized_question_type,
+                now,
+                now,
+                now,
+            ),
+        )
+        conn.commit()
+    finally:
+        conn.close()
+
+    return get_child_vocab_wrong_review_item(child_id, normalized_vocab_id)
+
+
+def build_vocab_wrong_review_payload(row):
+    vocab_id = str(row['vocab_id'])
+    vocab = resolve_vocab_entry(vocab_id, vocab_list)
+    example_en = ''
+    if vocab:
+        example_en = (vocab.get('Example_English', '') or vocab.get('Example_English_Short', '')).strip()
+    return {
+        'child_id': row['child_id'],
+        'childId': row['child_id'],
+        'vocab_id': row['vocab_id'],
+        'vocabId': row['vocab_id'],
+        'word': vocab.get('English', '') if vocab else vocab_id,
+        'meaning_ja': vocab.get('Japanese', '') if vocab else '',
+        'meaningJa': vocab.get('Japanese', '') if vocab else '',
+        'meaning_cn': vocab.get('Chinese', '') if vocab else '',
+        'meaningCn': vocab.get('Chinese', '') if vocab else '',
+        'part_of_speech': vocab.get('Category', '') if vocab else '',
+        'partOfSpeech': vocab.get('Category', '') if vocab else '',
+        'phrase': vocab.get('Phrase', '') if vocab else '',
+        'example_en': example_en,
+        'exampleEn': example_en,
+        'example_ja': vocab.get('Example_Japanese', '').strip() if vocab else '',
+        'exampleJa': vocab.get('Example_Japanese', '').strip() if vocab else '',
+        'world_id': row['world_id'],
+        'worldId': row['world_id'],
+        'stage_number': row['stage_number'],
+        'stageNumber': row['stage_number'],
+        'question_type': row['question_type'],
+        'questionType': row['question_type'],
+        'wrong_count': int(row['wrong_count'] or 0),
+        'wrongCount': int(row['wrong_count'] or 0),
+        'last_wrong_at': row['last_wrong_at'],
+        'lastWrongAt': row['last_wrong_at'],
+        'review_count': int(row['review_count'] or 0),
+        'reviewCount': int(row['review_count'] or 0),
+        'last_reviewed_at': row['last_reviewed_at'],
+        'lastReviewedAt': row['last_reviewed_at'],
+        'review_status': row['review_status'],
+        'reviewStatus': row['review_status'],
+        'mastered_at': row['mastered_at'],
+        'masteredAt': row['mastered_at'],
+    }
+
+
+def get_child_vocab_wrong_review_item(child_id, vocab_id):
+    conn = get_db_connection()
+    try:
+        row = conn.execute(
+            '''
+            SELECT child_id, vocab_id, world_id, stage_number, question_type,
+                   wrong_count, last_wrong_at, review_count, last_reviewed_at,
+                   review_status, mastered_at, created_at, updated_at
+            FROM child_vocab_wrong_reviews
+            WHERE child_id = ? AND vocab_id = ?
+            ''',
+            (child_id, vocab_id),
+        ).fetchone()
+    finally:
+        conn.close()
+    return build_vocab_wrong_review_payload(row) if row else None
+
+
+def get_child_vocab_wrong_reviews(child_id):
+    init_db()
+    conn = get_db_connection()
+    try:
+        ensure_child_exists(conn, child_id)
+        rows = conn.execute(
+            '''
+            SELECT child_id, vocab_id, world_id, stage_number, question_type,
+                   wrong_count, last_wrong_at, review_count, last_reviewed_at,
+                   review_status, mastered_at, created_at, updated_at
+            FROM child_vocab_wrong_reviews
+            WHERE child_id = ? AND review_status <> 'mastered'
+            ORDER BY wrong_count DESC, last_wrong_at DESC, updated_at DESC
+            ''',
+            (child_id,),
+        ).fetchall()
+    finally:
+        conn.close()
+    return [build_vocab_wrong_review_payload(row) for row in rows]
+
+
 def get_database_host_for_debug():
     database_url = get_database_url()
     if not database_url:
@@ -9598,6 +9761,40 @@ def api_child_stage_quiz_attempts(child_id):
     except ValueError as exc:
         abort(400, str(exc))
     return jsonify(result), 201
+
+
+@app.route('/api/children/<int:child_id>/vocab-wrong-reviews', methods=['GET', 'POST'])
+def api_child_vocab_wrong_reviews(child_id):
+    if request.method == 'GET':
+        try:
+            wrong_reviews = get_child_vocab_wrong_reviews(child_id)
+        except LookupError as exc:
+            abort(404, str(exc))
+        return jsonify(
+            child_id=child_id,
+            childId=child_id,
+            count=len(wrong_reviews),
+            wrong_reviews=wrong_reviews,
+            wrongReviews=wrong_reviews,
+        )
+
+    data = request.get_json(silent=True) or {}
+    vocab_id = data.get('vocab_id') or data.get('vocabId')
+    if vocab_id in [None, '', 'null']:
+        abort(400, 'vocab_id is required')
+    try:
+        item = record_child_vocab_wrong_review(
+            child_id,
+            int(vocab_id),
+            data.get('world_id') or data.get('worldId'),
+            data.get('stage_number') or data.get('stageNumber'),
+            data.get('question_type') or data.get('questionType'),
+        )
+    except LookupError as exc:
+        abort(404, str(exc))
+    except ValueError as exc:
+        abort(400, str(exc))
+    return jsonify(item), 201
 
 
 @app.route('/api/ai-practice/next')

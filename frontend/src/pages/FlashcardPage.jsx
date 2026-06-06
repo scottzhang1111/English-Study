@@ -19,6 +19,7 @@ import {
   getLearnedWords,
   getTodayReviewQuiz,
   markMastered,
+  recordVocabWrongReview,
   submitStageQuizAttempt,
 } from '../api';
 import eigoQuestWorlds from '../config/eigoQuestWorlds';
@@ -587,6 +588,17 @@ const handlePreviousStudy = async () => {
       setReviewStreak((streak) => streak + 1);
     } else {
       setReviewStreak(0);
+      if (hasRequestedStage && currentReviewQuestion.id) {
+        recordVocabWrongReview({
+          childId: selectedChildId,
+          vocabId: currentReviewQuestion.id,
+          worldId: requestedWorldId,
+          stageNumber: requestedStage,
+          questionType: currentReviewQuestion.type,
+        }).catch((err) => {
+          console.warn('Failed to record vocab wrong review', err);
+        });
+      }
     }
   };
 

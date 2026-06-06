@@ -7,7 +7,7 @@ import {
   EQMobileShell,
   EQPanel,
 } from '../components/eigo';
-import { getEikenRealExamWrongQuestions, getGrammarQuizWrongQuestions, getReviewList } from '../api';
+import { getEikenRealExamWrongQuestions, getGrammarQuizWrongQuestions, getVocabWrongReviews } from '../api';
 
 const CHILD_STORAGE_KEY = 'selected_child_id';
 
@@ -18,7 +18,7 @@ const reviewEntries = [
     subtitle: 'まちがえた単語をもう一度チェック',
     typeLabel: '単語',
     icon: '/assets/eigo-quest/review/review-icon-vocab.png',
-    to: '/today-review-quiz',
+    to: '/review/words',
   },
   {
     key: 'grammar',
@@ -57,7 +57,7 @@ export default function ReviewPage() {
     setError('');
 
     Promise.allSettled([
-      getReviewList(selectedChildId),
+      getVocabWrongReviews(selectedChildId),
       getGrammarQuizWrongQuestions(selectedChildId),
       getEikenRealExamWrongQuestions(selectedChildId),
     ])
@@ -67,7 +67,7 @@ export default function ReviewPage() {
         const grammarPayload = grammarResult.status === 'fulfilled' ? grammarResult.value || {} : {};
         const eikenPayload = eikenResult.status === 'fulfilled' ? eikenResult.value || {} : {};
         setCounts({
-          words: (wordPayload.review_list || wordPayload.reviewList || []).length,
+          words: (wordPayload.wrongReviews || wordPayload.wrong_reviews || []).length,
           grammar: (grammarPayload.wrongQuestions || grammarPayload.wrong_questions || []).length,
           eiken: eikenResult.status === 'fulfilled'
             ? (eikenPayload.wrongQuestions || eikenPayload.wrong_questions || []).length

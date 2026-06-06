@@ -156,6 +156,22 @@ export const submitStageQuizAttempt = async ({ childId, world, stage, answers, a
   });
 };
 
+export const getVocabWrongReviews = async (childId) => {
+  return fetchJson(`/api/children/${encodeURIComponent(childId)}/vocab-wrong-reviews`);
+};
+
+export const recordVocabWrongReview = async ({ childId, vocabId, worldId, stageNumber, questionType } = {}) => {
+  return fetchJson(`/api/children/${encodeURIComponent(childId)}/vocab-wrong-reviews`, {
+    method: 'POST',
+    body: {
+      vocab_id: vocabId,
+      world_id: worldId,
+      stage_number: stageNumber,
+      question_type: questionType,
+    },
+  });
+};
+
 export const getWorldStageProgress = async ({ childId, world, stage } = {}) => {
   return fetchJson(`/api/children/${encodeURIComponent(childId)}/world-stage-progress`, {
     params: { world, stage },

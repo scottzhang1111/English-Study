@@ -52,13 +52,46 @@ function normalizeEikenMediaHtml(html = '') {
   });
 }
 
-function buildReviewQuestionPath(item) {
-  const partId = item.partId || item.part_id;
-  const questionNumber = item.questionNumber || item.question_number;
-  return `/review/eiken/question?partId=${encodeURIComponent(partId)}&question=${encodeURIComponent(questionNumber)}`;
+const REVIEW_TYPES = {
+  listening: {
+    title: 'リスニング復習',
+    description: '音声つきのまちがいを復習する',
+  },
+  written: {
+    title: '筆記復習',
+    description: '読解・文法・筆記のまちがいを復習する',
+  },
+};
+
+function getWrongQuestionType(item = {}) {
+  const rawType = String(
+    item.questionType ||
+    item.question_type ||
+    item.sectionType ||
+    item.section_type ||
+    item.mode ||
+    ''
+  ).toLowerCase();
+  if (rawType.includes('listening') || rawType.includes('リスニング')) return 'listening';
+  if (rawType.includes('written') || rawType.includes('writing') || rawType.includes('reading') || rawType.includes('筆記')) return 'written';
+
+  const partId = String(item.partId || item.part_id || '');
+  return partId.includes('h_') ? 'written' : 'listening';
 }
 
-function EikenWrongQuestionCard({ item }) {
+function normalizeReviewType(value) {
+  return value === 'listening' || value === 'written' ? value : '';
+}
+
+function buildReviewQuestionPath(item, reviewType = '') {
+  const partId = item.partId || item.part_id;
+  const questionNumber = item.questionNumber || item.question_number;
+  const type = normalizeReviewType(reviewType) || getWrongQuestionType(item);
+  const typeQuery = type ? `type=${encodeURIComponent(type)}&` : '';
+  return `/review/eiken/question?${typeQuery}partId=${encodeURIComponent(partId)}&question=${encodeURIComponent(questionNumber)}`;
+}
+
+function EikenWrongQuestionCard({ item, reviewType = '' }) {
   const partId = item.partId || item.part_id || '-';
   const questionNumber = item.questionNumber || item.question_number || '-';
   const studentAnswer = item.studentAnswer || item.student_answer || item.selectedAnswer || item.selected_answer;
@@ -68,7 +101,7 @@ function EikenWrongQuestionCard({ item }) {
 
   return (
     <EQPanel tone="gold" className="eq-eiken-review-item">
-      <Link to={buildReviewQuestionPath(item)} className="eq-eiken-review-card-link" aria-label={`問${questionNumber}を復習する`}>
+      <Link to={buildReviewQuestionPath(item, reviewType)} className="eq-eiken-review-card-link" aria-label={`問${questionNumber}を復習する`}>
         <div className="flex flex-wrap gap-2">
           <EQBadge tone="gold">Part {partId}</EQBadge>
           <EQBadge tone="cyan">Q{questionNumber}</EQBadge>
@@ -91,6 +124,7 @@ function EikenReviewQuestion({
   childId,
   partId,
   questionNumber,
+  reviewType = '',
   wrongQuestions,
   onResolved,
 }) {
@@ -114,6 +148,7 @@ function EikenReviewQuestion({
   const previousAnswer = wrongQuestion?.studentAnswer || wrongQuestion?.student_answer || wrongQuestion?.selectedAnswer || wrongQuestion?.selected_answer || '';
   const correctAnswer = wrongQuestion?.correctAnswer || wrongQuestion?.correct_answer || '';
   const normalizedHtml = useMemo(() => normalizeEikenMediaHtml(partData?.html || ''), [partData?.html]);
+  const backPath = normalizeReviewType(reviewType) ? `/review/eiken?type=${encodeURIComponent(reviewType)}` : '/review/eiken';
 
   useEffect(() => {
     let active = true;
@@ -194,7 +229,7 @@ function EikenReviewQuestion({
   return (
     <motion.section initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} className="eq-eiken-review-question">
       <div className="flex flex-wrap items-center gap-2">
-        <EQPrimaryButton as={Link} to="/review/eiken">
+        <EQPrimaryButton as={Link} to={backPath}>
           一覧へ
         </EQPrimaryButton>
         <EQBadge tone="gold">Part {partId}</EQBadge>
@@ -256,7 +291,9 @@ export default function EikenReviewPage() {
   const childId = currentChildId || localStorage.getItem(CHILD_STORAGE_KEY) || '';
   const partId = searchParams.get('partId') || '';
   const questionNumber = searchParams.get('question') || '';
+  const reviewType = normalizeReviewType(searchParams.get('type') || '');
   const isQuestionMode = Boolean(partId && questionNumber);
+  const isTypeListMode = Boolean(reviewType);
   const [wrongQuestions, setWrongQuestions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -298,11 +335,20 @@ export default function EikenReviewPage() {
     }));
   };
 
-  const count = wrongQuestions.length;
+  const listeningQuestions = useMemo(
+    () => wrongQuestions.filter((item) => getWrongQuestionType(item) === 'listening'),
+    [wrongQuestions],
+  );
+  const writtenQuestions = useMemo(
+    () => wrongQuestions.filter((item) => getWrongQuestionType(item) === 'written'),
+    [wrongQuestions],
+  );
+  const visibleWrongQuestions = reviewType === 'listening' ? listeningQuestions : reviewType === 'written' ? writtenQuestions : wrongQuestions;
+  const visibleCount = visibleWrongQuestions.length;
   const progressText = useMemo(() => {
     if (loading) return '確認中';
-    return `${count} 問`;
-  }, [count, loading]);
+    return `${visibleCount} 問`;
+  }, [visibleCount, loading]);
 
   return (
     <div className="eq-learning-hub-page">
@@ -319,14 +365,15 @@ export default function EikenReviewPage() {
             childId={childId}
             partId={partId}
             questionNumber={questionNumber}
+            reviewType={reviewType}
             wrongQuestions={wrongQuestions}
             onResolved={handleResolved}
           />
         ) : (
           <motion.section initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} className="grid gap-4">
             <div className="flex flex-wrap items-center gap-2">
-              <EQPrimaryButton as={Link} to="/review">
-                復習メニューへ
+              <EQPrimaryButton as={Link} to={isTypeListMode ? '/review/eiken' : '/review'}>
+                {isTypeListMode ? '英検復習へ' : '復習メニューへ'}
               </EQPrimaryButton>
               <EQBadge tone="gold">{progressText}</EQBadge>
             </div>
@@ -341,19 +388,39 @@ export default function EikenReviewPage() {
               <EQPanel tone="cyan">
                 <p className="eq-caption text-center">英検のまちがいを確認中...</p>
               </EQPanel>
-            ) : count === 0 ? (
+            ) : !isTypeListMode ? (
+              <div className="eq-eiken-review-type-grid">
+                <Link to="/review/eiken?type=listening" className="eq-eiken-review-type-card">
+                  <span className="eq-eiken-review-type-icon">♪</span>
+                  <span>
+                    <strong>{REVIEW_TYPES.listening.title}</strong>
+                    <small>{REVIEW_TYPES.listening.description}</small>
+                  </span>
+                  <b>{listeningQuestions.length}問</b>
+                </Link>
+                <Link to="/review/eiken?type=written" className="eq-eiken-review-type-card">
+                  <span className="eq-eiken-review-type-icon">E</span>
+                  <span>
+                    <strong>{REVIEW_TYPES.written.title}</strong>
+                    <small>{REVIEW_TYPES.written.description}</small>
+                  </span>
+                  <b>{writtenQuestions.length}問</b>
+                </Link>
+              </div>
+            ) : visibleCount === 0 ? (
               <EQPanel title="英検のまちがいはありません" tone="green">
                 <p className="eq-caption">英検本番形式でまちがえた問題はまだありません。</p>
               </EQPanel>
             ) : (
               <div className="grid gap-3">
-                {wrongQuestions.map((item) => {
+                {visibleWrongQuestions.map((item) => {
                   const questionNumberForKey = item.questionNumber || item.question_number || '-';
                   const attemptId = item.attemptId || item.attempt_id;
                   return (
                     <EikenWrongQuestionCard
                       key={`${attemptId}-${questionNumberForKey}-${item.id}`}
                       item={item}
+                      reviewType={reviewType}
                     />
                   );
                 })}
