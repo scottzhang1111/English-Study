@@ -9487,13 +9487,35 @@ def require_child_belongs_to_current_account(child_id):
     return row
 
 
+def is_production_env():
+    return any(
+        os.getenv(name, '').strip().lower() in {'1', 'true', 'yes', 'on', 'production', 'prod'}
+        for name in ['ENV', 'FLASK_ENV', 'APP_ENV', 'RENDER']
+    )
+
+
 def get_auth_cookie_secure():
+    if is_production_env():
+        return True
     configured = os.getenv('AUTH_COOKIE_SECURE', '').strip().lower()
     if configured in {'1', 'true', 'yes', 'on'}:
         return True
     if configured in {'0', 'false', 'no', 'off'}:
         return False
-    return os.getenv('FLASK_ENV', '').strip().lower() == 'production' or os.getenv('ENV', '').strip().lower() == 'production'
+    return False
+
+
+def get_auth_cookie_samesite():
+    return 'None' if is_production_env() else 'Lax'
+
+
+def get_auth_cookie_options():
+    return {
+        'httponly': True,
+        'secure': get_auth_cookie_secure(),
+        'samesite': get_auth_cookie_samesite(),
+        'path': '/',
+    }
 
 
 def auth_account_payload(row):
@@ -9759,10 +9781,7 @@ def api_auth_login():
         AUTH_SESSION_COOKIE_NAME,
         session['session_token'],
         max_age=AUTH_SESSION_DAYS * 24 * 60 * 60,
-        httponly=True,
-        secure=get_auth_cookie_secure(),
-        samesite='Lax',
-        path='/',
+        **get_auth_cookie_options(),
     )
     return response
 
@@ -9784,7 +9803,12 @@ def api_auth_logout():
         finally:
             conn.close()
     response = jsonify(ok=True)
-    response.delete_cookie(AUTH_SESSION_COOKIE_NAME, path='/', samesite='Lax')
+    response.delete_cookie(
+        AUTH_SESSION_COOKIE_NAME,
+        path='/',
+        secure=get_auth_cookie_secure(),
+        samesite=get_auth_cookie_samesite(),
+    )
     return response
 
 
