@@ -3420,6 +3420,507 @@ textarea {
   line-height: 1.55;
 }
 
+.login-entry-page {
+  position: relative;
+  min-height: 100dvh;
+  overflow: hidden;
+  background: #030817;
+  color: #f8fbff;
+  padding: max(28px, env(safe-area-inset-top)) 24px max(28px, calc(22px + env(safe-area-inset-bottom)));
+}
+
+.login-entry-bg,
+.login-entry-overlay {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.login-entry-bg {
+  background:
+    url("/assets/eigo-quest/worlds/light.png") center / cover no-repeat,
+    #030817;
+  transform: scale(1.04);
+}
+
+.login-entry-overlay {
+  background:
+    radial-gradient(circle at 20% 14%, rgba(76, 145, 255, 0.24), transparent 34%),
+    radial-gradient(circle at 86% 78%, rgba(38, 207, 255, 0.22), transparent 26%),
+    linear-gradient(180deg, rgba(1, 7, 28, 0.18), rgba(1, 5, 18, 0.48) 42%, rgba(0, 3, 13, 0.9));
+}
+
+.login-entry-shell {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  width: min(100%, 520px);
+  min-height: calc(100dvh - max(28px, env(safe-area-inset-top)) - max(28px, calc(22px + env(safe-area-inset-bottom))));
+  flex-direction: column;
+  justify-content: center;
+  gap: clamp(28px, 6vh, 58px);
+  margin: 0 auto;
+}
+
+.login-entry-logo-plaque {
+  position: relative;
+  display: grid;
+  min-height: 88px;
+  place-items: center;
+  margin: 0 auto;
+  width: min(100%, 430px);
+  border: 2px solid rgba(255, 220, 119, 0.92);
+  border-radius: 999px;
+  background:
+    radial-gradient(circle at 50% 0%, rgba(40, 96, 184, 0.64), transparent 44%),
+    linear-gradient(180deg, rgba(9, 28, 78, 0.94), rgba(3, 11, 42, 0.96));
+  box-shadow:
+    0 18px 32px rgba(0, 0, 0, 0.38),
+    inset 0 0 0 2px rgba(255, 246, 180, 0.16),
+    0 0 24px rgba(255, 211, 90, 0.2);
+  padding: 0 36px;
+}
+
+.login-entry-logo-plaque::before,
+.login-entry-logo-plaque::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  width: 34px;
+  height: 34px;
+  border: 2px solid rgba(255, 220, 119, 0.9);
+  background: linear-gradient(135deg, #8ff2ff, #115ad9 58%, #0a1a5c);
+  box-shadow: 0 0 16px rgba(82, 219, 255, 0.72);
+  transform: translateY(-50%) rotate(45deg);
+}
+
+.login-entry-logo-plaque::before {
+  left: -11px;
+}
+
+.login-entry-logo-plaque::after {
+  right: -11px;
+}
+
+.login-entry-logo-plaque strong {
+  color: #ffeaa6;
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: clamp(34px, 10vw, 58px);
+  font-weight: 900;
+  line-height: 1;
+  text-shadow:
+    0 2px 0 #5d3105,
+    0 0 16px rgba(255, 211, 90, 0.58);
+}
+
+.login-entry-gem,
+.login-entry-card-gem {
+  position: absolute;
+  left: 50%;
+  display: block;
+  border: 2px solid rgba(255, 220, 119, 0.92);
+  background: linear-gradient(135deg, #9cf6ff, #1266e0 56%, #06174e);
+  box-shadow:
+    0 0 18px rgba(93, 226, 255, 0.78),
+    0 0 28px rgba(255, 211, 90, 0.22);
+  transform: translateX(-50%) rotate(45deg);
+}
+
+.login-entry-gem {
+  top: -13px;
+  width: 32px;
+  height: 32px;
+}
+
+.login-entry-card {
+  position: relative;
+  display: grid;
+  gap: 24px;
+  border: 2px solid rgba(255, 211, 90, 0.86);
+  border-radius: 34px;
+  background:
+    radial-gradient(circle at 50% 0%, rgba(33, 78, 146, 0.34), transparent 44%),
+    linear-gradient(180deg, rgba(4, 18, 58, 0.94), rgba(1, 8, 32, 0.96));
+  box-shadow:
+    0 22px 44px rgba(0, 0, 0, 0.42),
+    inset 0 0 0 1px rgba(255, 246, 180, 0.18),
+    inset 0 0 36px rgba(56, 136, 255, 0.12),
+    0 0 30px rgba(255, 211, 90, 0.16);
+  padding: clamp(38px, 9vw, 58px) clamp(24px, 6vw, 42px) clamp(32px, 8vw, 46px);
+  text-align: center;
+}
+
+.login-entry-card::before,
+.login-entry-card::after {
+  content: '';
+  position: absolute;
+  width: 42px;
+  height: 42px;
+  border-color: rgba(255, 220, 119, 0.86);
+  pointer-events: none;
+}
+
+.login-entry-card::before {
+  top: 14px;
+  left: 14px;
+  border-top: 2px solid;
+  border-left: 2px solid;
+  border-radius: 18px 0 0 0;
+}
+
+.login-entry-card::after {
+  right: 14px;
+  bottom: 14px;
+  border-right: 2px solid;
+  border-bottom: 2px solid;
+  border-radius: 0 0 18px 0;
+}
+
+.login-entry-card-gem {
+  top: -17px;
+  width: 36px;
+  height: 36px;
+}
+
+.login-entry-title {
+  margin: 0;
+  color: #ffe079 !important;
+  font-size: clamp(42px, 12vw, 68px);
+  font-weight: 1000;
+  letter-spacing: 0;
+  line-height: 1.08;
+  text-shadow:
+    0 3px 0 rgba(104, 54, 5, 0.82),
+    0 0 22px rgba(255, 211, 90, 0.36);
+}
+
+.login-entry-divider {
+  display: block;
+  width: min(100%, 320px);
+  height: 1px;
+  margin: -4px auto 0;
+  background: linear-gradient(90deg, transparent, rgba(255, 211, 90, 0.74), transparent);
+}
+
+.login-entry-divider::after {
+  content: '';
+  display: block;
+  width: 12px;
+  height: 12px;
+  margin: -5px auto 0;
+  background: #ffd35a;
+  box-shadow: 0 0 14px rgba(255, 211, 90, 0.72);
+  transform: rotate(45deg);
+}
+
+.login-entry-copy {
+  margin: 0;
+  color: rgba(247, 251, 255, 0.94);
+  font-size: clamp(18px, 5vw, 28px);
+  font-weight: 900;
+  line-height: 1.65;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.7);
+}
+
+.login-entry-button {
+  display: inline-grid;
+  min-height: 68px;
+  width: 100%;
+  place-items: center;
+  border: 0;
+  background: url("/assets/eigo-quest/ui/gold-button.png") center / 100% 100% no-repeat;
+  color: #251500 !important;
+  font-size: clamp(22px, 6.6vw, 34px);
+  font-weight: 1000;
+  text-decoration: none;
+  text-shadow: 0 1px 0 rgba(255, 244, 185, 0.72);
+  filter: drop-shadow(0 0 20px rgba(255, 211, 90, 0.36));
+  transition:
+    transform 0.18s ease,
+    filter 0.18s ease;
+}
+
+.login-entry-button:hover {
+  filter:
+    brightness(1.06)
+    drop-shadow(0 0 24px rgba(255, 211, 90, 0.46));
+}
+
+.login-entry-button:active {
+  transform: translateY(2px) scale(0.99);
+}
+
+.login-entry-page::before,
+.login-entry-page::after {
+  content: '';
+  position: absolute;
+  z-index: 1;
+  bottom: -16px;
+  width: 160px;
+  height: 160px;
+  background:
+    linear-gradient(135deg, transparent 0 34%, rgba(50, 220, 255, 0.62) 35% 42%, transparent 43%),
+    radial-gradient(circle at 50% 72%, rgba(33, 141, 255, 0.62), transparent 54%);
+  opacity: 0.8;
+  filter: blur(0.2px) drop-shadow(0 0 18px rgba(33, 185, 255, 0.48));
+  pointer-events: none;
+}
+
+.login-entry-page::before {
+  left: -58px;
+  transform: rotate(-16deg);
+}
+
+.login-entry-page::after {
+  right: -58px;
+  transform: rotate(16deg) scaleX(-1);
+}
+
+.create-child-profile-page {
+  position: relative;
+  min-height: 100dvh;
+  overflow: hidden auto;
+  background: #030817;
+  color: #f8fbff;
+  padding: max(22px, env(safe-area-inset-top)) 18px max(28px, calc(22px + env(safe-area-inset-bottom)));
+}
+
+.create-child-profile-bg,
+.create-child-profile-overlay {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.create-child-profile-bg {
+  background:
+    url("/assets/eigo-quest/worlds/water.png") center / cover no-repeat,
+    #030817;
+  transform: scale(1.04);
+}
+
+.create-child-profile-overlay {
+  background:
+    radial-gradient(circle at 50% 12%, rgba(76, 196, 255, 0.22), transparent 34%),
+    linear-gradient(180deg, rgba(1, 7, 28, 0.18), rgba(1, 5, 18, 0.64) 48%, rgba(0, 3, 13, 0.94));
+}
+
+.create-child-profile-card {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  gap: 18px;
+  width: min(100%, 520px);
+  margin: 0 auto;
+  border: 2px solid rgba(255, 211, 90, 0.82);
+  border-radius: 32px;
+  background:
+    radial-gradient(circle at 50% 0%, rgba(33, 88, 164, 0.36), transparent 42%),
+    linear-gradient(180deg, rgba(4, 18, 58, 0.94), rgba(1, 8, 32, 0.96));
+  box-shadow:
+    0 22px 44px rgba(0, 0, 0, 0.42),
+    inset 0 0 0 1px rgba(255, 246, 180, 0.18),
+    inset 0 0 36px rgba(56, 136, 255, 0.12);
+  padding: clamp(26px, 6vw, 36px);
+}
+
+.create-child-profile-card-gem {
+  position: absolute;
+  top: -17px;
+  left: 50%;
+  width: 36px;
+  height: 36px;
+  border: 2px solid rgba(255, 220, 119, 0.92);
+  background: linear-gradient(135deg, #9cf6ff, #1266e0 56%, #06174e);
+  box-shadow:
+    0 0 18px rgba(93, 226, 255, 0.78),
+    0 0 28px rgba(255, 211, 90, 0.22);
+  transform: translateX(-50%) rotate(45deg);
+}
+
+.create-child-profile-header {
+  text-align: center;
+}
+
+.create-child-profile-header p {
+  margin: 0;
+  color: #5fe5ff;
+  font-size: 12px;
+  font-weight: 1000;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+.create-child-profile-header h1 {
+  margin: 8px 0 0;
+  color: #ffe079 !important;
+  font-size: clamp(26px, 7vw, 40px);
+  font-weight: 1000;
+  line-height: 1.2;
+  text-shadow:
+    0 2px 0 rgba(104, 54, 5, 0.82),
+    0 0 18px rgba(255, 211, 90, 0.34);
+}
+
+.create-child-profile-header span {
+  display: block;
+  margin-top: 8px;
+  color: rgba(247, 251, 255, 0.86);
+  font-size: 14px;
+  font-weight: 850;
+  line-height: 1.6;
+}
+
+.create-child-profile-avatar-wrap {
+  display: grid;
+  justify-items: center;
+  gap: 8px;
+}
+
+.create-child-profile-avatar {
+  position: relative;
+  display: grid;
+  width: 96px;
+  height: 96px;
+  place-items: center;
+  border: 2px solid rgba(255, 220, 119, 0.9);
+  border-radius: 32px;
+  background:
+    radial-gradient(circle at 35% 26%, rgba(255, 255, 255, 0.44), transparent 28%),
+    linear-gradient(180deg, rgba(16, 86, 142, 0.92), rgba(6, 26, 82, 0.96));
+  box-shadow:
+    0 12px 24px rgba(0, 0, 0, 0.28),
+    0 0 24px rgba(83, 220, 255, 0.18);
+}
+
+.create-child-profile-avatar span {
+  color: #ffe58f;
+  font-size: 42px;
+  font-weight: 1000;
+  text-shadow: 0 2px 0 rgba(80, 38, 4, 0.8);
+}
+
+.create-child-profile-avatar b {
+  position: absolute;
+  right: -8px;
+  bottom: -8px;
+  display: grid;
+  width: 34px;
+  height: 34px;
+  place-items: center;
+  border: 2px solid rgba(255, 230, 145, 0.95);
+  border-radius: 999px;
+  background: linear-gradient(180deg, #ffe58d, #b97812);
+  color: #211300;
+  font-size: 20px;
+  font-weight: 1000;
+}
+
+.create-child-profile-avatar-wrap small,
+.create-child-profile-footer {
+  color: rgba(239, 247, 255, 0.68);
+  font-size: 12px;
+  font-weight: 850;
+  text-align: center;
+}
+
+.create-child-profile-field {
+  display: grid;
+  gap: 8px;
+  color: #ffe58f;
+  font-size: 15px;
+  font-weight: 950;
+}
+
+.create-child-profile-field input {
+  min-height: 54px;
+  width: 100%;
+  border: 1.5px solid rgba(255, 176, 55, 0.78);
+  border-radius: 18px;
+  background: rgba(1, 9, 32, 0.66);
+  color: #fff8df;
+  font-size: 18px;
+  font-weight: 900;
+  outline: none;
+  padding: 0 16px;
+}
+
+.create-child-profile-field input:focus {
+  border-color: #ffe58f;
+  box-shadow: 0 0 0 3px rgba(255, 211, 90, 0.14);
+}
+
+.create-child-profile-section {
+  display: grid;
+  gap: 10px;
+}
+
+.create-child-profile-section h2 {
+  margin: 0;
+  color: #ffe58f !important;
+  font-size: 15px;
+  font-weight: 950;
+}
+
+.create-child-profile-option-grid {
+  display: grid;
+  gap: 10px;
+}
+
+.create-child-profile-option-grid.is-three {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.create-child-profile-option-grid button {
+  min-height: 48px;
+  border: 1.5px solid rgba(255, 176, 55, 0.58);
+  border-radius: 16px;
+  background: rgba(1, 9, 32, 0.58);
+  color: rgba(247, 251, 255, 0.9);
+  font-size: 14px;
+  font-weight: 950;
+  padding: 10px;
+}
+
+.create-child-profile-option-grid button.is-selected {
+  border-color: rgba(255, 232, 152, 0.96);
+  background:
+    radial-gradient(circle at 30% 0%, rgba(255, 232, 152, 0.26), transparent 34%),
+    rgba(20, 46, 98, 0.9);
+  color: #fff0b5;
+  box-shadow:
+    0 0 18px rgba(255, 211, 90, 0.2),
+    inset 0 0 18px rgba(255, 255, 255, 0.04);
+}
+
+.create-child-profile-error {
+  margin: 0;
+  border: 1px solid rgba(255, 111, 142, 0.5);
+  border-radius: 14px;
+  background: rgba(94, 16, 45, 0.5);
+  color: #ffb6c7;
+  font-size: 13px;
+  font-weight: 900;
+  padding: 10px 12px;
+  text-align: center;
+}
+
+.create-child-profile-main-button {
+  min-height: 62px;
+  border: 0;
+  background: url("/assets/eigo-quest/ui/gold-button.png") center / 100% 100% no-repeat;
+  color: #251500;
+  font-size: clamp(19px, 5.4vw, 28px);
+  font-weight: 1000;
+  text-shadow: 0 1px 0 rgba(255, 244, 185, 0.72);
+  filter: drop-shadow(0 0 18px rgba(255, 211, 90, 0.34));
+  padding: 0 16px;
+}
+
+.create-child-profile-main-button:disabled {
+  opacity: 0.68;
+}
+
 @media (max-width: 380px) {
   .parent-login-page {
     padding-inline: 12px;
@@ -3437,6 +3938,30 @@ textarea {
 
   .parent-login-code-row {
     grid-template-columns: 1fr;
+  }
+
+  .login-entry-page {
+    padding-inline: 16px;
+  }
+
+  .login-entry-shell {
+    gap: 20px;
+    justify-content: flex-start;
+  }
+
+  .login-entry-logo-plaque {
+    min-height: 76px;
+    padding-inline: 26px;
+  }
+
+  .login-entry-card {
+    gap: 18px;
+    border-radius: 28px;
+    padding: 36px 20px 30px;
+  }
+
+  .login-entry-button {
+    min-height: 60px;
   }
 }
 

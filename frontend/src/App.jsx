@@ -4,6 +4,7 @@ import HomePage from './pages/HomePage';
 import AddChildPage from './pages/AddChildPage';
 import OnboardingPage from './pages/OnboardingPage';
 import ParentLoginPage from './pages/ParentLoginPage';
+import CreateChildProfilePage from './pages/CreateChildProfilePage';
 import ChildSelectPage from './pages/ChildSelectPage';
 import LearningHubPage from './pages/LearningHubPage';
 import DailyWordUnitPage from './pages/DailyWordUnitPage';
@@ -127,7 +128,7 @@ function App() {
             <Route path="/app" element={<AnimatedPage><StartupGate /></AnimatedPage>} />
             <Route path="/onboarding" element={<AnimatedPage><OnboardingPage /></AnimatedPage>} />
             <Route path="/parent-login" element={<AnimatedPage><ParentLoginPage /></AnimatedPage>} />
-            <Route path="/create-child-profile" element={<AnimatedPage><AuthRequiredPage><AddChildPage /></AuthRequiredPage></AnimatedPage>} />
+            <Route path="/create-child-profile" element={<AnimatedPage><AuthRequiredPage><CreateChildProfilePage /></AuthRequiredPage></AnimatedPage>} />
             <Route path="/select-child" element={<AnimatedPage><ChildSelectPage /></AnimatedPage>} />
             <Route path="/learning-hub" element={<AnimatedPage><ChildRequiredPage><LearningHubPage /></ChildRequiredPage></AnimatedPage>} />
             <Route path="/app/learning-hub" element={<AnimatedPage><ChildRequiredPage><LearningHubPage /></ChildRequiredPage></AnimatedPage>} />

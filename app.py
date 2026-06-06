@@ -1825,9 +1825,12 @@ def init_db(force=False):
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 account_id INTEGER,
                 name TEXT NOT NULL,
+                avatar TEXT,
+                learning_goal TEXT,
                 grade TEXT NOT NULL,
                 target_level TEXT NOT NULL,
                 daily_target INTEGER NOT NULL DEFAULT 20,
+                daily_word_target INTEGER NOT NULL DEFAULT 20,
                 study_mode TEXT NOT NULL DEFAULT 'normal',
                 starter_pokemon_id INTEGER,
                 created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -2788,12 +2791,33 @@ def migrate_children_profile_fields(conn):
     columns = {row[1] for row in conn.execute('PRAGMA table_info(children)').fetchall()}
     if 'account_id' not in columns:
         conn.execute('ALTER TABLE children ADD COLUMN account_id INTEGER')
+    if 'avatar' not in columns:
+        conn.execute("ALTER TABLE children ADD COLUMN avatar TEXT")
+    if 'learning_goal' not in columns:
+        conn.execute("ALTER TABLE children ADD COLUMN learning_goal TEXT")
     if 'daily_target' not in columns:
         conn.execute('ALTER TABLE children ADD COLUMN daily_target INTEGER NOT NULL DEFAULT 20')
+    if 'daily_word_target' not in columns:
+        conn.execute('ALTER TABLE children ADD COLUMN daily_word_target INTEGER NOT NULL DEFAULT 20')
     if 'starter_pokemon_id' not in columns:
         conn.execute('ALTER TABLE children ADD COLUMN starter_pokemon_id INTEGER')
     if 'study_mode' not in columns:
         conn.execute("ALTER TABLE children ADD COLUMN study_mode TEXT NOT NULL DEFAULT 'normal'")
+
+    conn.execute(
+        '''
+        UPDATE children
+        SET daily_word_target = COALESCE(NULLIF(daily_word_target, 0), daily_target, 20)
+        WHERE daily_word_target IS NULL OR daily_word_target <= 0
+        '''
+    )
+    conn.execute(
+        '''
+        UPDATE children
+        SET learning_goal = COALESCE(NULLIF(learning_goal, ''), target_level)
+        WHERE learning_goal IS NULL OR learning_goal = ''
+        '''
+    )
 
     child_rows = conn.execute(
         '''
@@ -3431,7 +3455,7 @@ def get_children_list(account_id):
     try:
         rows = conn.execute(
             '''
-            SELECT id, name, grade, target_level, daily_target, study_mode, starter_pokemon_id, created_at, updated_at
+            SELECT id, name, avatar, learning_goal, grade, target_level, daily_target, daily_word_target, study_mode, starter_pokemon_id, created_at, updated_at
             FROM children
             WHERE account_id = ?
             ORDER BY id ASC
@@ -3445,9 +3469,13 @@ def get_children_list(account_id):
         {
             'id': row['id'],
             'name': row['name'],
+            'nickname': row['name'],
+            'avatar': row['avatar'] or '',
+            'learning_goal': row['learning_goal'] or row['target_level'],
             'grade': row['grade'],
             'target_level': row['target_level'],
             'daily_target': row['daily_target'],
+            'daily_word_target': row['daily_word_target'] or row['daily_target'],
             'study_mode': row['study_mode'] or 'normal',
             'starter_pokemon_id': row['starter_pokemon_id'],
             'created_at': row['created_at'],
@@ -3478,20 +3506,25 @@ def get_child_starter_options(count=3):
 
     return options
 def upsert_child_profile(data, account_id):
-    name = (data.get('name') or '').strip()
+    name = (data.get('nickname') or data.get('name') or '').strip()
+    avatar = (data.get('avatar') or '').strip()
+    learning_goal = (data.get('learning_goal') or data.get('target_level') or '').strip()
     grade = (data.get('grade') or '').strip()
-    target_level = (data.get('target_level') or '').strip()
-    daily_target = data.get('daily_target', 20)
+    target_level = (data.get('target_level') or learning_goal or '').strip()
+    daily_target = data.get('daily_word_target', data.get('daily_target', 20))
+    daily_word_target = data.get('daily_word_target', daily_target)
     study_mode = (data.get('study_mode') or 'normal').strip()
     starter_pokemon_id = data.get('starter_pokemon_id')
     child_id = data.get('id')
 
     if not name:
-        raise ValueError('name is required')
+        raise ValueError('nickname is required')
     if not grade:
         grade = '1'
+    if not learning_goal:
+        learning_goal = target_level or '英検4級をめざす'
     if not target_level:
-        raise ValueError('target_level is required')
+        target_level = learning_goal
     allowed_target_levels = {'\u4e09\u7d1a', '\u6e96\u0032\u7d1a'}
     if target_level not in allowed_target_levels:
         target_level = '\u4e09\u7d1a'
@@ -3501,6 +3534,12 @@ def upsert_child_profile(data, account_id):
         raise ValueError('daily_target must be an integer')
     if daily_target < 1:
         raise ValueError('daily_target must be at least 1')
+    try:
+        daily_word_target = int(daily_word_target)
+    except (TypeError, ValueError):
+        daily_word_target = daily_target
+    if daily_word_target < 1:
+        daily_word_target = daily_target
     if study_mode not in {'normal', 'full_review', 'exam_mode'}:
         study_mode = 'normal'
 
@@ -3532,19 +3571,19 @@ def upsert_child_profile(data, account_id):
             conn.execute(
                 '''
                 UPDATE children
-                SET name = ?, grade = ?, target_level = ?, daily_target = ?, study_mode = ?, starter_pokemon_id = ?
+                SET name = ?, avatar = ?, learning_goal = ?, grade = ?, target_level = ?, daily_target = ?, daily_word_target = ?, study_mode = ?, starter_pokemon_id = ?, updated_at = CURRENT_TIMESTAMP
                 WHERE id = ? AND account_id = ?
                 ''',
-                (name, grade, target_level, daily_target, study_mode, starter_pokemon_id, child_id, account_id),
+                (name, avatar, learning_goal, grade, target_level, daily_target, daily_word_target, study_mode, starter_pokemon_id, child_id, account_id),
             )
             target_child_id = child_id
         else:
             cur = conn.execute(
                 '''
-                INSERT INTO children (account_id, name, grade, target_level, daily_target, study_mode, starter_pokemon_id)
-                VALUES (?, ?, ?, ?, ?, ?, ?)
+                INSERT INTO children (account_id, name, avatar, learning_goal, grade, target_level, daily_target, daily_word_target, study_mode, starter_pokemon_id)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 ''',
-                (account_id, name, grade, target_level, daily_target, study_mode, starter_pokemon_id),
+                (account_id, name, avatar, learning_goal, grade, target_level, daily_target, daily_word_target, study_mode, starter_pokemon_id),
             )
             target_child_id = cur.lastrowid
 
@@ -3580,13 +3619,17 @@ def upsert_child_profile(data, account_id):
         conn.commit()
         child_row = conn.execute(
             '''
-            SELECT id, name, grade, target_level, daily_target, study_mode, starter_pokemon_id, created_at, updated_at
+            SELECT id, name, avatar, learning_goal, grade, target_level, daily_target, daily_word_target, study_mode, starter_pokemon_id, created_at, updated_at
             FROM children
             WHERE id = ? AND account_id = ?
             ''',
             (target_child_id, account_id),
         ).fetchone()
-        return dict(child_row) if child_row else None
+        if not child_row:
+            return None
+        child = dict(child_row)
+        child['nickname'] = child['name']
+        return child
     finally:
         conn.close()
 

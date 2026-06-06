@@ -38,7 +38,9 @@ async function fetchJson(path, { method = 'GET', params, body } = {}) {
       const text = await response.text().catch(() => '');
       message = text && !/<html[\s>]/i.test(text) ? text : '';
     }
-    throw new Error(message || `Request failed: ${response.status} ${response.statusText}`.trim());
+    const error = new Error(message || `Request failed: ${response.status} ${response.statusText}`.trim());
+    error.status = response.status;
+    throw error;
   }
   return response.json();
 }
@@ -48,6 +50,10 @@ function normalizeApiChild(child) {
   return {
     ...child,
     id: String(child.id),
+    nickname: child.nickname || child.name || '',
+    avatar: child.avatar || '',
+    learningGoal: child.learningGoal || child.learning_goal || child.targetLevel || child.target_level || '',
+    dailyWordTarget: Number(child.dailyWordTarget || child.daily_word_target || child.dailyTarget || child.daily_target || 20),
     targetLevel: child.targetLevel || child.target_level || '',
     dailyTarget: Number(child.dailyTarget || child.daily_target || 20),
     studyMode: child.studyMode || child.study_mode || 'normal',
