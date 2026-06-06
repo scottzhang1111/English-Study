@@ -917,7 +917,7 @@ export default function EikenRealExamPage() {
                   </span>
                 </div>
 
-                {primaryAudioSource && mode === 'listening' && (
+                {false && primaryAudioSource && mode === 'listening' && (
                   <div className="eiken-real-trial-audio-panel">
                     <div className="eiken-real-trial-audio-topline">
                       <p>音声</p>
