@@ -9488,9 +9488,14 @@ def require_child_belongs_to_current_account(child_id):
 
 
 def is_production_env():
-    return any(
+    if any(
         os.getenv(name, '').strip().lower() in {'1', 'true', 'yes', 'on', 'production', 'prod'}
         for name in ['ENV', 'FLASK_ENV', 'APP_ENV', 'RENDER']
+    ):
+        return True
+    return any(
+        os.getenv(name, '').strip().lower().startswith('https://')
+        for name in ['FRONTEND_ORIGIN', 'FRONTEND_URL', 'RENDER_EXTERNAL_URL']
     )
 
 
