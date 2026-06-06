@@ -9004,6 +9004,54 @@ def get_child_vocab_wrong_reviews(child_id):
     return [build_vocab_wrong_review_payload(row) for row in rows]
 
 
+def build_child_vocab_wrong_review_question(child_id, vocab_id):
+    init_db()
+    normalized_vocab_id = int(vocab_id)
+    conn = get_db_connection()
+    try:
+        ensure_child_exists(conn, child_id)
+    finally:
+        conn.close()
+
+    correct_vocab = resolve_vocab_entry(str(normalized_vocab_id), vocab_list)
+    if not correct_vocab:
+        raise LookupError('word not found')
+
+    correct_answer = _clean_csv_value(correct_vocab.get('English'))
+    meaning_ja = _clean_csv_value(correct_vocab.get('Japanese'))
+    if not correct_answer or not meaning_ja:
+        raise LookupError('question data not found')
+
+    distractors = [
+        _clean_csv_value(entry.get('English'))
+        for entry in vocab_list
+        if _clean_csv_value(entry.get('ID')) != str(normalized_vocab_id)
+        and _clean_csv_value(entry.get('English'))
+        and _clean_csv_value(entry.get('English')) != correct_answer
+    ]
+    distractors = list(dict.fromkeys(distractors))
+    if len(distractors) < 3:
+        raise LookupError('not enough choices')
+
+    choices = [correct_answer] + random.sample(distractors, 3)
+    random.shuffle(choices)
+    return {
+        'vocab_id': normalized_vocab_id,
+        'vocabId': normalized_vocab_id,
+        'word': correct_answer,
+        'meaning_ja': meaning_ja,
+        'meaningJa': meaning_ja,
+        'meaning_cn': _clean_csv_value(correct_vocab.get('Chinese')),
+        'meaningCn': _clean_csv_value(correct_vocab.get('Chinese')),
+        'question_type': 'ja-to-en',
+        'questionType': 'ja-to-en',
+        'prompt': f'「{meaning_ja}」に合う英単語を選びなさい。',
+        'choices': choices,
+        'correct_answer': correct_answer,
+        'correctAnswer': correct_answer,
+    }
+
+
 def get_database_host_for_debug():
     database_url = get_database_url()
     if not database_url:
@@ -9795,6 +9843,17 @@ def api_child_vocab_wrong_reviews(child_id):
     except ValueError as exc:
         abort(400, str(exc))
     return jsonify(item), 201
+
+
+@app.route('/api/children/<int:child_id>/vocab-wrong-reviews/<int:vocab_id>/question')
+def api_child_vocab_wrong_review_question(child_id, vocab_id):
+    try:
+        question = build_child_vocab_wrong_review_question(child_id, vocab_id)
+    except LookupError as exc:
+        abort(404, str(exc))
+    except ValueError as exc:
+        abort(400, str(exc))
+    return jsonify(question)
 
 
 @app.route('/api/ai-practice/next')

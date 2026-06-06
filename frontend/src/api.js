@@ -172,6 +172,10 @@ export const recordVocabWrongReview = async ({ childId, vocabId, worldId, stageN
   });
 };
 
+export const getVocabWrongReviewQuestion = async ({ childId, vocabId } = {}) => {
+  return fetchJson(`/api/children/${encodeURIComponent(childId)}/vocab-wrong-reviews/${encodeURIComponent(vocabId)}/question`);
+};
+
 export const getWorldStageProgress = async ({ childId, world, stage } = {}) => {
   return fetchJson(`/api/children/${encodeURIComponent(childId)}/world-stage-progress`, {
     params: { world, stage },

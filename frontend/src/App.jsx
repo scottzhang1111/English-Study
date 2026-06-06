@@ -133,6 +133,7 @@ function App() {
             <Route path="/eiken-pre2/wrong-review" element={<AnimatedPage><EikenPre2WrongReviewPage /></AnimatedPage>} />
             <Route path="/review" element={<AnimatedPage><ChildRequiredPage><ReviewPage /></ChildRequiredPage></AnimatedPage>} />
             <Route path="/review/words" element={<AnimatedPage><ChildRequiredPage><VocabWrongReviewPage /></ChildRequiredPage></AnimatedPage>} />
+            <Route path="/review/words/question" element={<AnimatedPage><ChildRequiredPage><VocabWrongReviewPage /></ChildRequiredPage></AnimatedPage>} />
             <Route path="/review/grammar" element={<AnimatedPage><ChildRequiredPage><GrammarReviewPage /></ChildRequiredPage></AnimatedPage>} />
             <Route path="/review/eiken" element={<AnimatedPage><ChildRequiredPage><EikenReviewPage /></ChildRequiredPage></AnimatedPage>} />
             <Route path="/review/eiken/question" element={<AnimatedPage><ChildRequiredPage><EikenReviewPage /></ChildRequiredPage></AnimatedPage>} />
