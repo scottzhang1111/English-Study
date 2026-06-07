@@ -16,6 +16,7 @@ import GrammarPage from './pages/GrammarPage';
 import GrammarFormPracticePage from './pages/GrammarFormPracticePage';
 import GrammarQuestPage from './pages/GrammarQuestPage';
 import AiPracticePage from './pages/AiPracticePage';
+import EssayCheckPage from './pages/EssayCheckPage';
 import EikenPage from './pages/EikenPage';
 import EikenPre2PracticePage from './pages/EikenPre2PracticePage';
 import EikenRealExamPage from './pages/EikenRealExamPage';
@@ -90,6 +91,7 @@ const STUDY_ROUTE_PREFIXES = [
   '/grammar-practice',
   '/grammar-quest',
   '/ai-practice',
+  '/essay-check',
   '/battle',
   '/eiken',
   '/eiken-pre2',
@@ -146,6 +148,7 @@ function App() {
             <Route path="/grammar-practice" element={<AnimatedPage><ChildRequiredPage><GrammarFormPracticePage /></ChildRequiredPage></AnimatedPage>} />
             <Route path="/grammar-quest" element={<AnimatedPage><ChildRequiredPage><GrammarQuestPage /></ChildRequiredPage></AnimatedPage>} />
             <Route path="/ai-practice" element={<AnimatedPage><AiPracticePage /></AnimatedPage>} />
+            <Route path="/essay-check" element={<AnimatedPage><ChildRequiredPage><EssayCheckPage /></ChildRequiredPage></AnimatedPage>} />
             <Route path="/battle" element={<AnimatedPage><ChildRequiredPage><BattlePage /></ChildRequiredPage></AnimatedPage>} />
             <Route path="/eiken" element={<AnimatedPage><EikenPage /></AnimatedPage>} />
             <Route path="/eiken-pre2" element={<AnimatedPage><EikenPre2PracticePage /></AnimatedPage>} />

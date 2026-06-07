@@ -29,6 +29,7 @@ const defaultItems = [
       '/app/quiz',
       '/grammar',
       '/grammar-practice',
+      '/essay-check',
       '/eiken',
       '/eiken-real',
       '/learned-words',

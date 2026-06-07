@@ -51,7 +51,7 @@ const moduleEntries = [
     title: 'AI先生',
     subtitle: 'AI先生と会話して英語を楽しもう！',
     badge: 'AI',
-    to: '/ai-practice',
+    to: '/essay-check',
     image: `${ASSET_BASE}/AI先生.png`,
   },
 ];
