@@ -1,6 +1,6 @@
 import { createContext, useCallback, useContext, useMemo, useState } from 'react';
 
-const BGM_SRC = '/assets/eigo-quest/audio/main-bgm.mp3';
+const BGM_SRC = '/assets/eigo-quest/home/login.mp3';
 const BGM_VOLUME = 0.3;
 const SOUND_ENABLED_STORAGE_KEY = 'sound_enabled';
 
