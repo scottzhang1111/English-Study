@@ -1,53 +1,23 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { getAuthMe, getChildren } from '../api';
 import { useAuth } from '../AuthContext';
 import { useChildren } from '../ChildrenContext';
-
-const LOGIN_SOUND_STORAGE_KEY = 'parent_login_sound_enabled';
+import { useBgm } from '../context/BgmContext';
 
 export default function ParentLoginPage() {
   const navigate = useNavigate();
   const location = useLocation();
   const { login, authLoading } = useAuth();
   const { setSelectedChildId } = useChildren();
-  const loginAudioRef = useRef(null);
-  const [soundEnabled, setSoundEnabled] = useState(() => {
-    try {
-      return localStorage.getItem(LOGIN_SOUND_STORAGE_KEY) !== 'false';
-    } catch (err) {
-      return true;
-    }
-  });
-
-  useEffect(() => {
-    if (!soundEnabled) return;
-    // Attempt to play login sound on page load. Browsers may block autoplay.
-    const playPromise = loginAudioRef.current?.play?.();
-    if (playPromise && playPromise.then) {
-      playPromise.catch(() => {
-        // ignore autoplay rejection
-      });
-    }
-  }, [soundEnabled]);
-
-  useEffect(() => {
-    try {
-      localStorage.setItem(LOGIN_SOUND_STORAGE_KEY, soundEnabled ? 'true' : 'false');
-    } catch (err) {
-      // Keep login usable even if localStorage is unavailable.
-    }
-    if (!soundEnabled) {
-      loginAudioRef.current?.pause?.();
-      if (loginAudioRef.current) loginAudioRef.current.currentTime = 0;
-    }
-  }, [soundEnabled]);
+  const { soundEnabled, setSoundEnabled, startBgm } = useBgm();
   const [email, setEmail] = useState('');
   const [formError, setFormError] = useState('');
   const [pageNotice, setPageNotice] = useState(location.state?.message || '');
 
   const handleSubmit = async (event) => {
     event.preventDefault();
+    startBgm();
 
     const trimmedEmail = email.trim();
     if (!trimmedEmail) {
@@ -57,14 +27,6 @@ export default function ParentLoginPage() {
 
     setFormError('');
     setPageNotice('');
-    // try to play login audio on user submit (may be blocked in some browsers)
-    if (soundEnabled) {
-      try {
-        await loginAudioRef.current?.play?.();
-      } catch (err) {
-        // ignore playback errors
-      }
-    }
     try {
       await login({ email: trimmedEmail });
     } catch (err) {
@@ -98,7 +60,6 @@ export default function ParentLoginPage() {
     <main className="parent-login-page">
       <div className="parent-login-page__overlay" aria-hidden="true" />
       <section className="parent-login-shell" aria-labelledby="parent-login-title">
-        <audio hidden ref={loginAudioRef} src="/assets/eigo-quest/home/login.mp3" preload="auto" />
         <header className="parent-login-hero">
           <h2 className="parent-login-world-title">Eigo World</h2>
           <p className="parent-login-world-subtitle">家族で英語学習をはじめよう</p>
@@ -118,7 +79,7 @@ export default function ParentLoginPage() {
               onChange={(event) => setSoundEnabled(event.target.checked)}
             />
             <span aria-hidden="true" />
-            <strong>ログイン音を鳴らす</strong>
+            <strong>BGMを鳴らす</strong>
           </label>
 
           <label className="parent-login-field">

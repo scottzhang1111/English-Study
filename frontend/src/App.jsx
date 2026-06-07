@@ -48,6 +48,7 @@ import { LanguageProvider } from './LanguageContext';
 import { AuthProvider, useAuth } from './AuthContext';
 import { ChildrenProvider } from './ChildrenContext';
 import { ThemeSchemeProvider } from './ThemeContext';
+import { BgmProvider } from './context/BgmContext';
 
 function AnimatedPage({ children }) {
   return (
@@ -125,6 +126,7 @@ function App() {
       <LanguageProvider>
         <AuthProvider>
           <ChildrenProvider>
+            <BgmProvider>
             <div className="app-shell min-h-screen">
               <AnimatePresence mode="wait" initial={false}>
            
@@ -203,6 +205,7 @@ function App() {
               <BottomNav />
             )} */}
             </div>
+            </BgmProvider>
           </ChildrenProvider>
         </AuthProvider>
       </LanguageProvider>
