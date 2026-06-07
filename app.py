@@ -10623,6 +10623,30 @@ Student essay:
     return _normalize_essay_check_result(_extract_json_object(response.text))
 
 
+def run_gemini_writing_ocr(image_file):
+    api_key = get_gemini_api_key()
+    if not api_key:
+        raise RuntimeError('GEMINI_API_KEY is not configured')
+
+    from google import genai
+    from google.genai import types
+
+    image_bytes = image_file.read()
+    mime_type = image_file.mimetype or 'image/jpeg'
+    client = genai.Client(api_key=api_key)
+    response = client.models.generate_content(
+        model='gemini-2.5-flash',
+        contents=[
+            types.Part.from_bytes(
+                data=image_bytes,
+                mime_type=mime_type,
+            ),
+            'Please read the handwritten or printed English essay in this image. Return only the recognized English text. Do not explain.',
+        ],
+    )
+    return (response.text or '').strip()
+
+
 @app.route('/api/essay/check', methods=['POST'])
 def api_essay_check():
     data = request.get_json(silent=True) or {}
@@ -10645,6 +10669,25 @@ def api_essay_check():
     except Exception:
         app.logger.exception('Gemini essay check failed')
         return jsonify(error='essay_check_failed'), 500
+
+
+@app.route('/api/writing/ocr', methods=['POST'])
+def api_writing_ocr():
+    image_file = request.files.get('image')
+    if not image_file:
+        return jsonify(error='image_required', message='image is required'), 400
+
+    try:
+        text = run_gemini_writing_ocr(image_file)
+        return jsonify(text=text)
+    except RuntimeError as exc:
+        if str(exc) == 'GEMINI_API_KEY is not configured':
+            return jsonify(error='GEMINI_API_KEY is not configured'), 500
+        app.logger.exception('Gemini writing OCR failed')
+        return jsonify(error='writing_ocr_failed'), 500
+    except Exception:
+        app.logger.exception('Gemini writing OCR failed')
+        return jsonify(error='writing_ocr_failed'), 500
 
 
 @app.route('/api/battle/start', methods=['POST'])

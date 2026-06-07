@@ -1,6 +1,6 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { checkEssay } from '../api';
+import { checkEssay, readWritingOcr } from '../api';
 import { useChildren } from '../ChildrenContext';
 import {
   EQBottomNav,
@@ -24,7 +24,9 @@ export default function EssayCheckPage() {
   const { children, selectedChildId } = useChildren();
   const [essayText, setEssayText] = useState('');
   const [isChecking, setIsChecking] = useState(false);
+  const [isReadingPhoto, setIsReadingPhoto] = useState(false);
   const [error, setError] = useState('');
+  const fileInputRef = useRef(null);
 
   const currentChild = useMemo(
     () => children.find((child) => String(child.id) === String(selectedChildId)) || children[0] || null,
@@ -58,8 +60,27 @@ export default function EssayCheckPage() {
     }
   };
 
-  const handlePhotoAction = (source) => {
-    console.log(`[essay-check] ${source} OCR placeholder`);
+  const handleReadPhotoClick = () => {
+    if (isReadingPhoto) return;
+    fileInputRef.current?.click();
+  };
+
+  const handlePhotoSelected = async (event) => {
+    const selectedFile = event.target.files?.[0];
+    event.target.value = '';
+    if (!selectedFile) return;
+
+    setIsReadingPhoto(true);
+    setError('');
+    try {
+      const result = await readWritingOcr(selectedFile);
+      setEssayText(result.text || '');
+    } catch (err) {
+      console.warn('[essay-check] writing OCR failed', err);
+      setError('写真の読み取りに失敗しました。もう一度試してください。');
+    } finally {
+      setIsReadingPhoto(false);
+    }
   };
 
   return (
@@ -81,22 +102,21 @@ export default function EssayCheckPage() {
 
           <EQPanel title="写真からよみとる" tone="cyan">
             <div className="grid gap-4">
-              <div className="grid grid-cols-2 gap-3">
-                <button
-                  type="button"
-                  onClick={() => handlePhotoAction('camera')}
-                  className="rounded-2xl border border-[#d8b45a]/70 bg-[#0b1f56]/80 px-3 py-3 text-sm font-black text-[#fff0b5] shadow-[0_0_18px_rgba(53,217,255,0.12)] active:translate-y-[1px]"
-                >
-                  写真をとる
-                </button>
-                <button
-                  type="button"
-                  onClick={() => handlePhotoAction('album')}
-                  className="rounded-2xl border border-[#d8b45a]/70 bg-[#0b1f56]/80 px-3 py-3 text-sm font-black text-[#fff0b5] shadow-[0_0_18px_rgba(53,217,255,0.12)] active:translate-y-[1px]"
-                >
-                  アルバムからえらぶ
-                </button>
-              </div>
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={handlePhotoSelected}
+              />
+              <button
+                type="button"
+                onClick={handleReadPhotoClick}
+                disabled={isReadingPhoto}
+                className="rounded-2xl border border-[#d8b45a]/70 bg-[#0b1f56]/80 px-4 py-4 text-base font-black text-[#fff0b5] shadow-[0_0_18px_rgba(53,217,255,0.12)] active:translate-y-[1px] disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                {isReadingPhoto ? '読み取り中...' : '写真を読み取る'}
+              </button>
               <p className="text-sm font-bold leading-6 text-[#9feaff]">
                 手書きの英作文を写真で読み取れます
               </p>

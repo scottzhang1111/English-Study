@@ -253,6 +253,24 @@ export const checkEssay = async ({ childId, topic, essayText, level } = {}) => {
   });
 };
 
+export const readWritingOcr = async (imageFile) => {
+  const formData = new FormData();
+  formData.append('image', imageFile);
+  const response = await fetch(`${API_BASE_URL}/api/writing/ocr`, {
+    method: 'POST',
+    body: formData,
+    cache: 'no-store',
+    credentials: 'include',
+  });
+  if (!response.ok) {
+    const payload = await response.json().catch(() => null);
+    const error = new Error(payload?.message || payload?.error || 'writing OCR failed');
+    error.status = response.status;
+    throw error;
+  }
+  return response.json();
+};
+
 export const startBattle = async ({ childId, level } = {}) => {
   return fetchJson('/api/battle/start', { method: 'POST', body: { child_id: childId, level } });
 };
