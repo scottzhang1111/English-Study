@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { getAuthMe, getChildren } from '../api';
 import { useAuth } from '../AuthContext';
@@ -9,6 +9,17 @@ export default function ParentLoginPage() {
   const location = useLocation();
   const { login, authLoading } = useAuth();
   const { setSelectedChildId } = useChildren();
+  const loginAudioRef = useRef(null);
+
+  useEffect(() => {
+    // Attempt to play login sound on page load. Browsers may block autoplay.
+    const playPromise = loginAudioRef.current?.play?.();
+    if (playPromise && playPromise.then) {
+      playPromise.catch(() => {
+        // ignore autoplay rejection
+      });
+    }
+  }, []);
   const [email, setEmail] = useState('');
   const [formError, setFormError] = useState('');
   const [pageNotice, setPageNotice] = useState(location.state?.message || '');
@@ -24,6 +35,12 @@ export default function ParentLoginPage() {
 
     setFormError('');
     setPageNotice('');
+    // try to play login audio on user submit (may be blocked in some browsers)
+    try {
+      await loginAudioRef.current?.play?.();
+    } catch (err) {
+      // ignore playback errors
+    }
     try {
       await login({ email: trimmedEmail });
     } catch (err) {
@@ -57,6 +74,7 @@ export default function ParentLoginPage() {
     <main className="parent-login-page">
       <div className="parent-login-page__overlay" aria-hidden="true" />
       <section className="parent-login-shell" aria-labelledby="parent-login-title">
+        <audio hidden ref={loginAudioRef} src="/assets/eigo-quest/home/login.mp3" preload="auto" />
         <header className="parent-login-hero">
           <h2 className="parent-login-world-title">Eigo World</h2>
           <p className="parent-login-world-subtitle">家族で英語学習をはじめよう</p>
