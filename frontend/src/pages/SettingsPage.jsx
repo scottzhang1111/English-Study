@@ -127,12 +127,10 @@ export default function SettingsPage() {
     <div className="eq-family-page">
       <main className="eq-family-shell">
         <header className="eq-family-hero">
-          <span aria-hidden="true">✦</span>
-          <div>
-            <h1>その他</h1>
-            <p>家族の学習を管理しよう</p>
+          <div className="eq-family-hero-copy">
+            <h1>ファミリールーム</h1>
+            <p>子どもの学習を見守ろう</p>
           </div>
-          <span aria-hidden="true">✦</span>
         </header>
 
         {isLoading ? (

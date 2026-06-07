@@ -8992,6 +8992,162 @@ body,
   display: block;
 }
 
+/* Family / その他 -> ファミリールーム styling */
+.eq-family-hero {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 18px 20px;
+  border-radius: 20px;
+  background: linear-gradient(180deg, rgba(3,8,24,0.9), rgba(2,4,12,0.95));
+  border: 1px solid rgba(255, 210, 120, 0.06);
+  box-shadow: 0 8px 28px rgba(6,14,30,0.6), inset 0 1px 0 rgba(255,255,255,0.02);
+}
+
+.eq-family-hero-copy h1 {
+  margin: 0;
+  color: #ffd35a;
+  font-size: 20px;
+  font-weight: 900;
+  letter-spacing: 0.02em;
+}
+
+.eq-family-hero-copy p {
+  margin: 0;
+  color: rgba(255, 255, 255, 0.85);
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.eq-family-current-card {
+  margin-top: 12px;
+  border-radius: 18px;
+  padding: 12px;
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  background: linear-gradient(180deg, rgba(8,20,44,0.72), rgba(3,8,24,0.72));
+  border: 1.5px solid rgba(255, 210, 120, 0.18);
+  box-shadow: 0 12px 34px rgba(6,14,30,0.55), inset 0 0 32px rgba(72,144,255,0.02);
+}
+
+.eq-family-current-avatar {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  overflow: hidden;
+  flex-shrink: 0;
+  border: 2px solid rgba(255,255,255,0.06);
+}
+
+.eq-family-current-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.eq-family-current-info h3 {
+  margin: 0 0 4px 0;
+  color: #fff;
+  font-weight: 900;
+}
+
+.eq-family-goal-badge {
+  display: inline-block;
+  margin-top: 6px;
+  color: #ffd35a;
+  font-weight: 800;
+}
+
+.eq-family-today {
+  margin-top: 8px;
+}
+
+.eq-family-challenge-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.eq-family-progress-row {
+  margin-top: 8px;
+}
+
+.eq-family-progress-bar {
+  display: block;
+  width: 100%;
+  height: 10px;
+  border-radius: 999px;
+  background: linear-gradient(90deg,#0b2340 0%, #052034 100%);
+  box-shadow: inset 0 0 18px rgba(0,0,0,0.6);
+  position: relative;
+}
+
+.eq-family-progress-bar::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: var(--family-progress, 0%);
+  background: linear-gradient(90deg,#6fd6ff,#3ea8ff);
+  border-radius: 999px;
+  box-shadow: 0 0 18px rgba(62,168,255,0.6);
+  transition: width 0.32s ease;
+}
+
+.eq-family-action-card {
+  margin-top: 12px;
+  display: grid;
+  grid-template-columns: 56px 1fr auto;
+  gap: 12px;
+  align-items: center;
+  padding: 12px;
+  border-radius: 16px;
+  background: linear-gradient(180deg, rgba(6,14,30,0.6), rgba(3,6,18,0.6));
+  border: 1px solid rgba(255,210,120,0.08);
+  color: #fff;
+}
+
+.eq-family-action-art img { width: 48px; height: 48px; object-fit: cover; }
+
+.eq-family-action-copy strong { color: #ffd35a; display:block }
+.eq-family-action-copy small { color: rgba(255,255,255,0.8); display:block }
+.eq-family-action-arrow { color: rgba(255,255,255,0.9); font-weight:900 }
+
+.eq-family-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  background: rgba(6,10,18,0.6);
+}
+
+.eq-family-sheet {
+  width: 100%;
+  max-width: 720px;
+  border-radius: 18px 18px 0 0;
+  background: linear-gradient(180deg,#021125, #041427);
+  color: #fff;
+  padding: 18px;
+}
+
+.eq-family-child-list { display: grid; gap: 8px; margin-top: 12px; }
+.eq-family-child-list button { display:flex; gap:12px; align-items:center; padding:10px; border-radius:12px; background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.04) }
+.eq-family-child-list img { width:56px; height:56px; border-radius:50%; object-fit:cover }
+.eq-family-child-list .is-active { box-shadow: 0 6px 20px rgba(62,168,255,0.12); border-color: rgba(62,168,255,0.28) }
+
+.eq-family-add-child { margin-top:12px; width:100%; padding:12px; border-radius:12px; background:linear-gradient(90deg,#ffd35a,#ffbf3d); color:#062038; font-weight:900; border:none }
+
+/* Ensure page content avoids bottom nav overlap */
+.eq-family-shell { padding-bottom: 100px; }
+
+
 .eq-learning-hub-main,
 .eq-learning-hub-card {
   color: #f8fbff;
