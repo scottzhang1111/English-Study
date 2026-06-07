@@ -6,6 +6,7 @@ import { EQBottomNav, EQBrandHeader, EQCard, EQMobileShell } from '../components
 import SpiritAssistant from '../components/eigo-quest/SpiritAssistant';
 import { getGrammarLessons, getHomeData } from '../api';
 import { useChildren } from '../ChildrenContext';
+import { useBgm } from '../context/BgmContext';
 import { getPartner } from '../utils/childStorage';
 import { getEigoQuestProgress } from '../helpers/eigoQuestProgress';
 import { eigoQuestCards } from '../config/eigoQuestCards';
@@ -298,6 +299,7 @@ export default function HomePage() {
   const homeVideoRef = useRef(null);
   const homeIntroAudioRef = useRef(null);
   const homeIntroVoiceRunRef = useRef(0);
+  const { playHomeBgm, resumeGlobalBgm } = useBgm();
 
 function stopHomeIntroVoice() {
   homeIntroVoiceRunRef.current += 1;
@@ -347,6 +349,7 @@ const handleHomeVideoPlay = async (event) => {
   }
 
   try {
+    playHomeBgm();
     video.muted = true;
     video.playsInline = true;
     video.currentTime = 0;
@@ -370,6 +373,11 @@ const handleHomeVideoPlay = async (event) => {
     () => children.find((item) => String(item.id) === String(selectedChildId)) || null,
     [children, selectedChildId],
   );
+
+  const handleStartAdventure = () => {
+    resumeGlobalBgm();
+    navigate('/world-stage');
+  };
   const todayTarget = Number(data?.target || selectedChild?.daily_target || DEFAULT_DAILY_WORD_TARGET);
   const todayStudied = Number(data?.progress ?? 0);
   const safeTodayTarget = Math.max(1, todayTarget);
@@ -942,7 +950,7 @@ const handleHomeVideoPlay = async (event) => {
 
         <button
           type="button"
-          onClick={() => navigate('/world-stage')}
+          onClick={handleStartAdventure}
           className="eq-gold-button eq-home-primary-cta eq-home-main-cta eq-home-main-cta--final"
         >
           冒険をつづける

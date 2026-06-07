@@ -3,6 +3,7 @@ import { getChildren } from '../api';
 import { useChildren } from '../ChildrenContext';
 import { EQBottomNav, EQMobileShell } from '../components/eigo';
 import eigoQuestWorlds from '../config/eigoQuestWorlds';
+import { useBgm } from '../context/BgmContext';
 
 const ASSET_BASE = '/assets/eigo-quest/learning-hub';
 const DEFAULT_CHILD_AVATAR = '/assets/eigo-quest/child icon/child4.png';
@@ -67,6 +68,7 @@ const moduleEntries = [
 export default function LearningHubPage() {
   const navigate = useNavigate();
   const { children, selectedChildId, setSelectedChildId } = useChildren();
+  const { resumeGlobalBgm } = useBgm();
   const currentChild = (children || []).find((c) => String(c.id) === String(selectedChildId)) || (children && children.length ? children[0] : null);
 
   function resolveWorldId(child) {
@@ -82,6 +84,7 @@ export default function LearningHubPage() {
   }
 
   async function handleStartAdventure() {
+    resumeGlobalBgm();
     const currentChild = children.find((child) => String(child.id) === String(selectedChildId)) || children[0];
     if (currentChild) {
       navigate('/world-stage');

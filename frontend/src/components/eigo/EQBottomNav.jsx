@@ -1,4 +1,5 @@
 import { NavLink, useLocation } from 'react-router-dom';
+import { useBgm } from '../../context/BgmContext';
 
 const NAV_ICON_BASE = '/assets/eigo-quest/nav';
 
@@ -148,6 +149,7 @@ function isItemActive(item, pathname, navLinkActive) {
 
 export default function EQBottomNav({ items = defaultItems, className = '' }) {
   const location = useLocation();
+  const { resumeGlobalBgm } = useBgm();
 
   return (
     <nav
@@ -161,6 +163,11 @@ export default function EQBottomNav({ items = defaultItems, className = '' }) {
         <NavLink
           key={`${item.to}-${item.label}`}
           to={item.to}
+          onClick={() => {
+            if (item.to === '/app/study-map' || item.to === '/study-map') {
+              resumeGlobalBgm();
+            }
+          }}
           className={({ isActive }) =>
             `eq-bottom-nav-link ${isItemActive(item, location.pathname, isActive) ? 'is-active' : ''}`.trim()
           }

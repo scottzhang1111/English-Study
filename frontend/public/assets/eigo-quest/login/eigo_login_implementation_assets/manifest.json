@@ -1,0 +1,28 @@
+{
+  "target_folder": "frontend/public/assets/eigo-quest/login/",
+  "recommended_assets": [
+    "login-logo.png",
+    "login-panel-frame.png",
+    "login-button-gold.png",
+    "login-input-frame.png",
+    "login-info-panel.png",
+    "divider-ornament.png",
+    "separator-line-long.png",
+    "separator-ornate.png",
+    "separator-thin.png",
+    "gem-large.png",
+    "gem-medium.png",
+    "gem-small.png",
+    "corner-left.png",
+    "corner-right.png",
+    "flourish-left.png",
+    "flourish-center.png",
+    "flourish-small.png"
+  ],
+  "notes": [
+    "Use login-logo.png, login-panel-frame.png, login-button-gold.png as core assets.",
+    "Use CSS/HTML for editable Japanese text.",
+    "Use login-input-frame.png and login-info-panel.png only if you want image-based frames; CSS is also OK.",
+    "Reference images are for visual matching, not necessarily for direct implementation."
+  ]
+}
