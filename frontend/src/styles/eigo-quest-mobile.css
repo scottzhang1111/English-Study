@@ -11284,7 +11284,8 @@ body,
 
 .eq-learning-hub-rpg-header {
   gap: 3px;
-  padding: 0 4px;
+  min-height: 72px;
+  padding: 0 72px 0 4px;
 }
 
 .eq-learning-hub-rpg-header::after {
@@ -11318,6 +11319,24 @@ body,
 
 .eq-learning-hub-rpg-header p {
   font-size: 13px;
+}
+
+.eq-learning-hub-rpg-header .eq-learning-hub-child {
+  top: 2px;
+  right: 6px;
+  width: 58px;
+  height: 58px;
+  border: 2px solid rgba(255, 211, 90, 0.78);
+  background:
+    radial-gradient(circle at 50% 16%, rgba(255, 255, 255, 0.22), transparent 30%),
+    rgba(3, 8, 24, 0.62);
+  box-shadow:
+    0 0 0 3px rgba(5, 12, 38, 0.72),
+    0 0 18px rgba(255, 211, 90, 0.34);
+}
+
+.eq-learning-hub-rpg-header .eq-learning-hub-child img {
+  object-fit: cover;
 }
 
 .eq-learning-hub-rpg-main {

@@ -5,6 +5,12 @@ import { EQBottomNav, EQMobileShell } from '../components/eigo';
 import eigoQuestWorlds from '../config/eigoQuestWorlds';
 
 const ASSET_BASE = '/assets/eigo-quest/learning-hub';
+const DEFAULT_CHILD_AVATAR = '/assets/eigo-quest/child icon/child4.png';
+
+function resolveChildAvatar(child) {
+  const avatar = child?.avatar || '';
+  return avatar.startsWith('/assets/') ? avatar : DEFAULT_CHILD_AVATAR;
+}
 
 const mainEntry = {
   title: '今日の冒険',
@@ -78,7 +84,7 @@ export default function LearningHubPage() {
   async function handleStartAdventure() {
     const currentChild = children.find((child) => String(child.id) === String(selectedChildId)) || children[0];
     if (currentChild) {
-      navigate('/app');
+      navigate('/world-stage');
       return;
     }
 
@@ -90,7 +96,7 @@ export default function LearningHubPage() {
         return;
       }
       setSelectedChildId(childList[0].id);
-      navigate('/app');
+      navigate('/world-stage');
     } catch (err) {
       navigate('/create-child-profile');
     }
@@ -111,9 +117,9 @@ export default function LearningHubPage() {
               aria-label={`${currentChild.nickname || currentChild.name || '子ども'} を選択`}
             >
               <img
-                src={currentChild.avatar || '/assets/child-default.png'}
+                src={resolveChildAvatar(currentChild)}
                 alt={currentChild.nickname || currentChild.name || 'child'}
-                onError={(e) => { e.currentTarget.src = '/assets/child-default.png'; }}
+                onError={(e) => { e.currentTarget.src = DEFAULT_CHILD_AVATAR; }}
               />
             </button>
           ) : null}

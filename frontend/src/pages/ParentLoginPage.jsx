@@ -4,14 +4,24 @@ import { getAuthMe, getChildren } from '../api';
 import { useAuth } from '../AuthContext';
 import { useChildren } from '../ChildrenContext';
 
+const LOGIN_SOUND_STORAGE_KEY = 'parent_login_sound_enabled';
+
 export default function ParentLoginPage() {
   const navigate = useNavigate();
   const location = useLocation();
   const { login, authLoading } = useAuth();
   const { setSelectedChildId } = useChildren();
   const loginAudioRef = useRef(null);
+  const [soundEnabled, setSoundEnabled] = useState(() => {
+    try {
+      return localStorage.getItem(LOGIN_SOUND_STORAGE_KEY) !== 'false';
+    } catch (err) {
+      return true;
+    }
+  });
 
   useEffect(() => {
+    if (!soundEnabled) return;
     // Attempt to play login sound on page load. Browsers may block autoplay.
     const playPromise = loginAudioRef.current?.play?.();
     if (playPromise && playPromise.then) {
@@ -19,7 +29,19 @@ export default function ParentLoginPage() {
         // ignore autoplay rejection
       });
     }
-  }, []);
+  }, [soundEnabled]);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem(LOGIN_SOUND_STORAGE_KEY, soundEnabled ? 'true' : 'false');
+    } catch (err) {
+      // Keep login usable even if localStorage is unavailable.
+    }
+    if (!soundEnabled) {
+      loginAudioRef.current?.pause?.();
+      if (loginAudioRef.current) loginAudioRef.current.currentTime = 0;
+    }
+  }, [soundEnabled]);
   const [email, setEmail] = useState('');
   const [formError, setFormError] = useState('');
   const [pageNotice, setPageNotice] = useState(location.state?.message || '');
@@ -36,10 +58,12 @@ export default function ParentLoginPage() {
     setFormError('');
     setPageNotice('');
     // try to play login audio on user submit (may be blocked in some browsers)
-    try {
-      await loginAudioRef.current?.play?.();
-    } catch (err) {
-      // ignore playback errors
+    if (soundEnabled) {
+      try {
+        await loginAudioRef.current?.play?.();
+      } catch (err) {
+        // ignore playback errors
+      }
     }
     try {
       await login({ email: trimmedEmail });
@@ -86,6 +110,16 @@ export default function ParentLoginPage() {
             <h1 id="parent-login-title">保護者ログイン</h1>
             <p>家族で英語学習をはじめましょう</p>
           </div>
+
+          <label className="parent-login-sound-toggle">
+            <input
+              type="checkbox"
+              checked={soundEnabled}
+              onChange={(event) => setSoundEnabled(event.target.checked)}
+            />
+            <span aria-hidden="true" />
+            <strong>ログイン音を鳴らす</strong>
+          </label>
 
           <label className="parent-login-field">
             <span>メールアドレス</span>
