@@ -56,6 +56,7 @@ const defaultItems = [
       '/settings',
       '/settings/children',
       '/settings/add-child',
+      '/parent-dashboard',
       '/progress',
       '/pokedex',
       '/pets',

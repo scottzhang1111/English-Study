@@ -38,6 +38,7 @@ import CardRewardPage from './pages/CardRewardPage';
 import StudyMapPage from './pages/StudyMapPage';
 import WorldStagePage from './pages/WorldStagePage';
 import SettingsPage from './pages/SettingsPage';
+import ParentDashboardPage from './pages/ParentDashboardPage';
 import ParentWordManagerPage from './pages/ParentWordManagerPage';
 /* import BottomNav from './components/BottomNav'; */
 import StartupGate, { RequireCurrentChild } from './components/StartupGate';
@@ -178,6 +179,7 @@ function App() {
             <Route path="/app/parent/word-manager" element={<AnimatedPage><ChildRequiredPage><ParentWordManagerPage /></ChildRequiredPage></AnimatedPage>} />
             <Route path="/settings" element={<AnimatedPage><SettingsPage /></AnimatedPage>} />
             <Route path="/settings/children" element={<AnimatedPage><SettingsPage /></AnimatedPage>} />
+            <Route path="/parent-dashboard" element={<AnimatedPage><ParentDashboardPage /></AnimatedPage>} />
             <Route path="/settings/add-child" element={<AnimatedPage><AuthRequiredPage><AddChildPage /></AuthRequiredPage></AnimatedPage>} />
             <Route path="*" element={<Navigate replace to="/" />} />
              </Routes>
