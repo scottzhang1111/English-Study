@@ -2,7 +2,7 @@
   "rewrites": [
     {
       "source": "/api/(.*)",
-      "destination": "https://english-study-yzem.onrender.com/api/$1"
+      "destination": "https://english-study-yezm.onrender.com/api/$1"
     },
     {
       "source": "/(.*)",
