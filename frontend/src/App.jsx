@@ -17,6 +17,7 @@ import GrammarFormPracticePage from './pages/GrammarFormPracticePage';
 import GrammarQuestPage from './pages/GrammarQuestPage';
 import AiPracticePage from './pages/AiPracticePage';
 import EssayCheckPage from './pages/EssayCheckPage';
+import EssayCheckResultPage from './pages/EssayCheckResultPage';
 import EikenPage from './pages/EikenPage';
 import EikenPre2PracticePage from './pages/EikenPre2PracticePage';
 import EikenRealExamPage from './pages/EikenRealExamPage';
@@ -149,6 +150,7 @@ function App() {
             <Route path="/grammar-quest" element={<AnimatedPage><ChildRequiredPage><GrammarQuestPage /></ChildRequiredPage></AnimatedPage>} />
             <Route path="/ai-practice" element={<AnimatedPage><AiPracticePage /></AnimatedPage>} />
             <Route path="/essay-check" element={<AnimatedPage><ChildRequiredPage><EssayCheckPage /></ChildRequiredPage></AnimatedPage>} />
+            <Route path="/essay-check/result" element={<AnimatedPage><ChildRequiredPage><EssayCheckResultPage /></ChildRequiredPage></AnimatedPage>} />
             <Route path="/battle" element={<AnimatedPage><ChildRequiredPage><BattlePage /></ChildRequiredPage></AnimatedPage>} />
             <Route path="/eiken" element={<AnimatedPage><EikenPage /></AnimatedPage>} />
             <Route path="/eiken-pre2" element={<AnimatedPage><EikenPre2PracticePage /></AnimatedPage>} />

@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   EQBottomNav,
   EQMobileShell,
@@ -7,11 +8,42 @@ import {
   EQPrimaryButton,
 } from '../components/eigo';
 
+const mockResult = {
+  score: 82,
+  stars: 4,
+  good_points: [
+    '3文でしっかり書けています',
+    'テーマに合った内容です',
+  ],
+  corrections: [
+    {
+      before: 'It delicious.',
+      after: 'It is delicious.',
+      explanation: 'be動詞の is を入れると自然です。',
+    },
+  ],
+  advice: 'とてもよく書けています。次は理由をもう1文足してみましょう。',
+  better_example:
+    'My favorite food is ramen. It is delicious. I eat it every Sunday. I like hot ramen because it makes me happy.',
+  reward: {
+    name: 'Magic Writing Star',
+    coins: 50,
+  },
+};
+
 export default function EssayCheckPage() {
+  const navigate = useNavigate();
   const [essayText, setEssayText] = useState('');
 
   const handleCheck = () => {
-    console.log('[essay-check] draft essay:', essayText);
+    if (!essayText.trim()) return;
+
+    navigate('/essay-check/result', {
+      state: {
+        ...mockResult,
+        essayText,
+      },
+    });
   };
 
   return (
