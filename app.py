@@ -9746,7 +9746,7 @@ def api_child_eigo_quest_progress(child_id):
         return jsonify(get_child_eigo_quest_progress(child_id))
     except LookupError as exc:
         abort(404, str(exc))
-
+ 
 
 @app.route('/api/auth/login', methods=['POST'])
 def api_auth_login():
@@ -9795,6 +9795,18 @@ def api_auth_login():
 def api_auth_me():
     account = require_current_account()
     return jsonify(account=auth_account_payload(account))
+
+
+@app.route('/api/debug/routes')
+def api_debug_routes():
+    routes = []
+    for rule in sorted(app.url_map.iter_rules(), key=lambda item: item.rule):
+        routes.append({
+            'rule': rule.rule,
+            'endpoint': rule.endpoint,
+            'methods': sorted(method for method in rule.methods if method not in {'HEAD', 'OPTIONS'}),
+        })
+    return jsonify(routes=routes)
 
 
 @app.route('/api/auth/logout', methods=['POST'])
