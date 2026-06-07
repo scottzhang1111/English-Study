@@ -52,25 +52,13 @@ export default function ParentLoginPage() {
       setSelectedChildId(childList[0].id);
       navigate('/app', { replace: true });
     } catch (err) {
-      setFormError('子どもプロフィールを確認できませんでした');
+      setFormError('お子さまのプロフィールを確認できませんでした');
     }
   };
 
   return (
     <main className="parent-login-page">
       <div className="parent-login-page__overlay" aria-hidden="true" />
-      <img
-        className="parent-login-corner parent-login-corner--left"
-        src="/assets/eigo-quest/login/corner-left.png"
-        alt=""
-        aria-hidden="true"
-      />
-      <img
-        className="parent-login-corner parent-login-corner--right"
-        src="/assets/eigo-quest/login/corner-right.png"
-        alt=""
-        aria-hidden="true"
-      />
 
       <section className="parent-login-shell" aria-labelledby="parent-login-title">
         <header className="parent-login-logo-wrap">
@@ -85,18 +73,6 @@ export default function ParentLoginPage() {
           <img
             className="parent-login-panel-frame"
             src="/assets/eigo-quest/login/login-panel-frame.png"
-            alt=""
-            aria-hidden="true"
-          />
-          <img
-            className="parent-login-gem parent-login-gem--large"
-            src="/assets/eigo-quest/login/gem-large.png"
-            alt=""
-            aria-hidden="true"
-          />
-          <img
-            className="parent-login-flourish parent-login-flourish--left"
-            src="/assets/eigo-quest/login/flourish-left.png"
             alt=""
             aria-hidden="true"
           />
@@ -116,11 +92,6 @@ export default function ParentLoginPage() {
             <label className="parent-login-field">
               <span>メールアドレス</span>
               <span className="parent-login-input">
-                <img
-                  src="/assets/eigo-quest/login/login-input-frame.png"
-                  alt=""
-                  aria-hidden="true"
-                />
                 <input
                   type="email"
                   value={email}
@@ -138,12 +109,7 @@ export default function ParentLoginPage() {
             )}
 
             <button type="submit" className="parent-login-main-button" disabled={authLoading}>
-              <img
-                src="/assets/eigo-quest/login/login-button-gold.png"
-                alt=""
-                aria-hidden="true"
-              />
-              <span>{authLoading ? 'ログイン中...' : 'ログイン / 新規登録'}</span>
+              {authLoading ? 'ログイン中...' : 'ログイン / 新規登録'}
             </button>
 
             <p className="parent-login-hint">
@@ -159,28 +125,17 @@ export default function ParentLoginPage() {
               <span aria-hidden="true" />
               <strong>BGM</strong>
             </label>
-
-            <div className="parent-login-note-card">
-              <img
-                className="parent-login-info-frame"
-                src="/assets/eigo-quest/login/login-info-panel.png"
-                alt=""
-                aria-hidden="true"
-              />
-              <img
-                className="parent-login-info-gem"
-                src="/assets/eigo-quest/login/gem-small.png"
-                alt=""
-                aria-hidden="true"
-              />
-              <p>
-                お子さまの学習データは
-                <br />
-                保護者アカウントで管理されます
-              </p>
-            </div>
           </div>
         </form>
+
+        <aside className="parent-login-note-card">
+          <span className="parent-login-shield" aria-hidden="true">盾</span>
+          <p>
+            お子さまの学習データは
+            <br />
+            保護者アカウントで管理されます
+          </p>
+        </aside>
       </section>
     </main>
   );

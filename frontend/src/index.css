@@ -5649,3 +5649,393 @@ textarea {
     min-height: 84px;
   }
 }
+
+.parent-login-page {
+  position: relative;
+  min-height: 100dvh;
+  overflow-x: hidden;
+  overflow-y: auto;
+  background:
+    url("/assets/eigo-quest/worlds/light.png") center / cover no-repeat,
+    #020816;
+  color: #f8fbff;
+  padding:
+    calc(0px + env(safe-area-inset-top))
+    16px
+    calc(24px + env(safe-area-inset-bottom));
+}
+
+.parent-login-page__overlay {
+  position: fixed;
+  inset: 0;
+  background:
+    radial-gradient(circle at 50% 8%, rgba(255, 222, 121, 0.13), transparent 30%),
+    linear-gradient(180deg, rgba(0, 5, 18, 0.52), rgba(0, 4, 16, 0.72) 48%, rgba(0, 2, 10, 0.9));
+  pointer-events: none;
+}
+
+.parent-login-corner,
+.parent-login-gem,
+.parent-login-flourish,
+.parent-login-info-frame,
+.parent-login-info-gem {
+  display: none !important;
+}
+
+.parent-login-shell {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  width: 100%;
+  min-height: 100dvh;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 12px;
+  margin: 0 auto;
+  padding: 24px 0 0;
+}
+
+.parent-login-logo-wrap {
+  display: grid;
+  width: 100%;
+  justify-items: center;
+  margin: 0 0 12px;
+}
+
+.parent-login-logo {
+  width: min(82vw, 430px);
+  max-height: 150px;
+  object-fit: contain;
+  filter:
+    drop-shadow(0 12px 18px rgba(0, 0, 0, 0.55))
+    drop-shadow(0 0 18px rgba(255, 214, 89, 0.2));
+}
+
+.parent-login-card {
+  position: relative;
+  display: block;
+  width: min(92vw, 430px);
+  margin: 0 auto;
+  border: 2px solid #d8a83a;
+  border-radius: 28px;
+  background: rgba(3, 15, 45, 0.88);
+  box-shadow:
+    0 18px 42px rgba(0, 0, 0, 0.42),
+    0 0 28px rgba(47, 160, 255, 0.25),
+    inset 0 0 22px rgba(75, 147, 255, 0.1);
+  isolation: isolate;
+  overflow: hidden;
+  padding: 28px 22px 24px;
+}
+
+.parent-login-panel-frame {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0.16;
+  pointer-events: none;
+  filter: saturate(0.95);
+}
+
+.parent-login-card-content {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  gap: 14px;
+}
+
+.parent-login-card-heading {
+  display: grid;
+  justify-items: center;
+  gap: 7px;
+  text-align: center;
+}
+
+.parent-login-card-heading h1 {
+  margin: 0;
+  color: #ffe49a !important;
+  font-size: clamp(28px, 7.8vw, 40px);
+  font-weight: 1000;
+  letter-spacing: 0;
+  line-height: 1.12;
+  text-shadow:
+    0 2px 0 rgba(73, 39, 4, 0.85),
+    0 0 16px rgba(255, 213, 88, 0.32);
+}
+
+.parent-login-card-heading p {
+  margin: 0;
+  color: rgba(247, 251, 255, 0.92);
+  font-size: clamp(14px, 3.8vw, 17px);
+  font-weight: 850;
+  line-height: 1.45;
+}
+
+.parent-login-divider {
+  display: block;
+  width: min(58%, 220px);
+  height: auto;
+  margin: 2px auto 0;
+  opacity: 0.72;
+  filter: drop-shadow(0 0 8px rgba(255, 211, 90, 0.24));
+}
+
+.parent-login-field {
+  display: grid;
+  gap: 8px;
+  color: #ffe08a;
+  font-size: 15px;
+  font-weight: 950;
+  text-shadow: 0 1px 8px rgba(0, 0, 0, 0.55);
+}
+
+.parent-login-input {
+  position: relative;
+  display: block;
+  min-height: 52px;
+  border: 1.5px solid rgba(255, 203, 83, 0.76);
+  border-radius: 16px;
+  background:
+    linear-gradient(180deg, rgba(2, 8, 26, 0.92), rgba(4, 14, 45, 0.82));
+  box-shadow:
+    inset 0 0 18px rgba(45, 112, 210, 0.18),
+    0 0 0 1px rgba(255, 246, 180, 0.08);
+  overflow: hidden;
+}
+
+.parent-login-input > img {
+  display: none !important;
+}
+
+.parent-login-input input {
+  display: block;
+  width: 100%;
+  min-height: 52px;
+  border: 0;
+  background: transparent;
+  color: #fff8df;
+  font-size: 16px;
+  font-weight: 800;
+  outline: none;
+  padding: 0 16px;
+}
+
+.parent-login-input input::placeholder {
+  color: rgba(239, 247, 255, 0.54);
+}
+
+.parent-login-input:focus-within {
+  border-color: #ffe58f;
+  box-shadow:
+    0 0 0 3px rgba(255, 211, 90, 0.14),
+    inset 0 0 18px rgba(64, 151, 255, 0.22);
+}
+
+.parent-login-message {
+  margin: -2px 0 0;
+  color: #ffb5c8;
+  font-size: 12px;
+  font-weight: 850;
+  line-height: 1.45;
+  padding: 0 8px;
+  text-align: center;
+}
+
+.parent-login-message.is-error {
+  border: 0;
+  background: transparent;
+  color: #ff9eb8;
+}
+
+.parent-login-main-button {
+  display: grid;
+  width: 100%;
+  height: 54px;
+  min-height: 54px;
+  place-items: center;
+  border: 1px solid rgba(91, 49, 2, 0.78);
+  border-radius: 999px;
+  background:
+    linear-gradient(180deg, #fff2a8 0%, #ffd05f 28%, #c88318 70%, #8f5609 100%);
+  box-shadow:
+    0 8px 16px rgba(0, 0, 0, 0.38),
+    0 0 18px rgba(255, 210, 78, 0.34),
+    inset 0 2px 0 rgba(255, 255, 255, 0.58),
+    inset 0 -3px 0 rgba(90, 46, 0, 0.34);
+  color: #2a1700 !important;
+  cursor: pointer;
+  font-size: clamp(17px, 4.7vw, 20px);
+  font-weight: 1000;
+  letter-spacing: 0;
+  line-height: 1;
+  padding: 0 18px;
+  text-shadow: 0 1px 0 rgba(255, 246, 189, 0.72);
+}
+
+.parent-login-main-button img,
+.parent-login-main-button span {
+  display: none !important;
+}
+
+.parent-login-main-button:hover {
+  filter: brightness(1.04);
+}
+
+.parent-login-main-button:active {
+  transform: translateY(1px) scale(0.995);
+}
+
+.parent-login-main-button:disabled {
+  cursor: progress;
+  opacity: 0.72;
+}
+
+.parent-login-hint {
+  margin: 0;
+  color: rgba(255, 250, 232, 0.84);
+  font-size: 13px;
+  font-weight: 850;
+  line-height: 1.5;
+  text-align: center;
+}
+
+.parent-login-sound-toggle {
+  display: inline-flex;
+  width: fit-content;
+  align-items: center;
+  justify-self: center;
+  gap: 7px;
+  border: 1px solid rgba(255, 211, 90, 0.34);
+  border-radius: 999px;
+  background: rgba(1, 9, 32, 0.34);
+  color: rgba(255, 250, 232, 0.72);
+  cursor: pointer;
+  font-size: 11px;
+  font-weight: 950;
+  padding: 5px 9px 5px 6px;
+}
+
+.parent-login-sound-toggle input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.parent-login-sound-toggle > span {
+  position: relative;
+  width: 30px;
+  height: 18px;
+  border: 1px solid rgba(255, 211, 90, 0.42);
+  border-radius: 999px;
+  background: rgba(3, 10, 34, 0.84);
+  box-shadow: inset 0 0 8px rgba(0, 0, 0, 0.34);
+}
+
+.parent-login-sound-toggle > span::after {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 10px;
+  height: 10px;
+  border-radius: 999px;
+  background: #8ca3c9;
+  content: "";
+  transition: transform 0.18s ease, background 0.18s ease, box-shadow 0.18s ease;
+}
+
+.parent-login-sound-toggle input:checked + span::after {
+  background: #ffd35a;
+  box-shadow: 0 0 8px rgba(255, 211, 90, 0.55);
+  transform: translateX(12px);
+}
+
+.parent-login-sound-toggle input:focus-visible + span {
+  outline: 2px solid rgba(255, 226, 138, 0.84);
+  outline-offset: 3px;
+}
+
+.parent-login-note-card {
+  display: flex;
+  width: min(92vw, 430px);
+  min-height: 72px;
+  align-items: center;
+  gap: 12px;
+  border: 1px solid rgba(216, 168, 58, 0.72);
+  border-radius: 18px;
+  background: rgba(3, 15, 45, 0.74);
+  box-shadow:
+    0 10px 24px rgba(0, 0, 0, 0.28),
+    inset 0 0 16px rgba(47, 160, 255, 0.12);
+  margin: 0 auto;
+  padding: 13px 16px;
+}
+
+.parent-login-shield {
+  display: grid;
+  width: 40px;
+  height: 44px;
+  flex: 0 0 auto;
+  place-items: center;
+  border: 2px solid rgba(255, 218, 111, 0.86);
+  border-radius: 18px 18px 22px 22px;
+  background:
+    linear-gradient(135deg, rgba(24, 116, 205, 0.88), rgba(3, 33, 84, 0.92));
+  box-shadow:
+    inset 0 0 12px rgba(255, 255, 255, 0.12),
+    0 0 12px rgba(47, 160, 255, 0.28);
+  color: transparent;
+  font-size: 0;
+}
+
+.parent-login-shield::before {
+  width: 14px;
+  height: 14px;
+  border: 2px solid rgba(255, 226, 138, 0.95);
+  border-radius: 4px;
+  background: rgba(69, 181, 255, 0.8);
+  box-shadow: 0 0 8px rgba(69, 181, 255, 0.7);
+  content: "";
+  transform: rotate(45deg);
+}
+
+.parent-login-note-card p {
+  margin: 0;
+  color: rgba(247, 251, 255, 0.9);
+  font-size: 14px;
+  font-weight: 850;
+  line-height: 1.55;
+  text-align: left;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.55);
+}
+
+@media (max-width: 380px) {
+  .parent-login-page {
+    padding-inline: 12px;
+  }
+
+  .parent-login-shell {
+    gap: 10px;
+    padding-top: 18px;
+  }
+
+  .parent-login-logo {
+    width: min(80vw, 340px);
+    max-height: 118px;
+  }
+
+  .parent-login-card {
+    padding: 24px 18px 20px;
+  }
+
+  .parent-login-card-content {
+    gap: 12px;
+  }
+
+  .parent-login-note-card {
+    padding: 12px 14px;
+  }
+}
