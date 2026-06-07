@@ -19,16 +19,12 @@ const fallbackResult = {
     {
       before: 'It delicious.',
       after: 'It is delicious.',
-      explanation: 'be動詞の is を入れると自然です。',
+      explanation_ja: 'be動詞の is を入れると自然です。',
     },
   ],
-  advice: 'とてもよく書けています。次は理由をもう1文足してみましょう。',
-  better_example:
+  advice_ja: 'とてもよく書けています。次は理由をもう1文足してみましょう。',
+  better_essay:
     'My favorite food is ramen. It is delicious. I eat it every Sunday. I like hot ramen because it makes me happy.',
-  reward: {
-    name: 'Magic Writing Star',
-    coins: 50,
-  },
 };
 
 function StarRow({ count }) {
@@ -47,6 +43,11 @@ export default function EssayCheckResultPage() {
   const location = useLocation();
   const navigate = useNavigate();
   const result = location.state || fallbackResult;
+  const reward = result.reward || { name: 'Magic Writing Star', coins: 50 };
+  const advice = result.advice_ja || result.advice || fallbackResult.advice_ja;
+  const betterEssay = result.better_essay || result.better_example || fallbackResult.better_essay;
+  const goodPoints = result.good_points?.length ? result.good_points : fallbackResult.good_points;
+  const corrections = result.corrections?.length ? result.corrections : fallbackResult.corrections;
 
   return (
     <div className="eq-learning-hub-page">
@@ -70,13 +71,13 @@ export default function EssayCheckResultPage() {
                   <span className="text-xl text-white/70">/100</span>
                 </p>
               </div>
-              <StarRow count={result.stars} />
+              <StarRow count={result.stars || 0} />
             </div>
           </EQPanel>
 
           <EQPanel title="よかったところ" tone="green">
             <ul className="grid gap-3 text-base font-bold leading-7 text-white">
-              {result.good_points.map((point) => (
+              {goodPoints.map((point) => (
                 <li key={point} className="rounded-2xl border border-[#54e6a8]/35 bg-[#06173c]/60 px-4 py-3">
                   {point}
                 </li>
@@ -86,7 +87,7 @@ export default function EssayCheckResultPage() {
 
           <EQPanel title="魔法のなおし" tone="cyan">
             <div className="grid gap-4">
-              {result.corrections.map((correction) => (
+              {corrections.map((correction) => (
                 <article
                   key={`${correction.before}-${correction.after}`}
                   className="grid gap-3 rounded-[22px] border border-[#d8b45a]/45 bg-[#06173c]/70 p-4"
@@ -96,7 +97,7 @@ export default function EssayCheckResultPage() {
                   <p className="text-sm font-black text-white/60">After</p>
                   <p className="text-lg font-black text-[#fff0b5]">{correction.after}</p>
                   <p className="text-sm font-bold leading-6 text-white/85">
-                    {correction.explanation}
+                    {correction.explanation_ja || correction.explanation}
                   </p>
                 </article>
               ))}
@@ -104,20 +105,20 @@ export default function EssayCheckResultPage() {
           </EQPanel>
 
           <EQPanel title="AI先生からのアドバイス" tone="purple">
-            <p className="text-base font-bold leading-8 text-white">{result.advice}</p>
+            <p className="text-base font-bold leading-8 text-white">{advice}</p>
           </EQPanel>
 
           <EQPanel title="もっと良くなる例" tone="blue">
             <p className="rounded-[22px] border border-white/15 bg-white/10 p-4 text-base font-bold leading-8 text-white">
-              {result.better_example}
+              {betterEssay}
             </p>
           </EQPanel>
 
           <EQPanel title="ごほうび GET" tone="gold">
             <div className="flex items-center justify-between gap-4 rounded-[22px] border border-[#ffd35a]/55 bg-[#06173c]/70 p-4">
               <div>
-                <p className="text-xl font-black text-[#fff0b5]">{result.reward.name}</p>
-                <p className="text-sm font-bold text-white/75">Coins +{result.reward.coins}</p>
+                <p className="text-xl font-black text-[#fff0b5]">{reward.name}</p>
+                <p className="text-sm font-bold text-white/75">Coins +{reward.coins}</p>
               </div>
               <span className="text-4xl" aria-hidden="true">
                 ✦
@@ -125,7 +126,7 @@ export default function EssayCheckResultPage() {
             </div>
           </EQPanel>
 
-          <div className="grid gap-3">
+          <div className="grid gap-3 pb-28">
             <EQPrimaryButton type="button" fullWidth onClick={() => navigate('/essay-check')}>
               もう一度書く
             </EQPrimaryButton>

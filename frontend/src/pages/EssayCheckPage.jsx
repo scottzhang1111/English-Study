@@ -1,5 +1,7 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { checkEssay } from '../api';
+import { useChildren } from '../ChildrenContext';
 import {
   EQBottomNav,
   EQMobileShell,
@@ -8,42 +10,52 @@ import {
   EQPrimaryButton,
 } from '../components/eigo';
 
-const mockResult = {
-  score: 82,
-  stars: 4,
-  good_points: [
-    '3文でしっかり書けています',
-    'テーマに合った内容です',
-  ],
-  corrections: [
-    {
-      before: 'It delicious.',
-      after: 'It is delicious.',
-      explanation: 'be動詞の is を入れると自然です。',
-    },
-  ],
-  advice: 'とてもよく書けています。次は理由をもう1文足してみましょう。',
-  better_example:
-    'My favorite food is ramen. It is delicious. I eat it every Sunday. I like hot ramen because it makes me happy.',
-  reward: {
-    name: 'Magic Writing Star',
-    coins: 50,
-  },
-};
+const ESSAY_TOPIC = 'My favorite food';
+
+function formatLevel(child) {
+  const rawLevel = child?.learningGoal || child?.learning_goal || child?.grade || child?.targetLevel || '';
+  if (rawLevel === 'eiken_pre2') return '英検準2級';
+  if (rawLevel === 'eiken3') return '英検3級';
+  return rawLevel || '英検準2級';
+}
 
 export default function EssayCheckPage() {
   const navigate = useNavigate();
+  const { children, selectedChildId } = useChildren();
   const [essayText, setEssayText] = useState('');
+  const [isChecking, setIsChecking] = useState(false);
+  const [error, setError] = useState('');
 
-  const handleCheck = () => {
-    if (!essayText.trim()) return;
+  const currentChild = useMemo(
+    () => children.find((child) => String(child.id) === String(selectedChildId)) || children[0] || null,
+    [children, selectedChildId],
+  );
 
-    navigate('/essay-check/result', {
-      state: {
-        ...mockResult,
-        essayText,
-      },
-    });
+  const handleCheck = async () => {
+    const trimmedEssay = essayText.trim();
+    if (!trimmedEssay || isChecking) return;
+
+    setIsChecking(true);
+    setError('');
+    try {
+      const result = await checkEssay({
+        childId: currentChild?.id || selectedChildId,
+        topic: ESSAY_TOPIC,
+        essayText: trimmedEssay,
+        level: formatLevel(currentChild),
+      });
+      navigate('/essay-check/result', {
+        state: {
+          ...result,
+          essayText: trimmedEssay,
+        },
+      });
+    } catch (err) {
+      console.warn('[essay-check] essay check failed', err);
+      setError('チェックに失敗しました。もう一度ためしてください。');
+    } finally {
+      setIsChecking(false);
+    }
   };
 
   const handlePhotoAction = (source) => {
@@ -63,7 +75,7 @@ export default function EssayCheckPage() {
         <div className="grid gap-5 pb-28">
           <EQPanel title="今日のテーマ" tone="gold">
             <p className="text-2xl font-black leading-snug text-[#fff0b5]">
-              My favorite food
+              {ESSAY_TOPIC}
             </p>
           </EQPanel>
 
@@ -101,13 +113,25 @@ export default function EssayCheckPage() {
             />
           </EQPanel>
 
+          {isChecking ? (
+            <p className="text-center text-sm font-black text-[#9feaff]">
+              AI先生がチェックしています...
+            </p>
+          ) : null}
+
+          {error ? (
+            <p className="rounded-2xl border border-[#ff7a9a]/50 bg-[#3b0d24]/70 px-4 py-3 text-center text-sm font-black text-[#ffb7c9]">
+              {error}
+            </p>
+          ) : null}
+
           <EQPrimaryButton
             type="button"
             fullWidth
             onClick={handleCheck}
-            disabled={!essayText.trim()}
+            disabled={!essayText.trim() || isChecking}
           >
-            AI先生に見てもらう
+            {isChecking ? 'チェック中...' : 'AI先生に見てもらう'}
           </EQPrimaryButton>
         </div>
       </EQMobileShell>

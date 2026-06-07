@@ -241,6 +241,18 @@ export const submitAiPracticeAnswer = async ({ childId, questionId, selectedAnsw
   });
 };
 
+export const checkEssay = async ({ childId, topic, essayText, level } = {}) => {
+  return fetchJson('/api/essay/check', {
+    method: 'POST',
+    body: {
+      child_id: childId,
+      topic,
+      essay_text: essayText,
+      level,
+    },
+  });
+};
+
 export const startBattle = async ({ childId, level } = {}) => {
   return fetchJson('/api/battle/start', { method: 'POST', body: { child_id: childId, level } });
 };

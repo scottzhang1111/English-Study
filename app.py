@@ -220,6 +220,10 @@ def get_openai_api_key():
     return os.getenv('OPENAI_API_KEY', '').strip()
 
 
+def get_gemini_api_key():
+    return os.getenv('GEMINI_API_KEY', '').strip()
+
+
 def get_openai_model():
     return os.getenv('OPENAI_MODEL', 'gpt-5-mini').strip() or 'gpt-5-mini'
 
@@ -10486,6 +10490,161 @@ def api_ai_practice_answer():
     except ValueError as exc:
         abort(404, str(exc))
     return jsonify(result)
+
+
+def _extract_json_object(text):
+    cleaned = (text or '').strip()
+    if cleaned.startswith('```'):
+        cleaned = re.sub(r'^```(?:json)?\s*', '', cleaned, flags=re.IGNORECASE)
+        cleaned = re.sub(r'\s*```$', '', cleaned)
+    start = cleaned.find('{')
+    end = cleaned.rfind('}')
+    if start >= 0 and end >= start:
+        cleaned = cleaned[start:end + 1]
+    return json.loads(cleaned)
+
+
+def _normalize_essay_check_result(payload):
+    corrections = payload.get('corrections') if isinstance(payload.get('corrections'), list) else []
+    normalized_corrections = []
+    for item in corrections:
+        if not isinstance(item, dict):
+            continue
+        normalized_corrections.append({
+            'before': str(item.get('before') or '').strip(),
+            'after': str(item.get('after') or '').strip(),
+            'explanation_ja': str(item.get('explanation_ja') or item.get('explanation') or '').strip(),
+        })
+
+    good_points = payload.get('good_points') if isinstance(payload.get('good_points'), list) else []
+    normalized_good_points = [
+        str(point).strip()
+        for point in good_points
+        if str(point).strip()
+    ]
+
+    try:
+        score = int(payload.get('score', 0))
+    except (TypeError, ValueError):
+        score = 0
+    score = max(0, min(100, score))
+
+    try:
+        stars = int(payload.get('stars', 0))
+    except (TypeError, ValueError):
+        stars = 0
+    stars = max(0, min(5, stars))
+
+    return {
+        'score': score,
+        'stars': stars,
+        'good_points': normalized_good_points[:4],
+        'corrections': normalized_corrections[:5],
+        'advice_ja': str(payload.get('advice_ja') or payload.get('advice') or '').strip(),
+        'better_essay': str(payload.get('better_essay') or payload.get('better_example') or '').strip(),
+    }
+
+
+def run_gemini_essay_check(topic, essay_text, level):
+    api_key = get_gemini_api_key()
+    if not api_key:
+        raise RuntimeError('GEMINI_API_KEY is not configured')
+
+    from google import genai
+    from google.genai import types
+
+    prompt = f"""
+You are a kind English teacher for Japanese elementary school students.
+The student is preparing for {level or '英検準2級'}.
+
+Please review the student's English essay gently and encouragingly.
+Japanese explanations must be simple and easy for a child to understand.
+Keep corrections short.
+The better essay should stay close to the child's original meaning.
+Do not make the English too difficult.
+Return only JSON.
+
+Required JSON shape:
+{{
+  "score": 82,
+  "stars": 4,
+  "good_points": ["3文でしっかり書けています", "テーマに合った内容です"],
+  "corrections": [
+    {{
+      "before": "It delicious.",
+      "after": "It is delicious.",
+      "explanation_ja": "be動詞の is を入れると自然です。"
+    }}
+  ],
+  "advice_ja": "とてもよく書けています。次は理由をもう1文足してみましょう。",
+  "better_essay": "My favorite food is ramen. It is delicious. I eat it every Sunday. I like hot ramen because it makes me happy."
+}}
+
+Topic:
+{topic}
+
+Student essay:
+{essay_text}
+""".strip()
+
+    schema = {
+        'type': 'object',
+        'properties': {
+            'score': {'type': 'integer'},
+            'stars': {'type': 'integer'},
+            'good_points': {'type': 'array', 'items': {'type': 'string'}},
+            'corrections': {
+                'type': 'array',
+                'items': {
+                    'type': 'object',
+                    'properties': {
+                        'before': {'type': 'string'},
+                        'after': {'type': 'string'},
+                        'explanation_ja': {'type': 'string'},
+                    },
+                    'required': ['before', 'after', 'explanation_ja'],
+                },
+            },
+            'advice_ja': {'type': 'string'},
+            'better_essay': {'type': 'string'},
+        },
+        'required': ['score', 'stars', 'good_points', 'corrections', 'advice_ja', 'better_essay'],
+    }
+
+    client = genai.Client(api_key=api_key)
+    response = client.models.generate_content(
+        model='gemini-2.5-flash',
+        contents=prompt,
+        config=types.GenerateContentConfig(
+            response_mime_type='application/json',
+            response_schema=schema,
+        ),
+    )
+    return _normalize_essay_check_result(_extract_json_object(response.text))
+
+
+@app.route('/api/essay/check', methods=['POST'])
+def api_essay_check():
+    data = request.get_json(silent=True) or {}
+    essay_text = (data.get('essay_text') or data.get('essayText') or '').strip()
+    if not essay_text:
+        return jsonify(error='essay_text_required', message='essay_text is required'), 400
+
+    raw_child_id = data.get('child_id') or data.get('childId')
+    if raw_child_id not in [None, '', 'null']:
+        try:
+            require_child_belongs_to_current_account(int(raw_child_id))
+        except ValueError:
+            abort(400, 'child_id must be an integer')
+
+    topic = (data.get('topic') or 'My favorite food').strip()
+    level = (data.get('level') or '英検準2級').strip()
+
+    try:
+        return jsonify(run_gemini_essay_check(topic, essay_text, level))
+    except Exception:
+        app.logger.exception('Gemini essay check failed')
+        return jsonify(error='essay_check_failed'), 500
 
 
 @app.route('/api/battle/start', methods=['POST'])
