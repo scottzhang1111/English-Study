@@ -1,11 +1,11 @@
 {
-  "installCommand": "npm --prefix frontend ci",
-  "buildCommand": "npm --prefix frontend run build",
-  "outputDirectory": "frontend/dist",
+  "installCommand": "npm ci",
+  "buildCommand": "npm run build",
+  "outputDirectory": "dist",
   "rewrites": [
     {
-      "source": "/api/:path*",
-      "destination": "https://english-study-yzem.onrender.com/api/:path*"
+      "source": "/api/(.*)",
+      "destination": "https://english-study-yzem.onrender.com/api/$1"
     },
     {
       "source": "/(.*)",
