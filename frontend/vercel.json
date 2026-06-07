@@ -1,8 +1,8 @@
 {
   "rewrites": [
     {
-      "source": "/api/:path*",
-      "destination": "https://english-study-yzem.onrender.com/api/:path*"
+      "source": "/api/(.*)",
+      "destination": "https://english-study-yzem.onrender.com/api/$1"
     },
     {
       "source": "/(.*)",
