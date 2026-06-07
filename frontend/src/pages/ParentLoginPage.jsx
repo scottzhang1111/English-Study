@@ -4,43 +4,30 @@ import { getAuthMe, getChildren } from '../api';
 import { useAuth } from '../AuthContext';
 import { useChildren } from '../ChildrenContext';
 
-const SOCIAL_LOGIN_OPTIONS = [
-  { label: 'Appleで続ける', mark: 'Apple' },
-  { label: 'Googleで続ける', mark: 'G' },
-  { label: 'LINEで続ける', mark: 'LINE' },
-];
-
 export default function ParentLoginPage() {
   const navigate = useNavigate();
   const location = useLocation();
   const { login, authLoading } = useAuth();
   const { setSelectedChildId } = useChildren();
   const [email, setEmail] = useState('');
-  const [familyCode, setFamilyCode] = useState('');
-  const [codeNotice, setCodeNotice] = useState('');
   const [formError, setFormError] = useState('');
   const [pageNotice, setPageNotice] = useState(location.state?.message || '');
-
-  const handleCodeSend = () => {
-    setCodeNotice('管理者から受け取ったファミリーコードを入力してください。');
-  };
 
   const handleSubmit = async (event) => {
     event.preventDefault();
 
     const trimmedEmail = email.trim();
-    const trimmedCode = familyCode.trim();
-    if (!trimmedEmail && !trimmedCode) {
-      setFormError('メールアドレスまたはファミリーコードを入力してください。');
+    if (!trimmedEmail) {
+      setFormError('メールアドレスを入力してください');
       return;
     }
 
     setFormError('');
     setPageNotice('');
     try {
-      await login(trimmedCode ? { code: trimmedCode } : { email: trimmedEmail });
+      await login({ email: trimmedEmail });
     } catch (err) {
-      setFormError(err.message || 'ログインできませんでした。');
+      setFormError('ログインできませんでした');
       return;
     }
 
@@ -62,7 +49,7 @@ export default function ParentLoginPage() {
       setSelectedChildId(childList[0].id);
       navigate('/app', { replace: true });
     } catch (err) {
-      setFormError(err.message || '子どもプロフィールを確認できませんでした。');
+      setFormError('子どもプロフィールを確認できませんでした');
     }
   };
 
@@ -70,19 +57,20 @@ export default function ParentLoginPage() {
     <main className="parent-login-page">
       <div className="parent-login-page__overlay" aria-hidden="true" />
       <section className="parent-login-shell" aria-labelledby="parent-login-title">
-        <div className="parent-login-titleplate" aria-label="Eigo World">
-          <img src="/assets/eigo-quest/ui/app-logo.png" alt="" aria-hidden="true" />
-          <span>Eigo World</span>
-        </div>
-
         <header className="parent-login-hero">
-          <h1 id="parent-login-title">保護者ログイン</h1>
-          <p>まずは保護者の方がログインしてください</p>
+          <h2 className="parent-login-world-title">Eigo World</h2>
+          <p className="parent-login-world-subtitle">家族で英語学習をはじめよう</p>
         </header>
 
         <form className="parent-login-card" onSubmit={handleSubmit}>
+          <span className="parent-login-gem" aria-hidden="true" />
+          <div className="parent-login-card-heading">
+            <h1 id="parent-login-title">保護者ログイン</h1>
+            <p>家族で英語学習をはじめましょう</p>
+          </div>
+
           <label className="parent-login-field">
-            <span>メールアドレス / 電話番号</span>
+            <span>メールアドレス</span>
             <span className="parent-login-input">
               <span aria-hidden="true">✉</span>
               <input
@@ -90,34 +78,14 @@ export default function ParentLoginPage() {
                 value={email}
                 onChange={(event) => setEmail(event.target.value)}
                 autoComplete="email"
-                placeholder="メールアドレス / 電話番号"
+                placeholder="メールアドレスを入力"
               />
             </span>
           </label>
 
-          <label className="parent-login-field">
-            <span>認証コード</span>
-            <span className="parent-login-code-row">
-              <span className="parent-login-input">
-                <span aria-hidden="true">◇</span>
-                <input
-                  type="text"
-                  value={familyCode}
-                  onChange={(event) => setFamilyCode(event.target.value)}
-                  autoComplete="one-time-code"
-                  placeholder="ファミリーコード"
-                />
-              </span>
-              <button type="button" className="parent-login-code-button" onClick={handleCodeSend}>
-                送信
-              </button>
-            </span>
-          </label>
-
-          <p className="parent-login-hint">※ファミリーコードまたはメールアドレスでログインできます</p>
-          {(pageNotice || codeNotice || formError) && (
+          {(pageNotice || formError) && (
             <p className={`parent-login-message ${formError ? 'is-error' : ''}`}>
-              {formError || codeNotice || pageNotice}
+              {formError || pageNotice}
             </p>
           )}
 
@@ -125,29 +93,19 @@ export default function ParentLoginPage() {
             {authLoading ? 'ログイン中...' : 'ログイン / 新規登録'}
           </button>
 
-          <div className="parent-login-divider">
-            <span>または、他の方法で続ける</span>
-          </div>
+          <p className="parent-login-hint">
+            はじめての方もメールアドレスだけで始められます
+          </p>
 
-          <div className="parent-login-social-list">
-            {SOCIAL_LOGIN_OPTIONS.map((option) => (
-              <button type="button" className="parent-login-social-button" disabled key={option.label}>
-                <span className={`parent-login-social-mark is-${option.mark.toLowerCase()}`}>{option.mark}</span>
-                <strong>{option.label}</strong>
-                <em>準備中</em>
-              </button>
-            ))}
+          <div className="parent-login-note-card">
+            <span className="parent-login-shield" aria-hidden="true">♜</span>
+            <p>
+              お子さまの学習データは
+              <br />
+              保護者アカウントで管理されます
+            </p>
           </div>
         </form>
-
-        <footer className="parent-login-footer">
-          <span aria-hidden="true">☆</span>
-          <p>
-            お子さまの学習データは
-            <br />
-            保護者アカウントで管理されます
-          </p>
-        </footer>
       </section>
     </main>
   );

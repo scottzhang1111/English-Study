@@ -1,5 +1,8 @@
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { getChildren } from '../api';
+import { useChildren } from '../ChildrenContext';
 import { EQBottomNav, EQMobileShell } from '../components/eigo';
+import eigoQuestWorlds from '../config/eigoQuestWorlds';
 
 const ASSET_BASE = '/assets/eigo-quest/learning-hub';
 
@@ -7,7 +10,6 @@ const mainEntry = {
   title: '今日の冒険',
   subtitle: '20語を学んで、クイズに挑戦',
   action: '冒険をはじめる',
-  to: '/daily-words',
   image: `${ASSET_BASE}/上の背景.png`,
 };
 
@@ -57,6 +59,43 @@ const moduleEntries = [
 ];
 
 export default function LearningHubPage() {
+  const navigate = useNavigate();
+  const { children, selectedChildId, setSelectedChildId } = useChildren();
+  const currentChild = (children || []).find((c) => String(c.id) === String(selectedChildId)) || (children && children.length ? children[0] : null);
+
+  function resolveWorldId(child) {
+    const rawWorldId = child?.current_world_id || child?.currentWorldId || child?.current_world || child?.currentWorld || 1;
+    const numericWorldId = Number(rawWorldId);
+    if (Number.isFinite(numericWorldId) && numericWorldId > 0) {
+      return eigoQuestWorlds[numericWorldId - 1]?.id || eigoQuestWorlds[0]?.id || 'wind';
+    }
+    const normalizedWorldId = String(rawWorldId || '').trim();
+    return eigoQuestWorlds.some((world) => world.id === normalizedWorldId)
+      ? normalizedWorldId
+      : eigoQuestWorlds[0]?.id || 'wind';
+  }
+
+  async function handleStartAdventure() {
+    const currentChild = children.find((child) => String(child.id) === String(selectedChildId)) || children[0];
+    if (currentChild) {
+      navigate('/app');
+      return;
+    }
+
+    try {
+      const payload = await getChildren();
+      const childList = payload.children || [];
+      if (childList.length === 0) {
+        navigate('/create-child-profile');
+        return;
+      }
+      setSelectedChildId(childList[0].id);
+      navigate('/app');
+    } catch (err) {
+      navigate('/create-child-profile');
+    }
+  }
+
   return (
     <div className="eq-learning-hub-page">
       <EQMobileShell className="eq-learning-hub-screen eq-learning-hub-rpg-screen">
@@ -64,10 +103,25 @@ export default function LearningHubPage() {
           <span>Learning Menu</span>
           <h1>学習メニュー</h1>
           <p>今日の学びをえらぼう</p>
+          {currentChild ? (
+            <button
+              type="button"
+              className="eq-learning-hub-child"
+              onClick={() => navigate('/select-child')}
+              aria-label={`${currentChild.nickname || currentChild.name || '子ども'} を選択`}
+            >
+              <img
+                src={currentChild.avatar || '/assets/child-default.png'}
+                alt={currentChild.nickname || currentChild.name || 'child'}
+                onError={(e) => { e.currentTarget.src = '/assets/child-default.png'; }}
+              />
+            </button>
+          ) : null}
         </header>
 
-        <Link
-          to={mainEntry.to}
+        <button
+          type="button"
+          onClick={handleStartAdventure}
           className="eq-learning-hub-rpg-main"
           style={{ '--hub-card-image': `url("${mainEntry.image}")` }}
           aria-label={`${mainEntry.title}へ`}
@@ -78,7 +132,7 @@ export default function LearningHubPage() {
             <em>{mainEntry.action}</em>
           </span>
           <span className="eq-learning-hub-rpg-arrow" aria-hidden="true">›</span>
-        </Link>
+        </button>
 
         <section className="eq-learning-hub-rpg-grid" aria-label="学習メニュー">
           {moduleEntries.map((entry) => (
