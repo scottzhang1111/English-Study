@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { getAuthMe, getChildren } from '../api';
 import { useAuth } from '../AuthContext';
 import { useChildren } from '../ChildrenContext';
@@ -12,12 +12,14 @@ const SOCIAL_LOGIN_OPTIONS = [
 
 export default function ParentLoginPage() {
   const navigate = useNavigate();
+  const location = useLocation();
   const { login, authLoading } = useAuth();
   const { setSelectedChildId } = useChildren();
   const [email, setEmail] = useState('');
   const [familyCode, setFamilyCode] = useState('');
   const [codeNotice, setCodeNotice] = useState('');
   const [formError, setFormError] = useState('');
+  const [pageNotice, setPageNotice] = useState(location.state?.message || '');
 
   const handleCodeSend = () => {
     setCodeNotice('管理者から受け取ったファミリーコードを入力してください。');
@@ -34,6 +36,7 @@ export default function ParentLoginPage() {
     }
 
     setFormError('');
+    setPageNotice('');
     try {
       await login(trimmedCode ? { code: trimmedCode } : { email: trimmedEmail });
     } catch (err) {
@@ -112,9 +115,9 @@ export default function ParentLoginPage() {
           </label>
 
           <p className="parent-login-hint">※ファミリーコードまたはメールアドレスでログインできます</p>
-          {(codeNotice || formError) && (
+          {(pageNotice || codeNotice || formError) && (
             <p className={`parent-login-message ${formError ? 'is-error' : ''}`}>
-              {formError || codeNotice}
+              {formError || codeNotice || pageNotice}
             </p>
           )}
 

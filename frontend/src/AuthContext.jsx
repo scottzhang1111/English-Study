@@ -7,8 +7,10 @@ export function AuthProvider({ children }) {
   const [account, setAccount] = useState(null);
   const [authLoading, setAuthLoading] = useState(true);
   const [authError, setAuthError] = useState('');
+  const [authExpired, setAuthExpired] = useState(false);
 
   const refreshAuth = useCallback(async () => {
+    setAuthExpired(false);
     setAuthLoading(true);
     setAuthError('');
     try {
@@ -17,6 +19,11 @@ export function AuthProvider({ children }) {
       setAccount(nextAccount);
       return nextAccount;
     } catch (err) {
+      if (err?.status === 401) {
+        setAuthExpired(true);
+      } else {
+        setAuthExpired(false);
+      }
       setAccount(null);
       return null;
     } finally {
@@ -27,6 +34,7 @@ export function AuthProvider({ children }) {
   const login = useCallback(async (credentials) => {
     setAuthLoading(true);
     setAuthError('');
+    setAuthExpired(false);
     try {
       const payload = await loginAccount(
         typeof credentials === 'string' ? { email: credentials } : credentials,
@@ -50,6 +58,7 @@ export function AuthProvider({ children }) {
       await logoutAccount();
     } finally {
       setAccount(null);
+      setAuthExpired(false);
       setAuthLoading(false);
     }
   }, []);
@@ -63,12 +72,13 @@ export function AuthProvider({ children }) {
       account,
       authLoading,
       authError,
+      authExpired,
       isAuthenticated: Boolean(account),
       refreshAuth,
       login,
       logout,
     }),
-    [account, authLoading, authError, refreshAuth, login, logout],
+    [account, authLoading, authError, authExpired, refreshAuth, login, logout],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

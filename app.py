@@ -62,7 +62,7 @@ EIGO_QUEST_WORLD_ORDER = [world['id'] for world in EIGO_QUEST_WORLDS]
 EIGO_QUEST_TOTAL_STAGES = sum(world['stage_count'] for world in EIGO_QUEST_WORLDS)
 EIGO_QUEST_TOTAL_WORDS = sum(world['word_count'] for world in EIGO_QUEST_WORLDS)
 AUTH_SESSION_COOKIE_NAME = 'eq_auth_session'
-AUTH_SESSION_DAYS = 30
+AUTH_SESSION_DAYS = 90
 # Stage reward cards use the existing official heroes rows in the database.
 # The heroes table already contains 80 cards using codes such as
 # wind-guardian1 ... shadow-guardian10.
@@ -9630,6 +9630,34 @@ def create_auth_session(account_id):
     return {'session_token': token, 'expires_at': expires_at}
 
 
+def refresh_auth_session(session_token):
+    if not session_token:
+        return None
+    init_db()
+    now = get_now_iso()
+    conn = get_db_connection()
+    try:
+        row = conn.execute(
+            'SELECT account_id, expires_at FROM auth_sessions WHERE session_token = ?',
+            (session_token,),
+        ).fetchone()
+        if not row:
+            return None
+        if row['expires_at'] <= now:
+            conn.execute('DELETE FROM auth_sessions WHERE session_token = ?', (session_token,))
+            conn.commit()
+            return None
+        new_expires_at = (datetime.datetime.now() + datetime.timedelta(days=AUTH_SESSION_DAYS)).isoformat(timespec='seconds')
+        conn.execute(
+            'UPDATE auth_sessions SET expires_at = ? WHERE session_token = ?',
+            (new_expires_at, session_token),
+        )
+        conn.commit()
+        return {'account_id': row['account_id'], 'expires_at': new_expires_at}
+    finally:
+        conn.close()
+
+
 def get_current_account_id():
     init_db()
     session_token = request.cookies.get(AUTH_SESSION_COOKIE_NAME)
@@ -9886,8 +9914,21 @@ def api_auth_login():
 
 @app.route('/api/auth/me')
 def api_auth_me():
-    account = require_current_account()
-    return jsonify(account=auth_account_payload(account))
+    session_token = request.cookies.get(AUTH_SESSION_COOKIE_NAME)
+    session = refresh_auth_session(session_token)
+    if not session:
+        abort(401, 'login required')
+    account = get_account_by_id(session['account_id'])
+    if not account:
+        abort(401, 'login required')
+    response = jsonify(account=auth_account_payload(account))
+    response.set_cookie(
+        AUTH_SESSION_COOKIE_NAME,
+        session_token,
+        max_age=AUTH_SESSION_DAYS * 24 * 60 * 60,
+        **get_auth_cookie_options(),
+    )
+    return response
 
 
 @app.route('/api/debug/routes')

@@ -5,7 +5,7 @@ import { useChildren } from '../ChildrenContext';
 import { useAuth } from '../AuthContext';
 
 export default function StartupGate() {
-  const { authLoading, isAuthenticated } = useAuth();
+  const { authLoading, authExpired, isAuthenticated } = useAuth();
   const { children, childrenLoading, childrenError, selectedChildId, setSelectedChildId, refreshChildren } = useChildren();
 
   useEffect(() => {
@@ -22,7 +22,11 @@ export default function StartupGate() {
   }
 
   if (!isAuthenticated) {
-    return <Navigate replace to="/onboarding" />;
+    return authExpired ? (
+      <Navigate replace to="/parent-login" state={{ message: '保護者の再ログインが必要です' }} />
+    ) : (
+      <Navigate replace to="/onboarding" />
+    );
   }
 
   if (childrenError) {
