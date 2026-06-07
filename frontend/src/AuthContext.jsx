@@ -24,11 +24,13 @@ export function AuthProvider({ children }) {
     }
   }, []);
 
-  const login = useCallback(async (email) => {
+  const login = useCallback(async (credentials) => {
     setAuthLoading(true);
     setAuthError('');
     try {
-      const payload = await loginAccount({ email });
+      const payload = await loginAccount(
+        typeof credentials === 'string' ? { email: credentials } : credentials,
+      );
       const nextAccount = payload?.account || null;
       setAccount(nextAccount);
       return nextAccount;

@@ -1821,6 +1821,20 @@ def init_db(force=False):
         )
         conn.execute(
             '''
+            CREATE TABLE IF NOT EXISTS family_login_codes (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                account_id INTEGER NOT NULL,
+                family_code TEXT UNIQUE NOT NULL,
+                label TEXT,
+                is_active INTEGER NOT NULL DEFAULT 1,
+                created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (account_id) REFERENCES accounts (id) ON UPDATE CASCADE ON DELETE CASCADE
+            )
+            '''
+        )
+        conn.execute(
+            '''
             CREATE TABLE IF NOT EXISTS children (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 account_id INTEGER,
@@ -9534,6 +9548,59 @@ def auth_account_payload(row):
     }
 
 
+def normalize_family_code(value):
+    cleaned = _clean_csv_value(value).upper()
+    return re.sub(r'\s+', '', cleaned)
+
+
+def admin_code_is_valid():
+    expected = os.getenv('ADMIN_CODE', '').strip()
+    provided = request.headers.get('X-Admin-Code', '').strip()
+    return bool(expected) and secrets.compare_digest(provided, expected)
+
+
+def require_admin_code():
+    if not admin_code_is_valid():
+        response = jsonify(ok=False, error='admin_forbidden')
+        response.status_code = 403
+        return response
+    return None
+
+
+def generate_family_code(conn):
+    alphabet = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'
+    for _ in range(40):
+        code = 'FAM-' + ''.join(secrets.choice(alphabet) for _ in range(6))
+        existing = conn.execute('SELECT id FROM family_login_codes WHERE family_code = ?', (code,)).fetchone()
+        if not existing:
+            return code
+    raise RuntimeError('family code could not be generated')
+
+
+def get_account_by_id(account_id):
+    conn = get_db_connection()
+    try:
+        return conn.execute(
+            'SELECT id, email, phone, provider, display_name, created_at, updated_at FROM accounts WHERE id = ?',
+            (account_id,),
+        ).fetchone()
+    finally:
+        conn.close()
+
+
+def create_session_response(account):
+    session = create_auth_session(account['id'])
+    children = get_children_list(account['id'])
+    response = jsonify(ok=True, account=auth_account_payload(account), children=children)
+    response.set_cookie(
+        AUTH_SESSION_COOKIE_NAME,
+        session['session_token'],
+        max_age=AUTH_SESSION_DAYS * 24 * 60 * 60,
+        **get_auth_cookie_options(),
+    )
+    return response
+
+
 def create_auth_session(account_id):
     if account_id is None:
         raise ValueError('account_id is required')
@@ -9752,6 +9819,36 @@ def api_child_eigo_quest_progress(child_id):
 def api_auth_login():
     init_db()
     data = request.get_json(silent=True) or {}
+    raw_code = data.get('code') or data.get('familyCode') or data.get('identifier')
+    family_code = normalize_family_code(raw_code)
+    if family_code:
+        conn = get_db_connection()
+        try:
+            code_row = conn.execute(
+                '''
+                SELECT account_id
+                FROM family_login_codes
+                WHERE family_code = ? AND is_active = 1
+                ''',
+                (family_code,),
+            ).fetchone()
+        finally:
+            conn.close()
+        if not code_row:
+            response = jsonify(
+                ok=False,
+                error='invalid_family_code',
+                message='ファミリーコードが正しくありません',
+            )
+            response.status_code = 401
+            return response
+        account = get_account_by_id(code_row['account_id'])
+        if not account:
+            response = jsonify(ok=False, error='invalid_family_code', message='ファミリーコードが正しくありません')
+            response.status_code = 401
+            return response
+        return create_session_response(account)
+
     email = _clean_csv_value(data.get('email')).lower()
     if not email or '@' not in email:
         abort(400, 'valid email is required')
@@ -9780,15 +9877,7 @@ def api_auth_login():
     finally:
         conn.close()
 
-    session = create_auth_session(account['id'])
-    response = jsonify(account=auth_account_payload(account))
-    response.set_cookie(
-        AUTH_SESSION_COOKIE_NAME,
-        session['session_token'],
-        max_age=AUTH_SESSION_DAYS * 24 * 60 * 60,
-        **get_auth_cookie_options(),
-    )
-    return response
+    return create_session_response(account)
 
 
 @app.route('/api/auth/me')
@@ -9807,6 +9896,143 @@ def api_debug_routes():
             'methods': sorted(method for method in rule.methods if method not in {'HEAD', 'OPTIONS'}),
         })
     return jsonify(routes=routes)
+
+
+@app.route('/api/admin/families')
+def api_admin_families():
+    forbidden = require_admin_code()
+    if forbidden is not None:
+        return forbidden
+    init_db()
+    conn = get_db_connection()
+    try:
+        rows = conn.execute(
+            '''
+            SELECT
+                flc.id AS code_id,
+                flc.account_id,
+                flc.family_code,
+                flc.label,
+                flc.is_active,
+                flc.created_at,
+                flc.updated_at,
+                a.display_name
+            FROM family_login_codes flc
+            JOIN accounts a ON a.id = flc.account_id
+            ORDER BY flc.id DESC
+            '''
+        ).fetchall()
+    finally:
+        conn.close()
+
+    families = []
+    for row in rows:
+        children = get_children_list(row['account_id'])
+        families.append({
+            'accountId': row['account_id'],
+            'familyName': row['label'] or row['display_name'] or f"Family {row['account_id']}",
+            'familyCode': row['family_code'],
+            'codeId': row['code_id'],
+            'isActive': bool(row['is_active']),
+            'children': children,
+            'createdAt': row['created_at'],
+            'updatedAt': row['updated_at'],
+        })
+    return jsonify(ok=True, families=families)
+
+
+@app.route('/api/admin/families', methods=['POST'])
+def api_admin_create_family():
+    forbidden = require_admin_code()
+    if forbidden is not None:
+        return forbidden
+    init_db()
+    data = request.get_json(silent=True) or {}
+    family_name = _clean_csv_value(data.get('familyName') or data.get('family_name') or data.get('label'))
+    if not family_name:
+        abort(400, 'familyName is required')
+    children_payload = data.get('children') if isinstance(data.get('children'), list) else []
+    now = get_now_iso()
+    local_email = f"family_{uuid.uuid4().hex}@local.eigoquest"
+
+    conn = get_db_connection()
+    try:
+        conn.execute(
+            '''
+            INSERT INTO accounts (email, phone, provider, display_name, created_at, updated_at)
+            VALUES (?, NULL, 'family_code', ?, ?, ?)
+            ''',
+            (local_email, family_name, now, now),
+        )
+        conn.commit()
+        account = conn.execute(
+            'SELECT id, email, phone, provider, display_name, created_at, updated_at FROM accounts WHERE email = ?',
+            (local_email,),
+        ).fetchone()
+        if not account:
+            abort(500, 'account could not be created')
+        family_code = generate_family_code(conn)
+        conn.execute(
+            '''
+            INSERT INTO family_login_codes (account_id, family_code, label, is_active, created_at, updated_at)
+            VALUES (?, ?, ?, 1, ?, ?)
+            ''',
+            (account['id'], family_code, family_name, now, now),
+        )
+        conn.commit()
+        code_row = conn.execute(
+            'SELECT id FROM family_login_codes WHERE family_code = ?',
+            (family_code,),
+        ).fetchone()
+    finally:
+        conn.close()
+
+    created_children = []
+    for child_data in children_payload:
+        if not isinstance(child_data, dict):
+            continue
+        child_name = _clean_csv_value(child_data.get('name') or child_data.get('nickname'))
+        if not child_name:
+            continue
+        created_children.append(upsert_child_profile({
+            'nickname': child_name,
+            'grade': _clean_csv_value(child_data.get('grade')) or '1',
+            'target_level': _clean_csv_value(child_data.get('target_level') or child_data.get('targetLevel')) or '三\u7d1a',
+            'learning_goal': _clean_csv_value(child_data.get('learning_goal') or child_data.get('learningGoal') or child_data.get('target_level') or child_data.get('targetLevel')) or '三\u7d1a',
+            'daily_word_target': child_data.get('daily_word_target') or child_data.get('dailyWordTarget') or 20,
+        }, account['id']))
+
+    family = {
+        'accountId': account['id'],
+        'familyName': family_name,
+        'familyCode': family_code,
+        'codeId': code_row['id'] if code_row else None,
+        'isActive': True,
+        'children': created_children,
+    }
+    return jsonify(ok=True, family=family)
+
+
+@app.route('/api/admin/family-codes/<int:code_id>/disable', methods=['POST'])
+def api_admin_disable_family_code(code_id):
+    forbidden = require_admin_code()
+    if forbidden is not None:
+        return forbidden
+    init_db()
+    conn = get_db_connection()
+    try:
+        conn.execute(
+            '''
+            UPDATE family_login_codes
+            SET is_active = 0, updated_at = CURRENT_TIMESTAMP
+            WHERE id = ?
+            ''',
+            (code_id,),
+        )
+        conn.commit()
+    finally:
+        conn.close()
+    return jsonify(ok=True, codeId=code_id, isActive=False)
 
 
 @app.route('/api/auth/logout', methods=['POST'])

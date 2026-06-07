@@ -13,11 +13,14 @@ function toQuery(params = {}) {
   return query ? `?${query}` : '';
 }
 
-async function fetchJson(path, { method = 'GET', params, body } = {}) {
+async function fetchJson(path, { method = 'GET', params, body, headers } = {}) {
   const resolvedMethod = method || 'GET';
   const response = await fetch(`${API_BASE_URL}${path}${toQuery(params)}`, {
     method: resolvedMethod,
-    headers: body ? { 'Content-Type': 'application/json' } : undefined,
+    headers: {
+      ...(body ? { 'Content-Type': 'application/json' } : {}),
+      ...(headers || {}),
+    },
     body: body ? JSON.stringify(body) : undefined,
     cache: 'no-store',
     credentials: 'include',
@@ -60,15 +63,37 @@ export const getHomeData = async (childId) => {
   return fetchJson('/api/home', { params: { child_id: childId } });
 };
 
-export const loginAccount = async ({ email } = {}) => {
+export const loginAccount = async ({ email, code, familyCode, identifier } = {}) => {
   return fetchJson('/api/auth/login', {
     method: 'POST',
-    body: { email },
+    body: { email, code, familyCode, identifier },
   });
 };
 
 export const getAuthMe = async () => {
   return fetchJson('/api/auth/me');
+};
+
+export const getAdminFamilies = async (adminCode) => {
+  return fetchJson('/api/admin/families', {
+    headers: { 'X-Admin-Code': adminCode },
+  });
+};
+
+export const createAdminFamily = async (adminCode, payload) => {
+  return fetchJson('/api/admin/families', {
+    method: 'POST',
+    headers: { 'X-Admin-Code': adminCode },
+    body: payload,
+  });
+};
+
+export const disableAdminFamilyCode = async (adminCode, codeId) => {
+  return fetchJson(`/api/admin/family-codes/${encodeURIComponent(codeId)}/disable`, {
+    method: 'POST',
+    headers: { 'X-Admin-Code': adminCode },
+    body: {},
+  });
 };
 
 export const logoutAccount = async () => {

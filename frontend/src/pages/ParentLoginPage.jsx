@@ -15,26 +15,27 @@ export default function ParentLoginPage() {
   const { login, authLoading } = useAuth();
   const { setSelectedChildId } = useChildren();
   const [email, setEmail] = useState('');
+  const [familyCode, setFamilyCode] = useState('');
   const [codeNotice, setCodeNotice] = useState('');
   const [formError, setFormError] = useState('');
 
   const handleCodeSend = () => {
-    setCodeNotice('第一版ではメールログインのみ対応しています。');
+    setCodeNotice('管理者から受け取ったファミリーコードを入力してください。');
   };
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-    console.log('[auth debug] login submit clicked');
 
     const trimmedEmail = email.trim();
-    if (!trimmedEmail) {
-      setFormError('メールアドレスを入力してください。');
+    const trimmedCode = familyCode.trim();
+    if (!trimmedEmail && !trimmedCode) {
+      setFormError('メールアドレスまたはファミリーコードを入力してください。');
       return;
     }
 
     setFormError('');
     try {
-      await login(trimmedEmail);
+      await login(trimmedCode ? { code: trimmedCode } : { email: trimmedEmail });
     } catch (err) {
       setFormError(err.message || 'ログインできませんでした。');
       return;
@@ -96,7 +97,13 @@ export default function ParentLoginPage() {
             <span className="parent-login-code-row">
               <span className="parent-login-input">
                 <span aria-hidden="true">◇</span>
-                <input type="text" inputMode="numeric" placeholder="認証コード" disabled />
+                <input
+                  type="text"
+                  value={familyCode}
+                  onChange={(event) => setFamilyCode(event.target.value)}
+                  autoComplete="one-time-code"
+                  placeholder="ファミリーコード"
+                />
               </span>
               <button type="button" className="parent-login-code-button" onClick={handleCodeSend}>
                 送信
@@ -104,7 +111,7 @@ export default function ParentLoginPage() {
             </span>
           </label>
 
-          <p className="parent-login-hint">※第一版はメールアドレスでログインできます</p>
+          <p className="parent-login-hint">※ファミリーコードまたはメールアドレスでログインできます</p>
           {(codeNotice || formError) && (
             <p className={`parent-login-message ${formError ? 'is-error' : ''}`}>
               {formError || codeNotice}
