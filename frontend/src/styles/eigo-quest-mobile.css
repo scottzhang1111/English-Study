@@ -8898,13 +8898,13 @@ body,
 
 /* active icon a little larger */
 .eq-app-bottom-nav .eq-bottom-nav-link.is-active .eq-bottom-nav-icon {
-  width: 88px !important;
-  height: 88px !important;
+  width: 80px !important;
+  height: 80px !important;
 }
 
 .eq-app-bottom-nav .eq-bottom-nav-link.is-active .eq-bottom-nav-icon img {
-  width: 86px !important;
-  height: 86px !important;
+  width: 78px !important;
+  height: 78px !important;
 }
 
 .eq-app-bottom-nav .eq-bottom-nav-icon img {
@@ -8912,7 +8912,7 @@ body,
 }
 
 .eq-app-bottom-nav .eq-bottom-nav-link.is-active .eq-bottom-nav-icon img {
-  transform: scale(1.24);
+  transform: scale(1.2);
 }
 
 /* =========================================================

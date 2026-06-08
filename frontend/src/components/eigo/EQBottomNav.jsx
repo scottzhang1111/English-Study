@@ -1,20 +1,20 @@
 import { NavLink, useLocation } from 'react-router-dom';
 import { useBgm } from '../../context/BgmContext';
 
-const NAV_ICON_BASE = '/assets/eigo-quest/nav';
+const NAV_ICON_BASE = '/assets/eigo-quest/nav/nav_icons_equal_10png';
 
 const defaultItems = [
   {
     label: 'ホーム',
     to: '/app',
     match: ['/', '/app'],
-    iconSrc: `${NAV_ICON_BASE}/nav-home.png`,
+    icon: 'home',
   },
   {
     label: '地図',
     to: '/app/study-map',
     match: ['/study-map', '/app/study-map', '/world-stage', '/app/world-stage'],
-    iconSrc: `${NAV_ICON_BASE}/nav-map.png`,
+    icon: 'map',
   },
   {
     label: '学習',
@@ -40,16 +40,16 @@ const defaultItems = [
       '/vocab-expansion',
       '/cards',
       '/app/cards',
-      '/card-reward', 
-      '/heroes'
+      '/card-reward',
+      '/heroes',
     ],
-    iconSrc: `${NAV_ICON_BASE}/nav-study.png`,
+    icon: 'study',
   },
   {
     label: 'カード',
     to: '/cards',
     match: ['/cards', '/card-reward', '/heroes'],
-    iconSrc: `${NAV_ICON_BASE}/nav-cards.png`,
+    icon: 'cards',
   },
   {
     label: 'その他',
@@ -64,7 +64,7 @@ const defaultItems = [
       '/pets',
       '/petroom',
     ],
-    iconSrc: `${NAV_ICON_BASE}/nav-more.png`,
+    icon: 'more',
   },
 ];
 
@@ -121,18 +121,36 @@ function EQNavIcon({ icon }) {
   }
 }
 
-function resolveIconSrc(item) {
-  if (item.iconSrc) return item.iconSrc;
+function normalizeIconKey(item) {
+  if (item.icon) return item.icon;
 
-  const key = item.icon || item.label;
+  const source = item.iconSrc || '';
+  if (source.includes('nav-home')) return 'home';
+  if (source.includes('nav-map')) return 'map';
+  if (source.includes('nav-study')) return 'study';
+  if (source.includes('nav-card') || source.includes('nav-cards')) return 'cards';
+  if (source.includes('nav-more')) return 'more';
 
-  if (key === 'home' || key === 'ホーム') return `${NAV_ICON_BASE}/nav-home.png`;
-  if (key === 'map' || key === '地図' || key === '世界地図') return `${NAV_ICON_BASE}/nav-map.png`;
-  if (key === 'study' || key === '学習') return `${NAV_ICON_BASE}/nav-study.png`;
-  if (key === 'cards' || key === 'card' || key === 'カード') return `${NAV_ICON_BASE}/nav-cards.png`;
-  if (key === 'more' || key === 'その他' || key === '設定') return `${NAV_ICON_BASE}/nav-more.png`;
+  const key = item.label;
+  if (key === 'ホーム') return 'home';
+  if (key === '地図' || key === '世界地図') return 'map';
+  if (key === '学習') return 'study';
+  if (key === 'カード') return 'cards';
+  if (key === 'その他' || key === '設定') return 'more';
+  return key;
+}
 
-  return '';
+function resolveIconSrc(item, active = false) {
+  const key = normalizeIconKey(item);
+  const tone = active ? 'blue' : 'gold';
+
+  if (key === 'home') return `${NAV_ICON_BASE}/nav-home-${tone}.png`;
+  if (key === 'map') return `${NAV_ICON_BASE}/nav-map-${tone}.png`;
+  if (key === 'study') return `${NAV_ICON_BASE}/nav-study-${tone}.png`;
+  if (key === 'cards' || key === 'card') return `${NAV_ICON_BASE}/nav-card-${tone}.png`;
+  if (key === 'more') return `${NAV_ICON_BASE}/nav-more-${tone}.png`;
+
+  return item.iconSrc || '';
 }
 
 function isItemActive(item, pathname, navLinkActive) {
@@ -142,6 +160,10 @@ function isItemActive(item, pathname, navLinkActive) {
 
   if (Array.isArray(item.match)) {
     return item.match.some((path) => pathname === path || pathname.startsWith(`${path}/`));
+  }
+
+  if (item.to) {
+    return pathname === item.to || pathname.startsWith(`${item.to}/`);
   }
 
   return navLinkActive;
@@ -156,34 +178,35 @@ export default function EQBottomNav({ items = defaultItems, className = '' }) {
       className={`eq-bottom-nav eq-app-bottom-nav ${className}`.trim()}
       aria-label="メインナビゲーション"
     >
-    {items.map((item) => {
-      const iconSrc = resolveIconSrc(item);
+      {items.map((item) => {
+        const active = isItemActive(item, location.pathname, false);
+        const iconSrc = resolveIconSrc(item, active);
 
-      return (
-        <NavLink
-          key={`${item.to}-${item.label}`}
-          to={item.to}
-          onClick={() => {
-            if (item.to === '/app/study-map' || item.to === '/study-map') {
-              resumeGlobalBgm();
+        return (
+          <NavLink
+            key={`${item.to}-${item.label}`}
+            to={item.to}
+            onClick={() => {
+              if (item.to === '/app/study-map' || item.to === '/study-map') {
+                resumeGlobalBgm();
+              }
+            }}
+            className={({ isActive }) =>
+              `eq-bottom-nav-link ${isItemActive(item, location.pathname, isActive) ? 'is-active' : ''}`.trim()
             }
-          }}
-          className={({ isActive }) =>
-            `eq-bottom-nav-link ${isItemActive(item, location.pathname, isActive) ? 'is-active' : ''}`.trim()
-          }
-          aria-label={item.label}
-          end={item.end}
-        >
-          <span className="eq-bottom-nav-icon">
-            {iconSrc ? (
-              <img src={iconSrc} alt="" aria-hidden="true" />
-            ) : (
-              item.iconNode || <EQNavIcon icon={item.icon} />
-            )}
-          </span>
-        </NavLink>
-      );
-    })}
+            aria-label={item.label}
+            end={item.end}
+          >
+            <span className="eq-bottom-nav-icon">
+              {iconSrc ? (
+                <img src={iconSrc} alt="" aria-hidden="true" />
+              ) : (
+                item.iconNode || <EQNavIcon icon={item.icon} />
+              )}
+            </span>
+          </NavLink>
+        );
+      })}
     </nav>
   );
 }
