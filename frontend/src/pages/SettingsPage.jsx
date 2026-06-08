@@ -19,7 +19,7 @@ function formatLearningGoal(child) {
   const value = child?.learning_goal || child?.learningGoal || child?.grade || child?.target_level || child?.targetLevel || '';
   if (value === 'eiken_pre2') return '英検準2級をめざす';
   if (value === 'eiken3') return '英検3級をめざす';
-  if (value.includes('準2') || value.includes('準２')) return '英検準2級をめざす';
+  if (value.includes('準') || value.includes('準2')) return '英検準2級をめざす';
   if (value.includes('3') || value.includes('３') || value.includes('三級')) return '英検3級をめざす';
   return value || '英検準2級をめざす';
 }
@@ -92,7 +92,7 @@ export default function SettingsPage() {
           if (active) setProgressData(null);
         }
       } catch (err) {
-        if (active) setError(err.message || '子ども情報を読み込めませんでした。');
+        if (active) setError(err.message || '子どもの情報を読み込めませんでした。');
       } finally {
         if (active) setIsLoading(false);
       }
@@ -111,6 +111,7 @@ export default function SettingsPage() {
 
   const today = getTodaySummary(progressData, currentChild);
   const previewChildren = childrenList.slice(0, 4);
+  const statusText = today.complete ? '完了' : '未完了';
 
   const selectChild = async (child) => {
     setSelectedChildId(child.id);
@@ -144,22 +145,27 @@ export default function SettingsPage() {
         ) : currentChild ? (
           <>
             <section className="eq-family-current-card">
-              <h2>現在の子ども</h2>
-              <div className="eq-family-current-body">
+              <div className="eq-family-current-left">
                 <img className="eq-family-current-avatar" src={resolveAvatar(currentChild)} alt="" />
+                <span className="eq-family-current-label">現在の子ども</span>
+              </div>
+
+              <div className="eq-family-current-right">
+                <h2>現在の子ども</h2>
                 <div className="eq-family-current-info">
                   <h3>{getChildName(currentChild)}</h3>
                   <span className="eq-family-goal-badge">▣ {formatLearningGoal(currentChild)}</span>
-                  <div className="eq-family-today">
-                    <p>今日の学習状況</p>
-                    <div className="eq-family-challenge-row">
-                      <strong>◎ {getDailyTarget(currentChild)}問チャレンジ</strong>
-                      <em>{today.hasData ? (today.complete ? '完了' : '未完了') : '未完了'}</em>
-                    </div>
-                    <div className="eq-family-progress-row">
-                      <span className="eq-family-progress-bar" style={{ '--family-progress': `${today.percent}%` }} />
-                      <b>{today.hasData ? `${today.studied} / ${today.target}` : 'まだ学習データがありません'}</b>
-                    </div>
+                </div>
+
+                <div className="eq-family-today">
+                  <p>今日の学習状況</p>
+                  <div className="eq-family-challenge-row">
+                    <strong>{getDailyTarget(currentChild)}問チャレンジ</strong>
+                    <em className={today.complete ? 'is-complete' : ''}>{statusText}</em>
+                  </div>
+                  <div className="eq-family-progress-row">
+                    <span className="eq-family-progress-bar" style={{ '--family-progress': `${today.percent}%` }} />
+                    <b>{today.hasData ? `${today.studied} / ${today.target}` : `0 / ${today.target}`}</b>
                   </div>
                 </div>
               </div>
@@ -181,7 +187,7 @@ export default function SettingsPage() {
 
             <button type="button" className="eq-family-action-card" onClick={() => navigate('/parent-dashboard')}>
               <span className="eq-family-action-art is-report" aria-hidden="true">
-                <i>▤</i>
+                <i>📖</i>
                 <b>✦</b>
               </span>
               <span className="eq-family-action-copy">
@@ -190,10 +196,19 @@ export default function SettingsPage() {
               </span>
               <span className="eq-family-action-arrow" aria-hidden="true">›</span>
             </button>
+
+            <section className="eq-family-panel eq-family-note-card">
+              <span aria-hidden="true">▣</span>
+              <p>
+                お子さまの学習データは
+                <br />
+                保護者アカウントで管理されています
+              </p>
+            </section>
           </>
         ) : (
           <section className="eq-family-panel eq-family-empty">
-            <p>子どもプロフィールを作成してください</p>
+            <p>子どものプロフィールを作成してください</p>
             <button type="button" onClick={() => navigate('/create-child-profile')}>
               子どもを追加
             </button>
