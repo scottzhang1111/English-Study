@@ -42,11 +42,17 @@ function getTodaySummary(progress, child) {
   };
 }
 
+function formatChildProgress(summary) {
+  if (!summary?.hasData) return 'まだ学習データがありません';
+  return `${summary.studied} / ${summary.target}`;
+}
+
 export default function SettingsPage() {
   const navigate = useNavigate();
   const { selectedChildId, setSelectedChildId, refreshChildren } = useChildren();
   const [childrenList, setChildrenList] = useState([]);
   const [progressData, setProgressData] = useState(null);
+  const [childProgressById, setChildProgressById] = useState({});
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
   const [isSwitcherOpen, setIsSwitcherOpen] = useState(false);
@@ -74,6 +80,7 @@ export default function SettingsPage() {
         if (list.length === 0) {
           setSelectedChildId('');
           setProgressData(null);
+          setChildProgressById({});
           return;
         }
 
@@ -87,7 +94,13 @@ export default function SettingsPage() {
 
         try {
           const progress = await getProgressData({ childId: nextChild.id });
-          if (active) setProgressData(progress);
+          if (active) {
+            setProgressData(progress);
+            setChildProgressById((current) => ({
+              ...current,
+              [String(nextChild.id)]: progress,
+            }));
+          }
         } catch (err) {
           if (active) setProgressData(null);
         }
@@ -104,6 +117,36 @@ export default function SettingsPage() {
     };
   }, [navigate, refreshChildren, selectedChildId, setSelectedChildId]);
 
+  useEffect(() => {
+    if (!isSwitcherOpen || childrenList.length === 0) return undefined;
+    const childrenToLoad = childrenList.filter((child) => !(String(child.id) in childProgressById));
+    if (childrenToLoad.length === 0) return undefined;
+
+    let active = true;
+    async function loadChildProgress() {
+      const entries = await Promise.all(
+        childrenToLoad.map(async (child) => {
+          const childId = String(child.id);
+          try {
+            return [childId, await getProgressData({ childId: child.id })];
+          } catch (err) {
+            return [childId, null];
+          }
+        })
+      );
+      if (!active) return;
+      setChildProgressById((current) => ({
+        ...current,
+        ...Object.fromEntries(entries),
+      }));
+    }
+
+    loadChildProgress();
+    return () => {
+      active = false;
+    };
+  }, [childrenList, childProgressById, isSwitcherOpen]);
+
   const currentChild = useMemo(() => {
     if (!childrenList.length) return null;
     return childrenList.find((child) => String(child.id) === String(selectedChildId)) || childrenList[0];
@@ -119,6 +162,10 @@ export default function SettingsPage() {
     try {
       const progress = await getProgressData({ childId: child.id });
       setProgressData(progress);
+      setChildProgressById((current) => ({
+        ...current,
+        [String(child.id)]: progress,
+      }));
     } catch (err) {
       setProgressData(null);
     }
@@ -219,25 +266,35 @@ export default function SettingsPage() {
       {isSwitcherOpen ? (
         <div className="eq-family-modal" role="dialog" aria-modal="true" aria-labelledby="child-switch-title" onClick={() => setIsSwitcherOpen(false)}>
           <section className="eq-family-sheet" onClick={(event) => event.stopPropagation()}>
-            <header>
-              <h2 id="child-switch-title">学習する子どもを選択</h2>
+            <header className="eq-family-sheet-header">
+              <div>
+                <h2 id="child-switch-title">学習する子どもを選択</h2>
+                <p>今日学習するプロフィールを選びます</p>
+              </div>
               <button type="button" onClick={() => setIsSwitcherOpen(false)} aria-label="閉じる">×</button>
             </header>
+
             <div className="eq-family-child-list">
               {childrenList.map((child) => {
                 const active = String(child.id) === String(currentChild?.id);
+                const childProgress = childProgressById[String(child.id)] || null;
+                const childToday = getTodaySummary(childProgress, child);
                 return (
                   <button key={child.id} type="button" className={active ? 'is-active' : ''} onClick={() => selectChild(child)}>
                     <img src={resolveAvatar(child)} alt="" />
-                    <span>
+                    <span className="eq-family-child-copy">
                       <strong>{getChildName(child)}</strong>
                       <small>{formatLearningGoal(child)}</small>
+                      <small className={childToday.hasData ? 'eq-family-child-progress' : 'eq-family-child-progress is-empty'}>
+                        {formatChildProgress(childToday)}
+                      </small>
                     </span>
                     {active ? <em>現在使用中</em> : null}
                   </button>
                 );
               })}
             </div>
+
             <button type="button" className="eq-family-add-child" onClick={() => navigate('/create-child-profile')}>
               ＋ 子どもを追加
             </button>
@@ -245,7 +302,7 @@ export default function SettingsPage() {
         </div>
       ) : null}
 
-      <EQBottomNav className="eq-family-bottom-nav" />
+      {isSwitcherOpen ? null : <EQBottomNav className="eq-family-bottom-nav" />}
     </div>
   );
 }
