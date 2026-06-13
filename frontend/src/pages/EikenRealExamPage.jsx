@@ -735,9 +735,21 @@ export default function EikenRealExamPage() {
       )}
 
       {loading || partLoading ? (
-        <div className="mt-5 rounded-[24px] bg-white/80 p-8 text-center font-bold text-[#6f7da8]">問題を読み込み中...</div>
+        <div className="eiken-real-trial-status-card" role="status" aria-live="polite">
+          <span className="eiken-real-trial-status-orb" aria-hidden="true" />
+          <p>Real Exam Trial</p>
+          <strong>問題を読み込み中...</strong>
+          <div className="eiken-real-trial-status-tabs" aria-hidden="true">
+            <span className={mode === 'listening' ? 'is-active' : ''}>🎧 リスニング</span>
+            <span className={mode === 'written' ? 'is-active' : ''}>✎ 筆記</span>
+          </div>
+        </div>
       ) : !partData ? (
-        <div className="mt-5 rounded-[24px] bg-white/80 p-8 text-center font-bold text-[#6f7da8]">表示できる問題がありません。</div>
+        <div className="eiken-real-trial-status-card" role="status">
+          <span className="eiken-real-trial-status-orb" aria-hidden="true" />
+          <p>Real Exam Trial</p>
+          <strong>表示できる問題がありません。</strong>
+        </div>
       ) : (
         <motion.div
           initial={{ opacity: 0, y: 12 }}

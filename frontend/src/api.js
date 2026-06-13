@@ -433,6 +433,24 @@ export const getEikenPre2WrongQuestions = async ({ studentId, childId, latestOnl
   });
 };
 
+export const getEiken3Sets = async () => {
+  return fetchJson('/api/eiken3/sets');
+};
+
+export const getEiken3Quiz = async (setId) => {
+  return fetchJson(`/api/eiken3/quiz/${encodeURIComponent(setId)}`);
+};
+
+export const submitEiken3Quiz = async ({ setId, answers } = {}) => {
+  return fetchJson('/api/eiken3/submit', {
+    method: 'POST',
+    body: {
+      set_id: setId,
+      answers,
+    },
+  });
+};
+
 export const getEikenRealExams = async ({ childId, targetLevel } = {}) => {
   return fetchJson('/api/eiken-real-exams', { params: { child_id: childId, target_level: targetLevel } });
 };

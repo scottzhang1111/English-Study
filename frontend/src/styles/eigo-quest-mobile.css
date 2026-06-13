@@ -12518,7 +12518,7 @@ body,
 .quest-grammar-learn-page,
 .eq-grammar-test-page {
   min-height: 100dvh;
-  padding: 0 14px calc(104px + env(safe-area-inset-bottom, 0px));
+  padding: calc(24px + env(safe-area-inset-top, 0px)) 14px calc(110px + env(safe-area-inset-bottom, 0px));
   overflow-x: hidden;
   background:
     radial-gradient(circle at 50% 9%, rgba(49, 119, 255, 0.3), transparent 26%),
@@ -12530,7 +12530,8 @@ body,
 .eq-grammar-test-page .compact-page-header {
   min-height: 138px;
   max-height: 138px;
-  margin: max(8px, env(safe-area-inset-top, 0px)) 0 10px;
+  width: 100%;
+  margin: 0 0 14px;
   padding: 18px 112px 14px 18px;
   border: 2px solid rgba(230, 188, 91, 0.92);
   border-radius: 24px;

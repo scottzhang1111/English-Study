@@ -36,6 +36,7 @@ _DB_INITIALIZED = False
 DB_FILENAME = 'eigo_quest_local_v1.sqlite'
 VOCAB_FILENAME = os.path.join('data', 'eiken', 'eiken_pre2', 'eiken_pre2_web_ready_db', 'eiken_vocab_database_with_synonyms_utf8_bom.csv')
 EIKEN_PRE2_BANK_FILENAME = os.path.join('data', 'eiken', 'eiken_pre2', 'eiken_pre2_web_ready_db', 'eiken_pre2_web_ready.sqlite')
+EIKEN3_BANK_FILENAME = os.path.join('data', 'eiken', 'eiken_3', 'eiken_3_web_ready_db', 'eiken3_web_ready_with_G3SET10.sqlite')
 EIKEN_REAL_EXAM_PRE2_RESOURCE_ROOT = os.path.join('data', 'eiken', 'eiken real exam pre2', 'Listening', 'www.cloudsemi.com', 'member', 'eiken', 'eikenj2')
 EIKEN_REAL_EXAM_EIKEN3_RESOURCE_ROOT = os.path.join('data', 'eiken', 'eiken real exam 3', 'English eiken 3', 'www.cloudsemi.com', 'member', 'eiken', 'eiken3')
 EIKEN_REAL_EXAM_CONFIGS = {
@@ -1768,6 +1769,23 @@ def get_eiken_pre2_bank_connection():
     conn.row_factory = sqlite3.Row
     conn.execute('PRAGMA foreign_keys = ON')
     ensure_eiken_pre2_bank_runtime_columns(conn)
+    return conn
+
+
+def get_eiken3_bank_path():
+    configured_path = os.environ.get('EIKEN3_DB_PATH')
+    if configured_path:
+        return configured_path
+    return data_path(EIKEN3_BANK_FILENAME)
+
+
+def get_eiken3_bank_connection():
+    bank_path = get_eiken3_bank_path()
+    if not os.path.exists(bank_path):
+        raise FileNotFoundError(f'EIKEN Grade 3 question bank not found: {bank_path}')
+
+    conn = sqlite3.connect(bank_path, timeout=10)
+    conn.row_factory = sqlite3.Row
     return conn
 
 
@@ -7521,6 +7539,240 @@ def get_eiken_real_exam_part_meta(part_id):
     }
 
 
+def _eiken3_to_int(value, default=0):
+    try:
+        return int(str(value).strip())
+    except (TypeError, ValueError):
+        return default
+
+
+def _eiken3_options_from_row(row):
+    return [
+        {
+            'key': key,
+            'text': row[f'option_{key}'],
+            'text_ja': _row_value(row, f'option_{key}_ja', ''),
+        }
+        for key in ['A', 'B', 'C', 'D']
+        if _row_value(row, f'option_{key}', '')
+    ]
+
+
+def _eiken3_question_payload(row, include_correct=False, selected_option=''):
+    payload = {
+        'question_id': row['question_id'],
+        'set_id': row['set_id'],
+        'question_no': _eiken3_to_int(row['question_no']),
+        'section': _row_value(row, 'section', ''),
+        'question_type': _row_value(row, 'question_type', ''),
+        'passage_id': _row_value(row, 'passage_id', ''),
+        'prompt': _row_value(row, 'prompt', ''),
+        'question_text_ja': _row_value(row, 'question_text_ja', ''),
+        'options': _eiken3_options_from_row(row),
+        'difficulty': _row_value(row, 'difficulty', ''),
+        'skill_tag': _row_value(row, 'skill_tag', ''),
+        'weak_point_tag': _row_value(row, 'weak_point_tag', ''),
+        'target_vocab': _row_value(row, 'target_vocab', ''),
+    }
+    if include_correct:
+        correct_option = _row_value(row, 'correct_option', '').upper()
+        payload.update({
+            'selected_option': selected_option,
+            'correct_option': correct_option,
+            'is_correct': bool(selected_option and selected_option == correct_option),
+            'correct_answer_text': _row_value(row, 'correct_answer_text', ''),
+            'correct_answer_text_ja': _row_value(row, 'correct_answer_text_ja', ''),
+            'explanation_ja': _row_value(row, 'explanation_ja', ''),
+            'vocabulary_notes_ja': _row_value(row, 'vocabulary_notes_ja', ''),
+        })
+    return payload
+
+
+def _eiken3_passage_payload(row):
+    return {
+        'passage_id': row['passage_id'],
+        'set_id': row['set_id'],
+        'passage_no': _eiken3_to_int(row['passage_no']),
+        'genre': _row_value(row, 'genre', ''),
+        'passage_type': _row_value(row, 'passage_type', ''),
+        'title': _row_value(row, 'title', ''),
+        'title_ja': _row_value(row, 'title_ja', ''),
+        'passage_text': _row_value(row, 'passage_text', ''),
+        'passage_text_ja': _row_value(row, 'passage_text_ja', ''),
+        'key_points_ja': _row_value(row, 'key_points_ja', ''),
+    }
+
+
+def _eiken3_writing_prompt_payload(row, include_sample=True):
+    payload = {
+        'writing_prompt_id': row['writing_prompt_id'],
+        'set_id': row['set_id'],
+        'writing_no': _eiken3_to_int(row['writing_no']),
+        'writing_type': _row_value(row, 'writing_type', ''),
+        'prompt_ja': _row_value(row, 'prompt_ja', ''),
+        'prompt_en': _row_value(row, 'prompt_en', ''),
+        'min_words': _eiken3_to_int(row['min_words']),
+        'max_words': _eiken3_to_int(row['max_words']),
+        'difficulty': _row_value(row, 'difficulty', ''),
+    }
+    if include_sample:
+        payload.update({
+            'sample_answer': _row_value(row, 'sample_answer', ''),
+            'sample_answer_ja': _row_value(row, 'sample_answer_ja', ''),
+            'explanation_ja': _row_value(row, 'explanation_ja', ''),
+        })
+    return payload
+
+
+def list_eiken3_sets():
+    conn = get_eiken3_bank_connection()
+    try:
+        rows = conn.execute(
+            '''
+            SELECT q.set_id,
+                   COUNT(DISTINCT q.question_id) AS question_count,
+                   COUNT(DISTINCT p.passage_id) AS passage_count,
+                   COUNT(DISTINCT w.writing_prompt_id) AS writing_count
+            FROM question_bank q
+            LEFT JOIN passages p ON p.set_id = q.set_id
+            LEFT JOIN writing_prompt_bank w ON w.set_id = q.set_id
+            GROUP BY q.set_id
+            ORDER BY q.set_id
+            '''
+        ).fetchall()
+    finally:
+        conn.close()
+    return [
+        {
+            'set_id': row['set_id'],
+            'title': f'英検3級 模擬テスト {row["set_id"]}',
+            'question_count': int(row['question_count'] or 0),
+            'passage_count': int(row['passage_count'] or 0),
+            'writing_count': int(row['writing_count'] or 0),
+        }
+        for row in rows
+    ]
+
+
+def get_eiken3_quiz(set_id):
+    set_id = _clean_csv_value(set_id).upper()
+    if not set_id:
+        raise ValueError('set_id is required')
+    conn = get_eiken3_bank_connection()
+    try:
+        question_rows = conn.execute(
+            '''
+            SELECT *
+            FROM v_questions_for_quiz
+            WHERE set_id = ?
+            ORDER BY CAST(question_no AS INTEGER), question_id
+            ''',
+            (set_id,),
+        ).fetchall()
+        if not question_rows:
+            raise LookupError('eiken3 set not found')
+        passage_rows = conn.execute(
+            '''
+            SELECT *
+            FROM v_passages_for_quiz
+            WHERE set_id = ?
+            ORDER BY CAST(passage_no AS INTEGER), passage_id
+            ''',
+            (set_id,),
+        ).fetchall()
+        writing_rows = conn.execute(
+            '''
+            SELECT *
+            FROM v_writing_prompts_for_quiz
+            WHERE set_id = ?
+            ORDER BY CAST(writing_no AS INTEGER), writing_prompt_id
+            ''',
+            (set_id,),
+        ).fetchall()
+    finally:
+        conn.close()
+    return {
+        'set_id': set_id,
+        'title': f'英検3級 模擬テスト {set_id}',
+        'questions': [_eiken3_question_payload(row, include_correct=False) for row in question_rows],
+        'passages': [_eiken3_passage_payload(row) for row in passage_rows],
+        'writingPrompts': [_eiken3_writing_prompt_payload(row, include_sample=True) for row in writing_rows],
+    }
+
+
+def grade_eiken3_answers(set_id, raw_answers):
+    set_id = _clean_csv_value(set_id).upper()
+    if not set_id:
+        raise ValueError('set_id is required')
+    if not isinstance(raw_answers, list):
+        raise ValueError('answers must be a list')
+
+    submitted = {}
+    for item in raw_answers:
+        if not isinstance(item, dict):
+            continue
+        question_id = _clean_csv_value(item.get('question_id') or item.get('questionId'))
+        selected_option = _clean_csv_value(item.get('selected_option') or item.get('selectedOption')).upper()
+        if question_id:
+            submitted[question_id] = selected_option
+
+    conn = get_eiken3_bank_connection()
+    try:
+        question_rows = conn.execute(
+            '''
+            SELECT *
+            FROM v_questions_for_result
+            WHERE set_id = ?
+            ORDER BY CAST(question_no AS INTEGER), question_id
+            ''',
+            (set_id,),
+        ).fetchall()
+        if not question_rows:
+            raise LookupError('eiken3 set not found')
+        passage_rows = conn.execute(
+            '''
+            SELECT *
+            FROM v_passages_for_quiz
+            WHERE set_id = ?
+            ORDER BY CAST(passage_no AS INTEGER), passage_id
+            ''',
+            (set_id,),
+        ).fetchall()
+        writing_rows = conn.execute(
+            '''
+            SELECT *
+            FROM v_writing_prompts_for_quiz
+            WHERE set_id = ?
+            ORDER BY CAST(writing_no AS INTEGER), writing_prompt_id
+            ''',
+            (set_id,),
+        ).fetchall()
+    finally:
+        conn.close()
+
+    results = []
+    score = 0
+    for row in question_rows:
+        selected_option = submitted.get(row['question_id'], '')
+        correct_option = _row_value(row, 'correct_option', '').upper()
+        if selected_option and selected_option == correct_option:
+            score += 1
+        results.append(_eiken3_question_payload(row, include_correct=True, selected_option=selected_option))
+
+    total = len(results)
+    return {
+        'attempt_id': f'EIKEN3-{uuid.uuid4().hex[:12].upper()}',
+        'set_id': set_id,
+        'title': f'英検3級 模擬テスト {set_id}',
+        'score': score,
+        'total': total,
+        'score_percent': round((score / total) * 100) if total else 0,
+        'results': results,
+        'passages': [_eiken3_passage_payload(row) for row in passage_rows],
+        'writingPrompts': [_eiken3_writing_prompt_payload(row, include_sample=True) for row in writing_rows],
+    }
+
+
 def get_eiken_real_exam_config(child_id=None, target_level=None):
     level = normalize_target_level(target_level) if target_level else ''
     if not level and child_id not in [None, '', 'null']:
@@ -11171,6 +11423,39 @@ def api_eiken_pre2_sets():
         abort(500, str(exc))
 
 
+@app.route('/api/eiken3/sets')
+def api_eiken3_sets():
+    try:
+        return jsonify(sets=list_eiken3_sets())
+    except FileNotFoundError as exc:
+        abort(500, str(exc))
+
+
+@app.route('/api/eiken3/quiz/<set_id>')
+def api_eiken3_quiz(set_id):
+    try:
+        return jsonify(get_eiken3_quiz(set_id))
+    except ValueError as exc:
+        abort(400, str(exc))
+    except LookupError as exc:
+        abort(404, str(exc))
+    except FileNotFoundError as exc:
+        abort(500, str(exc))
+
+
+@app.route('/api/eiken3/submit', methods=['POST'])
+def api_eiken3_submit():
+    data = request.get_json(silent=True) or {}
+    try:
+        return jsonify(grade_eiken3_answers(data.get('set_id') or data.get('setId'), data.get('answers') or []))
+    except ValueError as exc:
+        abort(400, str(exc))
+    except LookupError as exc:
+        abort(404, str(exc))
+    except FileNotFoundError as exc:
+        abort(500, str(exc))
+
+
 @app.route('/api/eiken-pre2/sets/<set_id>')
 @app.route('/api/eiken-pre2/sets/<set_id>/questions')
 def api_eiken_pre2_set(set_id):
@@ -11590,6 +11875,17 @@ def battle_redirect():
 @app.route('/eiken-pre2')
 def eiken_pre2_redirect():
     return redirect('/app/eiken-pre2')
+
+
+@app.route('/eiken3')
+@app.route('/eiken3/sets')
+def eiken3_redirect():
+    return redirect('/app/eiken3')
+
+
+@app.route('/eiken3/quiz/<path:set_id>')
+def eiken3_quiz_redirect(set_id):
+    return redirect(f'/app/eiken3/quiz/{set_id}')
 
 
 @app.route('/eiken-real')

@@ -19,6 +19,8 @@ import AiPracticePage from './pages/AiPracticePage';
 import EssayCheckPage from './pages/EssayCheckPage';
 import EssayCheckResultPage from './pages/EssayCheckResultPage';
 import EikenPage from './pages/EikenPage';
+import Eiken3QuizPage from './pages/Eiken3QuizPage';
+import Eiken3SetListPage from './pages/Eiken3SetListPage';
 import EikenPre2PracticePage from './pages/EikenPre2PracticePage';
 import EikenRealExamPage from './pages/EikenRealExamPage';
 import EikenPre2ResultPage from './pages/EikenPre2ResultPage';
@@ -96,6 +98,7 @@ const STUDY_ROUTE_PREFIXES = [
   '/essay-check',
   '/battle',
   '/eiken',
+  '/eiken3',
   '/eiken-pre2',
   '/eiken-real',
   '/review',
@@ -155,6 +158,9 @@ function App() {
             <Route path="/essay-check/result" element={<AnimatedPage><ChildRequiredPage><EssayCheckResultPage /></ChildRequiredPage></AnimatedPage>} />
             <Route path="/battle" element={<AnimatedPage><ChildRequiredPage><BattlePage /></ChildRequiredPage></AnimatedPage>} />
             <Route path="/eiken" element={<AnimatedPage><EikenPage /></AnimatedPage>} />
+            <Route path="/eiken3" element={<AnimatedPage><ChildRequiredPage><Eiken3SetListPage /></ChildRequiredPage></AnimatedPage>} />
+            <Route path="/eiken3/sets" element={<AnimatedPage><ChildRequiredPage><Eiken3SetListPage /></ChildRequiredPage></AnimatedPage>} />
+            <Route path="/eiken3/quiz/:setId" element={<AnimatedPage><ChildRequiredPage><Eiken3QuizPage /></ChildRequiredPage></AnimatedPage>} />
             <Route path="/eiken-pre2" element={<AnimatedPage><EikenPre2PracticePage /></AnimatedPage>} />
             <Route path="/eiken-real" element={<AnimatedPage><ChildRequiredPage><EikenRealExamPage /></ChildRequiredPage></AnimatedPage>} />
             <Route path="/eiken-pre2/result/:attemptId" element={<AnimatedPage><EikenPre2ResultPage /></AnimatedPage>} />

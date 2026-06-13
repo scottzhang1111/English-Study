@@ -50,6 +50,13 @@ const moduleEntries = [
     image: `${ASSET_BASE}/英検本番形式.png`,
   },
   {
+    title: '英検3級 模擬テスト',
+    subtitle: 'G3SET01〜G3SET10で30問チャレンジ',
+    badge: '3級',
+    to: '/eiken3',
+    image: `${ASSET_BASE}/英検本番形式.png`,
+  },
+  {
     title: '単語図書館',
     subtitle: '語彙をふやして表現の幅を広げよう',
     badge: '単語',
