@@ -5,6 +5,7 @@ import { EQBottomNav } from '../components/eigo';
 import { getEikenRealExamPart, getEikenRealExams, submitEikenRealExamAttempt } from '../api';
 import { useChildren } from '../ChildrenContext';
 import CompactPageHeader from '../components/eigo/CompactPageHeader';
+import { getEikenAssetSrc, normalizeEikenMediaHtml } from '../utils/eikenAssets';
 
 const CHILD_STORAGE_KEY = 'selected_child_id';
 
@@ -17,49 +18,12 @@ function getPartList(exam, mode) {
   return mode === 'written' ? exam?.written_parts || [] : exam?.listening_parts || [];
 }
 
-function getBaseUrl() {
-  return import.meta.env.BASE_URL.endsWith('/') ? import.meta.env.BASE_URL : `${import.meta.env.BASE_URL}/`;
-}
-
 function getEikenImageSrc(imagePath) {
-  if (!imagePath) return null;
-  const value = imagePath.trim();
-  if (/^(https?:|data:|blob:)/i.test(value)) return value;
-  const cleanPath = value
-    .split(/[?#]/)[0]
-    .replace(/\\/g, '/')
-    .replace(/^\.?\//, '')
-    .replace(/^public\//, '')
-    .replace(/^app\//, '')
-    .replace(/^api\/eiken-real-exams\/assets\//, '')
-    .replace(/^eiken\/images\//, '')
-    .replace(/^png\//, '');
-  const fileName = cleanPath.split('/').filter(Boolean).pop();
-  return fileName ? `${getBaseUrl()}eiken/images/${encodeURIComponent(fileName)}` : null;
+  return getEikenAssetSrc(imagePath);
 }
 
 function getEikenAudioSrc(audioPath) {
-  if (!audioPath) return null;
-  const value = audioPath.trim();
-  if (/^(data:|blob:)/i.test(value)) return value;
-  const cleanPath = value
-    .split(/[?#]/)[0]
-    .replace(/\\/g, '/')
-    .replace(/^\.?\//, '')
-    .replace(/^public\//, '')
-    .replace(/^app\//, '')
-    .replace(/^api\/eiken-real-exams\/assets\//, '')
-    .replace(/^eiken\/audio\//, '')
-    .replace(/^mp3\//, '');
-  const fileName = cleanPath.split('/').filter(Boolean).pop();
-  return fileName ? `${getBaseUrl()}eiken/audio/${encodeURIComponent(fileName)}` : null;
-}
-
-function normalizeEikenMediaHtml(html = '') {
-  return html.replace(/\b(src)=(["'])([^"']+\.(?:png|gif|jpg|jpeg|mp3|wav|m4a))(?:[?#][^"']*)?\2/gi, (match, attr, quote, value) => {
-    const mediaSrc = /\.(?:mp3|wav|m4a)$/i.test(value) ? getEikenAudioSrc(value) : getEikenImageSrc(value);
-    return mediaSrc ? `${attr}=${quote}${mediaSrc}${quote}` : match;
-  });
+  return getEikenAssetSrc(audioPath);
 }
 
 function getQuestionAnswer(answers, questionNumber) {

@@ -15,6 +15,7 @@ import {
   getEikenRealExamWrongQuestions,
   submitEikenRealExamReviewAnswer,
 } from '../api';
+import { normalizeEikenMediaHtml } from '../utils/eikenAssets';
 
 const CHILD_STORAGE_KEY = 'selected_child_id';
 
@@ -37,19 +38,6 @@ const formatDate = (value) => {
 function getQuestionNumberFromName(name = '') {
   const match = String(name).match(/\d+/);
   return match ? Number(match[0]) : null;
-}
-
-function normalizeEikenMediaHtml(html = '') {
-  return html.replace(/\b(src)=(["'])([^"']+\.(?:png|gif|jpg|jpeg|mp3|wav|m4a))(?:[?#][^"']*)?\2/gi, (match, attr, quote, value) => {
-    if (/^(https?:|data:|blob:|\/api\/)/i.test(value)) return match;
-    const cleanPath = value
-      .split(/[?#]/)[0]
-      .replace(/\\/g, '/')
-      .replace(/^\.?\//, '')
-      .replace(/^public\//, '')
-      .replace(/^app\//, '');
-    return `${attr}=${quote}/api/eiken-real-exams/assets/${cleanPath}${quote}`;
-  });
 }
 
 const REVIEW_TYPES = {
