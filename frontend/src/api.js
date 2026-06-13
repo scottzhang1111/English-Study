@@ -433,12 +433,12 @@ export const getEikenPre2WrongQuestions = async ({ studentId, childId, latestOnl
   });
 };
 
-export const getEikenRealExams = async () => {
-  return fetchJson('/api/eiken-real-exams');
+export const getEikenRealExams = async (childId) => {
+  return fetchJson('/api/eiken-real-exams', { params: { child_id: childId } });
 };
 
-export const getEikenRealExamPart = async (partId) => {
-  return fetchJson(`/api/eiken-real-exams/parts/${encodeURIComponent(partId)}`);
+export const getEikenRealExamPart = async (partId, childId) => {
+  return fetchJson(`/api/eiken-real-exams/parts/${encodeURIComponent(partId)}`, { params: { child_id: childId } });
 };
 
 export const submitEikenRealExamAttempt = async ({ childId, partId, answers, startedAt } = {}) => {

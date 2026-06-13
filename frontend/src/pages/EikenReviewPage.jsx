@@ -135,14 +135,14 @@ function EikenReviewQuestion({
 
   const previousAnswer = wrongQuestion?.studentAnswer || wrongQuestion?.student_answer || wrongQuestion?.selectedAnswer || wrongQuestion?.selected_answer || '';
   const correctAnswer = wrongQuestion?.correctAnswer || wrongQuestion?.correct_answer || '';
-  const normalizedHtml = useMemo(() => normalizeEikenMediaHtml(partData?.html || ''), [partData?.html]);
+  const normalizedHtml = useMemo(() => normalizeEikenMediaHtml(partData?.html || '', childId), [partData?.html, childId]);
   const backPath = normalizeReviewType(reviewType) ? `/review/eiken?type=${encodeURIComponent(reviewType)}` : '/review/eiken';
 
   useEffect(() => {
     let active = true;
     setLoading(true);
     setError('');
-    getEikenRealExamPart(partId)
+    getEikenRealExamPart(partId, childId)
       .then((payload) => {
         if (active) setPartData(payload);
       })
@@ -155,7 +155,7 @@ function EikenReviewQuestion({
     return () => {
       active = false;
     };
-  }, [partId]);
+  }, [partId, childId]);
 
   useEffect(() => {
     const element = contentRef.current;

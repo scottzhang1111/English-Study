@@ -18,12 +18,12 @@ function getPartList(exam, mode) {
   return mode === 'written' ? exam?.written_parts || [] : exam?.listening_parts || [];
 }
 
-function getEikenImageSrc(imagePath) {
-  return getEikenAssetSrc(imagePath);
+function getEikenImageSrc(imagePath, childId) {
+  return getEikenAssetSrc(imagePath, childId);
 }
 
-function getEikenAudioSrc(audioPath) {
-  return getEikenAssetSrc(audioPath);
+function getEikenAudioSrc(audioPath, childId) {
+  return getEikenAssetSrc(audioPath, childId);
 }
 
 function getQuestionAnswer(answers, questionNumber) {
@@ -206,13 +206,14 @@ function EikenResultExplanationCard({
   correctAnswer,
   preview,
   explanation,
+  childId,
   expanded,
   onToggle,
 }) {
   const status = getResultStatus(studentAnswer, correctAnswer);
   const statusLabel = getResultStatusLabel(status);
   const hasChoices = preview?.choices?.length > 0;
-  const explanationHtml = explanation?.html ? normalizeEikenMediaHtml(explanation.html) : '';
+  const explanationHtml = explanation?.html ? normalizeEikenMediaHtml(explanation.html, childId) : '';
 
   return (
     <article className={`eiken-real-result-row is-${status}`}>
@@ -286,6 +287,7 @@ export default function EikenRealExamPage() {
   const contentRef = useRef(null);
   const audioRefs = useRef([]);
   const { selectedChildId } = useChildren();
+  const activeChildId = selectedChildId || localStorage.getItem(CHILD_STORAGE_KEY) || '';
   const [exams, setExams] = useState([]);
   const [selectedExamId, setSelectedExamId] = useState('');
   const [mode, setMode] = useState('listening');
@@ -319,18 +321,18 @@ export default function EikenRealExamPage() {
     : partData?.question_numbers?.length
       ? partData.question_numbers
       : buildQuestionNumbers(questionCount);
-  const normalizedHtml = useMemo(() => normalizeEikenMediaHtml(partData?.html || ''), [partData?.html]);
+  const normalizedHtml = useMemo(() => normalizeEikenMediaHtml(partData?.html || '', activeChildId), [partData?.html, activeChildId]);
   const questionPreviews = useMemo(() => extractEikenQuestionPreviews(normalizedHtml, mode), [normalizedHtml, mode]);
   const audioSources = useMemo(
-    () => (partData?.audio_paths || []).map(getEikenAudioSrc).filter(Boolean),
-    [partData?.audio_paths],
+    () => (partData?.audio_paths || []).map((audioPath) => getEikenAudioSrc(audioPath, activeChildId)).filter(Boolean),
+    [partData?.audio_paths, activeChildId],
   );
   const primaryAudioSource = audioSources[0] || '';
   const explanations = result?.explanations || [];
 
   useEffect(() => {
     let active = true;
-    getEikenRealExams()
+    getEikenRealExams(activeChildId)
       .then((payload) => {
         if (!active) return;
         const list = payload.exams || [];
@@ -344,7 +346,7 @@ export default function EikenRealExamPage() {
     return () => {
       active = false;
     };
-  }, []);
+  }, [activeChildId]);
 
   useEffect(() => {
     if (!selectedExam) return;
@@ -370,7 +372,7 @@ export default function EikenRealExamPage() {
     setAudioIsPlaying(false);
     setExpandedExplanations({});
     setStartedAt(new Date().toISOString());
-    getEikenRealExamPart(selectedPartId)
+    getEikenRealExamPart(selectedPartId, activeChildId)
       .then((payload) => {
         if (!active) return;
         setPartData(payload);
@@ -380,7 +382,7 @@ export default function EikenRealExamPage() {
     return () => {
       active = false;
     };
-  }, [selectedPartId]);
+  }, [selectedPartId, activeChildId]);
 
   useEffect(() => {
     const element = contentRef.current;
@@ -585,7 +587,7 @@ export default function EikenRealExamPage() {
 
   const submitAnswers = async () => {
     if (!partData?.part_id) return;
-    const childId = localStorage.getItem(CHILD_STORAGE_KEY) || '';
+    const childId = activeChildId;
     if (!childId) {
       setError('子どもを選んでから提出してください。');
       return;
@@ -1152,6 +1154,7 @@ export default function EikenRealExamPage() {
                       correctAnswer={item.correctAnswer}
                       preview={item.preview}
                       explanation={item.explanation}
+                      childId={activeChildId}
                       expanded={Boolean(expandedExplanations[item.questionNumber])}
                       onToggle={() => setExpandedExplanations((prev) => ({
                         ...prev,
@@ -1213,7 +1216,7 @@ export default function EikenRealExamPage() {
                           {isExpanded && (
                             <div
                               className="eiken-answer-explanation mt-3 rounded-[16px] bg-white/88 px-3 py-3 text-sm leading-7 text-[#42557f]"
-                              dangerouslySetInnerHTML={{ __html: normalizeEikenMediaHtml(item.html || '') }}
+                              dangerouslySetInnerHTML={{ __html: normalizeEikenMediaHtml(item.html || '', activeChildId) }}
                             />
                           )}
                         </article>

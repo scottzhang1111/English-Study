@@ -8,11 +8,17 @@ function encodeFileName(fileName) {
   }
 }
 
-export function getEikenAssetSrc(path) {
+function buildChildQuery(childId) {
+  return childId ? `?child_id=${encodeURIComponent(String(childId))}` : '';
+}
+
+export function getEikenAssetSrc(path, childId) {
   if (!path) return null;
   const value = String(path).trim();
   if (!value) return null;
   if (/^(https?:|data:|blob:)/i.test(value)) return value;
+  const existingChildMatch = value.match(/[?&]child_id=([^&#]+)/i);
+  const effectiveChildId = childId || (existingChildMatch ? decodeURIComponent(existingChildMatch[1]) : '');
 
   const cleanPath = value
     .split(/[?#]/)[0]
@@ -28,12 +34,12 @@ export function getEikenAssetSrc(path) {
     .replace(/^mp3\//, '')
     .replace(/^png\//, '');
   const fileName = cleanPath.split('/').filter(Boolean).pop();
-  return fileName ? `${EIKEN_REAL_EXAM_ASSET_BASE}${encodeFileName(fileName)}` : null;
+  return fileName ? `${EIKEN_REAL_EXAM_ASSET_BASE}${encodeFileName(fileName)}${buildChildQuery(effectiveChildId)}` : null;
 }
 
-export function normalizeEikenMediaHtml(html = '') {
+export function normalizeEikenMediaHtml(html = '', childId) {
   return String(html).replace(/\b(src)=(["'])([^"']+\.(?:png|gif|jpg|jpeg|mp3|wav|m4a))(?:[?#][^"']*)?\2/gi, (match, attr, quote, value) => {
-    const mediaSrc = getEikenAssetSrc(value);
+    const mediaSrc = getEikenAssetSrc(value, childId);
     return mediaSrc ? `${attr}=${quote}${mediaSrc}${quote}` : match;
   });
 }

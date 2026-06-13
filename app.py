@@ -36,10 +36,26 @@ _DB_INITIALIZED = False
 DB_FILENAME = 'eigo_quest_local_v1.sqlite'
 VOCAB_FILENAME = os.path.join('data', 'eiken', 'eiken_pre2', 'eiken_pre2_web_ready_db', 'eiken_vocab_database_with_synonyms_utf8_bom.csv')
 EIKEN_PRE2_BANK_FILENAME = os.path.join('data', 'eiken', 'eiken_pre2', 'eiken_pre2_web_ready_db', 'eiken_pre2_web_ready.sqlite')
-EIKEN_REAL_EXAM_DIR = os.path.join('data', 'eiken', 'eiken real exam pre2', 'Listening', 'www.cloudsemi.com', 'member', 'eiken', 'eikenj2')
-EIKEN_REAL_EXAM_LISTENING_ANSWER_DIR = os.path.join(EIKEN_REAL_EXAM_DIR, 'listening_answers')
-EIKEN_REAL_EXAM_WRITTEN_ANSWER_DIR = os.path.join(EIKEN_REAL_EXAM_DIR, 'written_answers')
-EIKEN_REAL_EXAM_LEGACY_ANSWER_DIR = os.path.join(EIKEN_REAL_EXAM_DIR, 'cloudsemi_eikenj2_answers')
+EIKEN_REAL_EXAM_PRE2_RESOURCE_ROOT = os.path.join('data', 'eiken', 'eiken real exam pre2', 'Listening', 'www.cloudsemi.com', 'member', 'eiken', 'eikenj2')
+EIKEN_REAL_EXAM_EIKEN3_RESOURCE_ROOT = os.path.join('data', 'eiken', 'eiken real exam 3', 'English eiken 3', 'www.cloudsemi.com', 'member', 'eiken', 'eiken3')
+EIKEN_REAL_EXAM_CONFIGS = {
+    'eiken_pre2': {
+        'level': 'eiken_pre2',
+        'resource_root': EIKEN_REAL_EXAM_PRE2_RESOURCE_ROOT,
+        'index_filename': 'eikenj2.html',
+        'listening_answer_dir': os.path.join(EIKEN_REAL_EXAM_PRE2_RESOURCE_ROOT, 'listening_answers'),
+        'written_answer_dir': os.path.join(EIKEN_REAL_EXAM_PRE2_RESOURCE_ROOT, 'written_answers'),
+        'legacy_answer_dirs': [os.path.join(EIKEN_REAL_EXAM_PRE2_RESOURCE_ROOT, 'cloudsemi_eikenj2_answers')],
+    },
+    'eiken3': {
+        'level': 'eiken3',
+        'resource_root': EIKEN_REAL_EXAM_EIKEN3_RESOURCE_ROOT,
+        'index_filename': 'eiken3.html',
+        'listening_answer_dir': os.path.join('data', 'eiken', 'eiken real exam 3', 'cloudsemi_eiken3', 'listening_answers'),
+        'written_answer_dir': os.path.join('data', 'eiken', 'eiken real exam 3', 'cloudsemi_eiken3', 'written_answers'),
+        'legacy_answer_dirs': [],
+    },
+}
 EIKEN_REAL_EXAM_ANSWER_KEY_FILENAME = os.path.join('data', 'eiken', 'eiken_real_exam_answer_key.json')
 GRAMMAR_LESSON_DB_FILENAME = os.path.join('data', 'eiken', 'eiken_pre2', 'eiken_pre2 grammar', 'eiken_pre2_grammar_lessons.db')
 GRAMMAR_FORM_TEST_DB_FILENAME = os.path.join('data', 'eiken', 'eiken_pre2', 'eiken_pre2 grammar', 'eiken_pre2_grammar_form_test_sample_17.db')
@@ -7505,26 +7521,47 @@ def get_eiken_real_exam_part_meta(part_id):
     }
 
 
-def resolve_eiken_real_exam_answer_path(part_id):
+def get_eiken_real_exam_config(child_id=None, target_level=None):
+    level = normalize_target_level(target_level) if target_level else ''
+    if not level and child_id not in [None, '', 'null']:
+        try:
+            level = get_child_target_level(int(child_id))
+        except (TypeError, ValueError):
+            level = ''
+    if level == 'eiken3':
+        return EIKEN_REAL_EXAM_CONFIGS['eiken3']
+    return EIKEN_REAL_EXAM_CONFIGS['eiken_pre2']
+
+
+def get_eiken_real_exam_child_query(child_id=None):
+    if child_id in [None, '', 'null']:
+        return ''
+    return f'?child_id={urllib.parse.quote(str(child_id))}'
+
+
+def resolve_eiken_real_exam_answer_path(part_id, config=None):
     meta = get_eiken_real_exam_part_meta(part_id)
     if not meta:
         return ''
     filename = f'ans{meta["part_id"]}.html'
-    primary_dir = EIKEN_REAL_EXAM_WRITTEN_ANSWER_DIR if meta['mode'] == 'written' else EIKEN_REAL_EXAM_LISTENING_ANSWER_DIR
-    for directory in (primary_dir, EIKEN_REAL_EXAM_LEGACY_ANSWER_DIR):
+    exam_config = config or get_eiken_real_exam_config()
+    primary_dir = exam_config['written_answer_dir'] if meta['mode'] == 'written' else exam_config['listening_answer_dir']
+    for directory in [primary_dir, *(exam_config.get('legacy_answer_dirs') or [])]:
         answer_path = os.path.join(directory, filename)
         if os.path.isfile(answer_path):
             return answer_path
     return os.path.join(primary_dir, filename)
 
 
-def list_eiken_real_exams():
-    if not os.path.isdir(EIKEN_REAL_EXAM_DIR):
+def list_eiken_real_exams(child_id=None):
+    config = get_eiken_real_exam_config(child_id=child_id)
+    resource_root = config['resource_root']
+    if not os.path.isdir(resource_root):
         return []
 
     exams = {}
-    for filename in os.listdir(EIKEN_REAL_EXAM_DIR):
-        if not filename.endswith('.html') or filename == 'eikenj2.html':
+    for filename in os.listdir(resource_root):
+        if not filename.endswith('.html') or filename == config.get('index_filename'):
             continue
         meta = get_eiken_real_exam_part_meta(filename[:-5])
         if not meta:
@@ -7557,12 +7594,15 @@ def list_eiken_real_exams():
     return sorted(exams.values(), key=lambda item: (item['year'], item['round']), reverse=True)
 
 
-def sanitize_eiken_real_exam_html(part_id):
+def sanitize_eiken_real_exam_html(part_id, child_id=None):
     meta = get_eiken_real_exam_part_meta(part_id)
     if not meta:
         raise LookupError('exam part not found')
 
-    path = os.path.join(EIKEN_REAL_EXAM_DIR, f'{meta["part_id"]}.html')
+    config = get_eiken_real_exam_config(child_id=child_id)
+    resource_root = config['resource_root']
+    child_query = get_eiken_real_exam_child_query(child_id)
+    path = os.path.join(resource_root, f'{meta["part_id"]}.html')
     if not os.path.isfile(path):
         raise LookupError('exam part not found')
 
@@ -7593,7 +7633,7 @@ def sanitize_eiken_real_exam_html(part_id):
             return match.group(0)
         normalized = value.replace('\\', '/').lstrip('./')
         asset_paths.append(normalized)
-        return f'{attr}={quote}/api/eiken-real-exams/assets/{normalized}{quote}'
+        return f'{attr}={quote}/api/eiken-real-exams/assets/{normalized}{child_query}{quote}'
 
     content = re.sub(r'\b(src)=(["\'])([^"\']+)\2', rewrite_asset, content, flags=re.I)
     audio_paths = [path for path in asset_paths if path.lower().endswith(('.mp3', '.wav', '.m4a'))]
@@ -7608,10 +7648,11 @@ def sanitize_eiken_real_exam_html(part_id):
 
     return {
         **meta,
+        'level': config['level'],
         'title': title,
         'html': content,
-        'audio_paths': [f'/api/eiken-real-exams/assets/{path}' for path in audio_paths],
-        'image_paths': [f'/api/eiken-real-exams/assets/{path}' for path in image_paths],
+        'audio_paths': [f'/api/eiken-real-exams/assets/{path}{child_query}' for path in audio_paths],
+        'image_paths': [f'/api/eiken-real-exams/assets/{path}{child_query}' for path in image_paths],
         'question_count': len(question_numbers),
         'question_numbers': question_numbers,
     }
@@ -7623,8 +7664,9 @@ def normalize_eiken_answer(value):
     return f'({match.group(0)})' if match else text
 
 
-def sanitize_eiken_answer_explanation_html(fragment):
+def sanitize_eiken_answer_explanation_html(fragment, child_id=None):
     content = str(fragment or '')
+    child_query = get_eiken_real_exam_child_query(child_id)
     content = re.sub(r'<script\b[^>]*>.*?</script>', '', content, flags=re.I | re.S)
     content = re.sub(r'</?form\b[^>]*>', '', content, flags=re.I)
     content = re.sub(r'<input\b[^>]*>', '', content, flags=re.I)
@@ -7639,7 +7681,7 @@ def sanitize_eiken_answer_explanation_html(fragment):
         if re.match(r'^(https?:|data:|#)', value, flags=re.I):
             return match.group(0)
         normalized = value.replace('\\', '/').lstrip('./')
-        return f'{attr}={quote}/api/eiken-real-exams/assets/{normalized}{quote}'
+        return f'{attr}={quote}/api/eiken-real-exams/assets/{normalized}{child_query}{quote}'
 
     content = re.sub(r'\b(src)=(["\'])([^"\']+)\2', rewrite_asset, content, flags=re.I)
     return content.strip()
@@ -7652,12 +7694,12 @@ def strip_eiken_answer_text(fragment):
     return re.sub(r'[ \t\r\f\v]+', ' ', text).strip()
 
 
-def parse_eiken_real_exam_answer_page(part_id, question_numbers=None):
+def parse_eiken_real_exam_answer_page(part_id, question_numbers=None, config=None, child_id=None):
     meta = get_eiken_real_exam_part_meta(part_id)
     if not meta:
         return {'answer_key': {}, 'explanations': []}
 
-    answer_path = resolve_eiken_real_exam_answer_path(meta['part_id'])
+    answer_path = resolve_eiken_real_exam_answer_path(meta['part_id'], config=config)
     if not os.path.isfile(answer_path):
         return {'answer_key': {}, 'explanations': []}
 
@@ -7694,7 +7736,7 @@ def parse_eiken_real_exam_answer_page(part_id, question_numbers=None):
         explanations.append({
             'question_number': question_number,
             'correct_answer': correct_answer,
-            'html': sanitize_eiken_answer_explanation_html(block_html),
+            'html': sanitize_eiken_answer_explanation_html(block_html, child_id=child_id),
             'text': block_text,
         })
 
@@ -7712,10 +7754,10 @@ def load_eiken_real_exam_answer_key():
     return data if isinstance(data, dict) else {}
 
 
-def get_eiken_real_exam_answer_key(part_id):
+def get_eiken_real_exam_answer_key(part_id, config=None, child_id=None):
     all_keys = load_eiken_real_exam_answer_key()
     raw_key = all_keys.get(part_id) or {}
-    parsed_key = parse_eiken_real_exam_answer_page(part_id).get('answer_key') or {}
+    parsed_key = parse_eiken_real_exam_answer_page(part_id, config=config, child_id=child_id).get('answer_key') or {}
     if isinstance(raw_key, list):
         parsed_key.update({index + 1: normalize_eiken_answer(value) for index, value in enumerate(raw_key)})
         return parsed_key
@@ -7733,10 +7775,11 @@ def submit_eiken_real_exam_attempt(child_id, part_id, answers, started_at=None):
     meta = get_eiken_real_exam_part_meta(part_id)
     if not meta:
         raise LookupError('exam part not found')
-    part_data = sanitize_eiken_real_exam_html(part_id)
+    config = get_eiken_real_exam_config(child_id=child_id)
+    part_data = sanitize_eiken_real_exam_html(part_id, child_id=child_id)
     question_numbers = part_data.get('question_numbers') or []
-    parsed_answers = parse_eiken_real_exam_answer_page(meta['part_id'], question_numbers)
-    answer_key = parsed_answers.get('answer_key') or get_eiken_real_exam_answer_key(meta['part_id'])
+    parsed_answers = parse_eiken_real_exam_answer_page(meta['part_id'], question_numbers, config=config, child_id=child_id)
+    answer_key = parsed_answers.get('answer_key') or get_eiken_real_exam_answer_key(meta['part_id'], config=config, child_id=child_id)
     explanations_by_number = {
         int(item['question_number']): item
         for item in parsed_answers.get('explanations', [])
@@ -7946,14 +7989,15 @@ def submit_eiken_real_exam_review_answer(child_id, part_id, question_number, sel
     if not meta:
         raise LookupError('exam part not found')
 
-    part_data = sanitize_eiken_real_exam_html(meta['part_id'])
+    config = get_eiken_real_exam_config(child_id=child_id)
+    part_data = sanitize_eiken_real_exam_html(meta['part_id'], child_id=child_id)
     question_numbers = part_data.get('question_numbers') or []
     normalized_question_number = int(question_number)
     if normalized_question_number not in question_numbers:
         raise LookupError('question not found')
 
-    parsed_answers = parse_eiken_real_exam_answer_page(meta['part_id'], question_numbers)
-    answer_key = parsed_answers.get('answer_key') or get_eiken_real_exam_answer_key(meta['part_id'])
+    parsed_answers = parse_eiken_real_exam_answer_page(meta['part_id'], question_numbers, config=config, child_id=child_id)
+    answer_key = parsed_answers.get('answer_key') or get_eiken_real_exam_answer_key(meta['part_id'], config=config, child_id=child_id)
     correct_answer = answer_key.get(normalized_question_number, '')
     if not correct_answer:
         raise LookupError('answer key not found')
@@ -8038,13 +8082,16 @@ def submit_eiken_real_exam_review_answer(child_id, part_id, question_number, sel
 
 @app.route('/api/eiken-real-exams')
 def api_eiken_real_exams():
-    return jsonify({'exams': list_eiken_real_exams()})
+    child_id = request.args.get('child_id') or request.args.get('childId')
+    config = get_eiken_real_exam_config(child_id=child_id)
+    return jsonify({'exams': list_eiken_real_exams(child_id=child_id), 'level': config['level']})
 
 
 @app.route('/api/eiken-real-exams/parts/<part_id>')
 def api_eiken_real_exam_part(part_id):
+    child_id = request.args.get('child_id') or request.args.get('childId')
     try:
-        return jsonify(sanitize_eiken_real_exam_html(part_id))
+        return jsonify(sanitize_eiken_real_exam_html(part_id, child_id=child_id))
     except LookupError as exc:
         abort(404, str(exc))
 
@@ -8121,7 +8168,18 @@ def api_eiken_real_exam_wrong_question_review():
 
 @app.route('/api/eiken-real-exams/assets/<path:asset_path>')
 def api_eiken_real_exam_asset(asset_path):
-    return send_from_directory(data_path(EIKEN_REAL_EXAM_DIR), asset_path)
+    child_id = request.args.get('child_id') or request.args.get('childId')
+    config = get_eiken_real_exam_config(child_id=child_id)
+    resource_root = data_path(config['resource_root'])
+    normalized_path = str(asset_path or '').replace('\\', '/').lstrip('/')
+    candidate_paths = [normalized_path]
+    if '/' not in normalized_path:
+        for folder in ('mp3', 'png', 'js', 'images', 'audio'):
+            candidate_paths.append(f'{folder}/{normalized_path}')
+    for candidate in candidate_paths:
+        if os.path.isfile(os.path.join(resource_root, candidate)):
+            return send_from_directory(resource_root, candidate)
+    abort(404, 'asset not found')
 
 
 @app.route('/api/tts')
