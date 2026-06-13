@@ -76,7 +76,7 @@ export default function ChildSelectPage() {
                   <div className="min-w-0 max-md:flex-1">
                     <h2 className="truncate text-2xl font-black text-[#354172] max-md:text-lg">{child.name}</h2>
                     <p className="mt-1 text-sm font-bold text-[#6f7da8] max-md:truncate max-md:text-xs">学年: {child.grade}</p>
-                    <p className="mt-1 text-sm font-bold text-[#6f7da8] max-md:truncate max-md:text-xs">目標: {child.targetLevel}</p>
+                    <p className="mt-1 text-sm font-bold text-[#6f7da8] max-md:truncate max-md:text-xs">目標: {child.targetLevel || child.target_level || child.grade}</p>
                     <p className="mt-1 truncate text-xs font-black text-[#8fa0c2]">{partner.name} Lv.1</p>
                   </div>
                 </div>

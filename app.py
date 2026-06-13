@@ -5892,6 +5892,7 @@ def _grammar_correct_quiz_count_map(child_id):
 
 def get_grammar_lessons_for_child(child_id):
     child_id = require_child_id(child_id)
+    target_level = get_child_target_level(child_id)
     progress_by_lesson = _grammar_progress_map(child_id)
     correct_counts = _grammar_correct_quiz_count_map(child_id)
     lesson_conn = get_grammar_lesson_db_connection()
@@ -5904,7 +5905,7 @@ def get_grammar_lessons_for_child(child_id):
             where_parts.append('l.is_active = 1')
         if 'level' in lesson_columns:
             where_parts.append('l.level = ?')
-            params.append(get_child_target_level(child_id))
+            params.append(target_level)
         where_sql = f'WHERE {" AND ".join(where_parts)}' if where_parts else ''
         order_sql = 'l.display_order ASC, l.lesson_id ASC' if 'display_order' in lesson_columns else 'l.lesson_id ASC'
 
@@ -5936,8 +5937,13 @@ def get_grammar_lessons_for_child(child_id):
         (lesson for lesson in lessons if lesson['progress']['status'] != 'mastered'),
         lessons[0] if lessons else None,
     )
+    is_preparing = target_level == 'eiken3' and not lessons
     return {
         'childId': child_id,
+        'targetLevel': target_level,
+        'preparing': is_preparing,
+        'status': 'preparing' if is_preparing else 'ready',
+        'message': '3級文法は準備中です' if is_preparing else '',
         'lessons': lessons,
         'todayLesson': today_lesson,
         'stats': {
@@ -8198,9 +8204,11 @@ def api_home():
         conn = get_db_connection()
         try:
             child_row = conn.execute(
-                'SELECT daily_target FROM children WHERE id = ?',
+                'SELECT daily_target, target_level FROM children WHERE id = ?',
                 (child_id,),
             ).fetchone()
+            if not child_row:
+                abort(404, 'child not found')
             daily_row = conn.execute(
                 'SELECT studied_count FROM daily_study_log WHERE child_id = ? AND study_date = ?',
                 (child_id, get_today()),
@@ -8231,7 +8239,7 @@ def api_home():
         mastered_words = int(mastered_row['count'] or 0) if mastered_row else 0
         review_needed = int(review_needed_row['count'] or 0) if review_needed_row else 0
         study_days = int(study_days_row['count'] or 0) if study_days_row else 0
-        eigo_quest_progress = build_eigo_quest_progress_from_clears(stage_clear_set)
+        eigo_quest_progress = build_eigo_quest_progress_from_clears(stage_clear_set, child_row['target_level'])
     else:
         mastered_words = len(progress.get('mastered_words', []))
         review_needed = 0

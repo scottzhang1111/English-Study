@@ -103,6 +103,7 @@ export default function GrammarQuestPage() {
   const [questions, setQuestions] = useState(() => buildFallbackQuestions());
   const [usingMockFallback, setUsingMockFallback] = useState(true);
   const [lessonLoading, setLessonLoading] = useState(true);
+  const [preparingMessage, setPreparingMessage] = useState('');
   const [mode, setMode] = useState('lesson');
   const [questionIndex, setQuestionIndex] = useState(0);
   const [selectedChoice, setSelectedChoice] = useState('');
@@ -128,14 +129,22 @@ export default function GrammarQuestPage() {
     }
 
     setLessonLoading(true);
+    setPreparingMessage('');
     getGrammarLessons(selectedChildId)
       .then((payload) => {
+        if (payload.preparing) {
+          setPreparingMessage(payload.message || '3級文法は準備中です');
+          setQuestions([]);
+          setUsingMockFallback(false);
+          return null;
+        }
         const lessons = payload.lessons || [];
         const lessonId = payload.todayLesson?.lessonId || lessons[0]?.lessonId;
         if (!lessonId) throw new Error('No grammar lesson found.');
         return getGrammarLesson({ childId: selectedChildId, lessonId });
       })
       .then((payload) => {
+        if (!payload) return;
         const apiLesson = payload.lesson;
         const nextQuestions = normalizeQuestions(apiLesson);
         if (!apiLesson || !nextQuestions.length) throw new Error('No grammar quiz found.');
@@ -257,25 +266,27 @@ export default function GrammarQuestPage() {
           <>
             <MagicPanel className="quest-grammar-learn-panel">
               <span className="quest-grammar-label">LESSON</span>
-              <h2>{lessonLoading ? 'Loading grammar...' : lesson.title}</h2>
+              <h2>{lessonLoading ? 'Loading grammar...' : preparingMessage || lesson.title}</h2>
               <p className="quest-grammar-rule">
-                {lessonLoading ? 'Grammar quest is preparing the next lesson.' : lesson.rule}
+                {lessonLoading ? 'Grammar quest is preparing the next lesson.' : preparingMessage || lesson.rule}
               </p>
               {usingMockFallback && !lessonLoading && (
                 <p className="text-xs font-bold text-amber-200">Fallback lesson</p>
               )}
             </MagicPanel>
 
-            <EQCard className="quest-grammar-point-card">
-              <span>例文</span>
-              <ul>
-                {lesson.examples.map((example) => (
-                  <li key={example}>{example}</li>
-                ))}
-              </ul>
-            </EQCard>
+            {!preparingMessage && (
+              <EQCard className="quest-grammar-point-card">
+                <span>例文</span>
+                <ul>
+                  {lesson.examples.map((example) => (
+                    <li key={example}>{example}</li>
+                  ))}
+                </ul>
+              </EQCard>
+            )}
 
-            <GoldQuestButton onClick={startQuiz} disabled={lessonLoading || !questions.length} className="quest-grammar-next">
+            <GoldQuestButton onClick={startQuiz} disabled={lessonLoading || preparingMessage || !questions.length} className="quest-grammar-next">
               クイズへ
             </GoldQuestButton>
           </>

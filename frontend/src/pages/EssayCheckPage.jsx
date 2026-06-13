@@ -276,10 +276,16 @@ const WRITING_QUESTIONS = [
 ];
 
 function formatLevel(child) {
-  const rawLevel = child?.learningGoal || child?.learning_goal || child?.grade || child?.targetLevel || '';
+  const rawLevel = child?.targetLevel || child?.target_level || child?.grade || '';
   if (rawLevel === 'eiken_pre2') return '英検準2級';
   if (rawLevel === 'eiken3') return '英検3級';
   return rawLevel || '英検準2級';
+}
+
+function getTargetLevelCode(child) {
+  const rawLevel = child?.targetLevel || child?.target_level || child?.grade || '';
+  if (rawLevel === 'eiken3' || rawLevel.includes('3') || rawLevel.includes('３') || rawLevel.includes('三級')) return 'eiken3';
+  return 'eiken_pre2';
 }
 
 function getQuestionsByType(type) {
@@ -310,9 +316,10 @@ export default function EssayCheckPage() {
   const fileInputRef = useRef(null);
 
   const currentChild = useMemo(
-    () => children.find((child) => String(child.id) === String(selectedChildId)) || children[0] || null,
+    () => children.find((child) => String(child.id) === String(selectedChildId)) || null,
     [children, selectedChildId],
   );
+  const isEiken3 = getTargetLevelCode(currentChild) === 'eiken3';
 
   const visibleQuestions = useMemo(() => getQuestionsByType(selectedType), [selectedType]);
   const currentQuestion = useMemo(
@@ -343,7 +350,7 @@ export default function EssayCheckPage() {
 
   const handleCheck = async () => {
     const trimmedEssay = essayText.trim();
-    if (!trimmedEssay || isChecking) return;
+    if (!trimmedEssay || isChecking || isEiken3) return;
 
     setIsChecking(true);
     setError('');
@@ -542,11 +549,17 @@ export default function EssayCheckPage() {
             </p>
           ) : null}
 
+          {isEiken3 ? (
+            <p className="rounded-2xl border border-[#d8b45a]/60 bg-[#3b2a0d]/70 px-4 py-3 text-center text-sm font-black text-[#fff0b5]">
+              英作文チェックは準2級から使えます
+            </p>
+          ) : null}
+
           <EQPrimaryButton
             type="button"
             fullWidth
             onClick={handleCheck}
-            disabled={!essayText.trim() || isChecking}
+            disabled={!essayText.trim() || isChecking || isEiken3}
           >
             {isChecking ? 'チェック中...' : 'AI先生に見てもらう'}
           </EQPrimaryButton>

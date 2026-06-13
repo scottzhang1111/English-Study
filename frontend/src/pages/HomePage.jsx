@@ -1109,7 +1109,7 @@ const handleHomeVideoPlay = async (event) => {
                       学年：{selectedChild.grade}
                     </span>
                     <span className="rounded-full bg-white px-3 py-1 text-xs font-bold text-[#61759e] max-md:text-sm max-md:font-semibold">
-                      目標：{selectedChild.targetLevel}
+                      目標：{selectedChild.targetLevel || selectedChild.target_level || selectedChild.grade}
                     </span>
                     <button
                       type="button"

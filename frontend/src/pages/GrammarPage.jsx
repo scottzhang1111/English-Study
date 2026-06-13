@@ -87,6 +87,7 @@ export default function GrammarPage() {
   const [detailLoading, setDetailLoading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
+  const [preparingMessage, setPreparingMessage] = useState('');
 
   const activeQuiz = lesson?.quizzes?.[quizIndex] || null;
   const quizCount = lesson?.quizzes?.length || 0;
@@ -99,12 +100,15 @@ export default function GrammarPage() {
 
   const refreshLessons = () => (
     getGrammarLessons(childId).then((payload) => {
+      const nextPreparingMessage = payload.preparing ? (payload.message || '3級文法は準備中です') : '';
+      setPreparingMessage(nextPreparingMessage);
       const nextLessons = payload.lessons || [];
       setLessons(nextLessons);
       setStats(payload.stats || {});
       setAvailableLessonId(payload.todayLesson?.lessonId || nextLessons[0]?.lessonId || '');
       const nextActive = activeLessonId || payload.todayLesson?.lessonId || nextLessons[0]?.lessonId || '';
       setActiveLessonId(nextActive);
+      if (!nextActive) setLesson(null);
       return nextActive;
     })
   );
@@ -121,7 +125,7 @@ export default function GrammarPage() {
   }, [childId, navigate]);
 
   useEffect(() => {
-    if (!childId || !activeLessonId) return;
+    if (!childId || !activeLessonId || preparingMessage) return;
     setDetailLoading(true);
     setMode('learn');
     setQuizIndex(0);
@@ -131,7 +135,7 @@ export default function GrammarPage() {
       .then((payload) => setLesson(payload.lesson))
       .catch((err) => setError(err.message || 'レッスンを読み込めませんでした。'))
       .finally(() => setDetailLoading(false));
-  }, [activeLessonId, childId]);
+  }, [activeLessonId, childId, preparingMessage]);
 
   const handleStartLesson = () => {
     if (!lesson) return;
@@ -210,6 +214,33 @@ export default function GrammarPage() {
             </section>
           </div>
           <div className="panel hidden p-6 text-center font-bold text-[#6f7da8] lg:block">文法レッスンを準備しています...</div>
+        </WebLearningLayout>
+        <EQBottomNav />
+      </>
+    );
+  }
+
+  if (preparingMessage) {
+    return (
+      <>
+        <WebLearningLayout title="文法練習" subtitle="1日1レッスン" mobileTight hideMobileHeader>
+          <div className="quest-grammar-learn-page lg:hidden">
+            <CompactPageHeader
+              title="文法学習"
+              subtitle="ことばの使い方を学ぼう"
+              backgroundImage="/assets/eigo-quest/learning-hub/文法練習.png"
+              elementLabel="文"
+              progressText="準備中"
+              helperImage="/assets/eigo-quest/spirit_assets/happy.png"
+              variant="grammar"
+            />
+            <MagicPanel className="eq-grammar-learning-card">
+              <span className="eq-grammar-learning-badge">準備中</span>
+              <h2>{preparingMessage}</h2>
+              <p>準2級の文法レッスンはこれまで通り使えます。</p>
+            </MagicPanel>
+          </div>
+          <div className="panel hidden p-6 text-center font-bold text-[#6f7da8] lg:block">{preparingMessage}</div>
         </WebLearningLayout>
         <EQBottomNav />
       </>

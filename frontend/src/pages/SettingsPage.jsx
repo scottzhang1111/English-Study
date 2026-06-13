@@ -16,7 +16,7 @@ function getChildName(child) {
 }
 
 function formatLearningGoal(child) {
-  const value = child?.learning_goal || child?.learningGoal || child?.grade || child?.target_level || child?.targetLevel || '';
+  const value = child?.target_level || child?.targetLevel || child?.learning_goal || child?.learningGoal || child?.grade || '';
   if (value === 'eiken_pre2') return '英検準2級をめざす';
   if (value === 'eiken3') return '英検3級をめざす';
   if (value.includes('準') || value.includes('準2')) return '英検準2級をめざす';
