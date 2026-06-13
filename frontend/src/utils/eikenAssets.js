@@ -8,17 +8,23 @@ function encodeFileName(fileName) {
   }
 }
 
-function buildChildQuery(childId) {
-  return childId ? `?child_id=${encodeURIComponent(String(childId))}` : '';
+function buildAssetQuery(childId, targetLevel) {
+  const params = new URLSearchParams();
+  if (childId) params.set('child_id', String(childId));
+  if (targetLevel) params.set('target_level', String(targetLevel));
+  const query = params.toString();
+  return query ? `?${query}` : '';
 }
 
-export function getEikenAssetSrc(path, childId) {
+export function getEikenAssetSrc(path, childId, targetLevel) {
   if (!path) return null;
   const value = String(path).trim();
   if (!value) return null;
   if (/^(https?:|data:|blob:)/i.test(value)) return value;
   const existingChildMatch = value.match(/[?&]child_id=([^&#]+)/i);
+  const existingLevelMatch = value.match(/[?&]target_level=([^&#]+)/i) || value.match(/[?&]level=([^&#]+)/i);
   const effectiveChildId = childId || (existingChildMatch ? decodeURIComponent(existingChildMatch[1]) : '');
+  const effectiveTargetLevel = targetLevel || (existingLevelMatch ? decodeURIComponent(existingLevelMatch[1]) : '');
 
   const cleanPath = value
     .split(/[?#]/)[0]
@@ -34,12 +40,12 @@ export function getEikenAssetSrc(path, childId) {
     .replace(/^mp3\//, '')
     .replace(/^png\//, '');
   const fileName = cleanPath.split('/').filter(Boolean).pop();
-  return fileName ? `${EIKEN_REAL_EXAM_ASSET_BASE}${encodeFileName(fileName)}${buildChildQuery(effectiveChildId)}` : null;
+  return fileName ? `${EIKEN_REAL_EXAM_ASSET_BASE}${encodeFileName(fileName)}${buildAssetQuery(effectiveChildId, effectiveTargetLevel)}` : null;
 }
 
-export function normalizeEikenMediaHtml(html = '', childId) {
+export function normalizeEikenMediaHtml(html = '', childId, targetLevel) {
   return String(html).replace(/\b(src)=(["'])([^"']+\.(?:png|gif|jpg|jpeg|mp3|wav|m4a))(?:[?#][^"']*)?\2/gi, (match, attr, quote, value) => {
-    const mediaSrc = getEikenAssetSrc(value, childId);
+    const mediaSrc = getEikenAssetSrc(value, childId, targetLevel);
     return mediaSrc ? `${attr}=${quote}${mediaSrc}${quote}` : match;
   });
 }

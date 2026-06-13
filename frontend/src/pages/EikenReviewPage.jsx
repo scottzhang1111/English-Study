@@ -110,6 +110,7 @@ function EikenWrongQuestionCard({ item, reviewType = '' }) {
 
 function EikenReviewQuestion({
   childId,
+  targetLevel,
   partId,
   questionNumber,
   reviewType = '',
@@ -135,14 +136,14 @@ function EikenReviewQuestion({
 
   const previousAnswer = wrongQuestion?.studentAnswer || wrongQuestion?.student_answer || wrongQuestion?.selectedAnswer || wrongQuestion?.selected_answer || '';
   const correctAnswer = wrongQuestion?.correctAnswer || wrongQuestion?.correct_answer || '';
-  const normalizedHtml = useMemo(() => normalizeEikenMediaHtml(partData?.html || '', childId), [partData?.html, childId]);
+  const normalizedHtml = useMemo(() => normalizeEikenMediaHtml(partData?.html || '', childId, targetLevel), [partData?.html, childId, targetLevel]);
   const backPath = normalizeReviewType(reviewType) ? `/review/eiken?type=${encodeURIComponent(reviewType)}` : '/review/eiken';
 
   useEffect(() => {
     let active = true;
     setLoading(true);
     setError('');
-    getEikenRealExamPart(partId, childId)
+    getEikenRealExamPart(partId, { childId, targetLevel })
       .then((payload) => {
         if (active) setPartData(payload);
       })
@@ -155,7 +156,7 @@ function EikenReviewQuestion({
     return () => {
       active = false;
     };
-  }, [partId, childId]);
+  }, [partId, childId, targetLevel]);
 
   useEffect(() => {
     const element = contentRef.current;
@@ -199,6 +200,7 @@ function EikenReviewQuestion({
     try {
       const payload = await submitEikenRealExamReviewAnswer({
         childId,
+        targetLevel,
         partId,
         questionNumber,
         selectedAnswer,
@@ -274,9 +276,14 @@ function EikenReviewQuestion({
 }
 
 export default function EikenReviewPage() {
-  const { selectedChildId: currentChildId } = useChildren();
+  const { children, selectedChildId: currentChildId } = useChildren();
   const [searchParams] = useSearchParams();
   const childId = currentChildId || localStorage.getItem(CHILD_STORAGE_KEY) || '';
+  const currentChild = useMemo(
+    () => (children || []).find((child) => String(child.id) === String(childId)) || null,
+    [children, childId],
+  );
+  const targetLevel = currentChild?.targetLevel || currentChild?.target_level || '';
   const partId = searchParams.get('partId') || '';
   const questionNumber = searchParams.get('question') || '';
   const reviewType = normalizeReviewType(searchParams.get('type') || '');
@@ -351,6 +358,7 @@ export default function EikenReviewPage() {
         {isQuestionMode ? (
           <EikenReviewQuestion
             childId={childId}
+            targetLevel={targetLevel}
             partId={partId}
             questionNumber={questionNumber}
             reviewType={reviewType}

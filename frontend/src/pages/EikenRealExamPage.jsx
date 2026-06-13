@@ -18,12 +18,18 @@ function getPartList(exam, mode) {
   return mode === 'written' ? exam?.written_parts || [] : exam?.listening_parts || [];
 }
 
-function getEikenImageSrc(imagePath, childId) {
-  return getEikenAssetSrc(imagePath, childId);
+function getEikenLevelLabel(level) {
+  const value = String(level || '').toLowerCase().replace(/[-\s]/g, '_');
+  if (value === 'eiken3' || value === 'eiken_3' || value.includes('3級')) return '3級';
+  return '準2級';
 }
 
-function getEikenAudioSrc(audioPath, childId) {
-  return getEikenAssetSrc(audioPath, childId);
+function getEikenImageSrc(imagePath, childId, targetLevel) {
+  return getEikenAssetSrc(imagePath, childId, targetLevel);
+}
+
+function getEikenAudioSrc(audioPath, childId, targetLevel) {
+  return getEikenAssetSrc(audioPath, childId, targetLevel);
 }
 
 function getQuestionAnswer(answers, questionNumber) {
@@ -207,13 +213,14 @@ function EikenResultExplanationCard({
   preview,
   explanation,
   childId,
+  targetLevel,
   expanded,
   onToggle,
 }) {
   const status = getResultStatus(studentAnswer, correctAnswer);
   const statusLabel = getResultStatusLabel(status);
   const hasChoices = preview?.choices?.length > 0;
-  const explanationHtml = explanation?.html ? normalizeEikenMediaHtml(explanation.html, childId) : '';
+  const explanationHtml = explanation?.html ? normalizeEikenMediaHtml(explanation.html, childId, targetLevel) : '';
 
   return (
     <article className={`eiken-real-result-row is-${status}`}>
@@ -286,8 +293,14 @@ function EikenResultExplanationCard({
 export default function EikenRealExamPage() {
   const contentRef = useRef(null);
   const audioRefs = useRef([]);
-  const { selectedChildId } = useChildren();
+  const dropdownRef = useRef(null);
+  const { children, selectedChildId } = useChildren();
   const activeChildId = selectedChildId || localStorage.getItem(CHILD_STORAGE_KEY) || '';
+  const selectedChild = useMemo(
+    () => (children || []).find((child) => String(child.id) === String(activeChildId)) || null,
+    [children, activeChildId],
+  );
+  const activeTargetLevel = selectedChild?.targetLevel || selectedChild?.target_level || '';
   const [exams, setExams] = useState([]);
   const [selectedExamId, setSelectedExamId] = useState('');
   const [mode, setMode] = useState('listening');
@@ -306,6 +319,7 @@ export default function EikenRealExamPage() {
   const [loading, setLoading] = useState(true);
   const [partLoading, setPartLoading] = useState(false);
   const [error, setError] = useState('');
+  const [openDropdown, setOpenDropdown] = useState('');
   const [audioCurrentTime, setAudioCurrentTime] = useState(0);
   const [audioDuration, setAudioDuration] = useState(0);
   const [audioIsPlaying, setAudioIsPlaying] = useState(false);
@@ -315,24 +329,28 @@ export default function EikenRealExamPage() {
     [exams, selectedExamId],
   );
   const parts = useMemo(() => getPartList(selectedExam, mode), [selectedExam, mode]);
+  const selectedPart = useMemo(
+    () => parts.find((part) => part.part_id === selectedPartId) || parts[0] || null,
+    [parts, selectedPartId],
+  );
   const questionCount = partData?.question_count || 0;
   const visibleQuestionNumbers = questionNumbers.length > 0
     ? questionNumbers
     : partData?.question_numbers?.length
       ? partData.question_numbers
       : buildQuestionNumbers(questionCount);
-  const normalizedHtml = useMemo(() => normalizeEikenMediaHtml(partData?.html || '', activeChildId), [partData?.html, activeChildId]);
+  const normalizedHtml = useMemo(() => normalizeEikenMediaHtml(partData?.html || '', activeChildId, activeTargetLevel), [partData?.html, activeChildId, activeTargetLevel]);
   const questionPreviews = useMemo(() => extractEikenQuestionPreviews(normalizedHtml, mode), [normalizedHtml, mode]);
   const audioSources = useMemo(
-    () => (partData?.audio_paths || []).map((audioPath) => getEikenAudioSrc(audioPath, activeChildId)).filter(Boolean),
-    [partData?.audio_paths, activeChildId],
+    () => (partData?.audio_paths || []).map((audioPath) => getEikenAudioSrc(audioPath, activeChildId, activeTargetLevel)).filter(Boolean),
+    [partData?.audio_paths, activeChildId, activeTargetLevel],
   );
   const primaryAudioSource = audioSources[0] || '';
   const explanations = result?.explanations || [];
 
   useEffect(() => {
     let active = true;
-    getEikenRealExams(activeChildId)
+    getEikenRealExams({ childId: activeChildId, targetLevel: activeTargetLevel })
       .then((payload) => {
         if (!active) return;
         const list = payload.exams || [];
@@ -346,12 +364,23 @@ export default function EikenRealExamPage() {
     return () => {
       active = false;
     };
-  }, [activeChildId]);
+  }, [activeChildId, activeTargetLevel]);
 
   useEffect(() => {
     if (!selectedExam) return;
     setSelectedPartId(getDefaultPart(selectedExam, mode));
   }, [selectedExam, mode]);
+
+  useEffect(() => {
+    if (!openDropdown) return undefined;
+    const handlePointerDown = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setOpenDropdown('');
+      }
+    };
+    document.addEventListener('pointerdown', handlePointerDown);
+    return () => document.removeEventListener('pointerdown', handlePointerDown);
+  }, [openDropdown]);
 
   useEffect(() => {
     if (!selectedPartId) {
@@ -372,7 +401,7 @@ export default function EikenRealExamPage() {
     setAudioIsPlaying(false);
     setExpandedExplanations({});
     setStartedAt(new Date().toISOString());
-    getEikenRealExamPart(selectedPartId, activeChildId)
+    getEikenRealExamPart(selectedPartId, { childId: activeChildId, targetLevel: activeTargetLevel })
       .then((payload) => {
         if (!active) return;
         setPartData(payload);
@@ -382,7 +411,7 @@ export default function EikenRealExamPage() {
     return () => {
       active = false;
     };
-  }, [selectedPartId, activeChildId]);
+  }, [selectedPartId, activeChildId, activeTargetLevel]);
 
   useEffect(() => {
     const element = contentRef.current;
@@ -597,6 +626,7 @@ export default function EikenRealExamPage() {
     try {
       const payload = await submitEikenRealExamAttempt({
         childId,
+        targetLevel: activeTargetLevel,
         partId: partData.part_id,
         answers,
         startedAt,
@@ -614,6 +644,7 @@ export default function EikenRealExamPage() {
   const currentStatus = currentAnswer ? '回答済み' : '未回答';
   const examLabel = selectedExam?.label || '2025年第3回';
   const modeLabel = mode === 'listening' ? 'リスニング' : '筆記';
+  const levelLabel = getEikenLevelLabel(partData?.level || activeTargetLevel);
   const audioProgress = audioDuration > 0 ? Math.min(100, (audioCurrentTime / audioDuration) * 100) : 0;
   const audioRemaining = audioDuration > 0 ? Math.max(0, audioDuration - audioCurrentTime) : 0;
   const isEntryScreen = !practiceStarted && !result;
@@ -676,7 +707,7 @@ export default function EikenRealExamPage() {
           ← ホームに戻る
         </Link>
         <div className="mt-2 lg:mt-0 lg:text-center">
-          <p className="text-xs font-bold text-[#7d8db5]">英検準2級</p>
+          <p className="text-xs font-bold text-[#7d8db5]">英検{levelLabel}</p>
           <h1 className="text-xl font-bold leading-tight text-[#26376d] lg:text-2xl">{examLabel}</h1>
           <p className="text-sm font-bold text-[#4e6d9e]">{modeLabel}</p>
         </div>
@@ -693,7 +724,7 @@ export default function EikenRealExamPage() {
           <div className="flex items-center justify-between gap-3">
             <Link to="/app" className="shrink-0 text-sm font-bold text-[#52668c]">← ホーム</Link>
             <div className="min-w-0 text-center">
-              <p className="truncate text-sm font-bold text-[#26376d]">{result ? '採点結果' : `英検準2級 ${modeLabel}`}</p>
+              <p className="truncate text-sm font-bold text-[#26376d]">{result ? '採点結果' : `英検${levelLabel} ${modeLabel}`}</p>
               <p className="text-xs font-bold text-[#7d8db5]">問 {currentQuestion} / {questionCount || visibleQuestionNumbers.length || '-'}</p>
             </div>
             <span className={`shrink-0 rounded-full px-3 py-1 text-xs font-bold ${currentAnswer ? 'bg-[#eaf7ff] text-[#2f6f9f]' : 'bg-[#f4f7fb] text-[#7d8db5]'}`}>
@@ -715,7 +746,6 @@ export default function EikenRealExamPage() {
         >
           {!practiceStarted && !result && (
             <section className="eiken-real-trial-entry-card">
-              <Link to="/app" className="eiken-real-trial-back">← ホームに戻る</Link>
               <div className="eiken-real-trial-entry-head">
                 <span className="eiken-real-trial-crest" aria-hidden="true">英</span>
                 <div>
@@ -731,6 +761,7 @@ export default function EikenRealExamPage() {
                   onClick={() => setMode('listening')}
                   className={mode === 'listening' ? 'is-active' : ''}
                 >
+                  <span aria-hidden="true">🎧</span>
                   リスニング
                 </button>
                 <button
@@ -738,54 +769,113 @@ export default function EikenRealExamPage() {
                   onClick={() => setMode('written')}
                   className={mode === 'written' ? 'is-active' : ''}
                 >
+                  <span aria-hidden="true">✎</span>
                   筆記
                 </button>
               </div>
 
-              <div className="eiken-real-trial-select-panel">
+              <div className="eiken-real-trial-select-panel" ref={dropdownRef}>
                 <label>
                   年度・回
-                  <select
-                    value={selectedExamId}
-                    onChange={(event) => setSelectedExamId(event.target.value)}
-                  >
-                    {exams.map((exam) => (
-                      <option key={exam.exam_id} value={exam.exam_id}>
-                        {exam.label}
-                      </option>
-                    ))}
-                  </select>
+                  <div className={`eiken-real-custom-select ${openDropdown === 'exam' ? 'is-open' : ''}`}>
+                    <button
+                      type="button"
+                      className="eiken-real-custom-select-trigger"
+                      onClick={() => setOpenDropdown((current) => (current === 'exam' ? '' : 'exam'))}
+                      aria-haspopup="listbox"
+                      aria-expanded={openDropdown === 'exam'}
+                    >
+                      <span>{selectedExam?.label || '年度・回を選択'}</span>
+                      <i aria-hidden="true">{openDropdown === 'exam' ? '⌃' : '⌄'}</i>
+                    </button>
+                    {openDropdown === 'exam' && (
+                      <div className="eiken-real-custom-select-menu is-exam" role="listbox">
+                        {exams.map((exam) => {
+                          const isSelected = exam.exam_id === selectedExamId;
+                          return (
+                            <button
+                              key={exam.exam_id}
+                              type="button"
+                              className={isSelected ? 'is-selected' : ''}
+                              onClick={() => {
+                                setSelectedExamId(exam.exam_id);
+                                setOpenDropdown('');
+                              }}
+                              role="option"
+                              aria-selected={isSelected}
+                            >
+                              <span aria-hidden="true">{isSelected ? '✓' : ''}</span>
+                              <strong>{exam.label}</strong>
+                            </button>
+                          );
+                        })}
+                        {exams.length > 8 && (
+                          <div className="eiken-real-custom-select-more">
+                            <span>もっと見る</span>
+                            <i aria-hidden="true">⌄</i>
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
                 </label>
                 <label>
                   Part
-                  <select
-                    value={selectedPartId}
-                    onChange={(event) => setSelectedPartId(event.target.value)}
-                  >
-                    {parts.map((part) => (
-                      <option key={part.part_id} value={part.part_id}>
-                        {part.label}
-                      </option>
-                    ))}
-                  </select>
+                  <div className={`eiken-real-custom-select ${openDropdown === 'part' ? 'is-open' : ''}`}>
+                    <button
+                      type="button"
+                      className="eiken-real-custom-select-trigger"
+                      onClick={() => setOpenDropdown((current) => (current === 'part' ? '' : 'part'))}
+                      aria-haspopup="listbox"
+                      aria-expanded={openDropdown === 'part'}
+                    >
+                      <span>{selectedPart?.label || 'Partを選択'}</span>
+                      <i aria-hidden="true">{openDropdown === 'part' ? '⌃' : '⌄'}</i>
+                    </button>
+                    {openDropdown === 'part' && (
+                      <div className="eiken-real-custom-select-menu is-part" role="listbox">
+                        {parts.map((part) => {
+                          const isSelected = part.part_id === selectedPartId;
+                          return (
+                            <button
+                              key={part.part_id}
+                              type="button"
+                              className={isSelected ? 'is-selected' : ''}
+                              onClick={() => {
+                                setSelectedPartId(part.part_id);
+                                setOpenDropdown('');
+                              }}
+                              role="option"
+                              aria-selected={isSelected}
+                            >
+                              <span aria-hidden="true">{isSelected ? '✓' : ''}</span>
+                              <strong>{part.label}</strong>
+                            </button>
+                          );
+                        })}
+                      </div>
+                    )}
+                  </div>
                 </label>
               </div>
 
               <div className="eiken-real-trial-badges">
-                <span className="rounded-full bg-[#eef8ff] px-3 py-2">問題数 {questionCount || '-'}</span>
-                <span className="rounded-full bg-[#fff7d6] px-3 py-2">回答数 {answeredCount} / {questionCount || '-'}</span>
-                {audioSources.length > 0 && <span className="rounded-full bg-[#eaf9ee] px-3 py-2">音声あり</span>}
+                <span className="rounded-full bg-[#eef8ff] px-3 py-2"><i aria-hidden="true">?</i> 問題数 {questionCount || '-'}</span>
+                <span className="rounded-full bg-[#fff7d6] px-3 py-2"><i aria-hidden="true">☑</i> 回答数 {answeredCount} / {questionCount || '-'}</span>
+                {audioSources.length > 0 && <span className="rounded-full bg-[#eaf9ee] px-3 py-2"><i aria-hidden="true">🔊</i> 音声あり</span>}
               </div>
 
               <button type="button" onClick={startPractice} className="eiken-real-trial-start" aria-label="試練を開始する">
-                試練を開始する
+                <span className="eiken-real-trial-start-compass" aria-hidden="true">🧭</span>
+                <span>試練を開始する</span>
+                <span className="eiken-real-trial-start-arrow" aria-hidden="true">›</span>
               </button>
             </section>
           )}
 
           {false && (<aside className={`${isEntryScreen ? 'hidden' : ''} eiken-exam-sidebar rounded-[24px] border border-white/80 bg-white/86 p-4 shadow-[0_14px_34px_rgba(129,164,199,0.13)] lg:sticky lg:top-6 lg:self-start max-md:hidden`}>
             <div>
-              <p className="text-xs font-bold text-[#7d8db5]">英検準2級</p>
+              <p className="text-xs font-bold text-[#7d8db5]">英検{levelLabel}</p>
               <h2 className="mt-1 text-lg font-bold leading-tight text-[#26376d]">{examLabel}</h2>
               <p className="mt-1 text-sm font-bold text-[#4e6d9e]">{partData.mode_label || modeLabel}</p>
             </div>
@@ -895,7 +985,7 @@ export default function EikenRealExamPage() {
                   <section className="eiken-real-listening-exam-card" aria-label="試験情報">
                     <div className="eiken-real-listening-emblem" aria-hidden="true">E</div>
                     <div className="eiken-real-listening-exam-copy">
-                      <h1>英語検定(準2級) リスニング</h1>
+                      <h1>英語検定({levelLabel}) リスニング</h1>
                       <p>{examRoundLabel}</p>
                     </div>
                     <strong>{currentQuestion} / {totalPracticeQuestions || '-'}</strong>
@@ -1155,6 +1245,7 @@ export default function EikenRealExamPage() {
                       preview={item.preview}
                       explanation={item.explanation}
                       childId={activeChildId}
+                      targetLevel={activeTargetLevel}
                       expanded={Boolean(expandedExplanations[item.questionNumber])}
                       onToggle={() => setExpandedExplanations((prev) => ({
                         ...prev,
@@ -1216,7 +1307,7 @@ export default function EikenRealExamPage() {
                           {isExpanded && (
                             <div
                               className="eiken-answer-explanation mt-3 rounded-[16px] bg-white/88 px-3 py-3 text-sm leading-7 text-[#42557f]"
-                              dangerouslySetInnerHTML={{ __html: normalizeEikenMediaHtml(item.html || '', activeChildId) }}
+                              dangerouslySetInnerHTML={{ __html: normalizeEikenMediaHtml(item.html || '', activeChildId, activeTargetLevel) }}
                             />
                           )}
                         </article>

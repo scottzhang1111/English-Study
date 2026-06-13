@@ -433,19 +433,20 @@ export const getEikenPre2WrongQuestions = async ({ studentId, childId, latestOnl
   });
 };
 
-export const getEikenRealExams = async (childId) => {
-  return fetchJson('/api/eiken-real-exams', { params: { child_id: childId } });
+export const getEikenRealExams = async ({ childId, targetLevel } = {}) => {
+  return fetchJson('/api/eiken-real-exams', { params: { child_id: childId, target_level: targetLevel } });
 };
 
-export const getEikenRealExamPart = async (partId, childId) => {
-  return fetchJson(`/api/eiken-real-exams/parts/${encodeURIComponent(partId)}`, { params: { child_id: childId } });
+export const getEikenRealExamPart = async (partId, { childId, targetLevel } = {}) => {
+  return fetchJson(`/api/eiken-real-exams/parts/${encodeURIComponent(partId)}`, { params: { child_id: childId, target_level: targetLevel } });
 };
 
-export const submitEikenRealExamAttempt = async ({ childId, partId, answers, startedAt } = {}) => {
+export const submitEikenRealExamAttempt = async ({ childId, targetLevel, partId, answers, startedAt } = {}) => {
   return fetchJson('/api/eiken-real-exams/attempts', {
     method: 'POST',
     body: {
       child_id: childId,
+      target_level: targetLevel,
       part_id: partId,
       answers,
       started_at: startedAt,
@@ -457,11 +458,12 @@ export const getEikenRealExamWrongQuestions = async (childId) => {
   return fetchJson('/api/eiken-real-exam/wrong-questions', { params: { child_id: childId } });
 };
 
-export const submitEikenRealExamReviewAnswer = async ({ childId, partId, questionNumber, selectedAnswer } = {}) => {
+export const submitEikenRealExamReviewAnswer = async ({ childId, targetLevel, partId, questionNumber, selectedAnswer } = {}) => {
   return fetchJson('/api/eiken-real-exam/wrong-questions/review', {
     method: 'POST',
     body: {
       child_id: childId,
+      target_level: targetLevel,
       part_id: partId,
       question_number: questionNumber,
       selected_answer: selectedAnswer,

@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { saveChildProfile } from '../api';
 import { useChildren } from '../ChildrenContext';
+import { EQBottomNav } from '../components/eigo';
 import { DEFAULT_PARTNER_ID } from '../utils/childStorage';
 import { PET_STARTER_OPTIONS } from '../lib/petMaster';
 
@@ -55,7 +56,7 @@ export default function AddChildPage() {
   };
 
   return (
-    <div className="mx-auto flex min-h-screen max-w-5xl items-center px-4 py-8 sm:px-6">
+    <div className="mx-auto flex min-h-dvh max-w-5xl items-start overflow-y-auto px-4 pb-[calc(128px+env(safe-area-inset-bottom))] pt-8 sm:px-6">
       <form
         onSubmit={handleSubmit}
         className="grid w-full gap-6 rounded-[40px] border border-white/80 bg-white/88 p-6 shadow-[0_18px_44px_rgba(145,177,209,0.16)] lg:grid-cols-[1fr_360px] lg:p-8"
@@ -146,6 +147,7 @@ export default function AddChildPage() {
           </div>
         </div>
       </form>
+      <EQBottomNav />
     </div>
   );
 }

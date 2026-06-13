@@ -154,7 +154,6 @@ export default function SettingsPage() {
   }, [childrenList, selectedChildId]);
 
   const today = getTodaySummary(progressData, currentChild);
-  const previewChildren = childrenList.slice(0, 4);
   const statusText = today.complete ? '完了' : '未完了';
 
   const closeSwitcher = () => {
@@ -234,9 +233,6 @@ export default function SettingsPage() {
 
             <button type="button" className="eq-family-action-card" onClick={() => setIsSwitcherOpen(true)}>
               <span className="eq-family-action-art is-switch" aria-hidden="true">
-                {previewChildren.map((child, index) => (
-                  <img key={child.id} src={resolveAvatar(child)} alt="" style={{ '--avatar-index': index }} />
-                ))}
                 <i>↻</i>
               </span>
               <span className="eq-family-action-copy">

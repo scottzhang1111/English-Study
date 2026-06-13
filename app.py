@@ -7533,10 +7533,16 @@ def get_eiken_real_exam_config(child_id=None, target_level=None):
     return EIKEN_REAL_EXAM_CONFIGS['eiken_pre2']
 
 
-def get_eiken_real_exam_child_query(child_id=None):
-    if child_id in [None, '', 'null']:
+def get_eiken_real_exam_child_query(child_id=None, target_level=None):
+    params = {}
+    if child_id not in [None, '', 'null']:
+        params['child_id'] = str(child_id)
+    normalized_level = normalize_target_level(target_level) if target_level else ''
+    if normalized_level:
+        params['target_level'] = normalized_level
+    if not params:
         return ''
-    return f'?child_id={urllib.parse.quote(str(child_id))}'
+    return f'?{urllib.parse.urlencode(params)}'
 
 
 def resolve_eiken_real_exam_answer_path(part_id, config=None):
@@ -7553,8 +7559,8 @@ def resolve_eiken_real_exam_answer_path(part_id, config=None):
     return os.path.join(primary_dir, filename)
 
 
-def list_eiken_real_exams(child_id=None):
-    config = get_eiken_real_exam_config(child_id=child_id)
+def list_eiken_real_exams(child_id=None, target_level=None):
+    config = get_eiken_real_exam_config(child_id=child_id, target_level=target_level)
     resource_root = config['resource_root']
     if not os.path.isdir(resource_root):
         return []
@@ -7594,14 +7600,14 @@ def list_eiken_real_exams(child_id=None):
     return sorted(exams.values(), key=lambda item: (item['year'], item['round']), reverse=True)
 
 
-def sanitize_eiken_real_exam_html(part_id, child_id=None):
+def sanitize_eiken_real_exam_html(part_id, child_id=None, target_level=None):
     meta = get_eiken_real_exam_part_meta(part_id)
     if not meta:
         raise LookupError('exam part not found')
 
-    config = get_eiken_real_exam_config(child_id=child_id)
+    config = get_eiken_real_exam_config(child_id=child_id, target_level=target_level)
     resource_root = config['resource_root']
-    child_query = get_eiken_real_exam_child_query(child_id)
+    child_query = get_eiken_real_exam_child_query(child_id, target_level or config['level'])
     path = os.path.join(resource_root, f'{meta["part_id"]}.html')
     if not os.path.isfile(path):
         raise LookupError('exam part not found')
@@ -7664,9 +7670,9 @@ def normalize_eiken_answer(value):
     return f'({match.group(0)})' if match else text
 
 
-def sanitize_eiken_answer_explanation_html(fragment, child_id=None):
+def sanitize_eiken_answer_explanation_html(fragment, child_id=None, target_level=None):
     content = str(fragment or '')
-    child_query = get_eiken_real_exam_child_query(child_id)
+    child_query = get_eiken_real_exam_child_query(child_id, target_level)
     content = re.sub(r'<script\b[^>]*>.*?</script>', '', content, flags=re.I | re.S)
     content = re.sub(r'</?form\b[^>]*>', '', content, flags=re.I)
     content = re.sub(r'<input\b[^>]*>', '', content, flags=re.I)
@@ -7694,7 +7700,7 @@ def strip_eiken_answer_text(fragment):
     return re.sub(r'[ \t\r\f\v]+', ' ', text).strip()
 
 
-def parse_eiken_real_exam_answer_page(part_id, question_numbers=None, config=None, child_id=None):
+def parse_eiken_real_exam_answer_page(part_id, question_numbers=None, config=None, child_id=None, target_level=None):
     meta = get_eiken_real_exam_part_meta(part_id)
     if not meta:
         return {'answer_key': {}, 'explanations': []}
@@ -7736,7 +7742,7 @@ def parse_eiken_real_exam_answer_page(part_id, question_numbers=None, config=Non
         explanations.append({
             'question_number': question_number,
             'correct_answer': correct_answer,
-            'html': sanitize_eiken_answer_explanation_html(block_html, child_id=child_id),
+            'html': sanitize_eiken_answer_explanation_html(block_html, child_id=child_id, target_level=target_level or (config or {}).get('level')),
             'text': block_text,
         })
 
@@ -7754,10 +7760,10 @@ def load_eiken_real_exam_answer_key():
     return data if isinstance(data, dict) else {}
 
 
-def get_eiken_real_exam_answer_key(part_id, config=None, child_id=None):
+def get_eiken_real_exam_answer_key(part_id, config=None, child_id=None, target_level=None):
     all_keys = load_eiken_real_exam_answer_key()
     raw_key = all_keys.get(part_id) or {}
-    parsed_key = parse_eiken_real_exam_answer_page(part_id, config=config, child_id=child_id).get('answer_key') or {}
+    parsed_key = parse_eiken_real_exam_answer_page(part_id, config=config, child_id=child_id, target_level=target_level).get('answer_key') or {}
     if isinstance(raw_key, list):
         parsed_key.update({index + 1: normalize_eiken_answer(value) for index, value in enumerate(raw_key)})
         return parsed_key
@@ -7771,15 +7777,15 @@ def get_eiken_real_exam_answer_key(part_id, config=None, child_id=None):
     return parsed_key
 
 
-def submit_eiken_real_exam_attempt(child_id, part_id, answers, started_at=None):
+def submit_eiken_real_exam_attempt(child_id, part_id, answers, started_at=None, target_level=None):
     meta = get_eiken_real_exam_part_meta(part_id)
     if not meta:
         raise LookupError('exam part not found')
-    config = get_eiken_real_exam_config(child_id=child_id)
-    part_data = sanitize_eiken_real_exam_html(part_id, child_id=child_id)
+    config = get_eiken_real_exam_config(child_id=child_id, target_level=target_level)
+    part_data = sanitize_eiken_real_exam_html(part_id, child_id=child_id, target_level=target_level or config['level'])
     question_numbers = part_data.get('question_numbers') or []
-    parsed_answers = parse_eiken_real_exam_answer_page(meta['part_id'], question_numbers, config=config, child_id=child_id)
-    answer_key = parsed_answers.get('answer_key') or get_eiken_real_exam_answer_key(meta['part_id'], config=config, child_id=child_id)
+    parsed_answers = parse_eiken_real_exam_answer_page(meta['part_id'], question_numbers, config=config, child_id=child_id, target_level=target_level or config['level'])
+    answer_key = parsed_answers.get('answer_key') or get_eiken_real_exam_answer_key(meta['part_id'], config=config, child_id=child_id, target_level=target_level or config['level'])
     explanations_by_number = {
         int(item['question_number']): item
         for item in parsed_answers.get('explanations', [])
@@ -7984,20 +7990,20 @@ def get_eiken_real_exam_wrong_questions(child_id, limit=None):
     return wrong_questions
 
 
-def submit_eiken_real_exam_review_answer(child_id, part_id, question_number, selected_answer):
+def submit_eiken_real_exam_review_answer(child_id, part_id, question_number, selected_answer, target_level=None):
     meta = get_eiken_real_exam_part_meta(part_id)
     if not meta:
         raise LookupError('exam part not found')
 
-    config = get_eiken_real_exam_config(child_id=child_id)
-    part_data = sanitize_eiken_real_exam_html(meta['part_id'], child_id=child_id)
+    config = get_eiken_real_exam_config(child_id=child_id, target_level=target_level)
+    part_data = sanitize_eiken_real_exam_html(meta['part_id'], child_id=child_id, target_level=target_level or config['level'])
     question_numbers = part_data.get('question_numbers') or []
     normalized_question_number = int(question_number)
     if normalized_question_number not in question_numbers:
         raise LookupError('question not found')
 
-    parsed_answers = parse_eiken_real_exam_answer_page(meta['part_id'], question_numbers, config=config, child_id=child_id)
-    answer_key = parsed_answers.get('answer_key') or get_eiken_real_exam_answer_key(meta['part_id'], config=config, child_id=child_id)
+    parsed_answers = parse_eiken_real_exam_answer_page(meta['part_id'], question_numbers, config=config, child_id=child_id, target_level=target_level or config['level'])
+    answer_key = parsed_answers.get('answer_key') or get_eiken_real_exam_answer_key(meta['part_id'], config=config, child_id=child_id, target_level=target_level or config['level'])
     correct_answer = answer_key.get(normalized_question_number, '')
     if not correct_answer:
         raise LookupError('answer key not found')
@@ -8083,15 +8089,17 @@ def submit_eiken_real_exam_review_answer(child_id, part_id, question_number, sel
 @app.route('/api/eiken-real-exams')
 def api_eiken_real_exams():
     child_id = request.args.get('child_id') or request.args.get('childId')
-    config = get_eiken_real_exam_config(child_id=child_id)
-    return jsonify({'exams': list_eiken_real_exams(child_id=child_id), 'level': config['level']})
+    target_level = request.args.get('target_level') or request.args.get('targetLevel') or request.args.get('level')
+    config = get_eiken_real_exam_config(child_id=child_id, target_level=target_level)
+    return jsonify({'exams': list_eiken_real_exams(child_id=child_id, target_level=target_level), 'level': config['level']})
 
 
 @app.route('/api/eiken-real-exams/parts/<part_id>')
 def api_eiken_real_exam_part(part_id):
     child_id = request.args.get('child_id') or request.args.get('childId')
+    target_level = request.args.get('target_level') or request.args.get('targetLevel') or request.args.get('level')
     try:
-        return jsonify(sanitize_eiken_real_exam_html(part_id, child_id=child_id))
+        return jsonify(sanitize_eiken_real_exam_html(part_id, child_id=child_id, target_level=target_level))
     except LookupError as exc:
         abort(404, str(exc))
 
@@ -8100,6 +8108,7 @@ def api_eiken_real_exam_part(part_id):
 def api_eiken_real_exam_attempts():
     data = request.get_json(silent=True) or {}
     child_id = data.get('child_id') or data.get('childId')
+    target_level = data.get('target_level') or data.get('targetLevel') or data.get('level')
     part_id = data.get('part_id') or data.get('partId')
     answers = data.get('answers') or {}
     if child_id in [None, '', 'null']:
@@ -8108,7 +8117,7 @@ def api_eiken_real_exam_attempts():
         abort(400, 'part_id is required')
     try:
         child_id = int(child_id)
-        result = submit_eiken_real_exam_attempt(child_id, part_id, answers, data.get('started_at') or data.get('startedAt'))
+        result = submit_eiken_real_exam_attempt(child_id, part_id, answers, data.get('started_at') or data.get('startedAt'), target_level=target_level)
     except LookupError as exc:
         abort(404, str(exc))
     except ValueError as exc:
@@ -8144,6 +8153,7 @@ def api_eiken_real_exam_wrong_question_review():
     part_id = data.get('part_id') or data.get('partId')
     question_number = data.get('question_number') or data.get('questionNumber')
     selected_answer = data.get('selected_answer') or data.get('selectedAnswer') or data.get('student_answer') or data.get('studentAnswer')
+    target_level = data.get('target_level') or data.get('targetLevel') or data.get('level')
     if child_id in [None, '', 'null']:
         abort(400, 'child_id is required')
     if not part_id:
@@ -8158,6 +8168,7 @@ def api_eiken_real_exam_wrong_question_review():
             part_id,
             int(question_number),
             selected_answer,
+            target_level=target_level,
         )
     except LookupError as exc:
         abort(404, str(exc))
@@ -8169,7 +8180,8 @@ def api_eiken_real_exam_wrong_question_review():
 @app.route('/api/eiken-real-exams/assets/<path:asset_path>')
 def api_eiken_real_exam_asset(asset_path):
     child_id = request.args.get('child_id') or request.args.get('childId')
-    config = get_eiken_real_exam_config(child_id=child_id)
+    target_level = request.args.get('target_level') or request.args.get('targetLevel') or request.args.get('level')
+    config = get_eiken_real_exam_config(child_id=child_id, target_level=target_level)
     resource_root = data_path(config['resource_root'])
     normalized_path = str(asset_path or '').replace('\\', '/').lstrip('/')
     candidate_paths = [normalized_path]
