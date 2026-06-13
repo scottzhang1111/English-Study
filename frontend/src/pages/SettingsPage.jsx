@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { getAuthMe, getChildren, getProgressData } from '../api';
 import { useChildren } from '../ChildrenContext';
 import { EQBottomNav } from '../components/eigo';
@@ -49,6 +49,7 @@ function formatChildProgress(summary) {
 
 export default function SettingsPage() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { selectedChildId, setSelectedChildId, refreshChildren } = useChildren();
   const [childrenList, setChildrenList] = useState([]);
   const [progressData, setProgressData] = useState(null);
@@ -156,9 +157,16 @@ export default function SettingsPage() {
   const previewChildren = childrenList.slice(0, 4);
   const statusText = today.complete ? '完了' : '未完了';
 
+  const closeSwitcher = () => {
+    setIsSwitcherOpen(false);
+    if (searchParams.get('child_switch') === '1') {
+      navigate('/settings', { replace: true });
+    }
+  };
+
   const selectChild = async (child) => {
     setSelectedChildId(child.id);
-    setIsSwitcherOpen(false);
+    closeSwitcher();
     try {
       const progress = await getProgressData({ childId: child.id });
       setProgressData(progress);
@@ -170,6 +178,12 @@ export default function SettingsPage() {
       setProgressData(null);
     }
   };
+
+  useEffect(() => {
+    if (!isLoading && childrenList.length > 0 && searchParams.get('child_switch') === '1') {
+      setIsSwitcherOpen(true);
+    }
+  }, [childrenList.length, isLoading, searchParams]);
 
   return (
     <div className="eq-family-page">
@@ -264,14 +278,14 @@ export default function SettingsPage() {
       </main>
 
       {isSwitcherOpen ? (
-        <div className="eq-family-modal" role="dialog" aria-modal="true" aria-labelledby="child-switch-title" onClick={() => setIsSwitcherOpen(false)}>
+        <div className="eq-family-modal" role="dialog" aria-modal="true" aria-labelledby="child-switch-title" onClick={closeSwitcher}>
           <section className="eq-family-sheet" onClick={(event) => event.stopPropagation()}>
             <header className="eq-family-sheet-header">
               <div>
                 <h2 id="child-switch-title">学習する子どもを選択</h2>
                 <p>今日学習するプロフィールを選びます</p>
               </div>
-              <button type="button" onClick={() => setIsSwitcherOpen(false)} aria-label="閉じる">×</button>
+              <button type="button" onClick={closeSwitcher} aria-label="閉じる">×</button>
             </header>
 
             <div className="eq-family-child-list">

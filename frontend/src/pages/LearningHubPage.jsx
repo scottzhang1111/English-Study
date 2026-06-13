@@ -116,7 +116,7 @@ export default function LearningHubPage() {
             <button
               type="button"
               className="eq-learning-hub-child"
-              onClick={() => navigate('/select-child')}
+              onClick={() => navigate('/settings?child_switch=1')}
               aria-label={`${currentChild.nickname || currentChild.name || '子ども'} を選択`}
             >
               <img
