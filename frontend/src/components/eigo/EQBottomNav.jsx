@@ -160,8 +160,8 @@ function isItemActive(item, pathname, navLinkActive) {
 
   if (Array.isArray(item.match)) {
     return item.match.some((path) => {
-      if (path === '/') {
-        return pathname === '/';
+      if (path === '/' || path === '/app') {
+        return pathname === path;
       }
       return pathname === path || pathname.startsWith(`${path}/`);
     });
