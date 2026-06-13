@@ -4521,6 +4521,7 @@ def generate_20_questions(db_path=None):
 
 def get_child_review_entries(child_id, limit=20):
     init_db()
+    child_level_entries = filter_vocab_entries_for_child_level(vocab_list, child_id)
     conn = get_db_connection()
     try:
         child_row = conn.execute('SELECT id FROM children WHERE id = ?', (child_id,)).fetchone()
@@ -4542,7 +4543,7 @@ def get_child_review_entries(child_id, limit=20):
     combined = []
     seen = set()
     for row in rows:
-        entry = resolve_vocab_entry(str(row['vocab_id']), vocab_list)
+        entry = resolve_vocab_entry(str(row['vocab_id']), child_level_entries)
         if not entry:
             continue
         key = get_vocab_key(entry)
@@ -4551,7 +4552,7 @@ def get_child_review_entries(child_id, limit=20):
             combined.append(entry)
 
     if len(combined) < limit:
-        remainder = [entry for entry in vocab_list if get_vocab_key(entry) not in seen]
+        remainder = [entry for entry in child_level_entries if get_vocab_key(entry) not in seen]
         random.shuffle(remainder)
         combined.extend(remainder[: max(0, limit - len(combined))])
 
@@ -5867,7 +5868,14 @@ def get_grammar_lessons_for_child(child_id):
     try:
         lesson_columns = _sqlite_table_columns(lesson_conn, 'grammar_lessons')
 
-        where_sql = 'WHERE l.is_active = 1' if 'is_active' in lesson_columns else ''
+        where_parts = []
+        params = []
+        if 'is_active' in lesson_columns:
+            where_parts.append('l.is_active = 1')
+        if 'level' in lesson_columns:
+            where_parts.append('l.level = ?')
+            params.append(get_child_target_level(child_id))
+        where_sql = f'WHERE {" AND ".join(where_parts)}' if where_parts else ''
         order_sql = 'l.display_order ASC, l.lesson_id ASC' if 'display_order' in lesson_columns else 'l.lesson_id ASC'
 
         rows = lesson_conn.execute(
@@ -5877,7 +5885,8 @@ def get_grammar_lessons_for_child(child_id):
             FROM grammar_lessons l
             {where_sql}
             ORDER BY {order_sql}
-            '''
+            ''',
+            params,
         ).fetchall()
     finally:
         lesson_conn.close()
@@ -8406,16 +8415,56 @@ def get_entry_eiken_level(entry):
     return _clean_csv_value(entry.get('Level') or entry.get('level') or entry.get('Eiken_Level') or '準2級')
 
 
+def normalize_target_level(value):
+    normalized = _clean_csv_value(value).lower().replace('-', '_').replace(' ', '_')
+    mapping = {
+        '三級': 'eiken3',
+        '3級': 'eiken3',
+        '英検3級': 'eiken3',
+        'eiken_3': 'eiken3',
+        'eiken3': 'eiken3',
+        '準2級': 'eiken_pre2',
+        '準二級': 'eiken_pre2',
+        '英検準2級': 'eiken_pre2',
+        '英検準二級': 'eiken_pre2',
+        'eiken_pre_2': 'eiken_pre2',
+        'eiken_pre2': 'eiken_pre2',
+        'pre2': 'eiken_pre2',
+    }
+    return mapping.get(normalized, normalized)
+
+
+def get_child_target_level(child_id):
+    if child_id is None:
+        return ''
+    conn = get_db_connection()
+    try:
+        row = conn.execute('SELECT target_level FROM children WHERE id = ?', (child_id,)).fetchone()
+    finally:
+        conn.close()
+    return normalize_target_level(row['target_level'] if row else '')
+
+
+def filter_vocab_entries_for_child_level(entries, child_id):
+    target_level = get_child_target_level(child_id)
+    if not target_level:
+        return list(entries)
+    return [
+        entry for entry in entries
+        if normalize_target_level(get_entry_eiken_level(entry)) == target_level
+    ]
+
+
 def build_word_status_payload(child_id, level=None, search=None):
     progress_map = get_child_word_progress_map(child_id)
-    level = _clean_csv_value(level)
+    level = normalize_target_level(level) if _clean_csv_value(level) else get_child_target_level(child_id)
     search = _clean_csv_value(search).lower()
     words = []
     for entry in vocab_list:
         vocab_id = str(entry.get('ID') or '').strip()
         if not vocab_id:
             continue
-        eiken_level = get_entry_eiken_level(entry)
+        eiken_level = normalize_target_level(get_entry_eiken_level(entry))
         word = entry.get('English', '')
         meaning = entry.get('Japanese', '')
         if level and level != 'ALL' and eiken_level != level:
@@ -8456,7 +8505,7 @@ def select_daily_vocab_entries(limit, child_id=None, study_mode=None):
     study_mode = normalize_study_mode(study_mode or get_child_study_mode(child_id))
     status_order = {'priority': 0, 'review': 1, 'learning': 2, 'new': 3, 'mastered': 4}
     candidates = []
-    for index, vocab in enumerate(vocab_list):
+    for index, vocab in enumerate(filter_vocab_entries_for_child_level(vocab_list, child_id)):
         progress = progress_map.get(str(vocab.get('ID') or '').strip())
         status = default_word_status_for_progress(progress)
         if status == 'mastered' and study_mode == 'normal':
@@ -10239,9 +10288,10 @@ def api_quiz():
         child_id = int(child_id)
     except (TypeError, ValueError):
         abort(400, 'child_id must be an integer')
-    entries = filter_vocab_entries(vocab_list, importance=importance, frequency=frequency)
+    child_level_entries = filter_vocab_entries_for_child_level(vocab_list, child_id)
+    entries = filter_vocab_entries(child_level_entries, importance=importance, frequency=frequency)
     if not entries:
-        entries = vocab_list
+        entries = child_level_entries
 
     mastered_entries = get_child_mastered_vocab_entries(child_id, entries)
     mastered_words = [entry.get('English', '').strip() for entry in mastered_entries if entry.get('English', '').strip()]
@@ -10308,7 +10358,7 @@ def api_quiz():
         return max([error_counts.get(key, 0) for key in keys] or [0])
 
     if requested_word:
-        correct_vocab = resolve_vocab_entry(requested_word, entries) or resolve_vocab_entry(requested_word, vocab_list)
+        correct_vocab = resolve_vocab_entry(requested_word, entries) or resolve_vocab_entry(requested_word, child_level_entries)
         if not correct_vocab or get_vocab_key(correct_vocab).lower() not in {
             get_vocab_key(entry).lower() for entry in mastered_entries if get_vocab_key(entry)
         }:

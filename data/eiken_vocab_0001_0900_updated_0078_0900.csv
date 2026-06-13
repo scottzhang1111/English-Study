@@ -1,0 +1,901 @@
+﻿word_id,word,meaning_ja,example_en,example_ja,pos
+0001,make,（行為）を行う,My mother made dinner.,母は夕食を作った。,verb
+0002,take,（乗り物）に乗る,I took a bus to school.,私はバスで学校へ行った。,verb
+0003,see,見る,I saw a bird.,鳥を見た。,verb
+0004,work,働く,My father works hard.,父は一生懸命働く。,verb
+0005,look,見る,She looks happy.,彼女は幸せそうに見える。,verb
+0006,call,呼ぶ,Call me Ken.,私をケンと呼んでください。,verb
+0007,last,続く,The meeting lasted two hours.,会議は2時間続いた。,verb
+0008,learn,学ぶ,I learn English every day.,毎日英語を学ぶ。,verb
+0009,tell,伝える,Tell me the story.,その話を聞かせて。,verb
+0010,need,必要とする,I need help.,助けが必要です。,verb
+0011,enjoy,楽しむ,I enjoy music.,私は音楽を楽しむ。,verb
+0012,grow,育つ,The tree is growing well.,木がよく育っている。,verb
+0013,give,与える,Give me some advice.,助言をください。,verb
+0014,finish,終える,I finished my homework.,宿題を終えた。,verb
+0015,find,見つける,I found my key.,鍵を見つけた。,verb
+0016,move,移動する,He moved to England.,彼はイギリスへ引っ越した。,verb
+0017,send,送る,Send me an email.,メールを送ってください。,verb
+0018,bring,持ってくる,Bring your lunch.,昼食を持ってきて。,verb
+0019,try,試みる,I will try again.,もう一度やってみる。,verb
+0020,decide,決める,I decided to go.,行くことに決めた。,verb
+0021,hope,望む,I hope to see you.,会えることを願っています。,verb
+0022,travel,旅行する,I want to travel abroad.,海外旅行したい。,verb
+0023,invite,招待する,I invited him to the party.,彼をパーティーに招待した。,verb
+0024,join,参加する,Join the team.,チームに参加しよう。,verb
+0025,plant,植える,We planted trees.,木を植えた。,verb
+0026,show,見せる,Show me your passport.,パスポートを見せてください。,verb
+0027,become,になる,She became famous.,彼女は有名になった。,verb
+0028,hold,開催する,The concert was held on Sunday.,コンサートは日曜日に開催された。,verb
+0029,rain,雨が降る,It is raining.,雨が降っている。,verb
+0030,win,勝つ,Our team won.,私たちのチームが勝った。,verb
+0031,put,置く,Put it on the desk.,机の上に置いてください。,verb
+0032,wear,身につけている,She is wearing a cap.,彼女は帽子をかぶっている。,verb
+0033,keep,続ける,Keep talking.,話し続けてください。,verb
+0034,sound,聞こえる,That sounds good.,それは良さそうだ。,verb
+0035,speak,話す,Speak English.,英語で話しなさい。,verb
+0036,build,建てる,They built a house.,家を建てた。,verb
+0037,clean,きれいにする,Clean the blackboard.,黒板をきれいにしなさい。,verb
+0038,drive,運転する,He drove me home.,彼は私を家まで送った。,verb
+0039,happen,起こる,What happened?,何が起こったの？,verb
+0040,remember,思い出す,I remember his name.,彼の名前を覚えている。,verb
+0041,return,返す,I returned the book.,本を返した。,verb
+0042,say,言う,The sign says NO FOOD.,その標識には飲食禁止と書いてある。,verb
+0043,sleep,眠る,I slept on the floor.,床で寝た。,verb
+0044,paint,絵を描く,She painted a flower.,彼女は花の絵を描いた。,verb
+0045,watch,見る,I watched a game on TV.,テレビで試合を見た。,verb
+0046,worry,心配する,Don't worry.,心配しないで。,verb
+0047,save,貯める,Save money.,お金を貯めなさい。,verb
+0048,sell,売る,He sold old books.,彼は古本を売った。,verb
+0049,snow,雪が降る,It is snowing.,雪が降っている。,verb
+0050,understand,理解する,I understand the meaning.,意味が分かる。,verb
+0051,begin,始める,The war began.,戦争が始まった。,verb
+0052,borrow,借りる,I borrowed a book.,本を借りた。,verb
+0053,cover,おおう,Snow covered the mountain.,雪が山を覆った。,verb
+0054,miss,乗り遅れる,I missed the train.,電車に乗り遅れた。,verb
+0055,wait,待つ,Wait for me.,私を待ってください。,verb
+0056,arrive,到着する,We arrived at the airport.,空港に到着した。,verb
+0057,break,壊す,He broke the cup.,彼はコップを割った。,verb
+0058,change,変わる,Things change.,物事は変わる。,verb
+0059,choose,選ぶ,Choose the best answer.,最も良い答えを選びなさい。,verb
+0060,graduate,卒業する,She graduated from university.,彼女は大学を卒業した。,verb
+0061,leave,置き忘れる,I left my bag on the train.,電車にかばんを忘れた。,verb
+0062,lend,貸す,I lent him a book.,彼に本を貸した。,verb
+0063,feel,感じる,I feel sick.,気分が悪い。,verb
+0064,pick,選ぶ,Pick flowers.,花を摘む。,verb
+0065,receive,受け取る,I received a letter.,手紙を受け取った。,verb
+0066,spend,（時間・金）を費やす,I spent time on the beach.,浜辺で時間を過ごした。,verb
+0067,bake,焼く,My mother baked a cake.,母はケーキを焼いた。,verb
+0068,draw,描く,I drew a picture.,絵を描いた。,verb
+0069,skate,スケートをする,He likes skating.,彼はスケートが好きだ。,verb
+0070,turn,曲がる,Turn right.,右に曲がりなさい。,verb
+0071,p.m.,午後,The meeting starts at 2 p.m.,会議は午後2時に始まる。,noun
+0072,zoo,動物園,Let's go to the zoo.,動物園へ行こう。,noun
+0073,animal,動物,I like animals.,動物が好きです。,noun
+0074,festival,祭り,We enjoyed the summer festival.,夏祭りを楽しんだ。,noun
+0075,elephant,ゾウ,An elephant has a long nose.,ゾウは長い鼻を持つ。,noun
+0076,date,日付,What is the date today?,今日は何日ですか。,noun
+0077,subject,教科,My favorite subject is English.,好きな教科は英語です。,noun
+0078,store,店,My mother bought fruit at the store.,母は店で果物を買いました。,noun
+0079,a.m.,午前,The class starts at 8 a.m.,授業は午前8時に始まります。,noun
+0080,toy,おもちゃ,The child received a new toy for his birthday.,その子は誕生日に新しいおもちゃをもらいました。,noun
+0081,movie,映画,We watched a movie together on Saturday.,私たちは土曜日に一緒に映画を見ました。,noun
+0082,weekend,週末,I usually visit my grandparents on the weekend.,私は週末によく祖父母を訪ねます。,noun
+0083,contest,コンテスト,She entered a singing contest at school.,彼女は学校の歌のコンテストに参加しました。,noun
+0084,money,お金,He saved money to buy a bicycle.,彼は自転車を買うためにお金を貯めました。,noun
+0085,restaurant,レストラン,We ate dinner at a small restaurant.,私たちは小さなレストランで夕食を食べました。,noun
+0086,trip,旅行,Our trip to Kyoto was very exciting.,京都への旅行はとても楽しかったです。,noun
+0087,information,情報,I found useful information on the internet.,私はインターネットで役立つ情報を見つけました。,noun
+0088,kind,種類,There are many kinds of birds in this park.,この公園にはたくさんの種類の鳥がいます。,noun
+0089,dictionary,辞書,I checked the meaning in my dictionary.,私は辞書で意味を調べました。,noun
+0090,food,食べ物,The food at the festival was delicious.,祭りの食べ物はおいしかったです。,noun
+0091,doctor,医者,The doctor told me to sleep early.,医者は私に早く寝るよう言いました。,noun
+0092,job,仕事,My father's job is very busy.,父の仕事はとても忙しいです。,noun
+0093,kitten,子猫,A kitten was hiding under the table.,子猫がテーブルの下に隠れていました。,noun
+0094,university,大学,My sister studies at a university in Tokyo.,姉は東京の大学で勉強しています。,noun
+0095,part,部分,This part of the story is funny.,物語のこの部分は面白いです。,noun
+0096,place,場所,This park is my favorite place.,この公園は私のお気に入りの場所です。,noun
+0097,fun,楽しみ,Playing with friends is always fun.,友達と遊ぶのはいつも楽しいです。,noun
+0098,parent,親,One parent came to the school event.,親の一人が学校行事に来ました。,noun
+0099,vacation,休暇,We went to Okinawa during our vacation.,私たちは休暇中に沖縄へ行きました。,noun
+0100,volunteer,ボランティア,She worked as a volunteer at the event.,彼女はその行事でボランティアをしました。,noun
+0101,band,バンド,My brother plays guitar in a band.,兄はバンドでギターを弾いています。,noun
+0102,chimpanzee,チンパンジー,The chimpanzee climbed a tall tree.,そのチンパンジーは高い木に登りました。,noun
+0103,library,図書館,I borrowed two books from the library.,私は図書館で本を二冊借りました。,noun
+0104,plan,計画,We made a plan for the school trip.,私たちは修学旅行の計画を立てました。,noun
+0105,e-mail,Eメール,I received an e-mail from my teacher.,先生からメールを受け取りました。,noun
+0106,hour,時間,It takes about one hour to get there.,そこへ行くのに約1時間かかります。,noun
+0107,practice,練習,Baseball practice starts after school.,野球の練習は放課後に始まります。,noun
+0108,son,息子,Their son likes playing soccer after school.,彼らの息子は放課後にサッカーをするのが好きです。,noun
+0109,country,国,Japan is a beautiful country.,日本は美しい国です。,noun
+0110,meeting,会議,My father has a meeting this afternoon.,父は今日の午後会議があります。,noun
+0111,newspaper,新聞,My grandfather reads the newspaper every morning.,祖父は毎朝新聞を読みます。,noun
+0112,scientist,科学者,The scientist studied animals in the forest.,その科学者は森で動物を研究しました。,noun
+0113,stop,停留所,Let's get off at the next bus stop.,次のバス停で降りましょう。,noun
+0114,area,地域,This area is famous for its flowers.,この地域は花で有名です。,noun
+0115,aunt,おば,My aunt lives in Osaka.,私のおばは大阪に住んでいます。,noun
+0116,company,会社,She works for a large company.,彼女は大きな会社で働いています。,noun
+0117,cookie,クッキー,I baked cookies with my mother.,母と一緒にクッキーを焼きました。,noun
+0118,farmer,農家,The farmer grows vegetables near our town.,その農家は町の近くで野菜を育てています。,noun
+0119,garden,庭,Many flowers bloom in our garden.,私たちの庭にはたくさんの花が咲いています。,noun
+0120,idea,考え,That's a good idea for the project.,それはその計画に良い考えです。,noun
+0121,lesson,授業,Today's English lesson was fun.,今日の英語の授業は楽しかったです。,noun
+0122,medicine,薬,Take this medicine after dinner.,夕食後にこの薬を飲んでください。,noun
+0123,month,月,We will move next month.,私たちは来月引っ越します。,noun
+0124,pumpkin,かぼちゃ,We made pumpkin soup for lunch.,昼食にかぼちゃのスープを作りました。,noun
+0125,space,宇宙,Many children dream of traveling in space.,多くの子どもたちは宇宙旅行を夢見ています。,noun
+0126,station,駅,The station is next to the library.,駅は図書館の隣にあります。,noun
+0127,weather,天気,The weather is nice today.,今日は天気が良いです。,noun
+0128,word,単語,I learned a new word in class today.,今日授業で新しい単語を学びました。,noun
+0129,care,世話,She takes good care of her dog.,彼女は犬の世話をよくしています。,noun
+0130,chocolate,チョコレート,My sister gave me some chocolate.,姉がチョコレートをくれました。,noun
+0131,factory,工場,My class visited a factory last week.,先週クラスで工場見学をしました。,noun
+0132,ice,氷,Please put some ice in my drink.,飲み物に氷を入れてください。,noun
+0133,pizza,ピザ,We ordered pizza for dinner.,夕食にピザを注文しました。,noun
+0134,prize,賞,He won first prize in the contest.,彼はコンテストで一等賞を取りました。,noun
+0135,report,レポート,I finished my science report yesterday.,昨日理科のレポートを終えました。,noun
+0136,street,通り,Many shops are on this street.,この通りにはたくさんの店があります。,noun
+0137,visitor,訪問者,The museum welcomed many visitors.,その博物館には多くの訪問者が来ました。,noun
+0138,way,方法,Can you show me the way to the station?,駅への道を教えてくれますか。,noun
+0139,concert,コンサート,We enjoyed the school concert.,私たちは学校のコンサートを楽しみました。,noun
+0140,cousin,いとこ,My cousin lives in Hokkaido.,私のいとこは北海道に住んでいます。,noun
+0141,doghouse,犬小屋,The dog is sleeping in its doghouse.,犬は犬小屋で寝ています。,noun
+0142,group,グループ,Our group finished the task first.,私たちのグループが最初に課題を終えました。,noun
+0143,history,歴史,Japanese history is very interesting.,日本の歴史はとても面白いです。,noun
+0144,letter,手紙,I received a letter from my friend.,友達から手紙をもらいました。,noun
+0145,minute,分,Please wait a few minutes.,数分待ってください。,noun
+0146,musician,音楽家,The musician played the piano beautifully.,その音楽家は美しくピアノを弾きました。,noun
+0147,notice,お知らせ,Did you read the notice on the wall?,壁のお知らせを読みましたか。,noun
+0148,thing,物,There is one thing I want to ask.,一つ聞きたいことがあります。,noun
+0149,ticket,切符,I bought a train ticket online.,私は電車の切符をオンラインで買いました。,noun
+0150,tiger,トラ,We saw a tiger at the zoo.,動物園でトラを見ました。,noun
+0151,uncle,おじ,My uncle likes fishing on weekends.,おじは週末に釣りをするのが好きです。,noun
+0152,website,ウェブサイト,I found the answer on a website.,私はウェブサイトで答えを見つけました。,noun
+0153,floor,階,Our classroom is on the third floor.,私たちの教室は3階にあります。,noun
+0154,life,生活,Life in the countryside is peaceful.,田舎での生活は穏やかです。,noun
+0155,office,事務所,My mother works in an office downtown.,母は街中の事務所で働いています。,noun
+0156,pool,プール,The children are swimming in the pool.,子どもたちはプールで泳いでいます。,noun
+0157,winner,勝者,The winner received a gold medal.,勝者は金メダルを受け取りました。,noun
+0158,building,建物,That building is over 100 years old.,あの建物は100年以上前のものです。,noun
+0159,college,大学,My brother wants to go to college abroad.,兄は海外の大学へ行きたがっています。,noun
+0160,daughter,娘,Their daughter plays the violin well.,彼らの娘はバイオリンが上手です。,noun
+0161,fair,見本市,We visited a science fair at school.,学校の科学フェアに行きました。,noun
+0162,French,フランス語,I am studying French this year.,私は今年フランス語を勉強しています。,noun
+0163,future,未来,We talked about our future dreams.,私たちは将来の夢について話しました。,noun
+0164,government,政府,The government announced a new plan.,政府は新しい計画を発表しました。,noun
+0165,hospital,病院,He was taken to the hospital yesterday.,彼は昨日病院へ運ばれました。,noun
+0166,instrument,楽器,Can you play a musical instrument?,あなたは楽器を演奏できますか。,noun
+0167,jazz,ジャズ,My father enjoys listening to jazz.,父はジャズを聞くのが好きです。,noun
+0168,person,人,She is a kind person.,彼女は親切な人です。,noun
+0169,pie,パイ,My grandmother baked an apple pie.,祖母はアップルパイを焼きました。,noun
+0170,Spanish,スペイン語,He can speak Spanish very well.,彼はスペイン語を上手に話せます。,noun
+0171,vegetable,野菜,You should eat more vegetables.,もっと野菜を食べた方がいいです。,noun
+0172,wife,妻,His wife works at a hospital.,彼の妻は病院で働いています。,noun
+0173,writer,作家,The writer published a new book.,その作家は新しい本を出版しました。,noun
+0174,bookstore,本屋,I bought a dictionary at the bookstore.,本屋で辞書を買いました。,noun
+0175,camera,カメラ,She took many pictures with her camera.,彼女はカメラでたくさん写真を撮りました。,noun
+0176,clothes,服,These clothes are comfortable to wear.,この服は着心地が良いです。,noun
+0177,dish,皿料理,This dish is popular in Japan.,この料理は日本で人気があります。,noun
+0178,end,終わり,The movie had a happy end.,その映画は幸せな終わりでした。,noun
+0179,event,行事,Our school has a big event in May.,私たちの学校は5月に大きな行事があります。,noun
+0180,farm,農場,We saw many cows on the farm.,私たちは農場でたくさんの牛を見ました。,noun
+0181,forest,森,Birds were singing in the forest.,森では鳥が鳴いていました。,noun
+0182,grandmother,祖母,My grandmother makes very good soup.,祖母はとてもおいしいスープを作ります。,noun
+0183,island,島,The small island has clear blue water.,その小さな島には澄んだ青い水があります。,noun
+0184,magazine,雑誌,She read a sports magazine on the train.,彼女は電車でスポーツ雑誌を読みました。,noun
+0185,member,会員,Every member helped clean the room.,会員全員が部屋の掃除を手伝いました。,noun
+0186,message,伝言,I left a short message for my friend.,私は友達に短い伝言を残しました。,noun
+0187,nature,自然,We learned about nature during the camp.,私たちはキャンプ中に自然について学びました。,noun
+0188,road,道路,This road goes to the station.,この道路は駅へ続いています。,noun
+0189,speech,スピーチ,His speech was short but clear.,彼のスピーチは短かったですが分かりやすかったです。,noun
+0190,supermarket,スーパーマーケット,I bought milk at the supermarket.,私はスーパーマーケットで牛乳を買いました。,noun
+0191,twin,双子,My class has twin sisters.,私のクラスには双子の姉妹がいます。,noun
+0192,actor,俳優,The actor smiled at the children.,その俳優は子どもたちに笑顔を見せました。,noun
+0193,beach,浜辺,We picked up shells on the beach.,私たちは浜辺で貝殻を拾いました。,noun
+0194,color,色,What color is your new bag?,あなたの新しいかばんは何色ですか。,noun
+0195,convenience,便利さ,This app is popular because of its convenience.,このアプリは便利さで人気があります。,noun
+0196,culture,文化,Food is an important part of culture.,食べ物は文化の大切な一部です。,noun
+0197,god,神,People prayed to the god at the shrine.,人々は神社で神に祈りました。,noun
+0198,gym,体育館,The students played basketball in the gym.,生徒たちは体育館でバスケットボールをしました。,noun
+0199,husband,夫,Her husband cooks dinner on Sundays.,彼女の夫は日曜日に夕食を作ります。,noun
+0200,machine,機械,This machine makes orange juice.,この機械はオレンジジュースを作ります。,noun
+0201,paper,紙,Please write your name on this paper.,この紙に名前を書いてください。,noun
+0202,plane,飛行機,The plane arrived early this morning.,その飛行機は今朝早く到着しました。,noun
+0203,president,大統領,The president spoke on TV last night.,大統領は昨夜テレビで話しました。,noun
+0204,question,質問,I have one question about the homework.,宿題について一つ質問があります。,noun
+0205,salad,サラダ,My sister made a fresh salad.,姉は新鮮なサラダを作りました。,noun
+0206,tournament,トーナメント,Our team joined a tennis tournament.,私たちのチームはテニスのトーナメントに参加しました。,noun
+0207,war,戦争,We read a book about war and peace.,私たちは戦争と平和についての本を読みました。,noun
+0208,other,他の,Do you have any other questions?,他に質問はありますか。,adjective
+0209,dear,親愛なる,"Dear Ken, thank you for your letter.",親愛なるケンへ、手紙をありがとう。,adjective
+0210,full,いっぱいの,The box is full of old toys.,その箱は古いおもちゃでいっぱいです。,adjective
+0211,free,無料の,The museum is free for children.,その博物館は子どもは無料です。,adjective
+0212,best,最高の,This is the best day of my trip.,今日は旅行で最高の日です。,adjective
+0213,famous,有名な,Kyoto is famous for old temples.,京都は古い寺で有名です。,adjective
+0214,special,特別な,We made a special card for our teacher.,私たちは先生に特別なカードを作りました。,adjective
+0215,little,少しの,There is a little milk in the glass.,コップには少し牛乳があります。,adjective
+0216,sorry,申し訳ない,I am sorry for being late.,遅れてすみません。,adjective
+0217,better,より良い,Your picture is getting better.,あなたの絵は上手になっています。,adjective
+0218,popular,人気のある,This game is popular at my school.,このゲームは私の学校で人気があります。,adjective
+0219,right,正しい,Please write the right answer here.,ここに正しい答えを書いてください。,adjective
+0220,favorite,お気に入りの,Science is my favorite subject.,理科は私のお気に入りの教科です。,adjective
+0221,sick,病気の,My brother was sick yesterday.,弟は昨日病気でした。,adjective
+0222,busy,忙しい,The shop is busy on Saturday.,その店は土曜日に忙しいです。,adjective
+0223,late,遅い,The bus was late because of rain.,雨のためバスが遅れました。,adjective
+0224,most,最も多い,Most students finished the test early.,ほとんどの生徒は早くテストを終えました。,adjective
+0225,beautiful,美しい,We saw a beautiful rainbow after the rain.,雨の後で美しい虹を見ました。,adjective
+0226,close,近い,My house is close to the park.,私の家は公園に近いです。,adjective
+0227,different,違った,My answer was different from yours.,私の答えはあなたのものと違っていました。,adjective
+0228,enough,十分な,We have enough chairs for everyone.,みんなの分のいすが十分あります。,adjective
+0229,sure,確かな,Are you sure about the time?,その時間で確かですか。,adjective
+0230,ready,準備ができた,Dinner is ready now.,夕食の準備ができました。,adjective
+0231,glad,うれしい,I am glad to hear that news.,その知らせを聞いてうれしいです。,adjective
+0232,same,同じ,We have the same birthday.,私たちは同じ誕生日です。,adjective
+0233,difficult,難しい,This math problem is difficult for me.,この算数の問題は私には難しいです。,adjective
+0234,fine,元気な,I feel fine after a good sleep.,よく寝たので元気です。,adjective
+0235,Italian,イタリアの,We ate Italian food for lunch.,昼食にイタリア料理を食べました。,adjective
+0236,surprised,驚いた,She was surprised by the birthday party.,彼女は誕生日パーティーに驚きました。,adjective
+0237,afraid,恐れている,The child was afraid of the big dog.,その子は大きな犬を怖がっていました。,adjective
+0238,each,それぞれの,Each student got a new notebook.,それぞれの生徒が新しいノートをもらいました。,adjective
+0239,exciting,わくわくさせる,The soccer game was very exciting.,そのサッカーの試合はとてもわくわくしました。,adjective
+0240,professional,プロの,My uncle is a professional photographer.,おじはプロの写真家です。,adjective
+0241,wild,野生の,We saw wild monkeys near the mountain.,山の近くで野生の猿を見ました。,adjective
+0242,angry,怒った,My mother looked angry after seeing the mess.,母は散らかった部屋を見て怒っているようでした。,adjective
+0243,another,もう一つの,Can I have another piece of cake?,ケーキをもう一切れもらえますか。,adjective
+0244,delicious,おいしい,The curry smelled delicious.,そのカレーはおいしそうなにおいがしました。,adjective
+0245,foreign,外国の,Our school has a foreign teacher.,私たちの学校には外国人の先生がいます。,adjective
+0246,important,重要な,Breakfast is important for children.,朝食は子どもにとって大切です。,adjective
+0247,interesting,面白い,The museum has many interesting pictures.,その博物館には面白い絵がたくさんあります。,adjective
+0248,tired,疲れた,I was tired after cleaning my room.,部屋を掃除した後で疲れました。,adjective
+0249,useful,役に立つ,This map is useful for our trip.,この地図は旅行に役立ちます。,adjective
+0250,warm,暖かい,The soup kept my hands warm.,そのスープで手が暖かくなりました。,adjective
+0251,hungry,空腹の,I felt hungry before lunch.,昼食の前にお腹がすきました。,adjective
+0252,lost,道に迷った,We got lost near the station.,私たちは駅の近くで道に迷いました。,adjective
+0253,main,主要な,The main gate opens at nine.,正門は9時に開きます。,adjective
+0254,native,生まれつきの,Koalas are native to Australia.,コアラはオーストラリア原産です。,adjective
+0255,nervous,緊張した,I was nervous before the speech.,スピーチの前に緊張しました。,adjective
+0256,wrong,間違った,I got on the wrong train.,間違った電車に乗りました。,adjective
+0257,first,最初に,First wash your hands before dinner.,まず夕食の前に手を洗いなさい。,adjective
+0258,next,次に,Next open your textbook to page ten.,次に教科書の10ページを開きなさい。,adjective
+0259,also,また,My sister also likes this song.,姉もこの歌が好きです。,adverb
+0260,again,再び,Please say that again slowly.,もう一度ゆっくり言ってください。,adverb
+0261,around,周りに,The children ran around the playground.,子どもたちは運動場を走り回りました。,adverb
+0262,before,以前に,I met her before at the library.,以前図書館で彼女に会いました。,adverb
+0263,hard,一生懸命に,He studied hard for the English test.,彼は英語のテストのために一生懸命勉強しました。,adverb
+0264,just,ちょうど,I just finished my homework.,ちょうど宿題を終えたところです。,adverb
+0265,often,よく,We often eat rice for breakfast.,私たちは朝食によくご飯を食べます。,adverb
+0266,later,あとで,I will call you later.,あとであなたに電話します。,adverb
+0267,yet,まだ,She has not finished lunch yet.,彼女はまだ昼食を終えていません。,adverb
+0268,together,一緒に,Let's clean the classroom together.,一緒に教室を掃除しましょう。,adverb
+0269,ago,前に,I came to Japan three years ago.,私は3年前に日本へ来ました。,adverb
+0270,never,一度もない,He never eats fish at school.,彼は学校で魚を一度も食べません。,adverb
+0271,ever,今までに,Have you ever visited Nara?,今まで奈良を訪れたことがありますか。,adverb
+0272,outside,外で,The children played outside after lunch.,子どもたちは昼食後に外で遊びました。,adverb
+0273,still,まだ,It is still raining outside.,外ではまだ雨が降っています。,adverb
+0274,tonight,今夜,We will watch the stars tonight.,私たちは今夜星を見ます。,adverb
+0275,already,すでに,I already packed my bag.,私はもうかばんに荷物を入れました。,adverb
+0276,usually,たいてい,I usually walk to school with my friend.,私はたいてい友達と学校へ歩いて行きます。,adverb
+0277,early,早く,My father leaves home early every morning.,父は毎朝早く家を出ます。,adverb
+0278,part-time,パートタイムの,My cousin works part-time at a cafe.,いとこはカフェでアルバイトをしています。,adverb
+0279,even,〜でさえ,Even my little brother can read this book.,弟でさえこの本を読むことができます。,adverb
+0280,everywhere,どこでも,There were flowers everywhere in the garden.,庭のあちこちに花がありました。,adverb
+0281,far,遠くに,My school is not far from my house.,私の学校は家から遠くありません。,adverb
+0282,once,一度,I visited that museum once with my family.,私は家族と一度その博物館を訪れました。,adverb
+0283,when,〜するとき,Call me when you get home.,家に着いたら私に電話してください。,conjunction
+0284,if,もし〜なら,"If it rains tomorrow, we will stay home.",もし明日雨が降ったら家にいます。,conjunction
+0285,because,なぜなら〜だから,I stayed home because I had a cold.,風邪をひいていたので家にいました。,conjunction
+0286,than,〜よりも,This bag is lighter than mine.,このかばんは私のものより軽いです。,preposition/conjunction
+0287,until,〜まで,We played in the park until five.,私たちは5時まで公園で遊びました。,preposition/conjunction
+0288,while,〜する間に,I listened to music while I cleaned my room.,部屋を掃除している間に音楽を聞きました。,conjunction
+0289,by,〜までに,Please finish this work by Friday.,金曜日までにこの仕事を終えてください。,preposition
+0290,over,〜を越えて,A bird flew over the river.,鳥が川の上を飛んでいきました。,preposition/adverb
+0291,between,〜の間に,The bank is between the post office and the school.,銀行は郵便局と学校の間にあります。,preposition
+0292,during,〜の間中,I took notes during the science lesson.,理科の授業中にノートを取りました。,preposition
+0293,since,〜以来,I have known him since first grade.,私は1年生のときから彼を知っています。,preposition/conjunction
+0294,across,〜を横切って,We walked across the bridge together.,私たちは一緒に橋を渡りました。,preposition/adverb
+0295,one,一つのもの,Which one is your pencil?,どちらがあなたの鉛筆ですか。,pronoun
+0296,all,すべて,All of the children joined the game.,子どもたちは全員そのゲームに参加しました。,pronoun
+0297,anyone,だれか,Can anyone answer this question?,だれかこの質問に答えられますか。,pronoun
+0298,should,〜すべきだ,You should wash your hands before lunch.,昼食の前に手を洗うべきです。,auxiliary verb
+0299,could,〜できた,I could swim when I was six.,私は6歳のとき泳ぐことができました。,auxiliary verb
+0300,must,〜しなければならない,You must bring your textbook tomorrow.,明日教科書を持ってこなければなりません。,auxiliary verb
+0301,deliver,届ける,The man will deliver the box this afternoon.,その男性は今日の午後その箱を届けます。,verb
+0302,answer,答える,Please answer the question in English.,英語でその質問に答えてください。,verb
+0303,believe,信じる,I believe my team can win.,私は自分のチームが勝てると信じています。,verb
+0304,collect,集める,My sister collects pretty stamps.,姉はきれいな切手を集めています。,verb
+0305,cost,費用がかかる,This notebook costs only one hundred yen.,このノートはたった100円です。,verb
+0306,cross,横切る,Look both ways before you cross the street.,通りを渡る前に左右を見なさい。,verb
+0307,die,死ぬ,The old tree died after the long summer.,その古い木は長い夏の後に枯れました。,verb
+0308,enter,入る,The students entered the room quietly.,生徒たちは静かに部屋に入りました。,verb
+0309,fall,落ちる,Leaves fall from the trees in autumn.,秋には木から葉が落ちます。,verb
+0310,fight,戦う,The two boys stopped fighting after class.,二人の男の子は授業後にけんかをやめました。,verb
+0311,hurt,傷つける,My knee hurt after the soccer game.,サッカーの試合の後でひざが痛みました。,verb
+0312,jog,ジョギングする,My father jogs around the park every morning.,父は毎朝公園の周りをジョギングします。,verb
+0313,lose,失う,I do not want to lose this key.,この鍵をなくしたくありません。,verb
+0314,pay,支払う,I paid five hundred yen for the book.,私はその本に500円を払いました。,verb
+0315,protect,守る,We should protect animals in the forest.,私たちは森の動物を守るべきです。,verb
+0316,reach,到着する,We reached the hotel before dinner.,私たちは夕食前にホテルに着きました。,verb
+0317,ride,乗る,She can ride a horse very well.,彼女は馬にとても上手に乗れます。,verb
+0318,share,共有する,I shared my lunch with my friend.,私は友達と昼食を分け合いました。,verb
+0319,agree,同意する,I agree with your plan for the trip.,私は旅行についてのあなたの計画に賛成です。,verb
+0320,catch,捕まえる,The cat tried to catch the red ball.,猫は赤いボールを捕まえようとしました。,verb
+0321,celebrate,祝う,We celebrated my brother's birthday at home.,私たちは家で弟の誕生日を祝いました。,verb
+0322,check,確認する,Check your bag before you leave.,出かける前にかばんを確認しなさい。,verb
+0323,contact,連絡を取る,I will contact my teacher after school.,放課後に先生へ連絡します。,verb
+0324,expect,予期する,We expect many visitors tomorrow.,明日は多くの訪問者が来ると思います。,verb
+0325,fly,飛ぶ,Kites fly high on windy days.,風の強い日にはたこが高く飛びます。,verb
+0326,follow,従う,Please follow the rules in the library.,図書館では規則に従ってください。,verb
+0327,forget,忘れる,Do not forget your umbrella today.,今日は傘を忘れないでください。,verb
+0328,hit,打つ,He hit the ball over the fence.,彼はボールを柵の向こうへ打ちました。,verb
+0329,hurry,急ぐ,We hurried to the station in the rain.,私たちは雨の中を駅へ急ぎました。,verb
+0330,invent,発明する,The students invented a new board game.,生徒たちは新しいボードゲームを発明しました。,verb
+0331,kill,殺す,The cold weather killed some flowers.,寒い天気でいくつかの花が枯れました。,verb
+0332,pass,合格する,She passed the English test last week.,彼女は先週英語のテストに合格しました。,verb
+0333,perform,演じる,The children performed a short play.,子どもたちは短い劇を演じました。,verb
+0334,shut,閉める,Please shut the window before you sleep.,寝る前に窓を閉めてください。,verb
+0335,smell,においがする,The bread smells good in the kitchen.,台所でパンがいいにおいをしています。,verb
+0336,taste,味がする,This soup tastes a little sweet.,このスープは少し甘い味がします。,verb
+0337,attack,攻撃する,The bees attacked the man near the tree.,ハチが木の近くの男性を攻撃しました。,verb
+0338,carry,運ぶ,Can you carry this bag for me?,このかばんを運んでくれますか。,verb
+0339,continue,続ける,We continued the game after the rain stopped.,雨がやんだ後で試合を続けました。,verb
+0340,cry,泣く,The baby began to cry on the train.,赤ちゃんが電車の中で泣き始めました。,verb
+0341,destroy,破壊する,The storm destroyed the old bridge.,嵐が古い橋を壊しました。,verb
+0342,exchange,交換する,We exchanged small gifts at Christmas.,私たちはクリスマスに小さな贈り物を交換しました。,verb
+0343,fit,合う,These shoes fit my feet well.,この靴は私の足によく合います。,verb
+0344,guess,推測する,Can you guess the name of this animal?,この動物の名前を当てられますか。,verb
+0345,imagine,想像する,Imagine a city under the sea.,海の下にある町を想像してください。,verb
+0346,introduce,紹介する,Let me introduce my friend to you.,友達をあなたに紹介させてください。,verb
+0347,jump,跳ぶ,The dog jumped over the small fence.,犬は小さな柵を跳び越えました。,verb
+0348,mean,意味する,What does this sign mean?,この標識は何を意味していますか。,verb
+0349,order,注文する,We ordered two sandwiches for lunch.,昼食にサンドイッチを二つ注文しました。,verb
+0350,push,押す,Please push the blue button.,青いボタンを押してください。,verb
+0351,relax,くつろぐ,I relax by reading comics after dinner.,夕食後に漫画を読んでくつろぎます。,verb
+0352,sail,航海する,The boat sailed across the lake.,その船は湖を渡って進みました。,verb
+0353,serve,給仕する,They serve breakfast from seven o'clock.,彼らは7時から朝食を出します。,verb
+0354,shake,振る,Shake the bottle before you drink it.,飲む前にそのびんを振ってください。,verb
+0355,shout,叫ぶ,Do not shout in the classroom.,教室で叫んではいけません。,verb
+0356,snowboard,スノーボードをする,He learned to snowboard last winter.,彼は去年の冬にスノーボードを習いました。,verb
+0357,steal,盗む,Someone stole my bicycle near the station.,駅の近くで誰かが私の自転車を盗みました。,verb
+0358,throw,投げる,Throw the ball to your partner.,相手にボールを投げなさい。,verb
+0359,wake,起きる,I wake up at six on school days.,学校がある日は6時に起きます。,verb
+0360,welcome,歓迎する,The students welcomed the new teacher.,生徒たちは新しい先生を歓迎しました。,verb
+0361,height,高さ,What is the height of this building?,この建物の高さはどれくらいですか。,noun
+0362,hurricane,ハリケーン,The hurricane brought strong wind and rain.,ハリケーンは強い風と雨をもたらしました。,noun
+0363,ice cream,アイスクリーム,I ate ice cream after the piano lesson.,ピアノのレッスンの後でアイスクリームを食べました。,noun
+0364,Olympic,オリンピック,The Olympic Games are watched around the world.,オリンピックは世界中で見られています。,noun
+0365,parade,パレード,Many people watched the parade downtown.,多くの人が町でパレードを見ました。,noun
+0366,stamp,切手,I put a stamp on the letter.,私は手紙に切手を貼りました。,noun
+0367,worker,労働者,The workers built a new school.,労働者たちは新しい学校を建てました。,noun
+0368,air,空気,The air was fresh after the rain.,雨の後で空気が新鮮でした。,noun
+0369,airport,空港,We arrived at the airport before noon.,私たちは正午前に空港に着きました。,noun
+0370,bike,自転車,My bike is under the tree.,私の自転車は木の下にあります。,noun
+0371,cafeteria,カフェテリア,Students eat lunch in the cafeteria.,生徒たちはカフェテリアで昼食を食べます。,noun
+0372,chance,機会,This is a good chance to practice English.,これは英語を練習する良い機会です。,noun
+0373,circle,円,Draw a big circle on the paper.,紙に大きな円を描いてください。,noun
+0374,customer,客,The customer asked for a bigger bag.,その客はもっと大きな袋を頼みました。,noun
+0375,dream,夢,My dream is to visit many countries.,私の夢はたくさんの国を訪れることです。,noun
+0376,ear,耳,My ear hurt after swimming.,泳いだ後で耳が痛くなりました。,noun
+0377,exam,試験,The exam will start at nine tomorrow.,試験は明日9時に始まります。,noun
+0378,fire,火,The fire kept us warm at camp.,キャンプで火が私たちを暖かくしてくれました。,noun
+0379,million,百万,More than one million people live in this city.,この市には100万人を超える人々が住んでいます。,noun
+0380,mountain,山,The mountain looks beautiful in winter.,その山は冬に美しく見えます。,noun
+0381,page,ページ,Please open your book to page twenty.,本の20ページを開いてください。,noun
+0382,panda,パンダ,The panda ate bamboo at the zoo.,そのパンダは動物園で竹を食べました。,noun
+0383,phone,電話,My phone rang during dinner.,夕食中に私の電話が鳴りました。,noun
+0384,photo,写真,This photo shows my family in Kyoto.,この写真は京都での私の家族を写しています。,noun
+0385,poster,ポスター,We made a poster for the school festival.,私たちは学校祭のためにポスターを作りました。,noun
+0386,present,プレゼント,I gave my mother a small present.,私は母に小さなプレゼントをあげました。,noun
+0387,problem,問題,Can you solve this problem by yourself?,この問題を一人で解けますか。,noun
+0388,race,競走,Ken won the race in sports day.,ケンは運動会の競走で勝ちました。,noun
+0389,rule,規則,There is a new rule in our class.,私たちのクラスには新しい規則があります。,noun
+0390,scarf,スカーフ,She wore a red scarf in the cold wind.,彼女は寒い風の中で赤いスカーフをしていました。,noun
+0391,star,星,We looked at the stars after dinner.,私たちは夕食後に星を見ました。,noun
+0392,theater,劇場,The theater was full of children.,その劇場は子どもたちでいっぱいでした。,noun
+0393,uniform,制服,Students must wear a uniform at this school.,この学校では生徒は制服を着なければなりません。,noun
+0394,wedding,結婚式,My cousin's wedding was held in June.,いとこの結婚式は6月に行われました。,noun
+0395,accident,事故,There was a car accident near the bridge.,橋の近くで車の事故がありました。,noun
+0396,athlete,運動選手,The young athlete ran very fast.,その若い運動選手はとても速く走りました。,noun
+0397,bakery,パン屋,I bought fresh bread at the bakery.,私はパン屋で焼きたてのパンを買いました。,noun
+0398,bank,銀行,My father went to the bank after work.,父は仕事の後で銀行へ行きました。,noun
+0399,bicycle,自転車,Her bicycle is blue and very light.,彼女の自転車は青くてとても軽いです。,noun
+0400,captain,キャプテン,Our captain helped everyone on the team.,私たちのキャプテンはチームのみんなを助けました。,noun
+0401,celebration,祝典,The celebration started with music.,その祝典は音楽で始まりました。,noun
+0402,cell phone,携帯電話,Please turn off your cell phone in class.,授業中は携帯電話の電源を切ってください。,noun
+0403,center,中心,The post office is in the center of town.,郵便局は町の中心にあります。,noun
+0404,century,世紀,People used horses for travel in the last century.,前の世紀には人々は旅行に馬を使いました。,noun
+0405,child,子ども,Every child received a small notebook.,すべての子どもが小さなノートを受け取りました。,noun
+0406,Chinese,中国語,My friend is learning Chinese after school.,友達は放課後に中国語を習っています。,noun
+0407,cloth,布,Please clean the table with this cloth.,この布でテーブルを拭いてください。,noun
+0408,coat,コート,Take your coat because it is cold outside.,外は寒いのでコートを持って行きなさい。,noun
+0409,dollar,ドル,This toy costs five dollars.,このおもちゃは5ドルです。,noun
+0410,dress,ドレス,She wore a yellow dress to the party.,彼女はパーティーに黄色いドレスを着て行きました。,noun
+0411,example,例,Please give me one example.,例を一つ挙げてください。,noun
+0412,experience,経験,The camp was a good experience for us.,そのキャンプは私たちにとって良い経験でした。,noun
+0413,fence,柵,The dog jumped over the low fence.,犬は低い柵を飛び越えました。,noun
+0414,German,ドイツ語,He can read a little German.,彼は少しドイツ語を読むことができます。,noun
+0415,grade,学年,My brother is in the fourth grade.,弟は4年生です。,noun
+0416,grandfather,祖父,My grandfather grows tomatoes in his garden.,祖父は庭でトマトを育てています。,noun
+0417,hamburger,ハンバーガー,I ate a hamburger for lunch.,昼食にハンバーガーを食べました。,noun
+0418,hometown,故郷,I visit my hometown every summer.,私は毎年夏に故郷を訪れます。,noun
+0419,Internet,インターネット,We used the Internet to find a map.,私たちは地図を探すためにインターネットを使いました。,noun
+0420,line,線,Draw a straight line under the word.,その単語の下にまっすぐな線を引きなさい。,noun
+0421,living room,居間,My family watches TV in the living room.,私の家族は居間でテレビを見ます。,noun
+0422,locker,ロッカー,I put my shoes in the locker.,私は靴をロッカーに入れました。,noun
+0423,manager,支配人,The manager spoke kindly to the customers.,支配人は客に親切に話しました。,noun
+0424,meal,食事,Breakfast is my favorite meal.,朝食は私の好きな食事です。,noun
+0425,museum,博物館,The museum has many old pictures.,その博物館には古い絵がたくさんあります。,noun
+0426,point,点,He got the first point in the game.,彼はその試合で最初の点を取りました。,noun
+0427,pollution,汚染,Air pollution is a big problem in some cities.,大気汚染はいくつかの都市で大きな問題です。,noun
+0428,reason,理由,Tell me the reason for your answer.,あなたの答えの理由を教えてください。,noun
+0429,recipe,レシピ,This recipe is easy for children.,このレシピは子どもにも簡単です。,noun
+0430,sale,特売,The bookstore has a sale today.,その本屋は今日特売をしています。,noun
+0431,sandwich,サンドイッチ,I made a cheese sandwich for lunch.,昼食にチーズサンドイッチを作りました。,noun
+0432,science,科学,Science helps us understand nature.,科学は私たちが自然を理解するのを助けます。,noun
+0433,secret,秘密,My friend told me a small secret.,友達が私に小さな秘密を話しました。,noun
+0434,side,側,Sit on the left side of the room.,部屋の左側に座ってください。,noun
+0435,slice,一切れ,May I have one slice of pizza?,ピザを一切れもらえますか。,noun
+0436,textbook,教科書,I left my English textbook at home.,英語の教科書を家に忘れました。,noun
+0437,tool,道具,This tool is useful for cooking.,この道具は料理に役立ちます。,noun
+0438,top,上部,Write your name at the top of the paper.,紙の上部に名前を書いてください。,noun
+0439,tour,旅行,We took a bus tour around the city.,私たちは市内を回るバスツアーに参加しました。,noun
+0440,tourist,旅行者,The tourist asked me the way to the station.,その旅行者は私に駅への道を尋ねました。,noun
+0441,wood,木材,This desk is made of wood.,この机は木材でできています。,noun
+0442,actress,女優,The actress appeared in a famous movie.,その女優は有名な映画に出ました。,noun
+0443,adventure,冒険,The boys had an adventure in the forest.,少年たちは森で冒険をしました。,noun
+0444,alarm,目覚まし,My alarm woke me up at six.,目覚ましが6時に私を起こしました。,noun
+0445,barbecue,バーベキュー,We had a barbecue by the river.,私たちは川のそばでバーベキューをしました。,noun
+0446,bathroom,浴室,Please clean the bathroom after dinner.,夕食後に浴室を掃除してください。,noun
+0447,beginner,初心者,This piano book is good for beginners.,このピアノの本は初心者に良いです。,noun
+0448,bottom,底,There is a coin at the bottom of the bag.,かばんの底に硬貨があります。,noun
+0449,bridge,橋,The bridge over the river is very old.,川にかかる橋はとても古いです。,noun
+0450,coach,コーチ,Our coach taught us a new rule.,コーチは私たちに新しい規則を教えました。,noun
+0451,comedy,喜劇,We watched a comedy and laughed a lot.,私たちは喜劇を見てたくさん笑いました。,noun
+0452,computer,コンピューター,I use a computer to write reports.,私はレポートを書くためにコンピューターを使います。,noun
+0453,continent,大陸,Africa is a very large continent.,アフリカはとても大きな大陸です。,noun
+0454,course,講座,I joined a summer English course.,私は夏の英語講座に参加しました。,noun
+0455,court,コート,The tennis court is behind the school.,テニスコートは学校の後ろにあります。,noun
+0456,decoration,飾り,The children made decorations for the party.,子どもたちはパーティーの飾りを作りました。,noun
+0457,dentist,歯医者,I went to the dentist after school.,放課後に歯医者へ行きました。,noun
+0458,description,説明,Her description helped me find the cat.,彼女の説明で私は猫を見つけられました。,noun
+0459,dessert,デザート,We had fruit for dessert.,私たちはデザートに果物を食べました。,noun
+0460,dining,食事の,The dining table is next to the window.,食事用のテーブルは窓の隣にあります。,noun
+0461,discount,割引,I bought this shirt with a discount.,このシャツを割引で買いました。,noun
+0462,doughnut,ドーナツ,My sister chose a chocolate doughnut.,姉はチョコレートドーナツを選びました。,noun
+0463,entrance,入口,Please meet me at the entrance.,入口で私に会ってください。,noun
+0464,environment,環境,We should keep our environment clean.,私たちは環境をきれいに保つべきです。,noun
+0465,fact,事実,It is a fact that water is important.,水が大切なのは事実です。,noun
+0466,fruit,果物,Fresh fruit is good for your health.,新鮮な果物は健康に良いです。,noun
+0467,gate,門,The school gate opens at seven thirty.,校門は7時半に開きます。,noun
+0468,gift,贈り物,This scarf is a gift from my aunt.,このスカーフはおばからの贈り物です。,noun
+0469,goal,目標,My goal is to read ten books this month.,私の目標は今月10冊の本を読むことです。,noun
+0470,goldfish,金魚,The goldfish swam slowly in the bowl.,金魚は鉢の中をゆっくり泳ぎました。,noun
+0471,headache,頭痛,I had a headache after the long trip.,長い旅行の後で頭痛がしました。,noun
+0472,health,健康,Sleep is important for your health.,睡眠は健康に大切です。,noun
+0473,hill,丘,We walked up a small hill near the park.,私たちは公園の近くの小さな丘を登りました。,noun
+0474,hobby,趣味,Drawing pictures is my hobby.,絵を描くことが私の趣味です。,noun
+0475,homestay,ホームステイ,She did a homestay in Canada.,彼女はカナダでホームステイをしました。,noun
+0476,jeans,ジーンズ,He wore jeans and a white T-shirt.,彼はジーンズと白いTシャツを着ていました。,noun
+0477,key,鍵,I found the key under the chair.,いすの下で鍵を見つけました。,noun
+0478,kid,子ども,The kid waved to his mother.,その子どもは母親に手を振りました。,noun
+0479,kilogram,キログラム,The watermelon weighs three kilograms.,そのスイカは3キログラムあります。,noun
+0480,kitchen,台所,My mother is cooking in the kitchen.,母は台所で料理をしています。,noun
+0481,land,土地,His family owns a large piece of land.,彼の家族は広い土地を持っています。,noun
+0482,language,言語,English is spoken in many countries.,英語は多くの国で話されています。,noun
+0483,law,法律,Everyone must follow the law.,誰もが法律を守らなければなりません。,noun
+0484,librarian,図書館員,The librarian helped me find the book.,図書館員が本探しを手伝ってくれました。,noun
+0485,mark,印,Put a mark next to the correct answer.,正しい答えの横に印を付けてください。,noun
+0486,mayor,市長,The mayor visited our school today.,市長が今日学校を訪れました。,noun
+0487,meat,肉,We had meat and vegetables for dinner.,夕食に肉と野菜を食べました。,noun
+0488,medal,メダル,She won a gold medal in the race.,彼女は競走で金メダルを取りました。,noun
+0489,necklace,ネックレス,The necklace was a birthday gift.,そのネックレスは誕生日プレゼントでした。,noun
+0490,nurse,看護師,The nurse checked my temperature.,看護師が体温を測りました。,noun
+0491,painting,絵,That painting hangs in the museum.,その絵は博物館に飾られています。,noun
+0492,pancake,パンケーキ,We made pancakes on Sunday morning.,日曜の朝にパンケーキを作りました。,noun
+0493,price,価格,The price of the bike was high.,その自転車の価格は高かったです。,noun
+0494,project,計画,Our project finished on time.,私たちの計画は予定通り終わりました。,noun
+0495,promise,約束,I kept my promise to my friend.,友達との約束を守りました。,noun
+0496,queen,女王,The queen greeted the visitors.,女王は訪問者にあいさつしました。,noun
+0497,rest,休息,Take a rest after the game.,試合の後は休みなさい。,noun
+0498,rock,岩,Children climbed the large rock.,子どもたちは大きな岩に登りました。,noun
+0499,schoolwork,学校の勉強,I finished my schoolwork before dinner.,夕食前に学校の勉強を終えました。,noun
+0500,science fiction,SF小説,He enjoys reading science fiction.,彼はSF小説を読むのが好きです。,noun
+0501,section,区分,This section is about animals.,この区分は動物についてです。,noun
+0502,sentence,文,Write a sentence using this word.,この単語を使って文を書きなさい。,noun
+0503,sign,標識,The sign says 'No Parking'.,その標識には駐車禁止と書いてあります。,noun
+0504,sir,先生,Yes sir， I understand.,はい先生、分かりました。,noun
+0505,snack,軽食,I had a snack after school.,放課後に軽食を食べました。,noun
+0506,stew,シチュー,The stew smelled wonderful.,そのシチューはとても良いにおいでした。,noun
+0507,sweater,セーター,She wore a warm sweater.,彼女は暖かいセーターを着ていました。,noun
+0508,system,制度,The new system works well.,新しい制度はうまく機能しています。,noun
+0509,telephone,電話,The telephone rang twice.,電話が2回鳴りました。,noun
+0510,thousand,千,More than a thousand people came.,1000人以上が来ました。,noun
+0511,trick,いたずら,That magic trick surprised everyone.,その手品はみんなを驚かせました。,noun
+0512,type,型,What type of music do you like?,どんな種類の音楽が好きですか。,noun
+0513,view,景色,The view from the hill was great.,丘からの景色は素晴らしかったです。,noun
+0514,village,村,My grandparents live in a small village.,祖父母は小さな村に住んでいます。,noun
+0515,waiter,ウェイター,The waiter brought our drinks.,ウェイターが飲み物を持ってきました。,noun
+0516,wallet,財布,I found my wallet under the desk.,机の下で財布を見つけました。,noun
+0517,bottle,びん,The bottle is full of water.,そのびんは水でいっぱいです。,noun
+0518,classmate,同級生,A classmate helped me with math.,同級生が算数を手伝ってくれました。,noun
+0519,classroom,教室,Our classroom is on the second floor.,教室は2階にあります。,noun
+0520,meter,メートル,The pool is twenty meters long.,そのプールは20メートルあります。,noun
+0521,video,ビデオ,We watched a video about space.,宇宙についてのビデオを見ました。,noun
+0522,national,国の,This is a national holiday.,今日は国の祝日です。,adjective
+0523,crowded,混雑した,The train was crowded this morning.,今朝電車は混雑していました。,adjective
+0524,daily,毎日の,Walking is part of my daily routine.,散歩は私の日課の一部です。,adjective
+0525,excited,興奮した,The children were excited about the trip.,子どもたちは旅行に興奮していました。,adjective
+0526,female,女性の,The female athlete won the race.,その女性選手は競走で勝ちました。,adjective
+0527,junior,年下の,My junior brother joined the team.,年下の弟がチームに入りました。,adjective
+0528,loud,うるさい,The music was too loud.,音楽がうるさすぎました。,adjective
+0529,male,男性の,The male singer is very popular.,その男性歌手はとても人気です。,adjective
+0530,possible,可能な,Is it possible to finish today?,今日中に終えることは可能ですか。,adjective
+0531,sad,悲しい,The movie had a sad ending.,その映画は悲しい結末でした。,adjective
+0532,such,そのような,I have never seen such a bird.,私はそのような鳥を見たことがありません。,adjective
+0533,easy,簡単な,This quiz is easy for me.,このクイズは私には簡単です。,adjective
+0534,expensive,高価な,That watch is expensive.,その腕時計は高価です。,adjective
+0535,fast,速い,A fast train stopped here.,速い電車がここに止まりました。,adjective
+0536,few,少数の,Few people knew the answer.,少数の人しか答えを知りませんでした。,adjective
+0537,full,いっぱいの,The room was full of students.,部屋は生徒でいっぱいでした。,adjective
+0538,half,半分の,I ate half the cake.,ケーキの半分を食べました。,adjective
+0539,heavy,重い,This bag is too heavy.,このかばんは重すぎます。,adjective
+0540,homesick,ホームシックの,She felt homesick during the trip.,彼女は旅行中ホームシックになりました。,adjective
+0541,own,自分の,He has his own room.,彼は自分の部屋を持っています。,adjective
+0542,shy,内気な,The shy girl spoke softly.,内気な少女は小さな声で話しました。,adjective
+0543,silent,静かな,We stayed in a silent library.,私たちは静かな図書館にいました。,adjective
+0544,TRUE,本当の,That story is true.,その話は本当です。,adjective
+0545,wonderful,素晴らしい,We had a wonderful day together.,私たちは素晴らしい一日を過ごしました。,adjective
+0546,absent,欠席の,He was absent from school yesterday.,彼は昨日学校を欠席しました。,adjective
+0547,boring,退屈な,The lecture was boring.,その講義は退屈でした。,adjective
+0548,broken,壊れた,The broken chair needs repair.,壊れた椅子は修理が必要です。,adjective
+0549,cheap,安い,This shop sells cheap books.,この店は安い本を売っています。,adjective
+0550,cloudy,曇った,It was cloudy all day.,一日中曇っていました。,adjective
+0551,dangerous,危険な,Swimming here is dangerous.,ここで泳ぐのは危険です。,adjective
+0552,deep,深い,The lake is very deep.,その湖はとても深いです。,adjective
+0553,elementary,小学校の,She is an elementary school teacher.,彼女は小学校の先生です。,adjective
+0554,enjoyable,楽しい,The party was enjoyable for everyone.,そのパーティーはみんなが楽しめました。,adjective
+0555,familiar,よく知られた,He is familiar with this area.,彼はこの地域に詳しいです。,adjective
+0556,fresh,新鮮な,We bought fresh fish this morning.,今朝新鮮な魚を買いました。,adjective
+0557,funny,面白い,The comic was funny.,その漫画は面白かったです。,adjective
+0558,human,人間の,Human life is valuable.,人間の命は大切です。,adjective
+0559,less,より少ない,There is less water in the bottle now.,今はびんの水が少なくなっています。,adjective
+0560,narrow,狭い,The road is narrow here.,ここは道が狭いです。,adjective
+0561,perfect,完全な,Nobody is perfect.,完全な人はいません。,adjective
+0562,poor,貧しい,The poor family needed help.,その貧しい家族は助けを必要としていました。,adjective
+0563,public,公共の,This is a public park.,ここは公共の公園です。,adjective
+0564,smart,賢い,The smart student answered quickly.,その賢い生徒はすぐ答えました。,adjective
+0565,usual,いつもの,We met at the usual place.,私たちはいつもの場所で会いました。,adjective
+0566,wide,広い,The river is very wide.,その川はとても広いです。,adjective
+0567,short,短い,He gave a short speech.,彼は短いスピーチをしました。,adjective
+0568,sunny,晴れた,It will be sunny tomorrow.,明日は晴れるでしょう。,adjective
+0569,alone,一人で,She traveled alone to Kyoto.,彼女は一人で京都へ旅行しました。,adverb
+0570,anymore,もはや〜ない,I do not play that game anymore.,私はもうそのゲームをしません。,adverb
+0571,else,ほかに,Who else wants to join us?,ほかに誰が参加したいですか。,adverb
+0572,finally,ついに,We finally reached the top.,私たちはついに頂上に着きました。,adverb
+0573,maybe,たぶん,Maybe it will snow tonight.,たぶん今夜雪が降るでしょう。,adverb
+0574,almost,ほとんど,The work is almost finished.,その作業はほとんど終わっています。,adverb
+0575,easily,簡単に,She easily solved the puzzle.,彼女は簡単にパズルを解きました。,adverb
+0576,either,どちらも〜ない,I don't like either answer.,私はどちらの答えも好きではありません。,adverb
+0577,especially,特に,I especially like summer festivals.,私は特に夏祭りが好きです。,adverb
+0578,inside,内側に,Please wait inside the building.,建物の内側で待ってください。,adverb
+0579,pretty,かなり,The test was pretty easy for me.,そのテストは私にはかなり簡単でした。,adverb
+0580,sincerely,心から,I sincerely thanked my teacher.,私は先生に心からお礼を言いました。,adverb
+0581,sometimes,ときどき,We sometimes eat dinner outside.,私たちはときどき外で夕食を食べます。,adverb
+0582,twice,二度,I visited that zoo twice last year.,去年その動物園を二度訪れました。,adverb
+0583,abroad,海外へ,My cousin wants to study abroad.,いとこは海外で勉強したがっています。,adverb
+0584,ahead,前方に,Walk ahead and turn right at the corner.,前へ歩いて角を右に曲がってください。,adverb
+0585,cheaply,安く,I bought this bag cheaply at the sale.,このかばんをセールで安く買いました。,adverb
+0586,luckily,幸運にも,Luckily， we found the lost ticket.,幸運にもなくした切符を見つけました。,adverb
+0587,someday,いつか,I want to visit Canada someday.,いつかカナダを訪れたいです。,adverb
+0588,straight,まっすぐに,Go straight to the next traffic light.,次の信号までまっすぐ進んでください。,adverb
+0589,suddenly,突然,Suddenly， the lights went out.,突然、明かりが消えました。,adverb
+0590,along,〜に沿って,We walked along the river after lunch.,昼食後に川沿いを歩きました。,preposition/adverb
+0591,beside,〜のそばに,The cat slept beside the window.,猫は窓のそばで寝ていました。,preposition
+0592,against,〜に反対して,Our team played against a strong team.,私たちのチームは強いチームと対戦しました。,preposition
+0593,behind,〜の後ろに,The ball rolled behind the door.,ボールはドアの後ろへ転がりました。,preposition
+0594,without,〜なしで,I cannot read this book without glasses.,眼鏡なしではこの本を読めません。,preposition
+0595,anything,何でも,You can ask me anything about the trip.,旅行について何でも聞いてください。,pronoun
+0596,both,両方,Both of my brothers like baseball.,私の兄弟は二人とも野球が好きです。,pronoun
+0597,something,何か,There is something under the desk.,机の下に何かあります。,pronoun
+0598,herself,彼女自身,She made the lunch by herself.,彼女は自分で昼食を作りました。,pronoun
+0599,soothing,心を落ち着かせる,The soft music was soothing.,そのやさしい音楽は心を落ち着かせました。,adjective
+0600,someone,だれか,Someone left a notebook here.,誰かがここにノートを置きました。,pronoun
+0601,attend,出席する,Many students attended the school meeting.,多くの生徒が学校の集会に出席しました。,verb
+0602,cancel,取り消す,They canceled the picnic because of rain.,雨のためピクニックは中止されました。,verb
+0603,climb,登る,We climbed the hill before sunset.,日没前に丘を登りました。,verb
+0604,cut,切る,Please cut the paper into two pieces.,その紙を二つに切ってください。,verb
+0605,design,設計する,She designed a poster for the festival.,彼女は祭りのポスターをデザインしました。,verb
+0606,hang,掛ける,Hang your coat on the wall.,コートを壁に掛けてください。,verb
+0607,knock,ノックする,He knocked on the door three times.,彼はドアを3回ノックしました。,verb
+0608,let,〜させる,My father let me use his camera.,父は私にカメラを使わせてくれました。,verb
+0609,oversleep,寝過ごす,I overslept and missed breakfast.,寝過ごして朝食を食べそこねました。,verb
+0610,prepare,準備する,We prepared lunch for the guests.,私たちはお客さんのために昼食を準備しました。,verb
+0611,raise,上げる,Raise your hand before you speak.,話す前に手を上げなさい。,verb
+0612,repeat,繰り返す,Please repeat the sentence after me.,私の後にその文を繰り返してください。,verb
+0613,rise,昇る,The sun rises early in summer.,夏は太陽が早く昇ります。,verb
+0614,seem,〜のように思われる,She seems happy with her new school.,彼女は新しい学校に満足しているようです。,verb
+0615,smile,ほほえむ,The baby smiled at his mother.,赤ちゃんは母親にほほえみました。,verb
+0616,touch,触れる,Do not touch the hot pan.,熱いフライパンに触らないでください。,verb
+0617,wonder,不思議に思う,I wonder why the sky is blue.,なぜ空が青いのか不思議に思います。,verb
+0618,act,行動する,The students acted quickly during the drill.,生徒たちは訓練中すばやく行動しました。,verb
+0619,add,加える,Add some milk to the soup.,スープに牛乳を少し加えてください。,verb
+0620,appear,現れる,A rainbow appeared after the rain.,雨の後で虹が現れました。,verb
+0621,arrest,逮捕する,The police arrested the man yesterday.,警察は昨日その男性を逮捕しました。,verb
+0622,boil,沸かす,Boil the water before you make tea.,お茶を入れる前に水を沸かしてください。,verb
+0623,burn,燃える,The candle burned quietly on the table.,ろうそくは机の上で静かに燃えていました。,verb
+0624,cause,引き起こす,Heavy snow caused many train delays.,大雪が多くの電車の遅れを引き起こしました。,verb
+0625,cheer,応援する,We cheered for our school team.,私たちは学校のチームを応援しました。,verb
+0626,communicate,伝え合う,People communicate by using words.,人々は言葉を使って伝え合います。,verb
+0627,control,制御する,The driver controlled the car carefully.,運転手は車を注意深く操作しました。,verb
+0628,decorate,飾る,We decorated the classroom with flowers.,私たちは教室を花で飾りました。,verb
+0629,direct,指示する,The teacher directed us to the hall.,先生は私たちをホールへ案内しました。,verb
+0630,disappear,消える,The moon disappeared behind the clouds.,月は雲の後ろに消えました。,verb
+0631,discover,発見する,The children discovered a small cave.,子どもたちは小さな洞窟を発見しました。,verb
+0632,escape,逃げる,The bird escaped from the cage.,鳥は鳥かごから逃げました。,verb
+0633,explain,説明する,Can you explain this rule to me?,この規則を私に説明してくれますか。,verb
+0634,express,表現する,He expressed his idea with a picture.,彼は絵で自分の考えを表しました。,verb
+0635,fail,失敗する,I failed to catch the last bus.,最終バスに乗ることができませんでした。,verb
+0636,feed,食べ物を与える,Please feed the dog before dinner.,夕食前に犬にえさをあげてください。,verb
+0637,fix,修理する,My uncle fixed my broken bike.,おじが壊れた自転車を修理してくれました。,verb
+0638,fold,折り畳む,Fold the paper in half.,紙を半分に折ってください。,verb
+0639,greet,あいさつする,The students greeted the visitors politely.,生徒たちは訪問者に礼儀正しくあいさつしました。,verb
+0640,hide,隠す,The child hid behind the sofa.,その子はソファの後ろに隠れました。,verb
+0641,hike,ハイキングする,We hiked in the mountains last weekend.,先週末に山でハイキングをしました。,verb
+0642,hunt,狩る,Some animals hunt at night.,夜に狩りをする動物もいます。,verb
+0643,impress,感動させる,Her piano music impressed everyone.,彼女のピアノ演奏はみんなを感動させました。,verb
+0644,injure,けがをさせる,He injured his arm during practice.,彼は練習中に腕をけがしました。,verb
+0645,interview,面接する,The reporter interviewed the soccer player.,記者はそのサッカー選手にインタビューしました。,verb
+0646,judge,判断する,Do not judge people by their clothes.,服だけで人を判断してはいけません。,verb
+0647,laugh,笑う,Everyone laughed at the funny story.,みんながその面白い話に笑いました。,verb
+0648,lay,横たえる,She laid the baby on the bed.,彼女は赤ちゃんをベッドに寝かせました。,verb
+0649,lead,導く,The guide led us through the museum.,ガイドが私たちを博物館の中へ案内しました。,verb
+0650,marry,結婚する,My sister married her classmate last year.,姉は去年同級生と結婚しました。,verb
+0651,mix,混ぜる,Mix the eggs and milk in a bowl.,ボウルで卵と牛乳を混ぜてください。,verb
+0652,offer,申し出る,He offered to carry my heavy bag.,彼は私の重いかばんを持とうと申し出ました。,verb
+0653,produce,生産する,This farm produces fresh vegetables.,この農場は新鮮な野菜を生産しています。,verb
+0654,pull,引く,Pull the door to open it.,ドアを開けるには引いてください。,verb
+0655,realize,理解する,I realized my mistake after the test.,テストの後で自分の間違いに気づきました。,verb
+0656,record,記録する,We recorded the weather every morning.,私たちは毎朝天気を記録しました。,verb
+0657,recycle,リサイクルする,Our class recycles paper every week.,私たちのクラスは毎週紙をリサイクルします。,verb
+0658,shine,輝く,The stars shone brightly at night.,夜に星が明るく輝きました。,verb
+0659,shock,衝撃を与える,The news shocked everyone in the room.,その知らせは部屋のみんなを驚かせました。,verb
+0660,shoot,撃つ,The player shot the ball into the goal.,その選手はボールをゴールに蹴り込みました。,verb
+0661,smoke,煙を出す,The old train smoked as it moved.,古い電車は動きながら煙を出しました。,verb
+0662,solve,解決する,We solved the puzzle together.,私たちは一緒にパズルを解きました。,verb
+0663,spell,つづる,Can you spell your name in English?,あなたの名前を英語でつづれますか。,verb
+0664,support,支援する,My friends supported me during the contest.,友達はコンテスト中に私を支えてくれました。,verb
+0665,survive,生き残る,The small plant survived the cold winter.,その小さな植物は寒い冬を生き延びました。,verb
+0666,waste,無駄にする,Do not waste food at lunch.,昼食で食べ物を無駄にしてはいけません。,verb
+0667,wish,願う,I wish you good luck on the test.,テストでの幸運を祈っています。,verb
+0668,activity,活動,Club activity starts after school.,クラブ活動は放課後に始まります。,noun
+0669,address,住所,Please write your address here.,ここに住所を書いてください。,noun
+0670,adult,大人,An adult helped the lost child.,大人が迷子の子を助けました。,noun
+0671,age,年齢,What is the age of your dog?,あなたの犬は何歳ですか。,noun
+0672,apartment,アパート,They live in a small apartment.,彼らは小さなアパートに住んでいます。,noun
+0673,aquarium,水族館,We saw many fish at the aquarium.,水族館でたくさんの魚を見ました。,noun
+0674,arm,腕,My arm hurt after tennis practice.,テニスの練習後に腕が痛くなりました。,noun
+0675,basket,かご,She put apples in the basket.,彼女はかごにリンゴを入れました。,noun
+0676,battle,戦い,The battle in the story was long.,物語の中の戦いは長かったです。,noun
+0677,block,区画,Our house is on the next block.,私たちの家は次の区画にあります。,noun
+0678,body,体,Exercise is good for your body.,運動は体に良いです。,noun
+0679,business,仕事,My father is away on business today.,父は今日仕事で出かけています。,noun
+0680,button,ボタン,Press this button to start the game.,ゲームを始めるにはこのボタンを押してください。,noun
+0681,ceiling,天井,There is a light on the ceiling.,天井に明かりがあります。,noun
+0682,centimeter,センチメートル,The ruler is thirty centimeters long.,その定規は30センチメートルあります。,noun
+0683,ceremony,式典,The school ceremony began at ten.,学校の式典は10時に始まりました。,noun
+0684,chef,料理長,The chef made soup for the guests.,料理長はお客さんにスープを作りました。,noun
+0685,closet,押し入れ,My coat is in the closet.,私のコートは押し入れにあります。,noun
+0686,corner,角,Turn left at the next corner.,次の角を左に曲がってください。,noun
+0687,costume,衣装,She wore a cat costume at the party.,彼女はパーティーで猫の衣装を着ました。,noun
+0688,custom,習慣,Bowing is an old custom in Japan.,お辞儀は日本の古い習慣です。,noun
+0689,department store,デパート,We bought shoes at the department store.,私たちはデパートで靴を買いました。,noun
+0690,difference,違い,Can you see the difference between these pictures?,この二つの絵の違いが分かりますか。,noun
+0691,director,監督,The director talked to the actors.,監督は俳優たちに話しました。,noun
+0692,drugstore,薬局,I bought medicine at the drugstore.,薬局で薬を買いました。,noun
+0693,fever,熱,She stayed home because of a fever.,彼女は熱があったので家にいました。,noun
+0694,field,野原,We played soccer in the field.,私たちは野原でサッカーをしました。,noun
+0695,figure,図,Look at the figure on page twelve.,12ページの図を見てください。,noun
+0696,flight,飛行,The flight to Osaka was short.,大阪への飛行は短かったです。,noun
+0697,furniture,家具,This room has simple furniture.,この部屋には簡単な家具があります。,noun
+0698,garbage,ごみ,Please put the garbage in this bag.,ごみをこの袋に入れてください。,noun
+0699,grandson,孫息子,Her grandson is five years old.,彼女の孫息子は5歳です。,noun
+0700,grass,草,The grass was wet after the rain.,雨の後で草がぬれていました。,noun
+0701,guide,案内人,The guide showed us the old castle.,案内人が古い城を見せてくれました。,noun
+0702,hallway,廊下,Do not run in the hallway.,廊下を走ってはいけません。,noun
+0703,hero,英雄,The boy wants to become a hero.,その少年は英雄になりたがっています。,noun
+0704,holiday,休日,Monday is a holiday this week.,今週の月曜日は休日です。,noun
+0705,horizon,地平線,The sun went down behind the horizon.,太陽は地平線の向こうに沈みました。,noun
+0706,illness,病気,This medicine helps with the illness.,この薬はその病気に効きます。,noun
+0707,list,一覧表,Write your name on the list.,一覧表に名前を書いてください。,noun
+0708,memory,記憶,This song brings back a happy memory.,この歌は楽しい記憶を思い出させます。,noun
+0709,middle,真ん中,There is a table in the middle of the room.,部屋の真ん中にテーブルがあります。,noun
+0710,midnight,真夜中,The clock struck midnight.,時計が真夜中を告げました。,noun
+0711,model,模型,He made a model of a plane.,彼は飛行機の模型を作りました。,noun
+0712,musical,ミュージカル,We watched a musical at the theater.,私たちは劇場でミュージカルを見ました。,noun
+0713,neighborhood,近所,My neighborhood has a small park.,私の近所には小さな公園があります。,noun
+0714,noon,正午,Let's meet at noon in front of the station.,正午に駅の前で会いましょう。,noun
+0715,opinion,意見,Please tell me your opinion.,あなたの意見を教えてください。,noun
+0716,oven,オーブン,The bread is baking in the oven.,パンがオーブンで焼けています。,noun
+0717,pajamas,パジャマ,I put on my pajamas before bed.,寝る前にパジャマを着ました。,noun
+0718,planet,惑星,Earth is a planet with water.,地球は水のある惑星です。,noun
+0719,pleasure,楽しみ,It is a pleasure to meet you.,お会いできてうれしいです。,noun
+0720,pocket,ポケット,I found a coin in my pocket.,ポケットの中に硬貨を見つけました。,noun
+0721,police,警察,The police helped the lost child.,警察が迷子の子どもを助けました。,noun
+0722,puppy,子犬,The puppy slept under the chair.,子犬はいすの下で寝ました。,noun
+0723,radio,ラジオ,My grandfather listens to the radio every morning.,祖父は毎朝ラジオを聞きます。,noun
+0724,schedule,予定,Check the schedule before the trip.,旅行の前に予定を確認してください。,noun
+0725,score,得点,Our team got the first score.,私たちのチームが最初の得点を取りました。,noun
+0726,shuttle,シャトル,The shuttle bus leaves every ten minutes.,シャトルバスは10分ごとに出ます。,noun
+0727,sight,視力,Good sight is important for reading.,読むためには良い視力が大切です。,noun
+0728,sofa,ソファ,My cat is sleeping on the sofa.,猫がソファで寝ています。,noun
+0729,storm,嵐,The storm broke many trees in the park.,嵐が公園の多くの木を折りました。,noun
+0730,tie,ネクタイ,My father wore a blue tie.,父は青いネクタイをしていました。,noun
+0731,trouble,困りごと,I had trouble with my homework.,宿題で困りました。,noun
+0732,voice,声,Her voice is soft and clear.,彼女の声はやさしくてはっきりしています。,noun
+0733,action,行動,Your quick action helped everyone.,あなたの素早い行動がみんなを助けました。,noun
+0734,advice,助言,My teacher gave me good advice.,先生が良い助言をくれました。,noun
+0735,award,賞,The award made him very happy.,その賞は彼をとても喜ばせました。,noun
+0736,beginning,始まり,The beginning of the story was exciting.,物語の始まりはわくわくしました。,noun
+0737,billion,十億,There are billions of stars in space.,宇宙には何十億もの星があります。,noun
+0738,blackboard,黒板,The teacher wrote a word on the blackboard.,先生は黒板に単語を書きました。,noun
+0739,camp,キャンプ,We cooked breakfast at camp.,私たちはキャンプで朝食を作りました。,noun
+0740,capital,首都,Tokyo is the capital of Japan.,東京は日本の首都です。,noun
+0741,castle,城,The castle stands on a hill.,その城は丘の上に立っています。,noun
+0742,climate,気候,Hokkaido has a cool climate.,北海道は涼しい気候です。,noun
+0743,comic,漫画,My brother reads comics after school.,弟は放課後に漫画を読みます。,noun
+0744,communication,コミュニケーション,Good communication helps a team.,良いコミュニケーションはチームを助けます。,noun
+0745,damage,損害,The rain caused damage to the road.,雨が道路に損害を与えました。,noun
+0746,danger,危険,There is danger near the broken bridge.,壊れた橋の近くには危険があります。,noun
+0747,death,死,The story teaches us about life and death.,その物語は生と死について教えてくれます。,noun
+0748,desert,砂漠,Camels can walk across the desert.,ラクダは砂漠を歩いて渡れます。,noun
+0749,difficulty,難しさ,He understood the difficulty of the work.,彼はその仕事の難しさを理解しました。,noun
+0750,earthquake,地震,The earthquake woke us up at night.,地震が夜に私たちを起こしました。,noun
+0751,elevator,エレベーター,Take the elevator to the fifth floor.,5階までエレベーターに乗ってください。,noun
+0752,enemy,敵,The hero faced a strong enemy.,その英雄は強い敵に向かいました。,noun
+0753,energy,エネルギー,Breakfast gives us energy for the day.,朝食は一日のためのエネルギーをくれます。,noun
+0754,examination,試験,The English examination starts next Monday.,英語の試験は来週の月曜日に始まります。,noun
+0755,expression,表現,This expression is useful in e-mails.,この表現はメールで役立ちます。,noun
+0756,firework,花火,We watched fireworks by the river.,私たちは川のそばで花火を見ました。,noun
+0757,flag,旗,The flag was flying in front of the school.,旗が学校の前でなびいていました。,noun
+0758,fork,フォーク,Use a fork to eat the salad.,サラダを食べるのにフォークを使いなさい。,noun
+0759,freedom,自由,Children need time and freedom to play.,子どもには遊ぶ時間と自由が必要です。,noun
+0760,fridge,冷蔵庫,Put the milk back in the fridge.,牛乳を冷蔵庫に戻してください。,noun
+0761,friendship,友情,Their friendship started in first grade.,彼らの友情は1年生のときに始まりました。,noun
+0762,generation,世代,My grandmother's generation used fewer computers.,祖母の世代はコンピューターをあまり使いませんでした。,noun
+0763,gesture,身ぶり,He used a gesture to show the way.,彼は身ぶりで道を示しました。,noun
+0764,glass,ガラス,The glass broke on the floor.,ガラスが床で割れました。,noun
+0765,glove,手袋,I need gloves on snowy days.,雪の日には手袋が必要です。,noun
+0766,gram,グラム,This apple weighs two hundred grams.,このリンゴは200グラムあります。,noun
+0767,grandparent,祖父母,My grandparents live near the sea.,祖父母は海の近くに住んでいます。,noun
+0768,greeting,あいさつ,A cheerful greeting starts a good day.,明るいあいさつは良い一日を始めます。,noun
+0769,heat,熱,The heat made everyone tired.,その暑さでみんな疲れました。,noun
+0770,hint,ヒント,Can you give me a hint?,ヒントをくれますか。,noun
+0771,hole,穴,There is a small hole in my sock.,靴下に小さな穴があります。,noun
+0772,horse,馬,The horse ran across the field.,馬は野原を走って横切りました。,noun
+0773,host,主催者,The host welcomed us at the door.,主催者はドアの所で私たちを迎えました。,noun
+0774,importance,重要性,We learned the importance of clean water.,私たちはきれいな水の重要性を学びました。,noun
+0775,ink,インク,The ink on this page is blue.,このページのインクは青いです。,noun
+0776,juice,ジュース,Orange juice is in the fridge.,オレンジジュースは冷蔵庫にあります。,noun
+0777,leaf,葉,A green leaf fell into the river.,緑の葉が川に落ちました。,noun
+0778,license,免許,My father got his driver's license last year.,父は去年運転免許を取りました。,noun
+0779,mirror,鏡,She checked her hair in the mirror.,彼女は鏡で髪を確認しました。,noun
+0780,neighbor,近所の人,Our neighbor gave us fresh vegetables.,近所の人が新鮮な野菜をくれました。,noun
+0781,nephew,甥,My nephew likes playing with toy cars.,私の甥はおもちゃの車で遊ぶのが好きです。,noun
+0782,noise,騒音,The noise outside woke me up.,外の騒音で目が覚めました。,noun
+0783,note,メモ,I wrote a note to my teacher.,先生にメモを書きました。,noun
+0784,novel,小説,This novel is easy to read.,この小説は読みやすいです。,noun
+0785,oil,油,Please put a little oil in the pan.,フライパンに油を少し入れてください。,noun
+0786,owner,所有者,The owner of the dog lives nearby.,その犬の飼い主は近くに住んでいます。,noun
+0787,pain,痛み,I felt pain in my foot after running.,走った後で足に痛みを感じました。,noun
+0788,passenger,乗客,Many passengers got on the train.,多くの乗客が電車に乗りました。,noun
+0789,peace,平和,Everyone hopes for peace in the world.,誰もが世界の平和を願っています。,noun
+0790,performance,公演,The dance performance started at seven.,ダンスの公演は7時に始まりました。,noun
+0791,port,港,The ship arrived at the port in the morning.,船は朝に港に着きました。,noun
+0792,postcard,絵はがき,I sent a postcard from Okinawa.,沖縄から絵はがきを送りました。,noun
+0793,program,番組,My favorite TV program is on tonight.,私の好きなテレビ番組は今夜あります。,noun
+0794,resort,リゾート地,We stayed at a resort near the beach.,浜辺の近くのリゾート地に泊まりました。,noun
+0795,rocket,ロケット,The rocket went up into the sky.,ロケットは空へ上がっていきました。,noun
+0796,sadness,悲しみ,She felt sadness after saying goodbye.,別れを言った後で彼女は悲しみを感じました。,noun
+0797,safety,安全,Safety is important during sports.,スポーツ中は安全が大切です。,noun
+0798,salesclerk,販売員,The salesclerk showed me a red bag.,販売員が赤いかばんを見せてくれました。,noun
+0799,scene,場面,The last scene of the movie was beautiful.,映画の最後の場面は美しかったです。,noun
+0800,scissors,はさみ,Use scissors to cut the paper.,紙を切るのにはさみを使いなさい。,noun
+0801,shampoo,シャンプー,I bought shampoo at the drugstore.,薬局でシャンプーを買いました。,noun
+0802,shape,形,The cloud had a strange shape.,その雲は変わった形をしていました。,noun
+0803,shower,シャワー,I took a shower after soccer practice.,サッカーの練習後にシャワーを浴びました。,noun
+0804,shrine,神社,We visited a shrine on New Year's Day.,元日に神社を訪れました。,noun
+0805,sightseeing,観光,Sightseeing in Kyoto was fun.,京都での観光は楽しかったです。,noun
+0806,skill,技能,Reading maps is a useful skill.,地図を読むことは役に立つ技能です。,noun
+0807,sneaker,スニーカー,My new sneakers are very light.,新しいスニーカーはとても軽いです。,noun
+0808,soldier,兵士,The soldier helped people after the storm.,その兵士は嵐の後で人々を助けました。,noun
+0809,speed,速さ,The speed of the train surprised me.,その電車の速さに驚きました。,noun
+0810,stadium,競技場,The stadium was full of soccer fans.,競技場はサッカーファンでいっぱいでした。,noun
+0811,stair,階段,Be careful on the stairs.,階段では気をつけてください。,noun
+0812,state,州,California is a state in the U.S.,カリフォルニアはアメリカの州です。,noun
+0813,statue,像,There is a statue in front of the station.,駅の前に像があります。,noun
+0814,steak,ステーキ,My father cooked steak for dinner.,父は夕食にステーキを焼きました。,noun
+0815,stomach,胃,My stomach hurt after lunch.,昼食後に胃が痛くなりました。,noun
+0816,stranger,見知らぬ人,Do not follow a stranger.,見知らぬ人について行ってはいけません。,noun
+0817,sugar,砂糖,Do you want sugar in your tea?,紅茶に砂糖を入れますか。,noun
+0818,suit,スーツ,He wore a black suit to the meeting.,彼は会議に黒いスーツを着て行きました。,noun
+0819,suitcase,スーツケース,My suitcase is too heavy.,私のスーツケースは重すぎます。,noun
+0820,sunrise,日の出,We got up early to see the sunrise.,日の出を見るために早く起きました。,noun
+0821,sunset,日の入り,The sunset over the sea was orange.,海に沈む夕日はオレンジ色でした。,noun
+0822,symbol,象徴,The dove is a symbol of peace.,ハトは平和の象徴です。,noun
+0823,temperature,気温,The temperature is high today.,今日は気温が高いです。,noun
+0824,tradition,伝統,This festival is an old tradition.,この祭りは古い伝統です。,noun
+0825,twin,双子,The twins are in the same class.,その双子は同じクラスです。,noun
+0826,typhoon,台風,The typhoon closed our school.,台風で学校が休みになりました。,noun
+0827,wine,ワイン,This bottle of wine is for adults.,このワインのびんは大人用です。,noun
+0828,wing,翼,The bird opened its wings wide.,鳥は翼を大きく広げました。,noun
+0829,asleep,眠っている,The baby is asleep in the next room.,赤ちゃんは隣の部屋で眠っています。,adjective
+0830,bright,明るい,The room became bright after we opened the curtains.,カーテンを開けると部屋が明るくなりました。,adjective
+0831,careful,注意深い,Be careful when you cross the street.,通りを渡るときは注意深くしなさい。,adjective
+0832,central,中心の,The central park is near the city hall.,中央公園は市役所の近くにあります。,adjective
+0833,clever,賢い,The clever dog opened the door.,その賢い犬はドアを開けました。,adjective
+0834,comfortable,快適な,This chair is comfortable for reading.,このいすは読書に快適です。,adjective
+0835,common,普通の,It was a common mistake in our class.,それは私たちのクラスでよくある間違いでした。,adjective
+0836,cute,かわいい,The cute kitten slept in a box.,そのかわいい子猫は箱の中で寝ていました。,adjective
+0837,dark,暗い,The room was dark before sunrise.,日の出前は部屋が暗かったです。,adjective
+0838,digital,デジタルの,My father bought a digital camera.,父はデジタルカメラを買いました。,adjective
+0839,excellent,優れた,She did an excellent job on the report.,彼女はレポートで素晴らしい仕事をしました。,adjective
+0840,friendly,親しみやすい,Our new teacher is friendly to everyone.,新しい先生はみんなに親しみやすいです。,adjective
+0841,healthy,健康な,Healthy food helps us study well.,健康的な食べ物は勉強を助けます。,adjective
+0842,latest,最新の,I read the latest news on the website.,ウェブサイトで最新のニュースを読みました。,adjective
+0843,local,地元の,We bought vegetables at the local market.,地元の市場で野菜を買いました。,adjective
+0844,natural,自然の,Natural light comes into this room.,この部屋には自然の光が入ります。,adjective
+0845,necessary,必要な,A dictionary is necessary for this lesson.,この授業には辞書が必要です。,adjective
+0846,quiet,静かな,The library is quiet in the morning.,図書館は朝とても静かです。,adjective
+0847,round,丸い,The moon looked round last night.,昨夜の月は丸く見えました。,adjective
+0848,scared,怖がっている,The child was scared of thunder.,その子は雷を怖がっていました。,adjective
+0849,several,いくつかの,Several students raised their hands.,数人の生徒が手を上げました。,adjective
+0850,simple,簡単な,The teacher gave us a simple question.,先生は簡単な質問を出しました。,adjective
+0851,snowy,雪の多い,We had a snowy day in February.,2月に雪の多い日がありました。,adjective
+0852,southern,南部の,The southern part of the island is warm.,その島の南部は暖かいです。,adjective
+0853,strong,強い,A strong wind blew all night.,強い風が一晩中吹きました。,adjective
+0854,sweet,甘い,This peach is sweet and fresh.,この桃は甘くて新鮮です。,adjective
+0855,thick,厚い,He wore a thick coat in winter.,彼は冬に厚いコートを着ました。,adjective
+0856,thirsty,のどが渇いた,I was thirsty after the long walk.,長い散歩の後でのどが渇きました。,adjective
+0857,traditional,伝統的な,We wore traditional clothes at the festival.,祭りで伝統的な服を着ました。,adjective
+0858,upset,動揺した,She was upset about the broken toy.,彼女は壊れたおもちゃのことで動揺していました。,adjective
+0859,whole,全体の,The whole family came to the party.,家族全員がパーティーに来ました。,adjective
+0860,alive,生きている,The fish is still alive.,その魚はまだ生きています。,adjective
+0861,cheerful,陽気な,My cheerful friend always smiles.,陽気な友達はいつも笑っています。,adjective
+0862,dirty,汚い,My shoes became dirty in the rain.,雨で靴が汚くなりました。,adjective
+0863,elderly,年配の,An elderly man gave me his seat.,年配の男性が席をゆずってくれました。,adjective
+0864,helpful,役に立つ,This guidebook is helpful for our trip.,このガイドブックは旅行に役立ちます。,adjective
+0865,huge,巨大な,A huge ship entered the port.,巨大な船が港に入りました。,adjective
+0866,impossible,不可能な,It is impossible to finish in one minute.,1分で終えるのは不可能です。,adjective
+0867,international,国際的な,Our town has an international festival.,私たちの町には国際的な祭りがあります。,adjective
+0868,lonely,孤独な,He felt lonely after his friend moved away.,友達が引っ越した後、彼は孤独に感じました。,adjective
+0869,low,低い,The table is too low for adults.,そのテーブルは大人には低すぎます。,adjective
+0870,lucky,幸運な,I was lucky to find my wallet.,財布を見つけられて幸運でした。,adjective
+0871,mild,穏やかな,The weather was mild in spring.,春の天気は穏やかでした。,adjective
+0872,noisy,騒がしい,The street was noisy after the game.,試合の後で通りは騒がしかったです。,adjective
+0873,official,公式の,This is the official school website.,これは学校の公式ウェブサイトです。,adjective
+0874,outdoor,屋外の,We enjoyed an outdoor concert.,私たちは屋外のコンサートを楽しみました。,adjective
+0875,peaceful,平和な,The village was peaceful in the evening.,夕方の村は平和でした。,adjective
+0876,polite,礼儀正しい,The polite boy thanked the driver.,その礼儀正しい少年は運転手にお礼を言いました。,adjective
+0877,powerful,力強い,The powerful runner finished first.,その力強い走者が一位で終わりました。,adjective
+0878,serious,深刻な,The teacher talked about a serious problem.,先生は深刻な問題について話しました。,adjective
+0879,surprising,驚くべき,The magic show was surprising to everyone.,その手品ショーはみんなにとって驚くべきものでした。,adjective
+0880,tasty,おいしい,This curry is tasty but not too hot.,このカレーはおいしいですが辛すぎません。,adjective
+0881,tight,きつい,These shoes are too tight for me.,この靴は私にはきつすぎます。,adjective
+0882,wet,ぬれた,My socks got wet in the rain.,雨で靴下がぬれました。,adjective
+0883,anytime,いつでも,You can visit us anytime this weekend.,今週末はいつでも私たちを訪ねられます。,adverb
+0884,anyway,とにかく,Anyway， let's start our homework now.,とにかく、今から宿題を始めましょう。,adverb
+0885,anywhere,どこでも,You can read books anywhere on this app.,このアプリではどこでも本を読めます。,adverb
+0886,badly,ひどく,He played badly because he was tired.,彼は疲れていたのでひどいプレーをしました。,adverb
+0887,instead,代わりに,I walked to school instead of taking the bus.,バスに乗る代わりに学校まで歩きました。,adverb
+0888,online,オンラインで,We talked with our teacher online.,私たちはオンラインで先生と話しました。,adverb
+0889,safely,安全に,Please cross the street safely.,通りを安全に渡ってください。,adverb
+0890,actually,実は,Actually， I have been there before.,実は、私は以前そこへ行ったことがあります。,adverb
+0891,aloud,声に出して,Read the sentence aloud.,その文を声に出して読みなさい。,adverb
+0892,carefully,注意深く,She carefully opened the old box.,彼女は古い箱を注意深く開けました。,adverb
+0893,overseas,海外へ,My brother will go overseas next year.,兄は来年海外へ行く予定です。,adverb
+0894,softly,そっと,Please close the door softly.,ドアをそっと閉めてください。,adverb
+0895,unfortunately,残念ながら,Unfortunately， the game was canceled.,残念ながら、その試合は中止になりました。,adverb
+0896,upstairs,上の階へ,My room is upstairs on the right.,私の部屋は上の階の右側にあります。,adverb
+0897,although,〜だけれども,Although it was cold， we played outside.,寒かったけれども、私たちは外で遊びました。,adverb
+0898,among,〜の中で,She found her key among the books.,彼女は本の中から鍵を見つけました。,preposition
+0899,toward,〜の方へ,The dog ran toward the park.,犬は公園の方へ走りました。,preposition
+0900,above,〜の上に,There is a clock above the door.,ドアの上に時計があります。,preposition

@@ -159,7 +159,12 @@ function isItemActive(item, pathname, navLinkActive) {
   }
 
   if (Array.isArray(item.match)) {
-    return item.match.some((path) => pathname === path || pathname.startsWith(`${path}/`));
+    return item.match.some((path) => {
+      if (path === '/') {
+        return pathname === '/';
+      }
+      return pathname === path || pathname.startsWith(`${path}/`);
+    });
   }
 
   if (item.to) {
