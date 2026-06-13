@@ -61,6 +61,8 @@ EIGO_QUEST_WORLD_MAP = {world['id']: world for world in EIGO_QUEST_WORLDS}
 EIGO_QUEST_WORLD_ORDER = [world['id'] for world in EIGO_QUEST_WORLDS]
 EIGO_QUEST_TOTAL_STAGES = sum(world['stage_count'] for world in EIGO_QUEST_WORLDS)
 EIGO_QUEST_TOTAL_WORDS = sum(world['word_count'] for world in EIGO_QUEST_WORLDS)
+EIGO_QUEST_EIKEN3_STAGES_PER_WORLD = 8
+EIGO_QUEST_STAGE_PREPARING_MESSAGE = 'このステージは準備中です'
 AUTH_SESSION_COOKIE_NAME = 'eq_auth_session'
 AUTH_SESSION_DAYS = 90
 # Stage reward cards use the existing official heroes rows in the database.
@@ -4889,7 +4891,35 @@ def api_today_review_quiz_payload(child_id=None, world_id=None, stage=None, atte
             'questions': generate_today_review_questions(),
         }
     has_stage_request = bool(world_id) or stage not in [None, '']
-    stage_entries = select_stage_vocab_entries(world_id, stage, 20) if has_stage_request else None
+    stage_status = get_eigo_quest_stage_status(world_id, stage, child_id) if has_stage_request else None
+    if has_stage_request and stage_status and stage_status.get('reason') == 'preparing':
+        conn = get_db_connection()
+        try:
+            child_row = conn.execute(
+                'SELECT daily_target FROM children WHERE id = ?',
+                (child_id,),
+            ).fetchone()
+            if not child_row:
+                raise LookupError('child not found')
+        finally:
+            conn.close()
+        return {
+            'day': 1,
+            'progress': 0,
+            'studied_today': 0,
+            'mastered_total': 0,
+            'target': int(child_row['daily_target'] or 20),
+            'questions': [],
+            'review_mode': 'stage_preparing',
+            'reviewMode': 'stage_preparing',
+            'message': stage_status['message'],
+            'world': stage_status['world'],
+            'stage': stage_status['stage'],
+            'max_stage': stage_status['max_stage'],
+        }
+    if has_stage_request and (not stage_status or not stage_status.get('ok')):
+        raise ValueError('valid world and stage are required')
+    stage_entries = select_stage_vocab_entries(world_id, stage, 20, child_id=child_id) if has_stage_request else None
     if has_stage_request and stage_entries is None:
         raise ValueError('valid world and stage are required')
     normalized_attempt_id = _clean_csv_value(attempt_id)
@@ -8555,13 +8585,62 @@ def build_daily_word_payloads(entries, child_id=None):
     ]
 
 
-def select_stage_vocab_entries(world_id=None, stage=None, limit=20):
+def get_eigo_quest_worlds_for_level(target_level=None):
+    normalized_level = normalize_target_level(target_level)
+    if normalized_level != 'eiken3':
+        return EIGO_QUEST_WORLDS
+    return [
+        {
+            **world,
+            'stage_count': EIGO_QUEST_EIKEN3_STAGES_PER_WORLD,
+            'word_count': EIGO_QUEST_EIKEN3_STAGES_PER_WORLD * EIGO_QUEST_WORDS_PER_STAGE,
+            'word_start_index': (world['order'] - 1) * EIGO_QUEST_EIKEN3_STAGES_PER_WORLD * EIGO_QUEST_WORDS_PER_STAGE,
+        }
+        for world in EIGO_QUEST_WORLDS
+    ]
+
+
+def get_eigo_quest_world_map_for_level(target_level=None):
+    return {world['id']: world for world in get_eigo_quest_worlds_for_level(target_level)}
+
+
+def get_eigo_quest_stage_status(world_id=None, stage=None, child_id=None):
+    try:
+        stage_number = int(stage)
+    except (TypeError, ValueError):
+        return {'ok': False, 'reason': 'invalid'}
+    normalized_world_id = str(world_id or '').strip().lower()
+    target_level = get_child_target_level(child_id) if child_id is not None else ''
+    world = get_eigo_quest_world_map_for_level(target_level).get(normalized_world_id)
+    if not world or stage_number < 1:
+        return {'ok': False, 'reason': 'invalid'}
+    if stage_number > world['stage_count']:
+        return {
+            'ok': False,
+            'reason': 'preparing',
+            'message': EIGO_QUEST_STAGE_PREPARING_MESSAGE,
+            'world': normalized_world_id,
+            'stage': stage_number,
+            'max_stage': world['stage_count'],
+            'target_level': target_level,
+        }
+    return {
+        'ok': True,
+        'world': normalized_world_id,
+        'stage': stage_number,
+        'target_level': target_level,
+        'world_config': world,
+    }
+
+
+def select_stage_vocab_entries(world_id=None, stage=None, limit=20, child_id=None):
     try:
         stage_number = int(stage)
     except (TypeError, ValueError):
         return None
     normalized_world_id = str(world_id or '').strip().lower()
-    world = EIGO_QUEST_WORLD_MAP.get(normalized_world_id)
+    target_level = get_child_target_level(child_id) if child_id is not None else ''
+    world = get_eigo_quest_world_map_for_level(target_level).get(normalized_world_id)
     if not world:
         return None
     if stage_number < 1 or stage_number > world['stage_count']:
@@ -8572,7 +8651,8 @@ def select_stage_vocab_entries(world_id=None, stage=None, limit=20):
     world_end = world['word_start_index'] + world['word_count']
     if end > world_end:
         return None
-    return vocab_list[start:end]
+    level_entries = filter_vocab_entries_for_child_level(vocab_list, child_id) if child_id is not None else vocab_list
+    return level_entries[start:end]
 
 
 def normalize_stage_status(status):
@@ -8595,15 +8675,18 @@ def get_child_world_stage_clear_set(conn, child_id):
     }
 
 
-def build_eigo_quest_progress_from_clears(clear_set):
+def build_eigo_quest_progress_from_clears(clear_set, target_level=None):
     unlocked_next = True
     current_world = None
     current_stage = None
     mainline_complete = True
     worlds = []
     completed_stage_count = 0
+    level_worlds = get_eigo_quest_worlds_for_level(target_level)
+    total_stages = sum(world['stage_count'] for world in level_worlds)
+    total_words = sum(world['word_count'] for world in level_worlds)
 
-    for world in EIGO_QUEST_WORLDS:
+    for world in level_worlds:
         stage_items = []
         world_has_current = False
         world_cleared_count = 0
@@ -8648,8 +8731,9 @@ def build_eigo_quest_progress_from_clears(clear_set):
 
     return {
         'source': 'child_world_stage_progress',
-        'total_stages': EIGO_QUEST_TOTAL_STAGES,
-        'total_words': EIGO_QUEST_TOTAL_WORDS,
+        'target_level': normalize_target_level(target_level),
+        'total_stages': total_stages,
+        'total_words': total_words,
         'completed_stage_count': completed_stage_count,
         'mainline_complete': mainline_complete,
         'current_world': None if mainline_complete else current_world,
@@ -8662,14 +8746,15 @@ def get_child_eigo_quest_progress(child_id):
     conn = get_db_connection()
     try:
         ensure_child_exists(conn, child_id)
+        child_row = conn.execute('SELECT target_level FROM children WHERE id = ?', (child_id,)).fetchone()
         clear_set = get_child_world_stage_clear_set(conn, child_id)
     finally:
         conn.close()
-    return build_eigo_quest_progress_from_clears(clear_set)
+    return build_eigo_quest_progress_from_clears(clear_set, child_row['target_level'] if child_row else None)
 
 
 def get_child_world_stage_progress(child_id, world_id, stage):
-    stage_entries = select_stage_vocab_entries(world_id, stage, 20)
+    stage_entries = select_stage_vocab_entries(world_id, stage, 20, child_id=child_id)
     if stage_entries is None:
         raise ValueError('valid world and stage are required')
     stage_number = int(stage)
@@ -8701,7 +8786,7 @@ def get_child_world_stage_progress(child_id, world_id, stage):
 
 
 def mark_child_world_stage_cleared(child_id, world_id, stage):
-    stage_entries = select_stage_vocab_entries(world_id, stage, 20)
+    stage_entries = select_stage_vocab_entries(world_id, stage, 20, child_id=child_id)
     if stage_entries is None:
         raise ValueError('valid world and stage are required')
     stage_number = int(stage)
@@ -8945,7 +9030,10 @@ def get_stage_quiz_expected_answer(entry, question_type):
 
 
 def submit_child_stage_quiz_attempt(child_id, world_id, stage, answers, attempt_id=None):
-    stage_entries = select_stage_vocab_entries(world_id, stage, 20)
+    stage_status = get_eigo_quest_stage_status(world_id, stage, child_id)
+    if stage_status.get('reason') == 'preparing':
+        raise ValueError(EIGO_QUEST_STAGE_PREPARING_MESSAGE)
+    stage_entries = select_stage_vocab_entries(world_id, stage, 20, child_id=child_id)
     if stage_entries is None:
         raise ValueError('valid world and stage are required')
     if not isinstance(answers, list) or not answers:
@@ -9491,9 +9579,21 @@ def api_daily_words():
     limit = max(1, min(200, limit))
     study_mode = normalize_study_mode(child_row['study_mode'] if child_row else 'normal')
     has_stage_request = bool(requested_world) or requested_stage not in [None, '']
-    stage_entries = select_stage_vocab_entries(requested_world, requested_stage, limit)
-    if has_stage_request and stage_entries is None:
+    stage_status = get_eigo_quest_stage_status(requested_world, requested_stage, resolved_child_id) if has_stage_request else None
+    if has_stage_request and stage_status and stage_status.get('reason') == 'preparing':
+        return jsonify(
+            words=[],
+            targetWordCount=0,
+            studyMode=study_mode,
+            world=stage_status['world'],
+            stage=stage_status['stage'],
+            maxStage=stage_status['max_stage'],
+            reviewMode='stage_preparing',
+            message=stage_status['message'],
+        )
+    if has_stage_request and (not stage_status or not stage_status.get('ok')):
         abort(400, 'valid world and stage are required')
+    stage_entries = select_stage_vocab_entries(requested_world, requested_stage, limit, child_id=resolved_child_id) if has_stage_request else None
     if stage_entries is not None:
         words = build_daily_word_payloads(stage_entries, resolved_child_id)
         return jsonify(

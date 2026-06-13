@@ -57,7 +57,7 @@ export default function StudyMapPage() {
       symbol: world.icon || '*',
       color: world.themeColor || '#45d7ff',
     };
-    const stageCount = Number(world.stageCount || world.stages || 10);
+    const stageCount = Number(worldProgress.stage_count || world.stageCount || world.stages || 10);
     const clearedStages = Number(worldProgress.cleared_stage_count || 0);
     const isComplete = Boolean(worldProgress.cleared);
     const isCurrent = world.id === currentWorldId && !questProgress.mainline_complete;
@@ -66,6 +66,9 @@ export default function StudyMapPage() {
     return {
       ...world,
       ...display,
+      stageCount,
+      stages: stageCount,
+      wordCount: Number(worldProgress.word_count || stageCount * 20),
       progressWords: clearedStages * 20,
       progressPercent: Math.round((clearedStages / stageCount) * 100),
       stageLabel: getStageLabel(worldProgress, world),

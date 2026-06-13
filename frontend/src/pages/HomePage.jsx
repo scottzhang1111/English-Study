@@ -498,6 +498,8 @@ const handleHomeVideoPlay = async (event) => {
     : (stageProgress?.current_world || fallbackQuestProgress.currentWorld.id);
   const activeWorld = eigoQuestWorlds.find((world) => world.id === activeWorldId) || fallbackQuestProgress.currentWorld;
   const activeWorldProgress = stageProgress?.worlds?.find((world) => world.id === activeWorld.id) || {};
+  const activeWorldStageCount = Number(activeWorldProgress.stage_count || activeWorld.stageCount || activeWorld.stages || 1);
+  const activeWorldWordCount = Number(activeWorldProgress.word_count || activeWorld.wordCount || activeWorldStageCount * EIGO_QUEST_WORDS_PER_STAGE);
   const clearedStagesInWorld = Number(activeWorldProgress.cleared_stage_count || 0);
   const completedStageCount = Number(stageProgress?.completed_stage_count || 0);
   const totalStageCount = Number(stageProgress?.total_stages || fallbackQuestProgress.totalStages);
@@ -509,11 +511,11 @@ const handleHomeVideoPlay = async (event) => {
     totalStages: totalStageCount,
     currentWorld: activeWorld,
     stageInWorld: stageProgress?.mainline_complete
-      ? Number(activeWorld.stageCount || activeWorld.stages || 1)
+      ? activeWorldStageCount
       : Number(stageProgress?.current_stage || 1),
-    worldStageCount: Number(activeWorld.stageCount || activeWorld.stages || 1),
+    worldStageCount: activeWorldStageCount,
     worldWordsLearned: clearedStagesInWorld * EIGO_QUEST_WORDS_PER_STAGE,
-    worldWordTarget: Number(activeWorld.wordCount || clearedStagesInWorld * EIGO_QUEST_WORDS_PER_STAGE || fallbackQuestProgress.worldWordTarget),
+    worldWordTarget: activeWorldWordCount,
     stageProgressPercent: totalStageCount > 0
       ? Math.round((completedStageCount / totalStageCount) * 100)
       : fallbackQuestProgress.stageProgressPercent,

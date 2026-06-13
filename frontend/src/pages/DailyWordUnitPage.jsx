@@ -302,6 +302,11 @@ export default function DailyWordUnitPage() {
       .then((result) => {
         if (cancelled || !result) return;
         const { dailyPayload, homePayload, target } = result;
+        if (dailyPayload.reviewMode === 'stage_preparing' || dailyPayload.review_mode === 'stage_preparing') {
+          setError(dailyPayload.message || 'このステージは準備中です');
+          setAllWords([]);
+          return;
+        }
         const words = selectBaseWords(dailyPayload.words || []);
         const targetCount = hasRequestedStage ? (words.length || DEFAULT_DAILY_WORD_TARGET) : Math.max(1, Number(homePayload?.target || target) || DEFAULT_DAILY_WORD_TARGET);
         setDailyTarget(targetCount);

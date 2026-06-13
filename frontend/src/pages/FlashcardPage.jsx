@@ -405,6 +405,11 @@ export default function FlashcardPage() {
         stage: hasRequestedStage ? requestedStage : undefined,
         attemptId: hasRequestedStage ? stageAttemptId : undefined,
       });
+      if (payload.reviewMode === 'stage_preparing' || payload.review_mode === 'stage_preparing') {
+        setReviewError(payload.message || 'このステージは準備中です');
+        setStageReviewQuestions([]);
+        return;
+      }
       setReviewData(payload);
       setReviewIndex(0);
       setReviewAnswer('');

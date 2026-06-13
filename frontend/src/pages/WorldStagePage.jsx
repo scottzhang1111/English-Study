@@ -149,8 +149,8 @@ export default function WorldStagePage() {
       : (questProgress.current_world || 'wind');
   const currentWorld = eigoQuestWorlds.find((world) => world.id === activeWorldId) || eigoQuestWorlds[0];
   const currentWorldProgress = questProgress.worlds?.find((world) => world.id === currentWorld.id) || {};
-  const worldWordCount = Number(currentWorld.wordCount || Number(currentWorld.stageCount || currentWorld.stages || 10) * EIGO_QUEST_WORDS_PER_STAGE);
-  const worldStageCount = Number(currentWorld.stageCount || currentWorld.stages || Math.ceil(worldWordCount / EIGO_QUEST_WORDS_PER_STAGE));
+  const worldStageCount = Number(currentWorldProgress.stage_count || currentWorld.stageCount || currentWorld.stages || 10);
+  const worldWordCount = Number(currentWorldProgress.word_count || currentWorld.wordCount || worldStageCount * EIGO_QUEST_WORDS_PER_STAGE);
   const worldDisplay = WORLD_DISPLAY[currentWorld.id] || {
     nameJa: currentWorld.nameJa || '風の世界',
     nameEn: `${String(currentWorld.id || 'wind').toUpperCase()} REALM`,
