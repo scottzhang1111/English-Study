@@ -10,6 +10,7 @@ import {
   EQPanel,
   EQPrimaryButton,
 } from '../components/eigo';
+import TtsButton from '../components/TtsButton';
 import { getVocabWrongReviewQuestion, getVocabWrongReviews } from '../api';
 
 const CHILD_STORAGE_KEY = 'selected_child_id';
@@ -170,7 +171,14 @@ export default function VocabWrongReviewPage() {
                     <div className="grid gap-3">
                       <div className="flex items-start justify-between gap-3">
                         <div>
-                          <h2 className="text-2xl font-black text-[#ffe58f]">{item.word || vocabId}</h2>
+                          <div className="flex flex-wrap items-center gap-2">
+                            <h2 className="text-2xl font-black text-[#ffe58f]">{item.word || vocabId}</h2>
+                            <TtsButton
+                              text={item.word || vocabId}
+                              label="音声"
+                              className="min-h-9 rounded-full border-[rgba(255,211,90,0.42)] bg-[rgba(5,12,36,0.72)] px-3 py-1 text-xs font-black text-[#fff3c2]"
+                            />
+                          </div>
                           <p className="mt-1 text-sm font-black text-slate-100">{meaning || '-'}</p>
                         </div>
                         <EQBadge tone="rose">{wrongCount}回</EQBadge>
