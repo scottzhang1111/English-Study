@@ -7,6 +7,14 @@ export { default as FantasyMenuTile } from './FantasyMenuTile';
 export { default as PurificationQuizMobile } from './PurificationQuizMobile';
 export { default as SpiritDialogueBox } from './SpiritDialogueBox';
 export {
+  EQFantasyBadge,
+  EQFantasyButton,
+  EQFantasyCard,
+  EQFantasyDropdown,
+  EQHeroHeader,
+  EQPageShell,
+} from './EQFantasyUI';
+export {
   EQBadge,
   EQChoiceButton,
   EQInfoCard,

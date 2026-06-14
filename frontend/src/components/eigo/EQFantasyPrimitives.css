@@ -274,6 +274,418 @@
   font-weight: 850;
 }
 
+.eq-fantasy-page-shell {
+  min-height: 100dvh;
+  background:
+    radial-gradient(circle at 50% -10%, rgba(54, 217, 255, 0.18), transparent 34%),
+    radial-gradient(circle at 10% 18%, rgba(255, 211, 90, 0.09), transparent 28%),
+    linear-gradient(180deg, #071946 0%, #050a24 46%, #020414 100%);
+  color: var(--eq-text, #f8fbff);
+  padding:
+    calc(24px + env(safe-area-inset-top, 0px))
+    14px
+    calc(var(--eq-bottom-nav-height, 104px) + 28px + env(safe-area-inset-bottom, 0px));
+}
+
+.eq-fantasy-page-shell__content {
+  display: grid;
+  width: min(100%, var(--eq-page-shell-max-width, 980px));
+  margin: 0 auto;
+  gap: 18px;
+}
+
+.eq-fantasy-hero-header {
+  position: relative;
+  display: grid;
+  min-height: clamp(190px, 38vw, 278px);
+  align-items: center;
+  overflow: hidden;
+  border: 2px solid rgba(255, 211, 90, 0.78);
+  border-radius: 28px;
+  background:
+    linear-gradient(90deg, rgba(4, 8, 24, 0.86), rgba(4, 8, 24, 0.42)),
+    var(--eq-hero-bg, linear-gradient(135deg, #0c205d, #05091f));
+  background-position: center;
+  background-size: cover;
+  box-shadow:
+    0 0 24px rgba(255, 211, 90, 0.2),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.08);
+  padding: clamp(22px, 5vw, 42px);
+}
+
+.eq-fantasy-hero-header::after {
+  position: absolute;
+  inset: 8px;
+  border: 1px solid rgba(255, 211, 90, 0.22);
+  border-radius: 22px;
+  content: '';
+  pointer-events: none;
+}
+
+.eq-fantasy-hero-header__copy {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  max-width: min(72%, 640px);
+  gap: 10px;
+}
+
+.eq-fantasy-hero-header__copy > span {
+  color: #73e3ff;
+  font-size: 12px;
+  font-weight: 950;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.eq-fantasy-hero-header h1 {
+  margin: 0;
+  color: #ffe58a;
+  font-size: clamp(34px, 8vw, 64px);
+  font-weight: 950;
+  line-height: 1.05;
+  text-shadow: 0 4px 0 rgba(0, 0, 0, 0.28), 0 0 22px rgba(255, 211, 90, 0.26);
+}
+
+.eq-fantasy-hero-header p {
+  margin: 0;
+  color: #fffaf0;
+  font-size: clamp(16px, 4vw, 24px);
+  font-weight: 900;
+  line-height: 1.36;
+  text-shadow: 0 3px 14px rgba(0, 0, 0, 0.54);
+}
+
+.eq-fantasy-hero-header__meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.eq-fantasy-hero-header__helper {
+  position: absolute;
+  right: clamp(16px, 5vw, 54px);
+  bottom: clamp(10px, 3vw, 26px);
+  z-index: 1;
+  width: clamp(82px, 22vw, 168px);
+  filter: drop-shadow(0 16px 20px rgba(0, 0, 0, 0.44));
+  pointer-events: none;
+}
+
+.eq-fantasy-card-v2 {
+  position: relative;
+  display: grid;
+  gap: 16px;
+  overflow: visible;
+  border: 1.5px solid rgba(255, 211, 90, 0.62);
+  border-radius: 28px;
+  background:
+    radial-gradient(circle at 18% 0%, rgba(255, 211, 90, 0.14), transparent 42%),
+    radial-gradient(circle at 88% 10%, rgba(53, 217, 255, 0.1), transparent 34%),
+    linear-gradient(180deg, rgba(8, 25, 72, 0.96), rgba(3, 8, 28, 0.98));
+  box-shadow:
+    var(--eq-shadow-card, 0 18px 38px rgba(0, 0, 0, 0.28)),
+    inset 0 0 26px rgba(255, 255, 255, 0.045);
+  color: #f8fbff;
+  padding: clamp(18px, 4vw, 28px);
+}
+
+.eq-fantasy-card-v2.has-glow {
+  box-shadow:
+    0 0 28px rgba(255, 211, 90, 0.16),
+    var(--eq-shadow-card, 0 18px 38px rgba(0, 0, 0, 0.28)),
+    inset 0 0 26px rgba(255, 255, 255, 0.045);
+}
+
+.eq-fantasy-card-v2__head {
+  display: flex;
+  gap: 14px;
+  align-items: center;
+  min-width: 0;
+}
+
+.eq-fantasy-card-v2__icon {
+  display: grid;
+  width: 64px;
+  height: 64px;
+  flex: 0 0 auto;
+  place-items: center;
+  border: 1px solid rgba(255, 211, 90, 0.58);
+  border-radius: 18px;
+  background: linear-gradient(180deg, #fff0b5, #f0bd42 55%, #8d5411);
+  color: #261600;
+  font-size: 28px;
+  font-weight: 950;
+  box-shadow: 0 0 18px rgba(255, 211, 90, 0.24);
+}
+
+.eq-fantasy-card-v2__copy {
+  display: grid;
+  min-width: 0;
+  gap: 5px;
+}
+
+.eq-fantasy-card-v2__copy > span {
+  color: #73e3ff;
+  font-size: 12px;
+  font-weight: 950;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.eq-fantasy-card-v2 h2 {
+  margin: 0;
+  color: #fff3c2;
+  font-size: clamp(24px, 5vw, 40px);
+  font-weight: 950;
+  line-height: 1.12;
+}
+
+.eq-fantasy-card-v2 p {
+  margin: 0;
+  color: rgba(237, 244, 255, 0.86);
+  font-size: 15px;
+  font-weight: 850;
+  line-height: 1.55;
+}
+
+.eq-fantasy-card-v2__actions {
+  margin-left: auto;
+}
+
+.eq-fantasy-card-v2__body,
+.eq-fantasy-card-v2__footer {
+  min-width: 0;
+}
+
+.eq-fantasy-button-v2 {
+  display: inline-flex;
+  min-height: 58px;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  border: 1px solid rgba(255, 211, 90, 0.68);
+  border-radius: 999px;
+  color: #fff8df;
+  font-size: 17px;
+  font-weight: 950;
+  line-height: 1;
+  padding: 0 22px;
+  text-decoration: none;
+  transition: transform 0.16s ease, filter 0.16s ease, box-shadow 0.16s ease;
+}
+
+.eq-fantasy-button-v2.is-full-width {
+  width: 100%;
+}
+
+.eq-fantasy-button-v2.is-gold {
+  min-height: 68px;
+  border-color: rgba(255, 238, 153, 0.8);
+  background:
+    radial-gradient(circle at 18% 20%, rgba(255, 255, 255, 0.28), transparent 26%),
+    linear-gradient(180deg, #ffe58a 0%, #f0b733 45%, #b96d16 100%);
+  box-shadow:
+    0 0 26px rgba(255, 211, 90, 0.38),
+    inset 0 2px 0 rgba(255, 255, 255, 0.34),
+    inset 0 -4px 0 rgba(97, 52, 0, 0.26);
+  color: #231500;
+  text-shadow: 0 1px 0 rgba(255, 246, 195, 0.7);
+}
+
+.eq-fantasy-button-v2.is-blue {
+  background: linear-gradient(180deg, rgba(28, 101, 223, 0.94), rgba(5, 30, 99, 0.98));
+  box-shadow: 0 0 22px rgba(53, 153, 255, 0.24);
+}
+
+.eq-fantasy-button-v2.is-dark {
+  background: linear-gradient(180deg, rgba(12, 28, 74, 0.94), rgba(3, 8, 28, 0.98));
+}
+
+.eq-fantasy-button-v2:hover {
+  filter: brightness(1.04);
+  transform: translateY(-1px);
+}
+
+.eq-fantasy-button-v2:active {
+  transform: translateY(1px) scale(0.99);
+}
+
+.eq-fantasy-button-v2:disabled {
+  cursor: not-allowed;
+  filter: grayscale(0.3);
+  opacity: 0.55;
+}
+
+.eq-fantasy-button-v2__icon,
+.eq-fantasy-button-v2__trail {
+  display: inline-grid;
+  width: 28px;
+  height: 28px;
+  flex: 0 0 auto;
+  place-items: center;
+  font-size: 22px;
+  font-weight: 950;
+}
+
+.eq-fantasy-button-v2__trail {
+  margin-left: auto;
+}
+
+.eq-fantasy-badge-v2 {
+  display: inline-flex;
+  min-height: 34px;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  border: 1px solid rgba(255, 211, 90, 0.44);
+  border-radius: 999px;
+  background: rgba(5, 12, 36, 0.72);
+  color: #fff3c2;
+  font-size: 13px;
+  font-weight: 950;
+  padding: 0 13px;
+}
+
+.eq-fantasy-badge-v2.is-cyan {
+  border-color: rgba(53, 217, 255, 0.5);
+  color: #bff6ff;
+}
+
+.eq-fantasy-badge-v2.is-green {
+  border-color: rgba(84, 230, 168, 0.5);
+  color: #c5ffe3;
+}
+
+.eq-fantasy-badge-v2__icon {
+  color: #ffd875;
+}
+
+.eq-fantasy-dropdown {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  gap: 8px;
+  color: rgba(226, 237, 255, 0.88);
+  font-size: 15px;
+  font-weight: 950;
+}
+
+.eq-fantasy-dropdown.is-open {
+  z-index: 80;
+}
+
+.eq-fantasy-dropdown__label {
+  padding-left: 2px;
+}
+
+.eq-fantasy-dropdown__trigger {
+  display: flex;
+  min-height: 58px;
+  width: 100%;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  border: 1px solid rgba(255, 211, 90, 0.74);
+  border-radius: 18px;
+  background: linear-gradient(180deg, rgba(10, 24, 68, 0.98), rgba(4, 10, 36, 0.98));
+  box-shadow: inset 0 0 18px rgba(65, 126, 255, 0.12);
+  color: #fff8df;
+  font-size: 20px;
+  font-weight: 950;
+  padding: 0 18px;
+  text-align: left;
+}
+
+.eq-fantasy-dropdown__trigger span {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.eq-fantasy-dropdown__trigger i {
+  color: #ffd879;
+  font-size: 24px;
+  font-style: normal;
+  line-height: 1;
+}
+
+.eq-fantasy-dropdown__menu {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  z-index: 120;
+  width: 100%;
+  max-height: 360px;
+  overflow: auto;
+  border: 1px solid rgba(255, 211, 90, 0.78);
+  border-radius: 17px;
+  background: linear-gradient(180deg, rgba(16, 31, 67, 0.98), rgba(5, 13, 40, 0.98));
+  box-shadow:
+    0 24px 48px rgba(0, 0, 0, 0.56),
+    0 0 24px rgba(255, 211, 90, 0.18),
+    inset 0 0 20px rgba(82, 139, 255, 0.08);
+}
+
+.eq-fantasy-dropdown__menu button {
+  display: grid;
+  min-height: 54px;
+  width: 100%;
+  grid-template-columns: 34px minmax(0, 1fr);
+  align-items: center;
+  border: 0;
+  border-bottom: 1px solid rgba(204, 221, 255, 0.12);
+  background: transparent;
+  color: rgba(243, 247, 255, 0.94);
+  font-size: 18px;
+  font-weight: 850;
+  padding: 0 18px;
+  text-align: left;
+}
+
+.eq-fantasy-dropdown__menu button:last-child {
+  border-bottom: 0;
+}
+
+.eq-fantasy-dropdown__menu button > span {
+  color: #ffd879;
+  font-size: 20px;
+  font-weight: 950;
+  text-align: center;
+}
+
+.eq-fantasy-dropdown__menu button strong {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.eq-fantasy-dropdown__menu button small {
+  grid-column: 2;
+  color: rgba(226, 237, 255, 0.68);
+  font-size: 12px;
+  font-weight: 800;
+  line-height: 1.4;
+  padding-bottom: 10px;
+}
+
+.eq-fantasy-dropdown__menu button.is-selected {
+  background: linear-gradient(90deg, rgba(255, 211, 90, 0.3), rgba(255, 211, 90, 0.08));
+  color: #ffd879;
+}
+
+.eq-fantasy-dropdown__menu button:disabled {
+  cursor: not-allowed;
+  opacity: 0.48;
+}
+
+.eq-fantasy-dropdown.is-disabled {
+  opacity: 0.58;
+}
+
 @media (max-width: 360px) {
   .eq-fantasy-page-header h1 {
     font-size: 24px;
@@ -288,6 +700,21 @@
   .eq-fantasy-quest-card__icon {
     width: 48px;
     height: 48px;
+  }
+
+  .eq-fantasy-card-v2__head {
+    align-items: flex-start;
+  }
+
+  .eq-fantasy-card-v2__icon {
+    width: 54px;
+    height: 54px;
+    border-radius: 16px;
+    font-size: 24px;
+  }
+
+  .eq-fantasy-dropdown__trigger {
+    font-size: 18px;
   }
 }
 
