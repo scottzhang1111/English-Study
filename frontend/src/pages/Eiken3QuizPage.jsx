@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
-import WebLearningLayout from '../components/WebLearningLayout';
 import { EQBottomNav } from '../components/eigo';
+import CompactPageHeader from '../components/eigo/CompactPageHeader';
 import { getEiken3Quiz, submitEiken3Quiz } from '../api';
 
 const SECTION_LABELS = {
@@ -17,24 +17,42 @@ function getQuestionSection(question) {
   return question?.section || SECTION_LABELS[question?.question_type] || '短文の語句空所補充';
 }
 
+function PageShell({ children, progressText, isResult = false }) {
+  return (
+    <>
+      <div className="eiken-exam-page eiken-real-trial-page eiken3-mock-page mx-auto max-w-[1440px] px-3 pb-28 pt-2 text-[#26376d] lg:px-5 lg:py-4">
+        <div className="eiken-real-trial-compact-wrap md:hidden">
+          <CompactPageHeader
+            title="英検3級"
+            subtitle={isResult ? '結果を確認しよう' : '模擬テストに挑戦'}
+            backgroundImage="/assets/eigo-quest/learning-hub/英検本番形式.png"
+            elementLabel="英"
+            progressText={progressText}
+            helperImage="/assets/eigo-quest/spirit_assets/happy.png"
+            variant="eiken-real"
+          />
+        </div>
+        <main className="eiken-real-trial-practice-layout">
+          {children}
+        </main>
+      </div>
+      <EQBottomNav className="eiken-real-trial-bottom-nav" />
+    </>
+  );
+}
+
 function PassageCard({ passage }) {
   if (!passage) return null;
   return (
-    <section className="rounded-[24px] border border-[#d8e8f8] bg-[#f8fcff] p-4 text-[#354172]">
-      <div className="flex flex-wrap items-center gap-2">
-        <span className="rounded-full bg-[#eef8ff] px-3 py-1 text-xs font-black uppercase text-[#52668c]">
-          {passage.passage_type || passage.genre || 'passage'}
-        </span>
-        <strong className="text-lg font-black">{passage.title}</strong>
+    <section className="eiken3-mock-passage-card">
+      <div className="eiken3-mock-card-head">
+        <span>{passage.passage_type || passage.genre || 'Passage'}</span>
+        <strong>{passage.title}</strong>
       </div>
-      {passage.title_ja && <p className="mt-1 text-sm font-bold text-[#7d8db5]">{passage.title_ja}</p>}
-      <p className="mt-4 whitespace-pre-line rounded-[18px] bg-white/86 p-4 text-sm font-bold leading-7 text-[#405174]">
-        {passage.passage_text}
-      </p>
+      {passage.title_ja && <p className="eiken3-mock-muted">{passage.title_ja}</p>}
+      <p className="eiken3-mock-passage-text">{passage.passage_text}</p>
       {passage.key_points_ja && (
-        <p className="mt-3 rounded-[16px] bg-[#fff7d6] p-3 text-xs font-bold leading-6 text-[#75622c]">
-          {passage.key_points_ja}
-        </p>
+        <p className="eiken3-mock-note">{passage.key_points_ja}</p>
       )}
     </section>
   );
@@ -43,22 +61,22 @@ function PassageCard({ passage }) {
 function WritingPrompts({ prompts = [], showSamples = false }) {
   if (!prompts.length) return null;
   return (
-    <section className="mt-5 rounded-[26px] border border-white/80 bg-white/86 p-5 shadow-[0_16px_36px_rgba(129,164,199,0.13)]">
-      <p className="text-xs font-black uppercase tracking-[0.14em] text-[#8fa0c2]">Writing</p>
-      <h2 className="display-font mt-1 text-2xl font-black text-[#354172]">ライティング練習</h2>
-      <div className="mt-4 grid gap-4">
+    <section className="eiken3-mock-writing-card">
+      <div className="eiken3-mock-card-head">
+        <span>Writing</span>
+        <strong>ライティング練習</strong>
+      </div>
+      <div className="eiken3-mock-writing-list">
         {prompts.map((prompt) => (
-          <article key={prompt.writing_prompt_id} className="rounded-[22px] border border-[#d8e8f8] bg-[#f8fcff] p-4">
-            <span className="rounded-full bg-[#fff7d6] px-3 py-1 text-xs font-black text-[#75622c]">
-              {prompt.writing_type === 'email' ? 'Eメール問題' : '意見論述問題'}
-            </span>
-            <p className="mt-3 whitespace-pre-line text-sm font-bold leading-7 text-[#405174]">{prompt.prompt_ja}</p>
-            <p className="mt-3 rounded-[16px] bg-white/86 p-3 text-sm font-bold leading-7 text-[#354172]">{prompt.prompt_en}</p>
-            <p className="mt-2 text-xs font-black text-[#7d8db5]">{prompt.min_words}〜{prompt.max_words} words</p>
+          <article key={prompt.writing_prompt_id} className="eiken3-mock-writing-item">
+            <b>{prompt.writing_type === 'email' ? 'Eメール問題' : '意見論述問題'}</b>
+            <p>{prompt.prompt_ja}</p>
+            <p className="eiken3-mock-prompt-en">{prompt.prompt_en}</p>
+            <small>{prompt.min_words}〜{prompt.max_words} words</small>
             {showSamples && prompt.sample_answer && (
-              <div className="mt-3 rounded-[16px] bg-[#eefbf1] p-3 text-sm font-bold leading-7 text-[#2f6b42]">
+              <div className="eiken3-mock-sample-answer">
                 <p>{prompt.sample_answer}</p>
-                {prompt.sample_answer_ja && <p className="mt-2 text-xs">{prompt.sample_answer_ja}</p>}
+                {prompt.sample_answer_ja && <p>{prompt.sample_answer_ja}</p>}
               </div>
             )}
           </article>
@@ -136,84 +154,94 @@ export default function Eiken3QuizPage() {
 
   if (result) {
     return (
-      <>
-        <WebLearningLayout title="英検3級 模擬テスト" subtitle={result.set_id}>
-          <section className="panel p-5 md:p-7">
-            <p className="text-xs font-black uppercase tracking-[0.16em] text-[#8fa0c2]">Result</p>
-            <h1 className="display-font mt-2 text-3xl font-black text-[#354172]">結果 {result.score} / {result.total}</h1>
-            <p className="mt-2 text-sm font-bold text-[#60709d]">正答率 {result.score_percent}%</p>
-            <div className="mt-5 flex flex-wrap gap-3">
-              <button type="button" onClick={() => navigate('/eiken3')} className="ghost-button px-5 py-3">セット一覧へ</button>
-              <button type="button" onClick={() => setResult(null)} className="pill-button px-5 py-3">問題へ戻る</button>
+      <PageShell progressText={`${result.score} / ${result.total}`} isResult>
+        <section className="eiken-real-trial-result-panel eiken3-mock-result-panel">
+          <div className="eiken-real-trial-result-hero">
+            <div>
+              <p>RESULT</p>
+              <h2>結果 {result.score} / {result.total}</h2>
+              <strong>正答率 {result.score_percent}%</strong>
             </div>
-          </section>
+            <div className="eiken-real-trial-result-actions">
+              <button type="button" onClick={() => navigate('/eiken3')} className="eiken-real-trial-result-button">
+                セット一覧へ
+              </button>
+              <button type="button" onClick={() => setResult(null)} className="eiken-real-trial-result-button">
+                問題へ戻る
+              </button>
+            </div>
+          </div>
 
-          <section className="mt-5 grid gap-4">
+          <div className="eiken3-mock-result-list">
             {result.results.map((question) => {
               const isCorrect = question.is_correct;
               return (
-                <article key={question.question_id} className={`rounded-[24px] border p-4 shadow-[0_12px_26px_rgba(145,177,209,0.12)] ${isCorrect ? 'border-emerald-100 bg-emerald-50/90' : 'border-rose-100 bg-rose-50/90'}`}>
-                  <div className="flex flex-wrap items-center justify-between gap-2">
-                    <p className="text-sm font-black text-[#52668c]">Q{String(question.question_no).padStart(2, '0')} ・ {getQuestionSection(question)}</p>
-                    <span className={`rounded-full px-3 py-1 text-xs font-black ${isCorrect ? 'bg-emerald-100 text-emerald-700' : 'bg-rose-100 text-rose-700'}`}>
-                      {isCorrect ? '正解' : '不正解'}
-                    </span>
+                <article key={question.question_id} className={`eiken3-mock-result-card ${isCorrect ? 'is-correct' : 'is-wrong'}`}>
+                  <div className="eiken3-mock-result-head">
+                    <p>Q{String(question.question_no).padStart(2, '0')} / {getQuestionSection(question)}</p>
+                    <span>{isCorrect ? '正解' : '不正解'}</span>
                   </div>
-                  <p className="mt-3 whitespace-pre-line text-base font-black leading-7 text-[#354172]">{question.prompt}</p>
-                  <div className="mt-3 grid gap-2">
+                  <h3>{question.prompt}</h3>
+                  <div className="eiken3-mock-result-options">
                     {question.options.map((option) => {
                       const isRight = option.key === question.correct_option;
                       const isSelected = option.key === question.selected_option;
                       return (
-                        <div key={option.key} className={`rounded-[16px] border px-3 py-2 text-sm font-bold ${isRight ? 'border-emerald-300 bg-emerald-100 text-emerald-800' : isSelected ? 'border-rose-300 bg-rose-100 text-rose-800' : 'border-white bg-white/80 text-[#405174]'}`}>
+                        <div
+                          key={option.key}
+                          className={`${isRight ? 'is-right' : ''} ${isSelected && !isRight ? 'is-selected-wrong' : ''}`}
+                        >
                           {option.key}. {option.text}
                         </div>
                       );
                     })}
                   </div>
-                  <p className="mt-3 text-sm font-black text-[#354172]">
+                  <p className="eiken3-mock-answer-line">
                     あなたの答え: {question.selected_option || '未回答'} / 正解: {question.correct_option}
                   </p>
-                  {question.explanation_ja && <p className="mt-2 rounded-[16px] bg-white/74 p-3 text-sm font-bold leading-7 text-[#405174]">{question.explanation_ja}</p>}
+                  {question.explanation_ja && <p className="eiken3-mock-explanation">{question.explanation_ja}</p>}
                 </article>
               );
             })}
-          </section>
+          </div>
 
           <WritingPrompts prompts={result.writingPrompts || []} showSamples />
-        </WebLearningLayout>
-        <EQBottomNav />
-      </>
+        </section>
+      </PageShell>
     );
   }
 
   return (
-    <>
-      <WebLearningLayout title="英検3級 模擬テスト" subtitle={setId}>
-        <section className="panel p-5 md:p-7">
-          <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
-            <div>
-              <p className="text-xs font-black uppercase tracking-[0.16em] text-[#8fa0c2]">EIKEN GRADE 3</p>
-              <h1 className="display-font mt-2 text-3xl font-black text-[#354172]">{setId}</h1>
-              <p className="mt-2 text-sm font-bold text-[#60709d]">回答 {answeredCount} / {questions.length || '-'}</p>
-            </div>
-            <Link to="/eiken3" className="ghost-button inline-flex justify-center px-5 py-3 text-sm">セット一覧へ</Link>
+    <PageShell progressText={`${answeredCount} / ${questions.length || '-'}`}>
+      <section className="eiken-real-trial-quiz-panel eiken3-mock-quiz-panel">
+        <div className="eiken-real-trial-quiz-header">
+          <div>
+            <p>EIKEN GRADE 3</p>
+            <h2>{setId}</h2>
+            <strong>回答 {answeredCount} / {questions.length || '-'}</strong>
           </div>
-        </section>
+          <Link to="/eiken3" className="eiken-real-trial-secondary-action eiken3-mock-top-link">
+            セット一覧へ
+          </Link>
+        </div>
 
-        {error && <div className="mt-4 rounded-[22px] bg-rose-50 p-4 text-sm font-bold text-rose-700">{error}</div>}
+        {error && <div className="eiken3-mock-alert">{error}</div>}
 
         {loading ? (
-          <div className="mt-5 rounded-[24px] bg-white/76 p-6 text-center font-bold text-[#6f7da8]">問題を読み込み中...</div>
+          <div className="eiken-real-trial-status-card eiken3-mock-status" role="status" aria-live="polite">
+            <span className="eiken-real-trial-status-orb" aria-hidden="true" />
+            <p>読み込み中</p>
+            <strong>問題を準備しています...</strong>
+          </div>
         ) : currentQuestion ? (
-          <section className="mt-5 grid gap-4">
-            <div className="flex gap-2 overflow-x-auto pb-1">
+          <div className="eiken3-mock-quiz-stack">
+            <div className="eiken3-mock-question-nav">
               {questions.map((question, index) => (
                 <button
                   key={question.question_id}
                   type="button"
                   onClick={() => setCurrentIndex(index)}
-                  className={`h-10 min-w-10 rounded-full text-sm font-black ${index === currentIndex ? 'bg-[#26376d] text-white' : answers[question.question_id] ? 'bg-[#fff7d6] text-[#75622c]' : 'bg-white/86 text-[#60709d]'}`}
+                  className={`${index === currentIndex ? 'is-current' : ''} ${answers[question.question_id] ? 'is-answered' : ''}`}
                 >
                   {question.question_no}
                 </button>
@@ -222,54 +250,60 @@ export default function Eiken3QuizPage() {
 
             <PassageCard passage={currentPassage} />
 
-            <article className="rounded-[26px] border border-white/80 bg-white/90 p-5 text-[#354172] shadow-[0_16px_36px_rgba(129,164,199,0.13)]">
-              <p className="text-sm font-black text-[#7d8db5]">
-                Q{String(currentQuestion.question_no).padStart(2, '0')} / {questions.length} ・ {getQuestionSection(currentQuestion)}
+            <article className="eiken3-mock-question-card">
+              <p>
+                Q{String(currentQuestion.question_no).padStart(2, '0')} / {questions.length}
+                <span>{getQuestionSection(currentQuestion)}</span>
               </p>
-              <h2 className="mt-3 whitespace-pre-line text-xl font-black leading-8">{currentQuestion.prompt}</h2>
-              {currentQuestion.question_text_ja && <p className="mt-2 text-sm font-bold text-[#60709d]">{currentQuestion.question_text_ja}</p>}
-              <div className="mt-5 grid gap-3">
+              <h2>{currentQuestion.prompt}</h2>
+              {currentQuestion.question_text_ja && <p className="eiken3-mock-muted">{currentQuestion.question_text_ja}</p>}
+              <div className="eiken3-mock-options">
                 {currentQuestion.options.map((option) => (
                   <button
                     key={option.key}
                     type="button"
                     onClick={() => setAnswers((prev) => ({ ...prev, [currentQuestion.question_id]: option.key }))}
-                    className={`rounded-[18px] border px-4 py-3 text-left text-sm font-black transition ${selectedAnswer === option.key ? 'border-[#f1cf5d] bg-[#fff4b8] text-[#354172]' : 'border-[#d8e8f8] bg-[#f8fcff] text-[#405174] hover:bg-white'}`}
+                    className={selectedAnswer === option.key ? 'is-selected' : ''}
                   >
-                    {option.key}. {option.text}
-                    {option.text_ja ? <span className="mt-1 block text-xs text-[#7d8db5]">{option.text_ja}</span> : null}
+                    <b>{option.key}</b>
+                    <span>
+                      {option.text}
+                      {option.text_ja ? <small>{option.text_ja}</small> : null}
+                    </span>
                   </button>
                 ))}
               </div>
             </article>
 
-            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <div className="eiken-real-trial-quiz-actions">
               <button
                 type="button"
                 onClick={() => setCurrentIndex((index) => Math.max(0, index - 1))}
                 disabled={currentIndex === 0}
-                className="ghost-button px-5 py-3 disabled:opacity-40"
+                className="eiken-real-trial-secondary-action"
               >
                 前へ
               </button>
               {currentIndex < questions.length - 1 ? (
-                <button type="button" onClick={() => setCurrentIndex((index) => index + 1)} className="pill-button px-5 py-3">
+                <button type="button" onClick={() => setCurrentIndex((index) => index + 1)} className="eiken-real-trial-gold-action">
                   次へ
                 </button>
               ) : (
-                <button type="button" onClick={submitQuiz} disabled={submitting} className="pill-button px-5 py-3 disabled:opacity-40">
+                <button type="button" onClick={submitQuiz} disabled={submitting} className="eiken-real-trial-gold-action">
                   {submitting ? '採点中...' : '採点する'}
                 </button>
               )}
             </div>
 
             <WritingPrompts prompts={quiz?.writingPrompts || []} />
-          </section>
+          </div>
         ) : (
-          <div className="mt-5 rounded-[24px] bg-white/76 p-6 text-center font-bold text-[#6f7da8]">表示できる問題がありません。</div>
+          <div className="eiken-real-trial-status-card eiken3-mock-status">
+            <span className="eiken-real-trial-status-orb" aria-hidden="true" />
+            <p>表示できる問題がありません。</p>
+          </div>
         )}
-      </WebLearningLayout>
-      <EQBottomNav />
-    </>
+      </section>
+    </PageShell>
   );
 }

@@ -3390,6 +3390,417 @@ textarea {
   color: rgba(247, 251, 255, 0.9) !important;
 }
 
+.eiken3-mock-page {
+  min-height: 100vh;
+}
+
+.eiken3-mock-page .eiken-real-trial-entry-layout,
+.eiken3-mock-page .eiken-real-trial-practice-layout {
+  max-width: 980px;
+  margin: 0 auto;
+}
+
+.eiken3-mock-entry-card {
+  gap: 22px;
+}
+
+.eiken3-mock-set-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(148px, 1fr));
+  gap: 12px;
+}
+
+.eiken3-mock-set-button {
+  display: grid;
+  gap: 8px;
+  min-height: 132px;
+  align-content: center;
+  border: 1px solid rgba(255, 211, 90, 0.46);
+  border-radius: 20px;
+  background:
+    radial-gradient(circle at 18% 0%, rgba(255, 211, 90, 0.16), transparent 38%),
+    linear-gradient(180deg, rgba(9, 28, 82, 0.92), rgba(3, 8, 28, 0.98));
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.12),
+    0 16px 28px rgba(0, 0, 0, 0.28);
+  color: #f9fbff;
+  padding: 16px;
+  text-decoration: none;
+  transition: transform 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease;
+}
+
+.eiken3-mock-set-button:hover {
+  border-color: rgba(255, 226, 125, 0.82);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.16),
+    0 0 28px rgba(255, 211, 90, 0.18),
+    0 18px 32px rgba(0, 0, 0, 0.34);
+  transform: translateY(-2px);
+}
+
+.eiken3-mock-set-button span,
+.eiken3-mock-card-head span {
+  color: #73e3ff;
+  font-size: 12px;
+  font-weight: 950;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.eiken3-mock-set-button strong {
+  color: #ffe58a;
+  font-size: 25px;
+  font-weight: 950;
+  line-height: 1;
+}
+
+.eiken3-mock-set-button small {
+  color: rgba(247, 251, 255, 0.78);
+  font-size: 12px;
+  font-weight: 900;
+  line-height: 1.55;
+}
+
+.eiken3-mock-alert {
+  border: 1px solid rgba(255, 104, 137, 0.54);
+  border-radius: 18px;
+  background: rgba(103, 16, 45, 0.62);
+  color: #ffd7e0;
+  font-size: 14px;
+  font-weight: 900;
+  padding: 12px 14px;
+}
+
+.eiken3-mock-status {
+  min-height: 178px;
+}
+
+.eiken3-mock-quiz-panel,
+.eiken3-mock-result-panel {
+  width: 100%;
+}
+
+.eiken3-mock-top-link {
+  min-width: 150px;
+  text-decoration: none;
+}
+
+.eiken3-mock-quiz-stack {
+  display: grid;
+  gap: 16px;
+}
+
+.eiken3-mock-question-nav {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+}
+
+.eiken3-mock-question-nav button {
+  display: inline-grid;
+  min-width: 42px;
+  height: 42px;
+  place-items: center;
+  border: 1px solid rgba(255, 211, 90, 0.28);
+  border-radius: 999px;
+  background: rgba(5, 13, 42, 0.72);
+  color: rgba(247, 251, 255, 0.78);
+  font-size: 14px;
+  font-weight: 950;
+}
+
+.eiken3-mock-question-nav button.is-answered {
+  border-color: rgba(84, 230, 168, 0.58);
+  color: #a9ffd0;
+}
+
+.eiken3-mock-question-nav button.is-current {
+  border-color: rgba(255, 226, 125, 0.9);
+  background: linear-gradient(180deg, rgba(255, 218, 96, 0.98), rgba(184, 105, 20, 0.98));
+  color: #2a1800;
+  box-shadow: 0 0 18px rgba(255, 211, 90, 0.32);
+}
+
+.eiken3-mock-passage-card,
+.eiken3-mock-question-card,
+.eiken3-mock-writing-card,
+.eiken3-mock-result-card {
+  border: 1px solid rgba(255, 211, 90, 0.42);
+  border-radius: 22px;
+  background:
+    radial-gradient(circle at 12% 0%, rgba(255, 211, 90, 0.1), transparent 34%),
+    rgba(5, 14, 44, 0.78);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  color: #f8fbff;
+  padding: 16px;
+}
+
+.eiken3-mock-card-head {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 12px;
+  align-items: center;
+}
+
+.eiken3-mock-card-head strong {
+  color: #fff3c2;
+  font-size: 18px;
+  font-weight: 950;
+}
+
+.eiken3-mock-muted {
+  margin-top: 6px;
+  color: rgba(237, 244, 255, 0.72);
+  font-size: 13px;
+  font-weight: 850;
+  line-height: 1.7;
+}
+
+.eiken3-mock-passage-text,
+.eiken3-mock-question-card h2,
+.eiken3-mock-writing-item p,
+.eiken3-mock-result-card h3 {
+  white-space: pre-line;
+}
+
+.eiken3-mock-passage-text {
+  margin-top: 14px;
+  border: 1px solid rgba(255, 211, 90, 0.18);
+  border-radius: 18px;
+  background: rgba(3, 8, 24, 0.48);
+  color: rgba(247, 251, 255, 0.9);
+  font-size: 14px;
+  font-weight: 800;
+  line-height: 1.85;
+  padding: 14px;
+}
+
+.eiken3-mock-note,
+.eiken3-mock-explanation {
+  margin-top: 12px;
+  border: 1px solid rgba(84, 230, 168, 0.28);
+  border-radius: 16px;
+  background: rgba(16, 82, 77, 0.38);
+  color: #d7fff4;
+  font-size: 13px;
+  font-weight: 850;
+  line-height: 1.75;
+  padding: 12px;
+}
+
+.eiken3-mock-question-card > p {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+  color: #ffd875;
+  font-size: 13px;
+  font-weight: 950;
+  letter-spacing: 0.04em;
+}
+
+.eiken3-mock-question-card > p span {
+  border: 1px solid rgba(255, 211, 90, 0.28);
+  border-radius: 999px;
+  color: rgba(247, 251, 255, 0.82);
+  padding: 3px 10px;
+}
+
+.eiken3-mock-question-card h2 {
+  margin-top: 14px;
+  color: #fffdf4;
+  font-size: clamp(20px, 5.4vw, 30px);
+  font-weight: 950;
+  line-height: 1.45;
+}
+
+.eiken3-mock-options {
+  display: grid;
+  gap: 10px;
+  margin-top: 18px;
+}
+
+.eiken3-mock-options button {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 12px;
+  align-items: flex-start;
+  border: 1px solid rgba(255, 211, 90, 0.28);
+  border-radius: 18px;
+  background: rgba(3, 8, 24, 0.48);
+  color: #edf4ff;
+  padding: 13px;
+  text-align: left;
+  transition: border-color 0.18s ease, background 0.18s ease, transform 0.18s ease;
+}
+
+.eiken3-mock-options button:hover {
+  border-color: rgba(255, 226, 125, 0.62);
+  transform: translateY(-1px);
+}
+
+.eiken3-mock-options button.is-selected {
+  border-color: rgba(255, 226, 125, 0.92);
+  background:
+    radial-gradient(circle at 10% 0%, rgba(255, 255, 255, 0.18), transparent 36%),
+    linear-gradient(180deg, rgba(255, 218, 96, 0.98), rgba(177, 100, 20, 0.96));
+  color: #271700;
+  box-shadow: 0 0 22px rgba(255, 211, 90, 0.24);
+}
+
+.eiken3-mock-options b {
+  display: inline-grid;
+  width: 30px;
+  height: 30px;
+  place-items: center;
+  border-radius: 999px;
+  background: rgba(255, 211, 90, 0.14);
+  color: #ffd875;
+  font-weight: 950;
+}
+
+.eiken3-mock-options button.is-selected b {
+  background: rgba(42, 24, 0, 0.18);
+  color: #2a1800;
+}
+
+.eiken3-mock-options span {
+  font-size: 15px;
+  font-weight: 900;
+  line-height: 1.6;
+}
+
+.eiken3-mock-options small {
+  display: block;
+  margin-top: 4px;
+  color: inherit;
+  font-size: 12px;
+  font-weight: 800;
+  opacity: 0.72;
+}
+
+.eiken3-mock-writing-list,
+.eiken3-mock-result-list {
+  display: grid;
+  gap: 12px;
+  margin-top: 14px;
+}
+
+.eiken3-mock-writing-item {
+  border: 1px solid rgba(255, 211, 90, 0.28);
+  border-radius: 18px;
+  background: rgba(3, 8, 24, 0.42);
+  padding: 14px;
+}
+
+.eiken3-mock-writing-item b {
+  display: inline-flex;
+  border-radius: 999px;
+  background: rgba(255, 211, 90, 0.14);
+  color: #ffe58a;
+  font-size: 12px;
+  font-weight: 950;
+  padding: 5px 10px;
+}
+
+.eiken3-mock-writing-item p {
+  margin-top: 10px;
+  color: rgba(247, 251, 255, 0.9);
+  font-size: 14px;
+  font-weight: 850;
+  line-height: 1.78;
+}
+
+.eiken3-mock-prompt-en,
+.eiken3-mock-sample-answer {
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.06);
+  padding: 12px;
+}
+
+.eiken3-mock-writing-item small {
+  display: block;
+  margin-top: 10px;
+  color: rgba(237, 244, 255, 0.7);
+  font-weight: 900;
+}
+
+.eiken3-mock-result-card.is-correct {
+  border-color: rgba(84, 230, 168, 0.5);
+}
+
+.eiken3-mock-result-card.is-wrong {
+  border-color: rgba(255, 100, 135, 0.54);
+}
+
+.eiken3-mock-result-head {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.eiken3-mock-result-head p {
+  color: #fff3c2;
+  font-size: 13px;
+  font-weight: 950;
+}
+
+.eiken3-mock-result-head span {
+  border-radius: 999px;
+  background: rgba(255, 211, 90, 0.14) !important;
+  color: #ffe58a;
+  font-size: 12px;
+  font-weight: 950;
+  padding: 6px 10px;
+}
+
+.eiken3-mock-result-card h3 {
+  margin-top: 12px;
+  color: #f8fbff;
+  font-size: 16px;
+  font-weight: 950;
+  line-height: 1.6;
+}
+
+.eiken3-mock-result-options {
+  display: grid;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.eiken3-mock-result-options div {
+  border: 1px solid rgba(255, 211, 90, 0.22);
+  border-radius: 14px;
+  background: rgba(3, 8, 24, 0.42);
+  color: rgba(237, 244, 255, 0.86);
+  font-size: 13px;
+  font-weight: 850;
+  line-height: 1.55;
+  padding: 10px;
+}
+
+.eiken3-mock-result-options div.is-right {
+  border-color: rgba(84, 230, 168, 0.66);
+  background: rgba(8, 80, 55, 0.58);
+  color: #a6ffc7;
+}
+
+.eiken3-mock-result-options div.is-selected-wrong {
+  border-color: rgba(255, 90, 130, 0.72);
+  background: rgba(94, 16, 45, 0.58);
+  color: #ffb3c4;
+}
+
+.eiken3-mock-answer-line {
+  margin-top: 12px;
+  color: #ffd875;
+  font-size: 13px;
+  font-weight: 950;
+}
+
 @media (min-width: 768px) {
   .eiken-real-trial-select-panel {
     grid-template-columns: repeat(2, minmax(0, 1fr));

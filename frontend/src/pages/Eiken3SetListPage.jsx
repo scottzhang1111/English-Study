@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import WebLearningLayout from '../components/WebLearningLayout';
 import { EQBottomNav } from '../components/eigo';
+import CompactPageHeader from '../components/eigo/CompactPageHeader';
 import { getEiken3Sets } from '../api';
 
 export default function Eiken3SetListPage() {
@@ -30,48 +30,65 @@ export default function Eiken3SetListPage() {
 
   return (
     <>
-      <WebLearningLayout title="英検3級 模擬テスト" subtitle="G3SET01〜G3SET10">
-        <section className="panel p-5 md:p-7">
-          <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
-            <div>
-              <p className="text-xs font-black uppercase tracking-[0.16em] text-[#8fa0c2]">EIKEN GRADE 3</p>
-              <h1 className="display-font mt-2 text-3xl font-black text-[#354172]">英検3級 模擬テスト</h1>
-              <p className="mt-2 text-sm font-bold leading-6 text-[#60709d]">
-                セットを選んで、30問の選択問題とライティング練習に挑戦しましょう。
-              </p>
+      <div className="eiken-exam-page eiken-real-trial-page eiken3-mock-page mx-auto max-w-[1440px] px-3 pb-28 pt-2 text-[#26376d] lg:px-5 lg:py-4">
+        <div className="eiken-real-trial-compact-wrap md:hidden">
+          <CompactPageHeader
+            title="英検3級"
+            subtitle="模擬テストに挑戦"
+            backgroundImage="/assets/eigo-quest/learning-hub/英検本番形式.png"
+            elementLabel="英"
+            progressText="G3"
+            helperImage="/assets/eigo-quest/spirit_assets/happy.png"
+            variant="eiken-real"
+          />
+        </div>
+
+        <main className="eiken-real-trial-entry-layout">
+          <section className="eiken-real-trial-entry-card eiken3-mock-entry-card">
+            <div className="eiken-real-trial-entry-head">
+              <span className="eiken-real-trial-crest" aria-hidden="true">英</span>
+              <div>
+                <p>GRADE 3 MOCK TEST</p>
+                <h1>英検3級 模擬テスト</h1>
+                <strong>セットを選んで30問に挑戦</strong>
+              </div>
             </div>
-            <Link to="/eiken" className="ghost-button inline-flex justify-center px-5 py-3 text-sm">
-              英検メニューへ
-            </Link>
-          </div>
-        </section>
 
-        {error && <div className="mt-4 rounded-[22px] bg-rose-50 p-4 text-sm font-bold text-rose-700">{error}</div>}
+            <div className="eiken-real-trial-badges">
+              <span><i>?</i> 30問</span>
+              <span><i>文</i> 長文3題</span>
+              <span><i>W</i> Writingあり</span>
+            </div>
 
-        {loading ? (
-          <div className="mt-5 rounded-[24px] bg-white/76 p-6 text-center font-bold text-[#6f7da8]">準備しています...</div>
-        ) : (
-          <section className="mt-5 grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-            {sets.map((item) => (
-              <Link
-                key={item.set_id}
-                to={`/eiken3/quiz/${encodeURIComponent(item.set_id)}`}
-                className="rounded-[26px] border border-white/80 bg-white/86 p-5 text-[#354172] shadow-[0_16px_36px_rgba(129,164,199,0.13)] transition hover:-translate-y-0.5 hover:bg-white"
-              >
-                <p className="text-xs font-black uppercase tracking-[0.14em] text-[#8fa0c2]">Mock Set</p>
-                <h2 className="mt-2 text-2xl font-black">{item.set_id}</h2>
-                <div className="mt-4 grid grid-cols-3 gap-2 text-center text-xs font-black">
-                  <span className="rounded-2xl bg-[#eef8ff] px-2 py-2 text-[#52668c]">{item.question_count}問</span>
-                  <span className="rounded-2xl bg-[#fff7d6] px-2 py-2 text-[#75622c]">本文 {item.passage_count}</span>
-                  <span className="rounded-2xl bg-[#eefbf1] px-2 py-2 text-[#2f6b42]">Writing {item.writing_count}</span>
-                </div>
-                <span className="pill-button mt-5 inline-flex w-full justify-center px-5 py-3 text-sm">開始する</span>
-              </Link>
-            ))}
+            {error && <div className="eiken3-mock-alert">{error}</div>}
+
+            {loading ? (
+              <div className="eiken-real-trial-status-card eiken3-mock-status" role="status" aria-live="polite">
+                <span className="eiken-real-trial-status-orb" aria-hidden="true" />
+                <p>読み込み中</p>
+                <strong>セットを準備しています...</strong>
+              </div>
+            ) : (
+              <div className="eiken3-mock-set-grid">
+                {sets.map((item) => (
+                  <Link
+                    key={item.set_id}
+                    to={`/eiken3/quiz/${encodeURIComponent(item.set_id)}`}
+                    className="eiken3-mock-set-button"
+                  >
+                    <span>Mock Set</span>
+                    <strong>{item.set_id}</strong>
+                    <small>
+                      {item.question_count}問 / 長文{item.passage_count} / Writing {item.writing_count}
+                    </small>
+                  </Link>
+                ))}
+              </div>
+            )}
           </section>
-        )}
-      </WebLearningLayout>
-      <EQBottomNav />
+        </main>
+      </div>
+      <EQBottomNav className="eiken-real-trial-bottom-nav" />
     </>
   );
 }
