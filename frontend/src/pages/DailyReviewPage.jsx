@@ -174,7 +174,6 @@ export default function DailyReviewPage() {
         title="今日の冒険"
         subtitle="前に覚えた単語をもう一度思い出そう"
         bgImage={EQ_ASSETS.bg.learningHub}
-        fairyImage={EQ_ASSETS.spirit.happy}
         elementLabel="泉"
         progressText={result ? 'CLEAR' : `${Math.min(currentIndex + 1, questions.length || TARGET_COUNT)} / ${questions.length || TARGET_COUNT}`}
       />
@@ -200,21 +199,20 @@ export default function DailyReviewPage() {
         >
           <div className="grid gap-5">
             <div className="flex flex-wrap items-center gap-2">
-              <EQFantasyBadge>{currentQuestion.questionType}</EQFantasyBadge>
-              {currentQuestion.questionType === 'Listening' ? (
-                <EQFantasyButton variant="dark" trailingIcon="" onClick={() => speak(currentQuestion.audioText)}>
-                  音声
-                </EQFantasyButton>
-              ) : null}
+              <EQFantasyBadge>Meaning</EQFantasyBadge>
+              <EQFantasyBadge variant="cyan">英語 → 日本語</EQFantasyBadge>
             </div>
 
             <div className="rounded-[20px] border border-[rgba(255,211,90,0.32)] bg-[rgba(5,12,36,0.58)] p-4">
-              <p className="m-0 whitespace-pre-line text-xl font-black leading-relaxed text-[#fff8df]">
-                {currentQuestion.prompt}
-              </p>
-              {currentQuestion.exampleJa ? (
-                <p className="mt-3 text-sm font-bold leading-relaxed text-slate-300">{currentQuestion.exampleJa}</p>
-              ) : null}
+              <p className="mb-3 text-sm font-black text-slate-300">この英単語の意味を選ぼう</p>
+              <div className="flex items-center justify-between gap-3">
+                <p className="m-0 min-w-0 break-words text-4xl font-black leading-tight text-[#fff8df]">
+                  {currentQuestion.word || currentQuestion.audioText}
+                </p>
+                <EQFantasyButton variant="dark" trailingIcon="" onClick={() => speak(currentQuestion.audioText || currentQuestion.word)}>
+                  音声
+                </EQFantasyButton>
+              </div>
             </div>
 
             <div className="grid gap-3">

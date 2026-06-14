@@ -5026,33 +5026,15 @@ def build_daily_review_question_payload(question):
 def generate_daily_review_questions_from_entries(entries, limit=10):
     if not entries:
         return []
-    generators = [
-        _generate_review_listening_question,
-        _generate_review_meaning_question,
-        _generate_review_reverse_question,
-        _generate_review_cloze_question,
-    ]
     questions = []
     shuffled_entries = list(entries)
     random.shuffle(shuffled_entries)
-    for index, entry in enumerate(shuffled_entries):
+    for entry in shuffled_entries:
         if len(questions) >= limit:
             break
-        generator = generators[index % len(generators)]
-        question = generator(entry, entries)
+        question = _generate_review_meaning_question(entry, entries)
         if question:
             questions.append(question)
-    if len(questions) < min(limit, len(entries)):
-        fallback_questions = generate_review_questions_from_entries(entries, limit=limit)
-        seen = {(_clean_csv_value(q.get('id')), _clean_csv_value(q.get('type'))) for q in questions}
-        for question in fallback_questions:
-            key = (_clean_csv_value(question.get('id')), _clean_csv_value(question.get('type')))
-            if key in seen:
-                continue
-            questions.append(question)
-            seen.add(key)
-            if len(questions) >= limit:
-                break
     return questions[:limit]
 
 
