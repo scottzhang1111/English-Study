@@ -3394,14 +3394,88 @@ textarea {
   min-height: 100vh;
 }
 
+.eiken3-mock-picker-page {
+  padding-top: calc(24px + env(safe-area-inset-top)) !important;
+  padding-bottom: calc(120px + env(safe-area-inset-bottom)) !important;
+}
+
 .eiken3-mock-page .eiken-real-trial-entry-layout,
 .eiken3-mock-page .eiken-real-trial-practice-layout {
   max-width: 980px;
   margin: 0 auto;
 }
 
+.eiken3-mock-hero {
+  max-width: 980px;
+  margin: 0 auto 18px;
+}
+
+.eiken3-mock-hero .compact-page-header {
+  min-height: clamp(202px, 30vw, 260px);
+}
+
+.eiken3-mock-hero .compact-page-header__title {
+  font-size: clamp(38px, 8vw, 62px);
+}
+
+.eiken3-mock-hero .compact-page-header__guidance-text {
+  font-size: clamp(17px, 4.2vw, 24px);
+}
+
 .eiken3-mock-entry-card {
   gap: 22px;
+}
+
+.eiken3-mock-picker-card {
+  overflow: visible;
+  max-width: 760px;
+  margin: 0 auto;
+}
+
+.eiken3-mock-picker-card::after {
+  pointer-events: none;
+}
+
+.eiken3-mock-picker-form {
+  display: grid;
+  gap: 18px;
+  position: relative;
+  z-index: 5;
+}
+
+.eiken3-mock-dropdown-field {
+  display: grid;
+  gap: 8px;
+  color: rgba(226, 237, 255, 0.88);
+  font-size: 17px;
+  font-weight: 950;
+}
+
+.eiken3-mock-dropdown {
+  width: 100%;
+}
+
+.eiken3-mock-dropdown-menu {
+  left: 0;
+  width: 100%;
+  max-height: 340px;
+  transform: none;
+}
+
+.eiken3-mock-dropdown-menu button {
+  min-height: 56px;
+}
+
+.eiken3-mock-dropdown-menu button strong {
+  font-size: 19px;
+}
+
+.eiken3-mock-part-badges {
+  justify-content: flex-start;
+}
+
+.eiken3-mock-start {
+  min-height: 68px;
 }
 
 .eiken3-mock-set-grid {
