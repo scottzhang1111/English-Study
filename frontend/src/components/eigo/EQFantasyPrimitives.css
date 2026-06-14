@@ -502,9 +502,8 @@
 }
 
 .eq-fantasy-button-v2 {
-  display: grid;
-  min-height: 64px;
-  grid-template-columns: 44px minmax(0, 1fr) 44px;
+  display: inline-flex;
+  min-height: 58px;
   align-items: center;
   justify-content: center;
   gap: 12px;
@@ -514,18 +513,9 @@
   font-size: 17px;
   font-weight: 950;
   line-height: 1;
-  padding: 0 18px;
+  padding: 0 22px;
   text-decoration: none;
   transition: transform 0.16s ease, filter 0.16s ease, box-shadow 0.16s ease;
-}
-
-.eq-fantasy-button-v2 > span:not(.eq-fantasy-button-v2__icon):not(.eq-fantasy-button-v2__trail) {
-  display: inline-flex;
-  min-width: 0;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-  line-height: 1.1;
 }
 
 .eq-fantasy-button-v2.is-full-width {
@@ -537,7 +527,6 @@
   min-height: 68px;
   border-color: rgba(255, 238, 153, 0.8);
   background:
-    var(--eq-fantasy-button-bg-image, linear-gradient(transparent, transparent)) center / 100% 100% no-repeat,
     radial-gradient(circle at 18% 20%, rgba(255, 255, 255, 0.28), transparent 26%),
     linear-gradient(180deg, #ffe58a 0%, #f0b733 45%, #b96d16 100%);
   box-shadow:
@@ -575,8 +564,8 @@
 .eq-fantasy-button-v2__icon,
 .eq-fantasy-button-v2__trail {
   display: inline-grid;
-  width: 34px;
-  height: 34px;
+  width: 28px;
+  height: 28px;
   flex: 0 0 auto;
   place-items: center;
   font-size: 22px;
@@ -584,11 +573,7 @@
 }
 
 .eq-fantasy-button-v2__trail {
-  justify-self: end;
-}
-
-.eq-fantasy-button-v2__icon {
-  justify-self: start;
+  margin-left: auto;
 }
 
 .eq-fantasy-button-v2__icon.is-image {

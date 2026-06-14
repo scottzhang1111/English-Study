@@ -162,8 +162,8 @@ export function EQFantasyButton({
         className,
       )}
       style={{
-        '--eq-fantasy-button-bg-image': backgroundImage || (variant === 'gold' ? EQ_ASSETS.ui.goldButton : undefined)
-          ? `url("${backgroundImage || EQ_ASSETS.ui.goldButton}")`
+        '--eq-fantasy-button-bg-image': backgroundImage
+          ? `url("${backgroundImage}")`
           : undefined,
         ...style,
       }}

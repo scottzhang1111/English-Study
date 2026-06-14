@@ -151,7 +151,7 @@ export default function Eiken3SetListPage() {
 
           <EQFantasyButton
             fullWidth
-            iconImage={isWriting ? EQ_ASSETS.ui.iconStudy : EQ_ASSETS.ui.coinIcon}
+            icon={isWriting ? 'W' : '◇'}
             onClick={startPractice}
             disabled={loading && !selectedSet}
           >
