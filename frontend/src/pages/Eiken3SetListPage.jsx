@@ -104,7 +104,6 @@ export default function Eiken3SetListPage() {
         subtitle="セットと問題を選んで練習しよう"
         bgImage={EQ_ASSETS.bg.eikenReal}
         fairyImage={EQ_ASSETS.spirit.happy}
-        emblemImage={EQ_ASSETS.app.logoMark}
         elementLabel="英"
         progressText="G3"
       />

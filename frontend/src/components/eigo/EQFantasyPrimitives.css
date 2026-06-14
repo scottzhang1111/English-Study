@@ -502,8 +502,9 @@
 }
 
 .eq-fantasy-button-v2 {
-  display: inline-flex;
-  min-height: 58px;
+  display: grid;
+  min-height: 64px;
+  grid-template-columns: 44px minmax(0, 1fr) 44px;
   align-items: center;
   justify-content: center;
   gap: 12px;
@@ -513,9 +514,18 @@
   font-size: 17px;
   font-weight: 950;
   line-height: 1;
-  padding: 0 22px;
+  padding: 0 18px;
   text-decoration: none;
   transition: transform 0.16s ease, filter 0.16s ease, box-shadow 0.16s ease;
+}
+
+.eq-fantasy-button-v2 > span:not(.eq-fantasy-button-v2__icon):not(.eq-fantasy-button-v2__trail) {
+  display: inline-flex;
+  min-width: 0;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  line-height: 1.1;
 }
 
 .eq-fantasy-button-v2.is-full-width {
@@ -523,6 +533,7 @@
 }
 
 .eq-fantasy-button-v2.is-gold {
+  height: 68px;
   min-height: 68px;
   border-color: rgba(255, 238, 153, 0.8);
   background:
@@ -564,8 +575,8 @@
 .eq-fantasy-button-v2__icon,
 .eq-fantasy-button-v2__trail {
   display: inline-grid;
-  width: 28px;
-  height: 28px;
+  width: 34px;
+  height: 34px;
   flex: 0 0 auto;
   place-items: center;
   font-size: 22px;
@@ -573,7 +584,11 @@
 }
 
 .eq-fantasy-button-v2__trail {
-  margin-left: auto;
+  justify-self: end;
+}
+
+.eq-fantasy-button-v2__icon {
+  justify-self: start;
 }
 
 .eq-fantasy-button-v2__icon.is-image {
