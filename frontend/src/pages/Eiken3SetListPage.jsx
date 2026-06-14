@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
+  EQ_ASSETS,
   EQFantasyBadge,
   EQFantasyButton,
   EQFantasyCard,
@@ -86,9 +87,10 @@ export default function Eiken3SetListPage() {
   );
   const selectedPart = PART_OPTIONS.find((part) => part.id === selectedPartId) || PART_OPTIONS[0];
   const selectedSet = selectedSetId || setOptions[0]?.value || 'G3SET01';
+  const isWriting = selectedPart.id === 'writing';
 
   function startPractice() {
-    if (selectedPart.id === 'writing') {
+    if (isWriting) {
       navigate(`/essay-check?set=${encodeURIComponent(selectedSet)}&type=writing`);
       return;
     }
@@ -100,8 +102,9 @@ export default function Eiken3SetListPage() {
       <EQHeroHeader
         title="英検3級 模擬テスト"
         subtitle="セットと問題を選んで練習しよう"
-        backgroundImage="/assets/eigo-quest/learning-hub/英検本番形式.png"
-        helperImage="/assets/eigo-quest/spirit_assets/happy.png"
+        bgImage={EQ_ASSETS.bg.eikenReal}
+        fairyImage={EQ_ASSETS.spirit.happy}
+        emblemImage={EQ_ASSETS.app.logoMark}
         elementLabel="英"
         progressText="G3"
       />
@@ -110,7 +113,8 @@ export default function Eiken3SetListPage() {
         eyebrow="REAL MOCK TRIAL"
         title="英検3級 模擬テスト"
         subtitle="セットと問題を選んで練習しよう"
-        icon="英"
+        iconImage={EQ_ASSETS.ui.quizScroll}
+        cornerDecoration={EQ_ASSETS.ui.flameStreak}
       >
         <div className="grid gap-5">
           {error ? (
@@ -137,7 +141,10 @@ export default function Eiken3SetListPage() {
 
           <div className="flex flex-wrap gap-2">
             {selectedPart.badges.map((badge) => (
-              <EQFantasyBadge key={badge} icon={badge.includes('Writing') ? 'W' : '?'}>
+              <EQFantasyBadge
+                key={badge}
+                iconImage={isWriting ? EQ_ASSETS.ui.iconStudy : EQ_ASSETS.ui.coinIcon}
+              >
                 {badge}
               </EQFantasyBadge>
             ))}
@@ -145,7 +152,7 @@ export default function Eiken3SetListPage() {
 
           <EQFantasyButton
             fullWidth
-            icon="◇"
+            iconImage={isWriting ? EQ_ASSETS.ui.iconStudy : EQ_ASSETS.ui.coinIcon}
             onClick={startPractice}
             disabled={loading && !selectedSet}
           >

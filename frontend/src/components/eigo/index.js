@@ -6,6 +6,7 @@ export { default as EQMobileShell } from './EQMobileShell';
 export { default as FantasyMenuTile } from './FantasyMenuTile';
 export { default as PurificationQuizMobile } from './PurificationQuizMobile';
 export { default as SpiritDialogueBox } from './SpiritDialogueBox';
+export { EQ_ASSETS } from './EQAssetMap';
 export {
   EQFantasyBadge,
   EQFantasyButton,

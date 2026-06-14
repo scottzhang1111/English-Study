@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import EQBottomNav from './EQBottomNav';
+import { EQ_ASSETS } from './EQAssetMap';
 import './EQFantasyPrimitives.css';
 
 function cx(...classes) {
@@ -52,8 +53,11 @@ export function EQHeroHeader({
   eyebrow,
   title,
   subtitle,
+  bgImage,
   backgroundImage,
+  fairyImage,
   helperImage,
+  emblemImage,
   elementLabel,
   progressText,
   badges,
@@ -65,10 +69,11 @@ export function EQHeroHeader({
     <section
       className={cx('eq-fantasy-hero-header', className)}
       style={{
-        '--eq-hero-bg': backgroundImage ? `url("${backgroundImage}")` : undefined,
+        '--eq-hero-bg': (bgImage || backgroundImage) ? `url("${bgImage || backgroundImage}")` : undefined,
       }}
       {...props}
     >
+      {emblemImage ? <img className="eq-fantasy-hero-header__emblem" src={emblemImage} alt="" /> : null}
       <div className="eq-fantasy-hero-header__copy">
         {eyebrow ? <span>{eyebrow}</span> : null}
         {title ? <h1>{title}</h1> : null}
@@ -84,8 +89,8 @@ export function EQHeroHeader({
         ) : null}
         {children}
       </div>
-      {helperImage ? (
-        <img className="eq-fantasy-hero-header__helper" src={helperImage} alt="" />
+      {fairyImage || helperImage ? (
+        <img className="eq-fantasy-hero-header__helper" src={fairyImage || helperImage} alt="" />
       ) : null}
     </section>
   );
@@ -97,6 +102,8 @@ export function EQFantasyCard({
   title,
   subtitle,
   icon,
+  iconImage,
+  cornerDecoration,
   actions,
   footer,
   children,
@@ -106,9 +113,16 @@ export function EQFantasyCard({
 }) {
   return (
     <Component className={cx('eq-fantasy-card-v2', glow && 'has-glow', className)} {...props}>
-      {(eyebrow || title || subtitle || icon || actions) ? (
+      {cornerDecoration ? (
+        <img className="eq-fantasy-card-v2__corner" src={cornerDecoration} alt="" />
+      ) : null}
+      {(eyebrow || title || subtitle || icon || iconImage || actions) ? (
         <div className="eq-fantasy-card-v2__head">
-          {renderIcon(icon, 'eq-fantasy-card-v2__icon')}
+          {iconImage ? (
+            <span className="eq-fantasy-card-v2__icon is-image" aria-hidden="true">
+              <img src={iconImage} alt="" />
+            </span>
+          ) : renderIcon(icon, 'eq-fantasy-card-v2__icon')}
           <div className="eq-fantasy-card-v2__copy">
             {eyebrow ? <span>{eyebrow}</span> : null}
             {title ? <h2>{title}</h2> : null}
@@ -127,10 +141,13 @@ export function EQFantasyButton({
   as: Component = 'button',
   children,
   icon,
+  iconImage,
   trailingIcon = '›',
+  backgroundImage,
   variant = 'gold',
   fullWidth = false,
   className = '',
+  style,
   type = 'button',
   ...props
 }) {
@@ -144,10 +161,20 @@ export function EQFantasyButton({
         fullWidth && 'is-full-width',
         className,
       )}
+      style={{
+        '--eq-fantasy-button-bg-image': backgroundImage || (variant === 'gold' ? EQ_ASSETS.ui.goldButton : undefined)
+          ? `url("${backgroundImage || EQ_ASSETS.ui.goldButton}")`
+          : undefined,
+        ...style,
+      }}
       {...buttonProps}
       {...props}
     >
-      {renderIcon(icon, 'eq-fantasy-button-v2__icon')}
+      {iconImage ? (
+        <span className="eq-fantasy-button-v2__icon is-image" aria-hidden="true">
+          <img src={iconImage} alt="" />
+        </span>
+      ) : renderIcon(icon, 'eq-fantasy-button-v2__icon')}
       <span>{children}</span>
       {trailingIcon ? renderIcon(trailingIcon, 'eq-fantasy-button-v2__trail') : null}
     </Component>
@@ -158,13 +185,16 @@ export function EQFantasyBadge({
   as: Component = 'span',
   children,
   icon,
+  iconImage,
   variant = 'gold',
   className = '',
   ...props
 }) {
   return (
     <Component className={cx('eq-fantasy-badge-v2', `is-${variant}`, className)} {...props}>
-      {renderIcon(icon, 'eq-fantasy-badge-v2__icon')}
+      {iconImage ? (
+        <img className="eq-fantasy-badge-v2__image" src={iconImage} alt="" />
+      ) : renderIcon(icon, 'eq-fantasy-badge-v2__icon')}
       <span>{children}</span>
     </Component>
   );
