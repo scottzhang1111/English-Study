@@ -501,6 +501,15 @@
   min-width: 0;
 }
 
+.eq-eiken3-set-selector-card {
+  padding: 18px;
+}
+
+.eq-eiken3-set-selector-card .eq-fantasy-card-v2__body {
+  display: grid;
+  gap: 0;
+}
+
 .eq-fantasy-button-v2 {
   display: inline-flex;
   min-height: 58px;

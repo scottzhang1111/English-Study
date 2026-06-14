@@ -15,7 +15,7 @@ function resolveChildAvatar(child) {
 
 const mainEntry = {
   title: '今日の冒険',
-  subtitle: '20語を学んで、クイズに挑戦',
+  subtitle: '前に覚えた単語をチェックしよう',
   action: '冒険をはじめる',
   image: `${ASSET_BASE}/上の背景.png`,
 };
@@ -94,7 +94,7 @@ export default function LearningHubPage() {
     resumeGlobalBgm();
     const currentChild = children.find((child) => String(child.id) === String(selectedChildId)) || children[0];
     if (currentChild) {
-      navigate('/world-stage');
+      navigate('/daily-review');
       return;
     }
 
@@ -106,7 +106,7 @@ export default function LearningHubPage() {
         return;
       }
       setSelectedChildId(childList[0].id);
-      navigate('/world-stage');
+      navigate('/daily-review');
     } catch (err) {
       navigate('/create-child-profile');
     }

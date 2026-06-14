@@ -4913,6 +4913,307 @@ def generate_today_review_questions(limit=20, child_id=None):
     return generate_review_questions_from_entries(entries, limit=limit)
 
 
+def _daily_review_weight(row):
+    weight = 1
+    status = str(row['status'] or '').strip().lower()
+    wrong_count = int(row['wrong_count'] or 0)
+    memory_level = int(row['memory_level'] or 0)
+    mastered = int(row['mastered'] or 0)
+    if status == 'review' or wrong_count > 0:
+        weight += 8 + min(8, wrong_count * 2)
+    if memory_level <= 1:
+        weight += 4
+    if not row['last_reviewed_at']:
+        weight += 3
+    if mastered:
+        weight = max(1, weight // 3)
+    return max(1, weight)
+
+
+def get_daily_review_entries(child_id, target_count=10):
+    init_db()
+    child_level_entries = filter_vocab_entries_for_child_level(vocab_list, child_id)
+    conn = get_db_connection()
+    try:
+        ensure_child_exists(conn, child_id)
+        rows = conn.execute(
+            '''
+            SELECT vocab_id, correct_count, wrong_count, review_count, memory_level,
+                   last_studied_at, mastered, correct_streak, mastery, status,
+                   mastered_at, last_reviewed_at, updated_at
+            FROM child_vocab_progress
+            WHERE child_id = ?
+              AND (
+                correct_count > 0
+                OR wrong_count > 0
+                OR review_count > 0
+                OR last_studied_at IS NOT NULL
+              )
+            ORDER BY
+              CASE WHEN status = 'review' OR wrong_count > 0 THEN 0 ELSE 1 END,
+              CASE WHEN memory_level <= 1 THEN 0 ELSE 1 END,
+              CASE WHEN last_reviewed_at IS NULL THEN 0 ELSE 1 END,
+              mastered ASC,
+              last_reviewed_at ASC,
+              updated_at ASC
+            ''',
+            (child_id,),
+        ).fetchall()
+    finally:
+        conn.close()
+
+    by_key = {}
+    weighted_pool = []
+    for row in rows:
+        entry = resolve_vocab_entry(str(row['vocab_id']), child_level_entries)
+        if not entry:
+            continue
+        key = get_vocab_key(entry)
+        if not key or key in by_key:
+            continue
+        by_key[key] = entry
+        weighted_pool.extend([entry] * _daily_review_weight(row))
+
+    if not by_key:
+        return []
+
+    selected = []
+    seen = set()
+    random.shuffle(weighted_pool)
+    for entry in weighted_pool:
+        key = get_vocab_key(entry)
+        if key in seen:
+            continue
+        seen.add(key)
+        selected.append(entry)
+        if len(selected) >= target_count:
+            break
+
+    if len(selected) < min(target_count, len(by_key)):
+        remaining = [entry for key, entry in by_key.items() if key not in seen]
+        random.shuffle(remaining)
+        selected.extend(remaining[: target_count - len(selected)])
+
+    return selected[:target_count]
+
+
+def build_daily_review_question_payload(question):
+    vocab_id = _clean_csv_value(question.get('id'))
+    qtype = _clean_csv_value(question.get('type'))
+    return {
+        'vocab_id': int(vocab_id) if vocab_id.isdigit() else vocab_id,
+        'vocabId': int(vocab_id) if vocab_id.isdigit() else vocab_id,
+        'question_type': qtype,
+        'questionType': qtype,
+        'prompt': _clean_csv_value(question.get('question')),
+        'choices': question.get('choices') or [],
+        'answer': _clean_csv_value(question.get('correct')),
+        'correct_answer': _clean_csv_value(question.get('correct')),
+        'correctAnswer': _clean_csv_value(question.get('correct')),
+        'word': _clean_csv_value(question.get('word')),
+        'meaning_ja': _clean_csv_value(question.get('japanese')),
+        'meaningJa': _clean_csv_value(question.get('japanese')),
+        'example': _clean_csv_value(question.get('example')),
+        'example_ja': _clean_csv_value(question.get('example_jp')),
+        'exampleJa': _clean_csv_value(question.get('example_jp')),
+        'audio_text': _clean_csv_value(question.get('audio_text') or question.get('word')),
+        'audioText': _clean_csv_value(question.get('audio_text') or question.get('word')),
+        'explanation_ja': _clean_csv_value(question.get('explanation_jp')),
+        'explanationJa': _clean_csv_value(question.get('explanation_jp')),
+    }
+
+
+def generate_daily_review_questions_from_entries(entries, limit=10):
+    if not entries:
+        return []
+    generators = [
+        _generate_review_listening_question,
+        _generate_review_meaning_question,
+        _generate_review_reverse_question,
+        _generate_review_cloze_question,
+    ]
+    questions = []
+    shuffled_entries = list(entries)
+    random.shuffle(shuffled_entries)
+    for index, entry in enumerate(shuffled_entries):
+        if len(questions) >= limit:
+            break
+        generator = generators[index % len(generators)]
+        question = generator(entry, entries)
+        if question:
+            questions.append(question)
+    if len(questions) < min(limit, len(entries)):
+        fallback_questions = generate_review_questions_from_entries(entries, limit=limit)
+        seen = {(_clean_csv_value(q.get('id')), _clean_csv_value(q.get('type'))) for q in questions}
+        for question in fallback_questions:
+            key = (_clean_csv_value(question.get('id')), _clean_csv_value(question.get('type')))
+            if key in seen:
+                continue
+            questions.append(question)
+            seen.add(key)
+            if len(questions) >= limit:
+                break
+    return questions[:limit]
+
+
+def get_daily_review_payload(child_id, target_count=10):
+    target_count = max(1, min(30, int(target_count or 10)))
+    entries = get_daily_review_entries(child_id, target_count=target_count)
+    if not entries:
+        return {
+            'child_id': child_id,
+            'childId': child_id,
+            'target_count': target_count,
+            'targetCount': target_count,
+            'count': 0,
+            'questions': [],
+            'message': 'まだ復習できる単語がありません',
+        }
+    questions = [
+        build_daily_review_question_payload(question)
+        for question in generate_daily_review_questions_from_entries(entries, limit=target_count)
+    ]
+    return {
+        'child_id': child_id,
+        'childId': child_id,
+        'target_count': target_count,
+        'targetCount': target_count,
+        'count': len(questions),
+        'questions': questions,
+    }
+
+
+def submit_daily_review_answers(child_id, answers):
+    if not isinstance(answers, list):
+        raise ValueError('answers must be a list')
+    now = get_now_iso()
+    total = 0
+    correct_total = 0
+    wrong_vocab_ids = []
+    conn = get_db_connection()
+    try:
+        ensure_child_exists(conn, child_id)
+        for answer in answers:
+            if not isinstance(answer, dict):
+                continue
+            vocab_id = answer.get('vocab_id') or answer.get('vocabId') or answer.get('id')
+            if vocab_id in [None, '', 'null']:
+                continue
+            try:
+                vocab_id = int(vocab_id)
+            except (TypeError, ValueError):
+                continue
+            selected = _clean_csv_value(answer.get('selected_answer') or answer.get('selectedAnswer') or answer.get('selected'))
+            correct_answer = _clean_csv_value(answer.get('correct_answer') or answer.get('correctAnswer') or answer.get('answer') or answer.get('correct'))
+            is_correct = answer.get('is_correct')
+            if is_correct is None:
+                is_correct = bool(selected and correct_answer and selected == correct_answer)
+            else:
+                is_correct = bool(is_correct)
+            row = conn.execute(
+                '''
+                SELECT correct_streak, memory_level, mastery, mastered, status, mastered_at
+                FROM child_vocab_progress
+                WHERE child_id = ? AND vocab_id = ?
+                ''',
+                (child_id, vocab_id),
+            ).fetchone()
+            if not row:
+                conn.execute('INSERT OR IGNORE INTO vocabulary (id) VALUES (?)', (vocab_id,))
+                row = {
+                    'correct_streak': 0,
+                    'memory_level': 0,
+                    'mastery': 0,
+                    'mastered': 0,
+                    'status': 'learning',
+                    'mastered_at': None,
+                }
+            correct_streak = int(row['correct_streak'] or 0)
+            memory_level = int(row['memory_level'] or 0)
+            mastery = int(row['mastery'] or 0)
+            mastered_at = row['mastered_at']
+            current_status = str(row['status'] or 'learning')
+            total += 1
+            if is_correct:
+                next_streak = correct_streak + 1
+                next_memory = min(5, memory_level + 1)
+                next_mastery = min(100, mastery + 10)
+                next_mastered = 1 if next_streak >= 2 or next_mastery >= 80 else int(row['mastered'] or 0)
+                next_status = 'mastered' if next_mastered else ('learning' if current_status == 'review' else current_status or 'learning')
+                next_mastered_at = mastered_at or (now if next_mastered else None)
+                correct_total += 1
+                conn.execute(
+                    '''
+                    INSERT INTO child_vocab_progress (
+                        child_id, vocab_id, correct_count, wrong_count, review_count,
+                        memory_level, last_studied_at, mastered, created_at, updated_at,
+                        correct_streak, mastery, status, mastered_at, last_reviewed_at
+                    ) VALUES (?, ?, 1, 0, 1, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    ON CONFLICT(child_id, vocab_id) DO UPDATE SET
+                        correct_count = child_vocab_progress.correct_count + 1,
+                        review_count = child_vocab_progress.review_count + 1,
+                        memory_level = excluded.memory_level,
+                        last_studied_at = excluded.last_studied_at,
+                        last_reviewed_at = excluded.last_reviewed_at,
+                        correct_streak = excluded.correct_streak,
+                        mastery = excluded.mastery,
+                        mastered = excluded.mastered,
+                        status = excluded.status,
+                        mastered_at = COALESCE(child_vocab_progress.mastered_at, excluded.mastered_at),
+                        updated_at = excluded.updated_at
+                    ''',
+                    (
+                        child_id,
+                        vocab_id,
+                        next_memory,
+                        now,
+                        next_mastered,
+                        now,
+                        now,
+                        next_streak,
+                        next_mastery,
+                        next_status,
+                        next_mastered_at,
+                        now,
+                    ),
+                )
+            else:
+                next_memory = max(0, memory_level - 1)
+                next_mastery = max(0, mastery - 15)
+                wrong_vocab_ids.append(vocab_id)
+                conn.execute(
+                    '''
+                    INSERT INTO child_vocab_progress (
+                        child_id, vocab_id, correct_count, wrong_count, review_count,
+                        memory_level, last_studied_at, mastered, created_at, updated_at,
+                        correct_streak, mastery, status, mastered_at, last_reviewed_at
+                    ) VALUES (?, ?, 0, 1, 1, ?, ?, 0, ?, ?, 0, ?, 'review', NULL, ?)
+                    ON CONFLICT(child_id, vocab_id) DO UPDATE SET
+                        wrong_count = child_vocab_progress.wrong_count + 1,
+                        review_count = child_vocab_progress.review_count + 1,
+                        memory_level = excluded.memory_level,
+                        last_studied_at = excluded.last_studied_at,
+                        last_reviewed_at = excluded.last_reviewed_at,
+                        correct_streak = 0,
+                        mastery = excluded.mastery,
+                        mastered = 0,
+                        status = 'review',
+                        updated_at = excluded.updated_at
+                    ''',
+                    (child_id, vocab_id, next_memory, now, now, now, next_mastery, now),
+                )
+        conn.commit()
+    finally:
+        conn.close()
+    return {
+        'total': total,
+        'correct': correct_total,
+        'wrong': max(0, total - correct_total),
+        'wrong_vocab_ids': wrong_vocab_ids,
+        'wrongVocabIds': wrong_vocab_ids,
+    }
+
+
 def api_today_review_quiz_payload(child_id=None, world_id=None, stage=None, attempt_id=None):
     if child_id is None:
         progress = load_progress()
@@ -9623,7 +9924,7 @@ def get_child_vocab_wrong_reviews(child_id):
     conn = get_db_connection()
     try:
         ensure_child_exists(conn, child_id)
-        rows = conn.execute(
+        review_rows = conn.execute(
             '''
             SELECT child_id, vocab_id, world_id, stage_number, question_type,
                    wrong_count, last_wrong_at, review_count, last_reviewed_at,
@@ -9634,8 +9935,31 @@ def get_child_vocab_wrong_reviews(child_id):
             ''',
             (child_id,),
         ).fetchall()
+        existing_vocab_ids = {int(row['vocab_id']) for row in review_rows if row['vocab_id'] is not None}
+        progress_rows = conn.execute(
+            '''
+            SELECT child_id, vocab_id, NULL AS world_id, NULL AS stage_number, NULL AS question_type,
+                   wrong_count, last_studied_at AS last_wrong_at, review_count, last_reviewed_at,
+                   status AS review_status, mastered_at, created_at, updated_at
+            FROM child_vocab_progress
+            WHERE child_id = ?
+              AND (status = 'review' OR (wrong_count > 0 AND mastered = 0))
+            ORDER BY wrong_count DESC, last_studied_at DESC, updated_at DESC
+            ''',
+            (child_id,),
+        ).fetchall()
     finally:
         conn.close()
+    rows = list(review_rows)
+    for row in progress_rows:
+        try:
+            vocab_id = int(row['vocab_id'])
+        except (TypeError, ValueError):
+            continue
+        if vocab_id not in existing_vocab_ids:
+            rows.append(row)
+            existing_vocab_ids.add(vocab_id)
+    rows.sort(key=lambda row: (int(row['wrong_count'] or 0), row['last_wrong_at'] or '', row['updated_at'] or ''), reverse=True)
     return [build_vocab_wrong_review_payload(row) for row in rows]
 
 
@@ -10893,6 +11217,28 @@ def api_vocab_expansion_answer():
         pet_exp_awarded=study_result['pet_exp_awarded'] if study_result else 0,
         pet=study_result['pet'] if study_result else None,
     )
+
+
+@app.route('/api/children/<int:child_id>/daily-review')
+def api_child_daily_review(child_id):
+    target_count = request.args.get('target_count') or request.args.get('targetCount') or 10
+    try:
+        return jsonify(get_daily_review_payload(child_id, target_count))
+    except LookupError as exc:
+        abort(404, str(exc))
+    except ValueError as exc:
+        abort(400, str(exc))
+
+
+@app.route('/api/children/<int:child_id>/daily-review/submit', methods=['POST'])
+def api_child_daily_review_submit(child_id):
+    data = request.get_json(silent=True) or {}
+    try:
+        return jsonify(submit_daily_review_answers(child_id, data.get('answers') or []))
+    except LookupError as exc:
+        abort(404, str(exc))
+    except ValueError as exc:
+        abort(400, str(exc))
 
 
 @app.route('/api/today-review-quiz')

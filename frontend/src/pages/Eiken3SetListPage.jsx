@@ -108,14 +108,11 @@ export default function Eiken3SetListPage() {
         progressText="G3"
       />
 
-      <EQFantasyCard
-        eyebrow="REAL MOCK TRIAL"
+      <EQFantasyCard hideHeader className="eq-eiken3-set-selector-card"
         title="英検3級 模擬テスト"
         subtitle="セットと問題を選んで練習しよう"
-        iconImage={EQ_ASSETS.ui.quizScroll}
-        cornerDecoration={EQ_ASSETS.ui.flameStreak}
       >
-        <div className="grid gap-5">
+        <div className="grid gap-4">
           {error ? (
             <div className="rounded-[18px] border border-rose-300/50 bg-rose-950/45 px-4 py-3 text-sm font-black text-rose-100">
               {error}

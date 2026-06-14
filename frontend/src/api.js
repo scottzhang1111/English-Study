@@ -185,6 +185,19 @@ export const getTodayReviewQuiz = async (childId, options = {}) => {
   });
 };
 
+export const getDailyReview = async (childId, targetCount = 10) => {
+  return fetchJson(`/api/children/${encodeURIComponent(childId)}/daily-review`, {
+    params: { target_count: targetCount },
+  });
+};
+
+export const submitDailyReview = async (childId, answers) => {
+  return fetchJson(`/api/children/${encodeURIComponent(childId)}/daily-review/submit`, {
+    method: 'POST',
+    body: { answers },
+  });
+};
+
 export const submitStageQuizAttempt = async ({ childId, world, stage, answers, attemptId } = {}) => {
   return fetchJson(`/api/children/${encodeURIComponent(childId)}/stage-quiz-attempts`, {
     method: 'POST',

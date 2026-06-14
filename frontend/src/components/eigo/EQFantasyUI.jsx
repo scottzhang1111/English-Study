@@ -109,6 +109,7 @@ export function EQFantasyCard({
   children,
   className = '',
   glow = true,
+  hideHeader = false,
   ...props
 }) {
   return (
@@ -116,7 +117,7 @@ export function EQFantasyCard({
       {cornerDecoration ? (
         <img className="eq-fantasy-card-v2__corner" src={cornerDecoration} alt="" />
       ) : null}
-      {(eyebrow || title || subtitle || icon || iconImage || actions) ? (
+      {!hideHeader && (eyebrow || title || subtitle || icon || iconImage || actions) ? (
         <div className="eq-fantasy-card-v2__head">
           {iconImage ? (
             <span className="eq-fantasy-card-v2__icon is-image" aria-hidden="true">

@@ -8,6 +8,7 @@ import AdminFamiliesPage from './pages/AdminFamiliesPage';
 import CreateChildProfilePage from './pages/CreateChildProfilePage';
 import ChildSelectPage from './pages/ChildSelectPage';
 import LearningHubPage from './pages/LearningHubPage';
+import DailyReviewPage from './pages/DailyReviewPage';
 import DailyWordUnitPage from './pages/DailyWordUnitPage';
 import FlashcardPage from './pages/FlashcardPage';
 import QuizPage from './pages/QuizPage';
@@ -85,6 +86,7 @@ function AuthRequiredPage({ children }) {
 const STUDY_ROUTE_PREFIXES = [
   '/learning-hub',
   '/app/learning-hub',
+  '/daily-review',
   '/daily-words',
   '/app/daily-words',
   '/flashcard',
@@ -143,6 +145,7 @@ function App() {
             <Route path="/select-child" element={<AnimatedPage><ChildSelectPage /></AnimatedPage>} />
             <Route path="/learning-hub" element={<AnimatedPage><ChildRequiredPage><LearningHubPage /></ChildRequiredPage></AnimatedPage>} />
             <Route path="/app/learning-hub" element={<AnimatedPage><ChildRequiredPage><LearningHubPage /></ChildRequiredPage></AnimatedPage>} />
+            <Route path="/daily-review" element={<AnimatedPage><ChildRequiredPage><DailyReviewPage /></ChildRequiredPage></AnimatedPage>} />
             <Route path="/daily-words" element={<AnimatedPage><ChildRequiredPage><DailyWordUnitPage /></ChildRequiredPage></AnimatedPage>} />
             <Route path="/app/daily-words" element={<AnimatedPage><ChildRequiredPage><DailyWordUnitPage /></ChildRequiredPage></AnimatedPage>} />
             <Route path="/flashcard" element={<AnimatedPage><ChildRequiredPage><FlashcardPage /></ChildRequiredPage></AnimatedPage>} />
