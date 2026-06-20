@@ -14,6 +14,7 @@ import { savePendingRewardQueue } from '../helpers/eigoQuestRewards';
 
 const CHILD_STORAGE_KEY = 'selected_child_id';
 const PRACTICE_QUESTION_LIMIT = 5;
+const PATTERN_PRACTICE_QUESTION_LIMIT = 10;
 const GRAMMAR_HERO_IMAGE = '/assets/eigo-quest/learning-hub/文法練習.png';
 const SPIRIT_IMAGE = '/assets/eigo-quest/spirit_assets/happy.png';
 
@@ -79,8 +80,9 @@ export default function GrammarFormPracticePage() {
     getGrammarLesson({ childId, lessonId })
       .then((payload) => {
         const nextLesson = payload.lesson || null;
+        const nextLimit = nextLesson?.patterns?.length ? PATTERN_PRACTICE_QUESTION_LIMIT : PRACTICE_QUESTION_LIMIT;
         setLesson(nextLesson);
-        setQuestions((nextLesson?.quizzes || []).slice(0, PRACTICE_QUESTION_LIMIT));
+        setQuestions((nextLesson?.quizzes || []).slice(0, nextLimit));
       })
       .catch((err) => setError(err.message || '文法練習を読み込めませんでした。'))
       .finally(() => setLoading(false));

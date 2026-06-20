@@ -80,6 +80,8 @@ export default function GrammarPage() {
   const [availableLessonId, setAvailableLessonId] = useState('');
   const [lesson, setLesson] = useState(null);
   const [mode, setMode] = useState('learn');
+  const [patternIndex, setPatternIndex] = useState(0);
+  const [sectionIndex, setSectionIndex] = useState(0);
   const [quizIndex, setQuizIndex] = useState(0);
   const [selectedIndex, setSelectedIndex] = useState(null);
   const [answerResult, setAnswerResult] = useState(null);
@@ -91,6 +93,14 @@ export default function GrammarPage() {
 
   const activeQuiz = lesson?.quizzes?.[quizIndex] || null;
   const quizCount = lesson?.quizzes?.length || 0;
+  const pre2PatternLessons = lessons.filter((item) => item.level === 'eiken_pre2' && Number(item.patternCount || item.patterns?.length || 0) > 0);
+  const pre2ScrollLessons = lessons.filter((item) => item.level === 'eiken_pre2' && Number(item.sectionCount || item.sections?.length || 0) > 0);
+  const hasPatternLesson = Number(lesson?.patternCount || lesson?.patterns?.length || 0) > 0;
+  const hasScrollLesson = Number(lesson?.sectionCount || lesson?.sections?.length || 0) > 0;
+  const lessonPatterns = hasPatternLesson ? (lesson?.patterns || []) : [];
+  const activePattern = lessonPatterns[patternIndex] || lessonPatterns[0] || null;
+  const lessonSections = hasScrollLesson ? (lesson?.sections || []) : [];
+  const activeSection = lessonSections[sectionIndex] || lessonSections[0] || null;
   const isLastQuiz = quizIndex >= quizCount - 1;
   const progressPercent = stats.total ? Math.round((stats.mastered / stats.total) * 100) : 0;
   const grammarPoint = getLessonValue(lesson, 'grammarPoint');
@@ -128,6 +138,8 @@ export default function GrammarPage() {
     if (!childId || !activeLessonId || preparingMessage) return;
     setDetailLoading(true);
     setMode('learn');
+    setPatternIndex(0);
+    setSectionIndex(0);
     setQuizIndex(0);
     setSelectedIndex(null);
     setAnswerResult(null);
@@ -191,6 +203,13 @@ export default function GrammarPage() {
       setSelectedIndex(null);
       setAnswerResult(null);
     }
+  };
+
+  const openLesson = (lessonId) => {
+    setPatternIndex(0);
+    setSectionIndex(0);
+    setMode('learn');
+    setActiveLessonId(lessonId);
   };
 
   if (loading) {
@@ -263,6 +282,75 @@ export default function GrammarPage() {
             variant="grammar"
           />
 
+          {pre2PatternLessons.length > 0 && (
+            <section className="mb-4 rounded-[24px] border border-[#e7c76a]/70 bg-[#102856] p-4 text-white shadow-[0_16px_34px_rgba(16,40,86,0.24)]">
+              <p className="text-xs font-black text-[#ffd86f]">英検準2級</p>
+              <h2 className="mt-1 text-xl font-black">高频句型</h2>
+              <div className="mt-3 grid gap-3">
+                {pre2PatternLessons.map((item) => (
+                  <button
+                    key={item.lessonId}
+                    type="button"
+                    onClick={() => openLesson(item.lessonId)}
+                    className={`rounded-[18px] border p-4 text-left transition ${
+                      activeLessonId === item.lessonId
+                        ? 'border-[#ffd86f] bg-white/18'
+                        : 'border-white/18 bg-white/10'
+                    }`}
+                  >
+                    <div className="flex items-start justify-between gap-3">
+                      <div>
+                        <h3 className="text-lg font-black">{item.title}</h3>
+                        <p className="mt-1 text-xs font-bold text-white/72">{item.learningGoal || item.grammarPoint}</p>
+                      </div>
+                      <span className="rounded-full bg-[#ffd86f] px-3 py-1 text-xs font-black text-[#102856]">
+                        {item.patternCount || item.patterns?.length || 0} 句型
+                      </span>
+                    </div>
+                    <span className="mt-3 inline-flex rounded-full bg-[#ffd86f] px-4 py-2 text-sm font-black text-[#102856]">
+                      学習する
+                    </span>
+                  </button>
+                ))}
+              </div>
+            </section>
+          )}
+
+          {pre2ScrollLessons.length > 0 && (
+            <section className="mb-4 rounded-[24px] border border-[#e7c76a]/70 bg-[#102856] p-4 text-white shadow-[0_16px_34px_rgba(16,40,86,0.24)]">
+              <p className="text-xs font-black text-[#ffd86f]">準2級 文法卷轴</p>
+              <h2 className="mt-1 text-xl font-black">接続詞・関係詞</h2>
+              <div className="mt-3 grid gap-3">
+                {pre2ScrollLessons.map((item) => (
+                  <button
+                    key={item.lessonId}
+                    type="button"
+                    onClick={() => openLesson(item.lessonId)}
+                    className={`rounded-[18px] border p-4 text-left transition ${
+                      activeLessonId === item.lessonId
+                        ? 'border-[#ffd86f] bg-white/18'
+                        : 'border-white/18 bg-white/10'
+                    }`}
+                  >
+                    <div className="flex items-start justify-between gap-3">
+                      <div>
+                        <p className="text-xs font-black text-[#ffd86f]">{item.category}</p>
+                        <h3 className="mt-1 text-base font-black">{item.title}</h3>
+                        <p className="mt-1 text-xs font-bold text-white/72">{item.grammarPoint}</p>
+                      </div>
+                      <span className="rounded-full bg-[#ffd86f] px-3 py-1 text-xs font-black text-[#102856]">
+                        {item.sectionCount || item.sections?.length || 0} 巻
+                      </span>
+                    </div>
+                    <span className="mt-3 inline-flex rounded-full bg-[#ffd86f] px-4 py-2 text-sm font-black text-[#102856]">
+                      学習する
+                    </span>
+                  </button>
+                ))}
+              </div>
+            </section>
+          )}
+
           {detailLoading || !lesson ? (
             <MagicPanel className="eq-grammar-learning-card is-loading">
               <span className="eq-grammar-learning-badge">今日の文法</span>
@@ -282,7 +370,83 @@ export default function GrammarPage() {
                 {grammarPoint ? `『${grammarPoint}』を使うルールを確認しよう。` : '文のルールを見つけて、英語の使い方を覚えよう。'}
               </p>
 
-              <div className="eq-grammar-example-card">
+              {hasPatternLesson && activePattern ? (
+                <div className="rounded-[22px] border border-[#e7c76a]/70 bg-[#102856] p-4 text-white">
+                  <div className="flex items-center justify-between gap-3">
+                    <span className="rounded-full bg-[#ffd86f] px-3 py-1 text-xs font-black text-[#102856]">
+                      {patternIndex + 1} / {lessonPatterns.length}
+                    </span>
+                    <span className="text-xs font-black text-[#ffd86f]">Eiken Pre-2</span>
+                  </div>
+                  <h3 className="mt-4 text-2xl font-black">{activePattern.pattern}</h3>
+                  <p className="mt-3 text-base font-bold text-[#ffd86f]">{activePattern.meaningJa}</p>
+                  <div className="mt-4 rounded-[16px] bg-white/10 p-4">
+                    <p className="text-lg font-black leading-7">{activePattern.exampleEn}</p>
+                    {activePattern.exampleJa ? <p className="mt-2 text-sm font-bold text-white/72">{activePattern.exampleJa}</p> : null}
+                  </div>
+                  <div className="mt-4 grid grid-cols-2 gap-3">
+                    <button
+                      type="button"
+                      onClick={() => setPatternIndex((current) => Math.max(0, current - 1))}
+                      disabled={patternIndex === 0}
+                      className="rounded-full border border-white/30 px-4 py-3 text-sm font-black text-white disabled:opacity-40"
+                    >
+                      前へ
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setPatternIndex((current) => Math.min(lessonPatterns.length - 1, current + 1))}
+                      disabled={patternIndex >= lessonPatterns.length - 1}
+                      className="rounded-full border border-white/30 px-4 py-3 text-sm font-black text-white disabled:opacity-40"
+                    >
+                      次へ
+                    </button>
+                  </div>
+                  <GoldQuestButton onClick={handleGoPractice} disabled={detailLoading} className="mt-4 w-full">
+                    テストへ進む
+                  </GoldQuestButton>
+                </div>
+              ) : null}
+
+              {hasScrollLesson && activeSection ? (
+                <div className="rounded-[22px] border border-[#e7c76a]/70 bg-[#102856] p-4 text-white">
+                  <div className="flex items-center justify-between gap-3">
+                    <span className="rounded-full bg-[#ffd86f] px-3 py-1 text-xs font-black text-[#102856]">
+                      {sectionIndex + 1} / {lessonSections.length}
+                    </span>
+                    <span className="text-xs font-black text-[#ffd86f]">文法卷轴</span>
+                  </div>
+                  <h3 className="mt-4 text-2xl font-black">{activeSection.smallTitle}</h3>
+                  <p className="mt-3 text-sm font-bold leading-6 text-white/82">{activeSection.explanationJa}</p>
+                  <div className="mt-4 rounded-[16px] bg-white/10 p-4">
+                    <p className="text-lg font-black leading-7">{activeSection.exampleEn}</p>
+                    <p className="mt-2 text-sm font-bold text-[#ffd86f]">{activeSection.exampleJa}</p>
+                  </div>
+                  <div className="mt-4 grid grid-cols-2 gap-3">
+                    <button
+                      type="button"
+                      onClick={() => setSectionIndex((current) => Math.max(0, current - 1))}
+                      disabled={sectionIndex === 0}
+                      className="rounded-full border border-white/30 px-4 py-3 text-sm font-black text-white disabled:opacity-40"
+                    >
+                      前へ
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setSectionIndex((current) => Math.min(lessonSections.length - 1, current + 1))}
+                      disabled={sectionIndex >= lessonSections.length - 1}
+                      className="rounded-full border border-white/30 px-4 py-3 text-sm font-black text-white disabled:opacity-40"
+                    >
+                      次へ
+                    </button>
+                  </div>
+                  <GoldQuestButton onClick={handleGoPractice} disabled={detailLoading} className="mt-4 w-full">
+                    テストへ進む
+                  </GoldQuestButton>
+                </div>
+              ) : null}
+
+              <div className={`${hasPatternLesson || hasScrollLesson ? 'hidden ' : ''}eq-grammar-example-card`}>
                 <button type="button" onClick={() => speak(lesson.enExample)} aria-label="例文を聞く" className="eq-grammar-play-button">
                   <span aria-hidden="true">▶</span>
                 </button>
@@ -292,7 +456,7 @@ export default function GrammarPage() {
                 </div>
               </div>
 
-              <div className="eq-grammar-point-card">
+              <div className={`${hasPatternLesson || hasScrollLesson ? 'hidden ' : ''}eq-grammar-point-card`}>
                 <h3>ポイント</h3>
                 <ul>
                   {grammarPoints.map((point) => (
@@ -301,7 +465,7 @@ export default function GrammarPage() {
                 </ul>
               </div>
 
-              <div className="eq-grammar-learning-actions">
+              <div className={`${hasPatternLesson || hasScrollLesson ? 'hidden ' : ''}eq-grammar-learning-actions`}>
                 <GoldQuestButton onClick={handleGoPractice} disabled={detailLoading} className="eq-grammar-test-button">
                   テストへ進む
                 </GoldQuestButton>
@@ -342,6 +506,72 @@ export default function GrammarPage() {
       <section className="hidden overflow-hidden rounded-[34px] border border-white/90 bg-[linear-gradient(180deg,#eef8ff_0%,#fffdf7_100%)] p-5 shadow-[0_18px_44px_rgba(145,177,209,0.16)] sm:p-7 max-md:rounded-[24px] max-md:p-3 lg:block">
         <div className="grid gap-5 lg:grid-cols-[320px_minmax(0,1fr)]">
           <aside className="space-y-4 max-md:hidden">
+            {pre2PatternLessons.length > 0 && (
+              <div className="rounded-[28px] border border-[#e7c76a]/70 bg-[#102856] p-5 text-white shadow-[0_12px_26px_rgba(16,40,86,0.18)]">
+                <p className="text-xs font-black text-[#ffd86f]">英検準2級</p>
+                <h2 className="display-font mt-1 text-2xl font-black">高频句型</h2>
+                <div className="mt-4 space-y-3">
+                  {pre2PatternLessons.map((item) => (
+                    <button
+                      key={item.lessonId}
+                      type="button"
+                      onClick={() => openLesson(item.lessonId)}
+                      className={`w-full rounded-[18px] border p-4 text-left transition ${
+                        activeLessonId === item.lessonId
+                          ? 'border-[#ffd86f] bg-white/18'
+                          : 'border-white/18 bg-white/10 hover:bg-white/16'
+                      }`}
+                    >
+                      <div className="flex items-center justify-between gap-3">
+                        <h3 className="text-base font-black">{item.title}</h3>
+                        <span className="rounded-full bg-[#ffd86f] px-3 py-1 text-xs font-black text-[#102856]">
+                          {item.patternCount || item.patterns?.length || 0}
+                        </span>
+                      </div>
+                      <p className="mt-2 text-xs font-bold leading-5 text-white/72">{item.learningGoal || item.grammarPoint}</p>
+                      <span className="mt-3 inline-flex rounded-full bg-[#ffd86f] px-4 py-2 text-xs font-black text-[#102856]">
+                        学習する
+                      </span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {pre2ScrollLessons.length > 0 && (
+              <div className="rounded-[28px] border border-[#e7c76a]/70 bg-[#102856] p-5 text-white shadow-[0_12px_26px_rgba(16,40,86,0.18)]">
+                <p className="text-xs font-black text-[#ffd86f]">準2級 文法卷轴</p>
+                <h2 className="display-font mt-1 text-2xl font-black">接続詞・関係詞</h2>
+                <div className="mt-4 space-y-3">
+                  {pre2ScrollLessons.map((item) => (
+                    <button
+                      key={item.lessonId}
+                      type="button"
+                      onClick={() => openLesson(item.lessonId)}
+                      className={`w-full rounded-[18px] border p-4 text-left transition ${
+                        activeLessonId === item.lessonId
+                          ? 'border-[#ffd86f] bg-white/18'
+                          : 'border-white/18 bg-white/10 hover:bg-white/16'
+                      }`}
+                    >
+                      <div className="flex items-center justify-between gap-3">
+                        <div>
+                          <p className="text-xs font-black text-[#ffd86f]">{item.category}</p>
+                          <h3 className="mt-1 text-sm font-black leading-5">{item.title}</h3>
+                        </div>
+                        <span className="rounded-full bg-[#ffd86f] px-3 py-1 text-xs font-black text-[#102856]">
+                          {item.sectionCount || item.sections?.length || 0}
+                        </span>
+                      </div>
+                      <span className="mt-3 inline-flex rounded-full bg-[#ffd86f] px-4 py-2 text-xs font-black text-[#102856]">
+                        学習する
+                      </span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+
             <div className="rounded-[28px] bg-white/82 p-5 shadow-[0_12px_26px_rgba(145,177,209,0.10)]">
               <p className="text-xs font-black text-[#8fa0c2]">今日の文法</p>
               <h1 className="display-font mt-1 text-3xl font-black text-[#31406f]">1日1レッスン</h1>
@@ -423,7 +653,83 @@ export default function GrammarPage() {
                   <p className="mt-2 text-2xl font-black leading-9 text-[#354172]">{grammarPoint}</p>
                 </div>
 
-                <div className="grid gap-4 md:grid-cols-2">
+                {hasPatternLesson && activePattern ? (
+                  <div className="rounded-[28px] border border-[#e7c76a]/70 bg-[#102856] p-6 text-white shadow-[0_16px_34px_rgba(16,40,86,0.18)]">
+                    <div className="flex items-center justify-between gap-3">
+                      <span className="rounded-full bg-[#ffd86f] px-3 py-1 text-xs font-black text-[#102856]">
+                        {patternIndex + 1} / {lessonPatterns.length}
+                      </span>
+                      <span className="text-xs font-black text-[#ffd86f]">Eiken Pre-2</span>
+                    </div>
+                    <h3 className="mt-5 text-4xl font-black leading-tight">{activePattern.pattern}</h3>
+                    <p className="mt-4 text-xl font-bold text-[#ffd86f]">{activePattern.meaningJa}</p>
+                    <div className="mt-5 rounded-[20px] bg-white/10 p-5">
+                      <p className="text-2xl font-black leading-9">{activePattern.exampleEn}</p>
+                      {activePattern.exampleJa ? <p className="mt-2 text-sm font-bold text-white/72">{activePattern.exampleJa}</p> : null}
+                    </div>
+                    <div className="mt-5 flex flex-wrap gap-3">
+                      <button
+                        type="button"
+                        onClick={() => setPatternIndex((current) => Math.max(0, current - 1))}
+                        disabled={patternIndex === 0}
+                        className="rounded-full border border-white/30 px-5 py-3 text-sm font-black text-white disabled:opacity-40"
+                      >
+                        前へ
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setPatternIndex((current) => Math.min(lessonPatterns.length - 1, current + 1))}
+                        disabled={patternIndex >= lessonPatterns.length - 1}
+                        className="rounded-full border border-white/30 px-5 py-3 text-sm font-black text-white disabled:opacity-40"
+                      >
+                        次へ
+                      </button>
+                      <button type="button" onClick={handleStartLesson} className="pill-button px-6 py-3 text-sm">
+                        テストへ進む
+                      </button>
+                    </div>
+                  </div>
+                ) : null}
+
+                {hasScrollLesson && activeSection ? (
+                  <div className="rounded-[28px] border border-[#e7c76a]/70 bg-[#102856] p-6 text-white shadow-[0_16px_34px_rgba(16,40,86,0.18)]">
+                    <div className="flex items-center justify-between gap-3">
+                      <span className="rounded-full bg-[#ffd86f] px-3 py-1 text-xs font-black text-[#102856]">
+                        {sectionIndex + 1} / {lessonSections.length}
+                      </span>
+                      <span className="text-xs font-black text-[#ffd86f]">文法卷轴</span>
+                    </div>
+                    <h3 className="mt-5 text-4xl font-black leading-tight">{activeSection.smallTitle}</h3>
+                    <p className="mt-4 text-lg font-bold leading-8 text-white/82">{activeSection.explanationJa}</p>
+                    <div className="mt-5 rounded-[20px] bg-white/10 p-5">
+                      <p className="text-2xl font-black leading-9">{activeSection.exampleEn}</p>
+                      <p className="mt-2 text-sm font-bold text-[#ffd86f]">{activeSection.exampleJa}</p>
+                    </div>
+                    <div className="mt-5 flex flex-wrap gap-3">
+                      <button
+                        type="button"
+                        onClick={() => setSectionIndex((current) => Math.max(0, current - 1))}
+                        disabled={sectionIndex === 0}
+                        className="rounded-full border border-white/30 px-5 py-3 text-sm font-black text-white disabled:opacity-40"
+                      >
+                        前へ
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setSectionIndex((current) => Math.min(lessonSections.length - 1, current + 1))}
+                        disabled={sectionIndex >= lessonSections.length - 1}
+                        className="rounded-full border border-white/30 px-5 py-3 text-sm font-black text-white disabled:opacity-40"
+                      >
+                        次へ
+                      </button>
+                      <button type="button" onClick={handleGoPractice} className="pill-button px-6 py-3 text-sm">
+                        テストへ進む
+                      </button>
+                    </div>
+                  </div>
+                ) : null}
+
+                <div className={`${hasPatternLesson || hasScrollLesson ? 'hidden ' : ''}grid gap-4 md:grid-cols-2`}>
                   <article className="rounded-[26px] bg-[#fff8d9] p-5 text-[#665220] max-md:rounded-[20px] max-md:p-4">
                     <h3 className="text-base font-black">どういう意味？</h3>
                     <p className="mt-3 text-sm font-bold leading-7 max-md:text-base">{jpExplanation}</p>
@@ -434,7 +740,7 @@ export default function GrammarPage() {
                   </article>
                 </div>
 
-                <div className="rounded-[26px] bg-white p-5 shadow-[inset_0_0_0_1px_rgba(132,173,222,0.16)] max-md:rounded-[20px] max-md:p-4">
+                <div className={`${hasPatternLesson || hasScrollLesson ? 'hidden ' : ''}rounded-[26px] bg-white p-5 shadow-[inset_0_0_0_1px_rgba(132,173,222,0.16)] max-md:rounded-[20px] max-md:p-4`}>
                   <div className="flex flex-wrap items-center justify-between gap-3">
                     <h3 className="text-base font-black text-[#354172]">例文</h3>
                     <button
@@ -449,7 +755,7 @@ export default function GrammarPage() {
                   <p className="mt-2 text-sm font-bold leading-6 text-[#60709d]">{lesson.jpExample}</p>
                 </div>
 
-                {mode === 'learn' && (
+                {mode === 'learn' && !hasPatternLesson && !hasScrollLesson && (
                   <div className="rounded-[28px] bg-[#f8fbff] p-5 max-md:rounded-[20px] max-md:p-4">
                     <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                       <div>

@@ -6474,6 +6474,34 @@ def _grammar_progress_for_lesson(progress=None, quiz_count=0, correct_quiz_count
 
 
 def _grammar_lesson_payload(row, progress=None, quiz_count=0, correct_quiz_count=0):
+    patterns = []
+    patterns_json = _row_value(row, 'patterns_json') or ''
+    if patterns_json:
+        try:
+            parsed_patterns = json.loads(patterns_json)
+            if isinstance(parsed_patterns, list):
+                patterns = [
+                    item for item in parsed_patterns
+                    if isinstance(item, dict) and item.get('pattern')
+                ]
+        except (TypeError, json.JSONDecodeError):
+            patterns = []
+    sections = []
+    content_json = _row_value(row, 'content_json') or _row_value(row, 'sections_json') or ''
+    if content_json:
+        try:
+            parsed_content = json.loads(content_json)
+            if isinstance(parsed_content, dict):
+                parsed_sections = parsed_content.get('sections') or []
+            else:
+                parsed_sections = parsed_content
+            if isinstance(parsed_sections, list):
+                sections = [
+                    item for item in parsed_sections
+                    if isinstance(item, dict) and item.get('smallTitle')
+                ]
+        except (TypeError, json.JSONDecodeError):
+            sections = []
     return {
         'lessonId': row['lesson_id'],
         'level': row['level'],
@@ -6486,6 +6514,10 @@ def _grammar_lesson_payload(row, progress=None, quiz_count=0, correct_quiz_count
         'jpExample': row['jp_example'],
         'enExample': row['en_example'],
         'learningGoal': row['learning_goal'] or '',
+        'patterns': patterns,
+        'patternCount': len(patterns),
+        'sections': sections,
+        'sectionCount': len(sections),
         'displayOrder': int(row['display_order'] or 0),
         'quizCount': int(quiz_count or 0),
         'progress': _grammar_progress_for_lesson(progress, quiz_count, correct_quiz_count),
