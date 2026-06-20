@@ -1262,6 +1262,62 @@ class TodayReviewQuizTests(unittest.TestCase):
 
         self.assertEqual({entry['ID'] for entry in entries}, {entry['ID'] for entry in selected})
 
+    def test_daily_review_context_cloze_uses_full_vocab_distractors_without_placeholders(self):
+        target = {
+            'ID': '1532',
+            'English': 'become',
+            'Japanese': 'になる',
+            'Example_English': 'She became famous.',
+            'Example_Japanese': '彼女は有名になりました。',
+            'Level': 'eiken3',
+            'Category': 'verb',
+        }
+        full_vocab = [
+            target,
+            {'ID': '1', 'English': 'go', 'Japanese': '行く', 'Level': 'eiken3', 'Category': 'verb'},
+            {'ID': '2', 'English': 'take', 'Japanese': '取る', 'Level': 'eiken3', 'Category': 'verb'},
+            {'ID': '3', 'English': 'give', 'Japanese': '与える', 'Level': 'eiken3', 'Category': 'verb'},
+            {'ID': '4', 'English': 'table', 'Japanese': 'テーブル', 'Level': 'eiken3', 'Category': 'noun'},
+        ]
+
+        with patch.object(app_module, 'vocab_list', full_vocab):
+            question = app_module.generate_daily_review_context_question(target, [target], 'normal', 'eiken3')
+
+        self.assertEqual('vocabulary_cloze', question['type'])
+        self.assertEqual('She _____ famous.', question['question'])
+        self.assertEqual('became', question['correct'])
+        self.assertIn(question['correct'], question['choices'])
+        self.assertEqual(4, len(question['choices']))
+        self.assertFalse(any(str(choice).startswith('choice_') for choice in question['choices']))
+
+    def test_daily_review_easy_question_uses_safe_choices_when_child_pool_has_one_word(self):
+        target = {
+            'ID': '1532',
+            'English': 'become',
+            'Japanese': 'になる',
+            'Example_English': 'She became famous.',
+            'Level': 'eiken3',
+            'Category': 'verb',
+        }
+        full_vocab = [
+            target,
+            {'ID': '1', 'English': 'go', 'Japanese': '行く', 'Level': 'eiken3', 'Category': 'verb'},
+            {'ID': '2', 'English': 'take', 'Japanese': '取る', 'Level': 'eiken3', 'Category': 'verb'},
+            {'ID': '3', 'English': 'give', 'Japanese': '与える', 'Level': 'eiken3', 'Category': 'verb'},
+        ]
+
+        with patch.object(app_module, 'vocab_list', full_vocab):
+            questions = app_module.generate_daily_review_questions_from_entries(
+                [target],
+                limit=10,
+                difficulty='easy',
+                target_level='eiken3',
+            )
+
+        self.assertEqual(1, len(questions))
+        self.assertIn(questions[0]['correct'], questions[0]['choices'])
+        self.assertFalse(any(str(choice).startswith('choice_') for choice in questions[0]['choices']))
+
     def test_daily_review_submit_updates_progress_with_fsrs_like_rules(self):
         child_id = self.create_child('Daily Submit')
         correct_vocab = int(app_module.vocab_list[0]['ID'])

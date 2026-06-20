@@ -5075,13 +5075,88 @@ def build_daily_review_question_payload(question):
     }
 
 
+DAILY_REVIEW_INFLECTIONS = {
+    'become': ['became', 'becomes', 'becoming'],
+    'go': ['went', 'goes', 'going', 'gone'],
+    'have': ['had', 'has', 'having'],
+    'do': ['did', 'does', 'done', 'doing'],
+    'make': ['made', 'makes', 'making'],
+    'take': ['took', 'taken', 'takes', 'taking'],
+    'give': ['gave', 'given', 'gives', 'giving'],
+    'get': ['got', 'gets', 'getting'],
+    'come': ['came', 'comes', 'coming'],
+    'see': ['saw', 'seen', 'sees', 'seeing'],
+    'eat': ['ate', 'eaten', 'eats', 'eating'],
+    'write': ['wrote', 'written', 'writes', 'writing'],
+    'read': ['read', 'reads', 'reading'],
+    'buy': ['bought', 'buys', 'buying'],
+    'bring': ['brought', 'brings', 'bringing'],
+    'think': ['thought', 'thinks', 'thinking'],
+    'teach': ['taught', 'teaches', 'teaching'],
+    'catch': ['caught', 'catches', 'catching'],
+    'choose': ['chose', 'chosen', 'chooses', 'choosing'],
+    'say': ['said', 'says', 'saying'],
+    'speak': ['spoke', 'spoken', 'speaks', 'speaking'],
+    'tell': ['told', 'tells', 'telling'],
+    'know': ['knew', 'known', 'knows', 'knowing'],
+    'find': ['found', 'finds', 'finding'],
+    'leave': ['left', 'leaves', 'leaving'],
+    'feel': ['felt', 'feels', 'feeling'],
+    'keep': ['kept', 'keeps', 'keeping'],
+    'meet': ['met', 'meets', 'meeting'],
+    'begin': ['began', 'begun', 'begins', 'beginning'],
+    'run': ['ran', 'runs', 'running'],
+    'win': ['won', 'wins', 'winning'],
+    'lose': ['lost', 'loses', 'losing'],
+    'hold': ['held', 'holds', 'holding'],
+    'hear': ['heard', 'hears', 'hearing'],
+    'mean': ['meant', 'means', 'meaning'],
+    'spend': ['spent', 'spends', 'spending'],
+    'stand': ['stood', 'stands', 'standing'],
+    'understand': ['understood', 'understands', 'understanding'],
+    'sell': ['sold', 'sells', 'selling'],
+    'pay': ['paid', 'pays', 'paying'],
+    'send': ['sent', 'sends', 'sending'],
+    'build': ['built', 'builds', 'building'],
+    'sit': ['sat', 'sits', 'sitting'],
+    'put': ['put', 'puts', 'putting'],
+    'cut': ['cut', 'cuts', 'cutting'],
+    'let': ['let', 'lets', 'letting'],
+}
+
+
+DAILY_REVIEW_PAST_FORMS = {
+    base: forms[0]
+    for base, forms in DAILY_REVIEW_INFLECTIONS.items()
+    if forms
+}
+
+
+def _is_daily_review_placeholder(value):
+    return bool(re.match(r'^choice_\d+$', _clean_csv_value(value), flags=re.IGNORECASE))
+
+
 def make_daily_review_blank_sentence(example_sentence, target_word):
     sentence = _clean_csv_value(example_sentence)
     word = _clean_csv_value(target_word)
     if not sentence or not word:
         return None
-    blanked = re.sub(rf'\b{re.escape(word)}\b', '_____', sentence, count=1, flags=re.IGNORECASE)
-    return blanked if blanked != sentence else None
+    forms = [word]
+    forms.extend(DAILY_REVIEW_INFLECTIONS.get(word.lower(), []))
+    seen = set()
+    for form in forms:
+        normalized = form.lower()
+        if not normalized or normalized in seen:
+            continue
+        seen.add(normalized)
+        pattern = re.compile(rf'\b{re.escape(form)}\b', flags=re.IGNORECASE)
+        match = pattern.search(sentence)
+        if match:
+            return {
+                'prompt': pattern.sub('_____', sentence, count=1),
+                'answer': match.group(0),
+            }
+    return None
 
 
 def _daily_review_entry_pos(entry):
@@ -5093,48 +5168,209 @@ def _daily_review_entry_pos(entry):
     ).lower()
 
 
+def get_daily_review_distractor_entries(target_entry, target_level, limit=60):
+    correct = _clean_csv_value(target_entry.get('English'))
+    entry_pos = _daily_review_entry_pos(target_entry)
+    normalized_target_level = normalize_target_level(target_level)
+    seen = {correct.lower()} if correct else set()
+    buckets = {
+        'same_level_same_pos': [],
+        'same_level': [],
+        'all_valid': [],
+    }
+
+    for candidate in vocab_list:
+        word = _clean_csv_value(candidate.get('English'))
+        meaning = _clean_csv_value(candidate.get('Japanese'))
+        key = word.lower()
+        if not word or not meaning or key in seen:
+            continue
+        candidate_level = normalize_target_level(get_entry_eiken_level(candidate))
+        if normalized_target_level and candidate_level == normalized_target_level and entry_pos and _daily_review_entry_pos(candidate) == entry_pos:
+            buckets['same_level_same_pos'].append(candidate)
+        elif normalized_target_level and candidate_level == normalized_target_level:
+            buckets['same_level'].append(candidate)
+        else:
+            buckets['all_valid'].append(candidate)
+
+    selected = []
+    selected_keys = set(seen)
+    for bucket_name in ['same_level_same_pos', 'same_level', 'all_valid']:
+        bucket = buckets[bucket_name]
+        random.shuffle(bucket)
+        for candidate in bucket:
+            word = _clean_csv_value(candidate.get('English'))
+            key = word.lower()
+            if key in selected_keys:
+                continue
+            selected_keys.add(key)
+            selected.append(candidate)
+            if len(selected) >= limit:
+                return selected
+    return selected
+
+
+def _daily_review_regular_past(word):
+    word = _clean_csv_value(word)
+    if not word:
+        return ''
+    lower = word.lower()
+    if lower.endswith('e'):
+        return f'{word}d'
+    if lower.endswith('y') and len(lower) > 1 and lower[-2] not in 'aeiou':
+        return f'{word[:-1]}ied'
+    return f'{word}ed'
+
+
+def _daily_review_choice_form(word, correct_answer, base_word):
+    word = _clean_csv_value(word)
+    correct_answer = _clean_csv_value(correct_answer)
+    base_word = _clean_csv_value(base_word)
+    if not word or not correct_answer or correct_answer.lower() == base_word.lower():
+        return word
+    irregular_past_answers = set(DAILY_REVIEW_PAST_FORMS.values())
+    if (
+        correct_answer.lower() in irregular_past_answers
+        and correct_answer.lower() != _daily_review_regular_past(base_word).lower()
+    ):
+        return DAILY_REVIEW_PAST_FORMS.get(word.lower(), '')
+    if correct_answer.lower().endswith('ed'):
+        return DAILY_REVIEW_PAST_FORMS.get(word.lower()) or _daily_review_regular_past(word)
+    return word
+
+
+def build_daily_review_safe_choices(correct_answer, distractor_values, minimum_choices=4):
+    correct = _clean_csv_value(correct_answer)
+    if not correct or _is_daily_review_placeholder(correct):
+        return []
+    seen = {correct.lower()}
+    choices = [correct]
+    for value in distractor_values:
+        choice = _clean_csv_value(value)
+        key = choice.lower()
+        if not choice or key in seen or _is_daily_review_placeholder(choice):
+            continue
+        seen.add(key)
+        choices.append(choice)
+        if len(choices) >= minimum_choices:
+            break
+    if len(choices) < minimum_choices:
+        return []
+    random.shuffle(choices)
+    return choices[:minimum_choices]
+
+
 def build_daily_review_distractors(entry, entries, target_level, prefer_same_pos=True):
     correct = _clean_csv_value(entry.get('English'))
-    entry_pos = _daily_review_entry_pos(entry)
-    normalized_target_level = normalize_target_level(target_level)
-    candidates = []
-    for candidate in entries:
-        word = _clean_csv_value(candidate.get('English'))
-        if not word or word.lower() == correct.lower():
-            continue
-        if normalized_target_level:
-            candidate_level = normalize_target_level(get_entry_eiken_level(candidate))
-            if candidate_level and candidate_level != normalized_target_level:
-                continue
-        candidates.append(candidate)
+    source_entries = entries or get_daily_review_distractor_entries(entry, target_level)
+    return [
+        _clean_csv_value(candidate.get('English'))
+        for candidate in source_entries
+        if _clean_csv_value(candidate.get('English')).lower() != correct.lower()
+    ][:3]
 
-    def unique_words(items):
-        words = []
-        seen = {correct.lower()}
-        for item in items:
-            word = _clean_csv_value(item.get('English'))
-            key = word.lower()
-            if word and key not in seen:
-                seen.add(key)
-                words.append(word)
-        return words
 
-    preferred = candidates
-    if prefer_same_pos and entry_pos:
-        same_pos = [item for item in candidates if _daily_review_entry_pos(item) == entry_pos]
-        if len(same_pos) >= 3:
-            preferred = same_pos
+def _generate_daily_review_safe_meaning_question(entry, target_level):
+    word = _clean_csv_value(entry.get('English'))
+    japanese = _clean_csv_value(entry.get('Japanese'))
+    if not word or not japanese:
+        return None
+    distractors = [
+        _clean_csv_value(candidate.get('Japanese'))
+        for candidate in get_daily_review_distractor_entries(entry, target_level, limit=80)
+    ]
+    choices = build_daily_review_safe_choices(japanese, distractors)
+    if not choices:
+        return None
+    return {
+        'type': 'Meaning',
+        'question': f'What does "{word}" mean?',
+        'choices': choices,
+        'correct': japanese,
+        'id': entry.get('ID', ''),
+        'word': word,
+        'japanese': japanese,
+        'explanation_jp': f'"{word}" means "{japanese}".',
+        'example': entry.get('Example_English', '').strip(),
+        'example_jp': entry.get('Example_Japanese', '').strip(),
+    }
 
-    random.shuffle(preferred)
-    distractors = unique_words(preferred)[:3]
-    if len(distractors) < 3:
-        random.shuffle(candidates)
-        for word in unique_words(candidates):
-            if word not in distractors:
-                distractors.append(word)
-            if len(distractors) >= 3:
-                break
-    return distractors[:3]
+
+def _generate_daily_review_safe_word_choice_question(entry, target_level, qtype):
+    word = _clean_csv_value(entry.get('English'))
+    japanese = _clean_csv_value(entry.get('Japanese'))
+    if not word or not japanese:
+        return None
+    distractors = [
+        _clean_csv_value(candidate.get('English'))
+        for candidate in get_daily_review_distractor_entries(entry, target_level, limit=80)
+    ]
+    choices = build_daily_review_safe_choices(word, distractors)
+    if not choices:
+        return None
+    if qtype == 'Listening':
+        question = 'Listen and choose the correct word.'
+        explanation = f'The word is "{word}".'
+    else:
+        question = f'Choose the English word for "{japanese}".'
+        explanation = f'The correct English word is "{word}".'
+    return {
+        'type': qtype,
+        'question': question,
+        'audio_text': word if qtype == 'Listening' else '',
+        'choices': choices,
+        'correct': word,
+        'id': entry.get('ID', ''),
+        'word': word,
+        'japanese': japanese,
+        'explanation_jp': explanation,
+        'example': entry.get('Example_English', '').strip(),
+        'example_jp': entry.get('Example_Japanese', '').strip(),
+    }
+
+
+def _generate_daily_review_safe_cloze_question(entry, target_level):
+    word = _clean_csv_value(entry.get('English'))
+    example = _clean_csv_value(entry.get('Example_English'))
+    japanese = _clean_csv_value(entry.get('Japanese'))
+    blank = make_daily_review_blank_sentence(example, word)
+    if not word or not blank:
+        return _generate_daily_review_safe_meaning_question(entry, target_level)
+    answer = blank['answer']
+    distractors = [
+        _daily_review_choice_form(candidate.get('English'), answer, word)
+        for candidate in get_daily_review_distractor_entries(entry, target_level, limit=80)
+    ]
+    choices = build_daily_review_safe_choices(answer, distractors)
+    if not choices:
+        return _generate_daily_review_safe_meaning_question(entry, target_level)
+    return {
+        'type': 'Cloze',
+        'question': blank['prompt'],
+        'choices': choices,
+        'correct': answer,
+        'id': entry.get('ID', ''),
+        'word': word,
+        'japanese': japanese,
+        'explanation_jp': f'The word "{word}" fits best here.',
+        'example': example,
+        'example_jp': entry.get('Example_Japanese', '').strip(),
+    }
+
+
+def _generate_daily_review_easy_question(entry, target_level, index=0):
+    generators = [
+        _generate_daily_review_safe_meaning_question,
+        lambda item, level: _generate_daily_review_safe_word_choice_question(item, level, 'Reverse'),
+        lambda item, level: _generate_daily_review_safe_word_choice_question(item, level, 'Listening'),
+        _generate_daily_review_safe_cloze_question,
+    ]
+    ordered = generators[index % len(generators):] + generators[:index % len(generators)]
+    for generator in ordered:
+        question = generator(entry, target_level)
+        if question:
+            return question
+    return None
 
 
 def generate_daily_review_context_question(entry, entries, difficulty, target_level):
@@ -5147,26 +5383,24 @@ def generate_daily_review_context_question(entry, entries, difficulty, target_le
         or entry.get('example')
     )
     japanese = _clean_csv_value(entry.get('Japanese'))
-    prompt = make_daily_review_blank_sentence(example, word)
-    if not word or not prompt:
-        return _generate_review_meaning_question(entry, entries)
+    blank = make_daily_review_blank_sentence(example, word)
+    if not word or not blank:
+        return _generate_daily_review_safe_meaning_question(entry, target_level)
 
-    choices = [word] + build_daily_review_distractors(entry, entries, target_level, prefer_same_pos=True)
-    if len(choices) < 4:
-        choices = _build_review_choices(word, entries, lambda item: item.get('English', '').strip())
-    choices = [choice for choice in choices if _clean_csv_value(choice)]
-    if word not in choices:
-        choices.insert(0, word)
-    choices = list(dict.fromkeys(choices))[:4]
-    if len(choices) < 4:
-        return _generate_review_meaning_question(entry, entries)
+    answer = blank['answer']
+    distractors = [
+        _daily_review_choice_form(candidate.get('English'), answer, word)
+        for candidate in get_daily_review_distractor_entries(entry, target_level, limit=80)
+    ]
+    choices = build_daily_review_safe_choices(answer, distractors)
+    if not choices:
+        return _generate_daily_review_safe_meaning_question(entry, target_level)
 
-    random.shuffle(choices)
     return {
         'type': 'vocabulary_cloze',
-        'question': prompt,
+        'question': blank['prompt'],
         'choices': choices,
-        'correct': word,
+        'correct': answer,
         'id': entry.get('ID', ''),
         'word': word,
         'japanese': japanese,
@@ -5201,21 +5435,10 @@ def generate_daily_review_questions_from_entries(entries, limit=10, difficulty='
                 questions.append(question)
         return questions[:limit]
 
-    generators = [
-        _generate_review_meaning_question,
-        _generate_review_reverse_question,
-        _generate_review_listening_question,
-        _generate_review_cloze_question,
-    ]
     for index, entry in enumerate(shuffled_entries):
         if len(questions) >= limit:
             break
-        ordered_generators = generators[index % len(generators):] + generators[:index % len(generators)]
-        question = None
-        for generator in ordered_generators:
-            question = generator(entry, entries)
-            if question:
-                break
+        question = _generate_daily_review_easy_question(entry, target_level, index)
         if question:
             questions.append(question)
     return questions[:limit]
