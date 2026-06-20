@@ -4913,21 +4913,87 @@ def generate_today_review_questions(limit=20, child_id=None):
     return generate_review_questions_from_entries(entries, limit=limit)
 
 
-def _daily_review_weight(row):
-    weight = 1
-    status = str(row['status'] or '').strip().lower()
-    wrong_count = int(row['wrong_count'] or 0)
-    memory_level = int(row['memory_level'] or 0)
-    mastered = int(row['mastered'] or 0)
-    if status == 'review' or wrong_count > 0:
-        weight += 8 + min(8, wrong_count * 2)
+def calculate_daily_review_score(progress_row, now):
+    score = 1
+    status = str(progress_row['status'] or '').strip().lower()
+    wrong_count = int(progress_row['wrong_count'] or 0)
+    memory_level = int(progress_row['memory_level'] or 0)
+    mastery = int(progress_row['mastery'] or 0)
+    correct_streak = int(progress_row['correct_streak'] or 0)
+    mastered = int(progress_row['mastered'] or 0)
+
+    if status == 'review':
+        score += 50
+    if wrong_count > 0:
+        score += wrong_count * 8
+
     if memory_level <= 1:
-        weight += 4
-    if not row['last_reviewed_at']:
-        weight += 3
-    if mastered:
-        weight = max(1, weight // 3)
-    return max(1, weight)
+        score += 20
+    elif memory_level == 2:
+        score += 12
+    elif memory_level == 3:
+        score += 6
+
+    if mastery < 40:
+        score += 20
+    elif mastery < 70:
+        score += 10
+    elif mastery >= 90:
+        score -= 8
+
+    last_reviewed_at = progress_row['last_reviewed_at'] or progress_row['last_studied_at']
+    if not last_reviewed_at:
+        score += 15
+    else:
+        try:
+            if isinstance(now, str):
+                now_dt = datetime.datetime.fromisoformat(now.replace('Z', '+00:00'))
+            else:
+                now_dt = now
+            reviewed_dt = datetime.datetime.fromisoformat(str(last_reviewed_at).replace('Z', '+00:00'))
+            if now_dt.tzinfo and reviewed_dt.tzinfo is None:
+                reviewed_dt = reviewed_dt.replace(tzinfo=now_dt.tzinfo)
+            elif reviewed_dt.tzinfo and now_dt.tzinfo is None:
+                now_dt = now_dt.replace(tzinfo=reviewed_dt.tzinfo)
+            days_since_review = max(0, (now_dt - reviewed_dt).days)
+        except (TypeError, ValueError):
+            days_since_review = 0
+        if days_since_review >= 30:
+            score += 50
+        elif days_since_review >= 14:
+            score += 35
+        elif days_since_review >= 7:
+            score += 20
+        elif days_since_review >= 3:
+            score += 10
+        elif days_since_review >= 1:
+            score += 5
+
+    score -= correct_streak * 3
+
+    if mastered == 1 or status == 'mastered':
+        score -= 10
+
+    return max(score, 1)
+
+
+def weighted_sample_without_replacement(weighted_items, target_count):
+    if len(weighted_items) <= target_count:
+        return [item for item, _score in weighted_items]
+
+    remaining = list(weighted_items)
+    selected = []
+    while remaining and len(selected) < target_count:
+        total_score = sum(score for _item, score in remaining)
+        pick = random.uniform(0, total_score)
+        cumulative = 0
+        for index, (item, score) in enumerate(remaining):
+            cumulative += score
+            if cumulative >= pick:
+                selected.append(item)
+                remaining.pop(index)
+                break
+    return selected
 
 
 def get_daily_review_entries(child_id, target_count=10):
@@ -4963,7 +5029,8 @@ def get_daily_review_entries(child_id, target_count=10):
         conn.close()
 
     by_key = {}
-    weighted_pool = []
+    weighted_items = []
+    now = datetime.datetime.now()
     for row in rows:
         entry = resolve_vocab_entry(str(row['vocab_id']), child_level_entries)
         if not entry:
@@ -4972,29 +5039,12 @@ def get_daily_review_entries(child_id, target_count=10):
         if not key or key in by_key:
             continue
         by_key[key] = entry
-        weighted_pool.extend([entry] * _daily_review_weight(row))
+        weighted_items.append((entry, calculate_daily_review_score(row, now)))
 
     if not by_key:
         return []
 
-    selected = []
-    seen = set()
-    random.shuffle(weighted_pool)
-    for entry in weighted_pool:
-        key = get_vocab_key(entry)
-        if key in seen:
-            continue
-        seen.add(key)
-        selected.append(entry)
-        if len(selected) >= target_count:
-            break
-
-    if len(selected) < min(target_count, len(by_key)):
-        remaining = [entry for key, entry in by_key.items() if key not in seen]
-        random.shuffle(remaining)
-        selected.extend(remaining[: target_count - len(selected)])
-
-    return selected[:target_count]
+    return weighted_sample_without_replacement(weighted_items, target_count)
 
 
 def build_daily_review_question_payload(question):
@@ -5006,6 +5056,7 @@ def build_daily_review_question_payload(question):
         'question_type': qtype,
         'questionType': qtype,
         'prompt': _clean_csv_value(question.get('question')),
+        'question': _clean_csv_value(question.get('question')),
         'choices': question.get('choices') or [],
         'answer': _clean_csv_value(question.get('correct')),
         'correct_answer': _clean_csv_value(question.get('correct')),
@@ -5018,28 +5069,164 @@ def build_daily_review_question_payload(question):
         'exampleJa': _clean_csv_value(question.get('example_jp')),
         'audio_text': _clean_csv_value(question.get('audio_text') or question.get('word')),
         'audioText': _clean_csv_value(question.get('audio_text') or question.get('word')),
+        'explanation': _clean_csv_value(question.get('explanation') or question.get('explanation_jp')),
         'explanation_ja': _clean_csv_value(question.get('explanation_jp')),
         'explanationJa': _clean_csv_value(question.get('explanation_jp')),
     }
 
 
-def generate_daily_review_questions_from_entries(entries, limit=10):
+def make_daily_review_blank_sentence(example_sentence, target_word):
+    sentence = _clean_csv_value(example_sentence)
+    word = _clean_csv_value(target_word)
+    if not sentence or not word:
+        return None
+    blanked = re.sub(rf'\b{re.escape(word)}\b', '_____', sentence, count=1, flags=re.IGNORECASE)
+    return blanked if blanked != sentence else None
+
+
+def _daily_review_entry_pos(entry):
+    return _clean_csv_value(
+        entry.get('Category')
+        or entry.get('part_of_speech')
+        or entry.get('Part_Of_Speech')
+        or entry.get('pos')
+    ).lower()
+
+
+def build_daily_review_distractors(entry, entries, target_level, prefer_same_pos=True):
+    correct = _clean_csv_value(entry.get('English'))
+    entry_pos = _daily_review_entry_pos(entry)
+    normalized_target_level = normalize_target_level(target_level)
+    candidates = []
+    for candidate in entries:
+        word = _clean_csv_value(candidate.get('English'))
+        if not word or word.lower() == correct.lower():
+            continue
+        if normalized_target_level:
+            candidate_level = normalize_target_level(get_entry_eiken_level(candidate))
+            if candidate_level and candidate_level != normalized_target_level:
+                continue
+        candidates.append(candidate)
+
+    def unique_words(items):
+        words = []
+        seen = {correct.lower()}
+        for item in items:
+            word = _clean_csv_value(item.get('English'))
+            key = word.lower()
+            if word and key not in seen:
+                seen.add(key)
+                words.append(word)
+        return words
+
+    preferred = candidates
+    if prefer_same_pos and entry_pos:
+        same_pos = [item for item in candidates if _daily_review_entry_pos(item) == entry_pos]
+        if len(same_pos) >= 3:
+            preferred = same_pos
+
+    random.shuffle(preferred)
+    distractors = unique_words(preferred)[:3]
+    if len(distractors) < 3:
+        random.shuffle(candidates)
+        for word in unique_words(candidates):
+            if word not in distractors:
+                distractors.append(word)
+            if len(distractors) >= 3:
+                break
+    return distractors[:3]
+
+
+def generate_daily_review_context_question(entry, entries, difficulty, target_level):
+    # MVP: hard currently shares the normal vocabulary cloze generator.
+    word = _clean_csv_value(entry.get('English'))
+    example = _clean_csv_value(
+        entry.get('Example_English')
+        or entry.get('Example_English_Short')
+        or entry.get('example_en')
+        or entry.get('example')
+    )
+    japanese = _clean_csv_value(entry.get('Japanese'))
+    prompt = make_daily_review_blank_sentence(example, word)
+    if not word or not prompt:
+        return _generate_review_meaning_question(entry, entries)
+
+    choices = [word] + build_daily_review_distractors(entry, entries, target_level, prefer_same_pos=True)
+    if len(choices) < 4:
+        choices = _build_review_choices(word, entries, lambda item: item.get('English', '').strip())
+    choices = [choice for choice in choices if _clean_csv_value(choice)]
+    if word not in choices:
+        choices.insert(0, word)
+    choices = list(dict.fromkeys(choices))[:4]
+    if len(choices) < 4:
+        return _generate_review_meaning_question(entry, entries)
+
+    random.shuffle(choices)
+    return {
+        'type': 'vocabulary_cloze',
+        'question': prompt,
+        'choices': choices,
+        'correct': word,
+        'id': entry.get('ID', ''),
+        'word': word,
+        'japanese': japanese,
+        'example': example,
+        'example_jp': entry.get('Example_Japanese', '').strip(),
+        'audio_text': word,
+        'explanation': f'{word} means "{japanese}".' if japanese else f'The answer is "{word}".',
+        'explanation_jp': f'{word} は「{japanese}」という意味です。' if japanese else f'正しい答えは {word} です。',
+    }
+
+
+def generate_daily_review_questions_from_entries(entries, limit=10, difficulty='normal', target_level=''):
     if not entries:
         return []
+    normalized_difficulty = str(difficulty or 'normal').strip().lower()
+    if normalized_difficulty not in {'easy', 'normal', 'hard'}:
+        normalized_difficulty = 'normal'
     questions = []
     shuffled_entries = list(entries)
     random.shuffle(shuffled_entries)
-    for entry in shuffled_entries:
+    if normalized_difficulty in {'normal', 'hard'}:
+        for entry in shuffled_entries:
+            if len(questions) >= limit:
+                break
+            question = generate_daily_review_context_question(
+                entry,
+                entries,
+                normalized_difficulty,
+                target_level,
+            )
+            if question:
+                questions.append(question)
+        return questions[:limit]
+
+    generators = [
+        _generate_review_meaning_question,
+        _generate_review_reverse_question,
+        _generate_review_listening_question,
+        _generate_review_cloze_question,
+    ]
+    for index, entry in enumerate(shuffled_entries):
         if len(questions) >= limit:
             break
-        question = _generate_review_meaning_question(entry, entries)
+        ordered_generators = generators[index % len(generators):] + generators[:index % len(generators)]
+        question = None
+        for generator in ordered_generators:
+            question = generator(entry, entries)
+            if question:
+                break
         if question:
             questions.append(question)
     return questions[:limit]
 
 
-def get_daily_review_payload(child_id, target_count=10):
+def get_daily_review_payload(child_id, target_count=10, difficulty='normal'):
     target_count = max(1, min(30, int(target_count or 10)))
+    difficulty = str(difficulty or 'normal').strip().lower()
+    if difficulty not in {'easy', 'normal', 'hard'}:
+        difficulty = 'normal'
+    target_level = get_child_target_level(child_id)
     entries = get_daily_review_entries(child_id, target_count=target_count)
     if not entries:
         return {
@@ -5047,19 +5234,26 @@ def get_daily_review_payload(child_id, target_count=10):
             'childId': child_id,
             'target_count': target_count,
             'targetCount': target_count,
+            'difficulty': difficulty,
             'count': 0,
             'questions': [],
             'message': 'まだ復習できる単語がありません',
         }
     questions = [
         build_daily_review_question_payload(question)
-        for question in generate_daily_review_questions_from_entries(entries, limit=target_count)
+        for question in generate_daily_review_questions_from_entries(
+            entries,
+            limit=target_count,
+            difficulty=difficulty,
+            target_level=target_level,
+        )
     ]
     return {
         'child_id': child_id,
         'childId': child_id,
         'target_count': target_count,
         'targetCount': target_count,
+        'difficulty': difficulty,
         'count': len(questions),
         'questions': questions,
     }
@@ -5120,7 +5314,7 @@ def submit_daily_review_answers(child_id, answers):
                 next_streak = correct_streak + 1
                 next_memory = min(5, memory_level + 1)
                 next_mastery = min(100, mastery + 10)
-                next_mastered = 1 if next_streak >= 2 or next_mastery >= 80 else int(row['mastered'] or 0)
+                next_mastered = 1 if next_streak >= 2 or next_mastery >= 80 else 0
                 next_status = 'mastered' if next_mastered else ('learning' if current_status == 'review' else current_status or 'learning')
                 next_mastered_at = mastered_at or (now if next_mastered else None)
                 correct_total += 1
@@ -11204,8 +11398,9 @@ def api_vocab_expansion_answer():
 @app.route('/api/children/<int:child_id>/daily-review')
 def api_child_daily_review(child_id):
     target_count = request.args.get('target_count') or request.args.get('targetCount') or 10
+    difficulty = request.args.get('difficulty') or 'normal'
     try:
-        return jsonify(get_daily_review_payload(child_id, target_count))
+        return jsonify(get_daily_review_payload(child_id, target_count, difficulty))
     except LookupError as exc:
         abort(404, str(exc))
     except ValueError as exc:

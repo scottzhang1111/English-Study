@@ -185,9 +185,11 @@ export const getTodayReviewQuiz = async (childId, options = {}) => {
   });
 };
 
-export const getDailyReview = async (childId, targetCount = 10) => {
+export const getDailyReview = async (childId, options = 10) => {
+  const targetCount = typeof options === 'object' ? options.targetCount : options;
+  const difficulty = typeof options === 'object' ? options.difficulty : undefined;
   return fetchJson(`/api/children/${encodeURIComponent(childId)}/daily-review`, {
-    params: { target_count: targetCount },
+    params: { target_count: targetCount || 10, difficulty },
   });
 };
 

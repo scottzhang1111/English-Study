@@ -13,6 +13,11 @@ import { getDailyReview, submitDailyReview } from '../api';
 
 const CHILD_STORAGE_KEY = 'selected_child_id';
 const TARGET_COUNT = 10;
+const DIFFICULTY_OPTIONS = [
+  { value: 'easy', label: 'やさしい' },
+  { value: 'normal', label: 'ふつう' },
+  { value: 'hard', label: 'むずかしい' },
+];
 
 function speak(text) {
   if (!text || typeof window === 'undefined' || !('speechSynthesis' in window)) return;
@@ -28,12 +33,31 @@ function normalizeQuestion(question) {
     ...question,
     vocabId: question.vocabId || question.vocab_id,
     questionType: question.questionType || question.question_type || question.type || '',
+    prompt: question.prompt || question.question || '',
     correctAnswer: question.correctAnswer || question.correct_answer || question.answer || '',
     audioText: question.audioText || question.audio_text || question.word || '',
     meaningJa: question.meaningJa || question.meaning_ja || '',
     exampleJa: question.exampleJa || question.example_ja || '',
-    explanationJa: question.explanationJa || question.explanation_ja || '',
+    explanationJa: question.explanationJa || question.explanation_ja || question.explanation || '',
   };
+}
+
+function getQuestionBadge(questionType) {
+  const type = String(questionType || '').toLowerCase();
+  if (type === 'vocabulary_cloze') return '英検風';
+  if (type === 'conversation_cloze') return '会話';
+  if (type === 'short_context_cloze') return '短文';
+  if (type === 'cloze') return '穴埋め';
+  if (type === 'meaning') return '意味';
+  if (type === 'reverse') return '日→英';
+  if (type === 'listening') return 'リスニング';
+  return 'Review';
+}
+
+function isContextQuestion(questionType) {
+  return ['vocabulary_cloze', 'conversation_cloze', 'short_context_cloze', 'cloze'].includes(
+    String(questionType || '').toLowerCase()
+  );
 }
 
 export default function DailyReviewPage() {
@@ -49,6 +73,7 @@ export default function DailyReviewPage() {
   const [answers, setAnswers] = useState([]);
   const [result, setResult] = useState(null);
   const [submitting, setSubmitting] = useState(false);
+  const [difficulty, setDifficulty] = useState('normal');
 
   useEffect(() => {
     if (!childId) {
@@ -58,7 +83,7 @@ export default function DailyReviewPage() {
     let active = true;
     setLoading(true);
     setError('');
-    getDailyReview(childId, TARGET_COUNT)
+    getDailyReview(childId, { targetCount: TARGET_COUNT, difficulty })
       .then((payload) => {
         if (!active) return;
         setQuestions((payload.questions || []).map(normalizeQuestion));
@@ -77,12 +102,14 @@ export default function DailyReviewPage() {
     return () => {
       active = false;
     };
-  }, [childId, navigate]);
+  }, [childId, difficulty, navigate]);
 
   const currentQuestion = questions[currentIndex] || null;
   const answered = answers.find((item) => item.index === currentIndex) || null;
   const correctCount = useMemo(() => answers.filter((item) => item.is_correct).length, [answers]);
   const wrongCount = Math.max(0, answers.length - correctCount);
+  const currentIsContextQuestion = isContextQuestion(currentQuestion?.questionType);
+  const questionBadge = getQuestionBadge(currentQuestion?.questionType);
 
   function chooseAnswer(choice) {
     if (!currentQuestion || answered || result) return;
@@ -184,6 +211,27 @@ export default function DailyReviewPage() {
         </div>
       ) : null}
 
+      {!result ? (
+        <div className="flex rounded-[18px] border border-[rgba(255,211,90,0.35)] bg-[rgba(5,12,36,0.58)] p-1">
+          {DIFFICULTY_OPTIONS.map((option) => (
+            <button
+              key={option.value}
+              type="button"
+              onClick={() => setDifficulty(option.value)}
+              disabled={loading || submitting}
+              className={[
+                'min-h-[44px] flex-1 rounded-[14px] px-3 py-2 text-sm font-black transition',
+                difficulty === option.value
+                  ? 'bg-[#ffe58f] text-[#27315c]'
+                  : 'text-slate-200 hover:bg-white/10',
+              ].join(' ')}
+            >
+              {option.label}
+            </button>
+          ))}
+        </div>
+      ) : null}
+
       {loading ? (
         <EQFantasyCard title="準備中" subtitle="今日の冒険を読み込んでいます" iconImage={EQ_ASSETS.ui.reviewGlass} />
       ) : result ? (
@@ -194,16 +242,25 @@ export default function DailyReviewPage() {
         <EQFantasyCard
           eyebrow="Daily Review"
           title={`問題 ${currentIndex + 1} / ${questions.length}`}
-          subtitle={currentQuestion.word || currentQuestion.meaningJa || message || ''}
+          subtitle={currentIsContextQuestion ? '文の流れに合う単語を選ぼう' : (currentQuestion.word || currentQuestion.meaningJa || message || '')}
           iconImage={EQ_ASSETS.ui.reviewGlass}
         >
           <div className="grid gap-5">
             <div className="flex flex-wrap items-center gap-2">
-              <EQFantasyBadge>Meaning</EQFantasyBadge>
-              <EQFantasyBadge variant="cyan">英語 → 日本語</EQFantasyBadge>
+              <EQFantasyBadge>{questionBadge}</EQFantasyBadge>
+              <EQFantasyBadge variant="cyan">{currentIsContextQuestion ? '語彙・文脈' : '英語 → 日本語'}</EQFantasyBadge>
             </div>
 
-            <div className="rounded-[20px] border border-[rgba(255,211,90,0.32)] bg-[rgba(5,12,36,0.58)] p-4">
+            {currentIsContextQuestion ? (
+              <div className="rounded-[20px] border border-[rgba(255,211,90,0.32)] bg-[rgba(5,12,36,0.58)] p-4">
+                <p className="mb-3 text-sm font-black text-slate-300">空所に入るいちばん自然な単語は？</p>
+                <p className="m-0 min-w-0 break-words text-2xl font-black leading-snug text-[#fff8df]">
+                  {currentQuestion.prompt}
+                </p>
+              </div>
+            ) : null}
+
+            <div className={`${currentIsContextQuestion ? 'hidden ' : ''}rounded-[20px] border border-[rgba(255,211,90,0.32)] bg-[rgba(5,12,36,0.58)] p-4`}>
               <p className="mb-3 text-sm font-black text-slate-300">この英単語の意味を選ぼう</p>
               <div className="flex items-center justify-between gap-3">
                 <p className="m-0 min-w-0 break-words text-4xl font-black leading-tight text-[#fff8df]">
@@ -248,7 +305,12 @@ export default function DailyReviewPage() {
                   : 'border-rose-300/60 bg-rose-950/45 text-rose-100'
               }`}
               >
-                {answered.is_correct ? '正解です！' : `正解：${currentQuestion.correctAnswer}`}
+                <div>{answered.is_correct ? '正解！' : `ざんねん… 正しい答え：${currentQuestion.correctAnswer}`}</div>
+                {(currentQuestion.meaningJa || currentQuestion.explanationJa) ? (
+                  <div className="mt-2 text-xs text-slate-100/85">
+                    {currentQuestion.meaningJa ? `${currentQuestion.correctAnswer}：${currentQuestion.meaningJa}` : currentQuestion.explanationJa}
+                  </div>
+                ) : null}
               </div>
             ) : null}
 

@@ -1205,6 +1205,134 @@ class TodayReviewQuizTests(unittest.TestCase):
         self.assertEqual(2, payload['day'])
         self.assertEqual(sample_questions, payload['questions'])
 
+    def test_daily_review_score_prioritizes_review_low_memory_and_old_items(self):
+        now = '2026-06-20T12:00:00'
+        row = {
+            'status': 'review',
+            'wrong_count': 2,
+            'memory_level': 1,
+            'mastery': 35,
+            'correct_streak': 1,
+            'mastered': 0,
+            'last_reviewed_at': '2026-06-05T12:00:00',
+            'last_studied_at': '2026-06-01T12:00:00',
+        }
+
+        self.assertEqual(139, app_module.calculate_daily_review_score(row, now))
+
+    def test_daily_review_score_keeps_mastered_words_in_low_probability_pool(self):
+        now = '2026-06-20T12:00:00'
+        row = {
+            'status': 'mastered',
+            'wrong_count': 0,
+            'memory_level': 5,
+            'mastery': 100,
+            'correct_streak': 20,
+            'mastered': 1,
+            'last_reviewed_at': now,
+            'last_studied_at': now,
+        }
+
+        self.assertEqual(1, app_module.calculate_daily_review_score(row, now))
+
+    def test_daily_review_returns_all_eligible_words_when_pool_is_under_target(self):
+        child_id = self.create_child('Daily Pool')
+        entries = [entry for entry in app_module.vocab_list[:3] if str(entry.get('ID', '')).isdigit()]
+        self.assertEqual(3, len(entries))
+        conn = app_module.get_db_connection()
+        try:
+            for entry in entries:
+                vocab_id = int(entry['ID'])
+                conn.execute('INSERT OR IGNORE INTO vocabulary (id) VALUES (?)', (vocab_id,))
+                conn.execute(
+                    '''
+                    INSERT INTO child_vocab_progress (
+                        child_id, vocab_id, correct_count, wrong_count, review_count,
+                        memory_level, last_studied_at, mastered, correct_streak, mastery, status,
+                        last_reviewed_at
+                    ) VALUES (?, ?, 1, 0, 1, 3, ?, 0, 1, 60, 'learning', ?)
+                    ''',
+                    (child_id, vocab_id, '2026-06-18T12:00:00', '2026-06-18T12:00:00'),
+                )
+            conn.commit()
+        finally:
+            conn.close()
+
+        selected = app_module.get_daily_review_entries(child_id, target_count=10)
+
+        self.assertEqual({entry['ID'] for entry in entries}, {entry['ID'] for entry in selected})
+
+    def test_daily_review_submit_updates_progress_with_fsrs_like_rules(self):
+        child_id = self.create_child('Daily Submit')
+        correct_vocab = int(app_module.vocab_list[0]['ID'])
+        wrong_vocab = int(app_module.vocab_list[1]['ID'])
+        conn = app_module.get_db_connection()
+        try:
+            for vocab_id in [correct_vocab, wrong_vocab]:
+                conn.execute('INSERT OR IGNORE INTO vocabulary (id) VALUES (?)', (vocab_id,))
+            conn.execute(
+                '''
+                INSERT INTO child_vocab_progress (
+                    child_id, vocab_id, correct_count, wrong_count, review_count,
+                    memory_level, last_studied_at, mastered, correct_streak, mastery, status
+                ) VALUES (?, ?, 1, 1, 1, 2, '2026-06-18T12:00:00', 0, 1, 75, 'review')
+                ''',
+                (child_id, correct_vocab),
+            )
+            conn.execute(
+                '''
+                INSERT INTO child_vocab_progress (
+                    child_id, vocab_id, correct_count, wrong_count, review_count,
+                    memory_level, last_studied_at, mastered, correct_streak, mastery, status
+                ) VALUES (?, ?, 3, 0, 2, 3, '2026-06-18T12:00:00', 1, 4, 90, 'mastered')
+                ''',
+                (child_id, wrong_vocab),
+            )
+            conn.commit()
+        finally:
+            conn.close()
+
+        result = app_module.submit_daily_review_answers(
+            child_id,
+            [
+                {'vocab_id': correct_vocab, 'selected_answer': 'ok', 'correct_answer': 'ok'},
+                {'vocab_id': wrong_vocab, 'selected_answer': 'bad', 'correct_answer': 'good'},
+            ],
+        )
+
+        self.assertEqual({'total': 2, 'correct': 1, 'wrong': 1}, {key: result[key] for key in ['total', 'correct', 'wrong']})
+        conn = app_module.get_db_connection()
+        try:
+            correct_row = conn.execute(
+                'SELECT correct_count, review_count, correct_streak, memory_level, mastery, status, mastered, mastered_at, last_reviewed_at FROM child_vocab_progress WHERE child_id = ? AND vocab_id = ?',
+                (child_id, correct_vocab),
+            ).fetchone()
+            wrong_row = conn.execute(
+                'SELECT wrong_count, review_count, correct_streak, memory_level, mastery, status, mastered, last_reviewed_at FROM child_vocab_progress WHERE child_id = ? AND vocab_id = ?',
+                (child_id, wrong_vocab),
+            ).fetchone()
+        finally:
+            conn.close()
+
+        self.assertEqual(2, correct_row['correct_count'])
+        self.assertEqual(2, correct_row['review_count'])
+        self.assertEqual(2, correct_row['correct_streak'])
+        self.assertEqual(3, correct_row['memory_level'])
+        self.assertEqual(85, correct_row['mastery'])
+        self.assertEqual('mastered', correct_row['status'])
+        self.assertEqual(1, correct_row['mastered'])
+        self.assertTrue(correct_row['mastered_at'])
+        self.assertTrue(correct_row['last_reviewed_at'])
+
+        self.assertEqual(1, wrong_row['wrong_count'])
+        self.assertEqual(3, wrong_row['review_count'])
+        self.assertEqual(0, wrong_row['correct_streak'])
+        self.assertEqual(2, wrong_row['memory_level'])
+        self.assertEqual(75, wrong_row['mastery'])
+        self.assertEqual('review', wrong_row['status'])
+        self.assertEqual(0, wrong_row['mastered'])
+        self.assertTrue(wrong_row['last_reviewed_at'])
+
     def test_stage_review_quiz_uses_stage_words_and_tracks_clear_status(self):
         conn = app_module.get_db_connection()
         try:
