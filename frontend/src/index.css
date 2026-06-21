@@ -7126,6 +7126,25 @@ textarea {
   opacity: .72;
 }
 
+.eq-interview-speech-actions {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.eq-interview-speech-actions > * {
+  min-width: 0;
+}
+
+.eq-interview-speech-message {
+  margin: -2px 0 12px;
+  color: #ffd1dc;
+  font-size: 13px;
+  font-weight: 900;
+  text-align: center;
+}
+
 .eq-interview-feedback-message {
   margin: -3px 0 12px;
   color: #ffe19a;
@@ -7296,6 +7315,7 @@ textarea {
   .eq-interview-audio-button { width: 100%; }
   .eq-interview-set-grid,
   .eq-interview-result-actions { grid-template-columns: 1fr; }
+  .eq-interview-speech-actions { grid-template-columns: 1fr; }
   .eq-interview-question-image { max-height: 54vw; border-radius: 14px; }
   .eq-interview-passage { padding: 16px; font-size: 16px; line-height: 1.8; }
 }

@@ -43,14 +43,6 @@ const moduleEntries = [
     image: `${ASSET_BASE}/英検クエスト.png`,
   },
   {
-    title: '面接ガイド',
-    subtitle: '面接練習の前に7つのコツを覚えよう',
-    badge: '面接',
-    to: '/interview-guide',
-    image: `${ASSET_BASE}/英検クエスト.png`,
-    pre2Only: true,
-  },
-  {
     title: 'AI面接練習',
     subtitle: '英検準2級の流れで5つの質問に答えよう',
     badge: '準2級',

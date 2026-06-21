@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { getEikenInterviewFeedback, getEikenInterviewSet } from '../api';
 import { useChildren } from '../ChildrenContext';
@@ -41,6 +41,24 @@ function writePracticeState(childId, setId, answers, feedbacks, step) {
   }
 }
 
+function speakInterviewText(text) {
+  const cleanText = String(text || '').trim();
+  if (
+    !cleanText
+    || typeof window === 'undefined'
+    || !window.speechSynthesis
+    || !window.SpeechSynthesisUtterance
+  ) {
+    return false;
+  }
+  window.speechSynthesis.cancel();
+  const utterance = new window.SpeechSynthesisUtterance(cleanText);
+  utterance.lang = 'en-US';
+  utterance.rate = 0.9;
+  window.speechSynthesis.speak(utterance);
+  return true;
+}
+
 export default function InterviewPracticePage() {
   const { setId } = useParams();
   const navigate = useNavigate();
@@ -53,14 +71,21 @@ export default function InterviewPracticePage() {
   const [feedbackMessage, setFeedbackMessage] = useState('');
   const [showModel, setShowModel] = useState(false);
   const [imageFailed, setImageFailed] = useState(false);
+  const [isListening, setIsListening] = useState(false);
+  const [speechMessage, setSpeechMessage] = useState('');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const introSpokenRef = useRef(false);
+  const spokenQuestionRef = useRef('');
+  const recognitionRef = useRef(null);
   const currentChild = useMemo(
     () => children.find((child) => String(child.id) === String(selectedChildId)) || children[0],
     [children, selectedChildId],
   );
   const childId = currentChild?.id;
   const canPractice = isPre2Level(currentChild);
+  const questions = interviewSet?.questions || [];
+  const question = step > 0 ? questions[step - 1] : null;
 
   useEffect(() => {
     if (childrenLoading) return undefined;
@@ -99,6 +124,35 @@ export default function InterviewPracticePage() {
     return () => { active = false; };
   }, [canPractice, childId, childrenLoading, setId]);
 
+  useEffect(() => {
+    if (loading || !canPractice || !interviewSet) return;
+    if (step === 0 && !introSpokenRef.current) {
+      introSpokenRef.current = true;
+      speakInterviewText("Hello. This is the Eiken Pre-2 Interview Test. Let's begin.");
+      return;
+    }
+    const currentQuestion = interviewSet.questions?.[step - 1];
+    if (!currentQuestion) return;
+    const speechKey = `${interviewSet.id}:${currentQuestion.question_order}`;
+    if (spokenQuestionRef.current === speechKey) return;
+    spokenQuestionRef.current = speechKey;
+    speakInterviewText(`Question ${currentQuestion.question_order}. ${currentQuestion.question_text}`);
+  }, [canPractice, interviewSet, loading, step]);
+
+  useEffect(() => () => {
+    if (typeof window !== 'undefined' && window.speechSynthesis) {
+      window.speechSynthesis.cancel();
+    }
+    const recognition = recognitionRef.current;
+    if (recognition) {
+      recognition.onresult = null;
+      recognition.onerror = null;
+      recognition.onend = null;
+      recognition.abort();
+      recognitionRef.current = null;
+    }
+  }, []);
+
   if (childrenLoading || loading) return <div className="eq-interview-loading">読み込み中...</div>;
 
   if (!canPractice) {
@@ -119,8 +173,6 @@ export default function InterviewPracticePage() {
     );
   }
 
-  const questions = interviewSet.questions || [];
-
   if (questions.length === 0) {
     return (
       <EQPageShell className="eq-interview-page" withBottomNav>
@@ -131,7 +183,6 @@ export default function InterviewPracticePage() {
     );
   }
 
-  const question = step > 0 ? questions[step - 1] : null;
   const answerKey = question ? String(question.id || question.question_order) : '';
   const currentAnswer = answers[answerKey] || '';
   const currentFeedback = feedbacks[answerKey] || null;
@@ -186,7 +237,64 @@ export default function InterviewPracticePage() {
     writePracticeState(childId, setId, answers, nextFeedbacks, step);
   }
 
+  function stopSpeechRecognition() {
+    const recognition = recognitionRef.current;
+    if (recognition) {
+      recognition.onresult = null;
+      recognition.onerror = null;
+      recognition.onend = null;
+      recognition.abort();
+      recognitionRef.current = null;
+    }
+    setIsListening(false);
+  }
+
+  function repeatQuestion() {
+    if (!question) return;
+    setSpeechMessage('');
+    speakInterviewText(`Question ${question.question_order}. ${question.question_text}`);
+  }
+
+  function startSpeechRecognition() {
+    if (!question || typeof window === 'undefined') return;
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SpeechRecognition) {
+      setSpeechMessage('音声入力を利用できません');
+      return;
+    }
+
+    stopSpeechRecognition();
+    if (window.speechSynthesis) window.speechSynthesis.cancel();
+    setSpeechMessage('');
+    const recognition = new SpeechRecognition();
+    recognition.lang = 'en-US';
+    recognition.continuous = false;
+    recognition.interimResults = false;
+    recognition.maxAlternatives = 1;
+    recognition.onresult = (event) => {
+      const transcript = event.results?.[0]?.[0]?.transcript?.trim();
+      if (transcript) updateAnswer(transcript);
+    };
+    recognition.onerror = () => {
+      setSpeechMessage('音声入力を利用できません');
+    };
+    recognition.onend = () => {
+      if (recognitionRef.current === recognition) recognitionRef.current = null;
+      setIsListening(false);
+    };
+    recognitionRef.current = recognition;
+    setIsListening(true);
+    try {
+      recognition.start();
+    } catch (err) {
+      recognitionRef.current = null;
+      setIsListening(false);
+      setSpeechMessage('音声入力を利用できません');
+    }
+  }
+
   function goNext() {
+    stopSpeechRecognition();
     if (step >= questions.length) {
       writePracticeState(childId, setId, answers, feedbacks, step);
       navigate(`/interview/result/${setId}`);
@@ -197,6 +305,7 @@ export default function InterviewPracticePage() {
     setStep(nextStep);
     setShowModel(false);
     setFeedbackMessage('');
+    setSpeechMessage('');
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
@@ -257,6 +366,26 @@ export default function InterviewPracticePage() {
               disabled={isChecking}
             />
           </label>
+
+          <div className="eq-interview-speech-actions">
+            <EQFantasyButton
+              fullWidth
+              disabled={isChecking || isListening}
+              onClick={startSpeechRecognition}
+            >
+              {isListening ? '聞き取り中...' : '🎤 回答する'}
+            </EQFantasyButton>
+            <EQFantasyButton
+              variant="blue"
+              fullWidth
+              disabled={isChecking || isListening}
+              onClick={repeatQuestion}
+            >
+              🔊 もう一度聞く
+            </EQFantasyButton>
+          </div>
+
+          {speechMessage ? <p className="eq-interview-speech-message" role="status">{speechMessage}</p> : null}
 
           {feedbackMessage ? <p className="eq-interview-feedback-message" role="status">{feedbackMessage}</p> : null}
 
