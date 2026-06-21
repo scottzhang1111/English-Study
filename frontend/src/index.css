@@ -6891,7 +6891,10 @@ textarea {
     linear-gradient(180deg, #071329 0%, #0d1738 48%, #090f26 100%);
 }
 
-.eq-interview-guide-shell { padding: 18px 16px 118px; color: #f7f3ff; }
+.eq-interview-guide-shell {
+  padding: 18px 16px calc(var(--eq-bottom-nav-height, 104px) + 28px + env(safe-area-inset-bottom, 0px));
+  color: #f7f3ff;
+}
 .eq-interview-guide-header { max-width: 760px; margin: 0 auto; }
 .eq-interview-guide-heading { display: flex; min-height: 170px; align-items: center; justify-content: space-between; gap: 12px; }
 .eq-interview-guide-heading > div { position: relative; z-index: 1; }
@@ -7031,6 +7034,30 @@ textarea {
   font-size: clamp(17px, 4.5vw, 21px);
   font-weight: 700;
   line-height: 1.9;
+}
+
+.eq-interview-passage-layout {
+  display: grid;
+  min-width: 0;
+  gap: 16px;
+  margin-bottom: 22px;
+}
+
+.eq-interview-passage-layout .eq-interview-passage,
+.eq-interview-passage-layout .eq-interview-question-image,
+.eq-interview-passage-layout .eq-interview-image-fallback {
+  min-width: 0;
+  margin-bottom: 0;
+}
+
+.eq-interview-passage-visual {
+  display: grid;
+  min-width: 0;
+  align-items: center;
+}
+
+.eq-interview-passage-image {
+  max-height: none;
 }
 
 .eq-interview-question-image {
@@ -7249,6 +7276,17 @@ textarea {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 12px;
+}
+
+@media (min-width: 700px) {
+  .eq-interview-passage-layout {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    align-items: stretch;
+  }
+
+  .eq-interview-passage-layout .eq-interview-passage {
+    margin-bottom: 0;
+  }
 }
 
 @media (max-width: 520px) {

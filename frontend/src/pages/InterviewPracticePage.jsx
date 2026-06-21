@@ -211,7 +211,21 @@ export default function InterviewPracticePage() {
 
       {step === 0 ? (
         <EQFantasyCard eyebrow="PASSAGE READING" title={interviewSet.passage_title} className="eq-interview-practice-card">
-          <p className="eq-interview-passage">{interviewSet.passage_text}</p>
+          <div className="eq-interview-passage-layout">
+            <p className="eq-interview-passage">{interviewSet.passage_text}</p>
+            <div className="eq-interview-passage-visual">
+              {interviewSet.image_url && !imageFailed ? (
+                <img
+                  className="eq-interview-question-image eq-interview-passage-image"
+                  src={interviewSet.image_url}
+                  alt={`${interviewSet.title}のイラスト`}
+                  onError={() => setImageFailed(true)}
+                />
+              ) : (
+                <p className="eq-interview-image-fallback" role="status">画像を読み込めませんでした。文章を参考に答えてみよう。</p>
+              )}
+            </div>
+          </div>
           <EQFantasyButton fullWidth onClick={goNext}>次へ</EQFantasyButton>
         </EQFantasyCard>
       ) : (
