@@ -16,13 +16,16 @@ function isPre2Level(child) {
   return level === 'eiken_pre2' || level.includes('準2') || level.includes('準２');
 }
 
-function readAnswers(childId, setId) {
+function readPracticeState(childId, setId) {
   try {
     const key = `eiken_interview_practice_v1:${childId}:${setId}`;
     const value = JSON.parse(sessionStorage.getItem(key) || '{}');
-    return value.answers && typeof value.answers === 'object' ? value.answers : {};
+    return {
+      answers: value.answers && typeof value.answers === 'object' ? value.answers : {},
+      feedbacks: value.feedbacks && typeof value.feedbacks === 'object' ? value.feedbacks : {},
+    };
   } catch (err) {
-    return {};
+    return { answers: {}, feedbacks: {} };
   }
 }
 
@@ -32,6 +35,7 @@ export default function InterviewResultPage() {
   const { children, childrenLoading, selectedChildId } = useChildren();
   const [interviewSet, setInterviewSet] = useState(null);
   const [answers, setAnswers] = useState({});
+  const [feedbacks, setFeedbacks] = useState({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const currentChild = useMemo(
@@ -52,7 +56,9 @@ export default function InterviewResultPage() {
       .then((payload) => {
         if (!active) return;
         setInterviewSet(payload.set || null);
-        setAnswers(readAnswers(currentChild?.id, setId));
+        const saved = readPracticeState(currentChild?.id, setId);
+        setAnswers(saved.answers);
+        setFeedbacks(saved.feedbacks);
       })
       .catch((err) => {
         if (!active) return;
@@ -113,7 +119,9 @@ export default function InterviewResultPage() {
 
       <section className="eq-interview-result-list" aria-label="回答一覧">
         {(interviewSet.questions || []).map((question) => {
-          const answer = answers[String(question.id || question.question_order)]?.trim();
+          const answerKey = String(question.id || question.question_order);
+          const answer = answers[answerKey]?.trim();
+          const feedback = feedbacks[answerKey];
           return (
             <EQFantasyCard
               key={question.id}
@@ -134,6 +142,21 @@ export default function InterviewResultPage() {
                 <strong>答え方のコツ</strong>
                 <p>{question.tip_ja}</p>
               </div>
+              {feedback ? (
+                <div className="eq-interview-result-feedback">
+                  <div>
+                    <strong>AIフィードバック</strong>
+                    <span>{feedback.total_score == null ? 'チェック済み' : `${feedback.total_score} / 7`}</span>
+                  </div>
+                  {feedback.total_score != null ? (
+                    <small>Content {feedback.content_score}/3 ・ Grammar {feedback.grammar_score}/2 ・ Fluency {feedback.fluency_score}/2</small>
+                  ) : null}
+                  <p><b>Good point</b>{feedback.good_point_ja}</p>
+                  <p><b>Fix point</b>{feedback.fix_point_ja}</p>
+                  <p><b>Model answer</b>{feedback.model_answer_en || question.model_answer}</p>
+                  {feedback.model_answer_ja ? <p><b>日本語</b>{feedback.model_answer_ja}</p> : null}
+                </div>
+              ) : null}
             </EQFantasyCard>
           );
         })}

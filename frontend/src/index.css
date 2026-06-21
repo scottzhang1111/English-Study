@@ -7094,6 +7094,102 @@ textarea {
   color: rgba(225, 237, 255, .42);
 }
 
+.eq-interview-answer-field textarea:disabled {
+  cursor: wait;
+  opacity: .72;
+}
+
+.eq-interview-feedback-message {
+  margin: -3px 0 12px;
+  color: #ffe19a;
+  font-size: 13px;
+  font-weight: 900;
+  text-align: center;
+}
+
+.eq-interview-ai-feedback,
+.eq-interview-result-feedback {
+  margin-top: 14px;
+  border: 1px solid rgba(89, 218, 255, .36);
+  border-radius: 17px;
+  background: linear-gradient(145deg, rgba(17, 64, 99, .45), rgba(18, 27, 70, .72));
+  padding: 15px;
+  box-shadow: inset 0 0 18px rgba(70, 196, 255, .07);
+}
+
+.eq-interview-ai-feedback-heading,
+.eq-interview-result-feedback > div {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.eq-interview-ai-feedback-heading strong,
+.eq-interview-result-feedback > div strong {
+  color: #7de4ff;
+  font-size: 13px;
+  font-weight: 950;
+}
+
+.eq-interview-ai-feedback-heading span,
+.eq-interview-result-feedback > div span {
+  border-radius: 999px;
+  background: rgba(255, 211, 90, .16);
+  padding: 5px 9px;
+  color: #ffe28b;
+  font-size: 12px;
+  font-weight: 950;
+}
+
+.eq-interview-ai-feedback-scores,
+.eq-interview-result-feedback > small {
+  display: block;
+  margin: 9px 0 0;
+  color: rgba(225, 242, 255, .72);
+  font-size: 11px;
+  font-weight: 800;
+  line-height: 1.55;
+}
+
+.eq-interview-ai-feedback dl {
+  display: grid;
+  gap: 10px;
+  margin: 13px 0 0;
+}
+
+.eq-interview-ai-feedback dl > div {
+  border-radius: 13px;
+  background: rgba(2, 10, 31, .44);
+  padding: 11px 12px;
+}
+
+.eq-interview-ai-feedback dt,
+.eq-interview-result-feedback b {
+  display: block;
+  margin-bottom: 4px;
+  color: #ffe18a;
+  font-size: 11px;
+  font-weight: 950;
+}
+
+.eq-interview-ai-feedback dd,
+.eq-interview-result-feedback p {
+  margin: 0;
+  color: #f0f7ff;
+  font-size: 13px;
+  font-weight: 750;
+  line-height: 1.65;
+  white-space: pre-wrap;
+}
+
+.eq-interview-result-feedback p {
+  margin-top: 10px;
+  border-radius: 12px;
+  background: rgba(2, 10, 31, .4);
+  padding: 10px 11px;
+}
+
 .eq-interview-practice-card .eq-fantasy-button-v2 + .eq-fantasy-button-v2,
 .eq-interview-practice-card .eq-interview-model-answer + .eq-fantasy-button-v2 {
   margin-top: 12px;

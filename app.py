@@ -9477,6 +9477,141 @@ def get_eiken_interview_set_detail(set_id):
     return payload
 
 
+def _eiken_interview_feedback_fallback(model_answer):
+    return {
+        'content_score': None,
+        'grammar_score': None,
+        'fluency_score': None,
+        'total_score': None,
+        'good_point_ja': '回答を保存しました。',
+        'fix_point_ja': 'AIチェックは現在利用できません。お手本を見て復習しましょう。',
+        'model_answer_en': str(model_answer or '').strip(),
+        'model_answer_ja': '',
+    }
+
+
+def _eiken_interview_feedback_schema():
+    return {
+        'type': 'object',
+        'additionalProperties': False,
+        'properties': {
+            'content_score': {'type': 'integer', 'minimum': 0, 'maximum': 3},
+            'grammar_score': {'type': 'integer', 'minimum': 0, 'maximum': 2},
+            'fluency_score': {'type': 'integer', 'minimum': 0, 'maximum': 2},
+            'total_score': {'type': 'integer', 'minimum': 0, 'maximum': 7},
+            'good_point_ja': {'type': 'string'},
+            'fix_point_ja': {'type': 'string'},
+            'model_answer_en': {'type': 'string'},
+            'model_answer_ja': {'type': 'string'},
+        },
+        'required': [
+            'content_score', 'grammar_score', 'fluency_score', 'total_score',
+            'good_point_ja', 'fix_point_ja', 'model_answer_en', 'model_answer_ja',
+        ],
+    }
+
+
+def _get_eiken_interview_question_for_feedback(set_id, question_order):
+    init_db()
+    conn = get_db_connection()
+    try:
+        row = conn.execute(
+            '''
+            SELECT q.question_text, q.model_answer, q.tip_ja
+            FROM eiken_interview_questions AS q
+            JOIN eiken_interview_sets AS s ON s.id = q.set_id
+            WHERE s.id = ? AND s.is_active = 1 AND q.question_order = ?
+            ''',
+            (set_id, question_order),
+        ).fetchone()
+    finally:
+        conn.close()
+    if not row:
+        raise LookupError('interview question not found')
+    return row
+
+
+def _normalize_eiken_interview_feedback(payload, model_answer):
+    if not isinstance(payload, dict):
+        raise ValueError('AI feedback response must be an object')
+    try:
+        content_score = max(0, min(3, int(payload.get('content_score'))))
+        grammar_score = max(0, min(2, int(payload.get('grammar_score'))))
+        fluency_score = max(0, min(2, int(payload.get('fluency_score'))))
+    except (TypeError, ValueError) as exc:
+        raise ValueError('AI feedback response contained invalid scores') from exc
+    return {
+        'content_score': content_score,
+        'grammar_score': grammar_score,
+        'fluency_score': fluency_score,
+        'total_score': content_score + grammar_score + fluency_score,
+        'good_point_ja': str(payload.get('good_point_ja') or '').strip(),
+        'fix_point_ja': str(payload.get('fix_point_ja') or '').strip(),
+        'model_answer_en': str(payload.get('model_answer_en') or model_answer or '').strip(),
+        'model_answer_ja': str(payload.get('model_answer_ja') or '').strip(),
+    }
+
+
+def generate_eiken_interview_feedback(question, student_answer):
+    api_key = get_openai_api_key()
+    if not api_key:
+        raise RuntimeError('OPENAI_API_KEY is not configured')
+
+    model = get_openai_model()
+    reasoning_effort = get_openai_reasoning_effort(model)
+    prompt = {
+        'criteria': {
+            'content_0_to_3': 'Did the student answer the question?',
+            'grammar_0_to_2': 'Are there major grammar mistakes?',
+            'fluency_0_to_2': 'Is the answer complete and natural?',
+        },
+        'question_text': question['question_text'],
+        'student_answer': student_answer,
+        'reference_model_answer': question['model_answer'],
+        'tip_ja': question['tip_ja'],
+    }
+    body = {
+        'model': model,
+        'instructions': (
+            'You are an English interview coach for a Japanese elementary school student '
+            'preparing for Eiken Pre-2 interview. Evaluate the student\'s answer gently. '
+            'Use simple Japanese. Do not be too strict. Return JSON only.'
+        ),
+        'input': json.dumps(prompt, ensure_ascii=False),
+        'text': {
+            'verbosity': 'low',
+            'format': {
+                'type': 'json_schema',
+                'name': 'eiken_interview_feedback',
+                'strict': True,
+                'schema': _eiken_interview_feedback_schema(),
+            },
+        },
+    }
+    if reasoning_effort:
+        body['reasoning'] = {'effort': reasoning_effort}
+
+    request_timeout = int(os.getenv('OPENAI_TIMEOUT', '30'))
+    openai_request = urllib.request.Request(
+        OPENAI_RESPONSES_URL,
+        data=json.dumps(body, ensure_ascii=False).encode('utf-8'),
+        headers={
+            'Authorization': f'Bearer {api_key}',
+            'Content-Type': 'application/json',
+        },
+        method='POST',
+    )
+    with urllib.request.urlopen(openai_request, timeout=request_timeout) as response:
+        response_data = json.loads(response.read().decode('utf-8'))
+    response_text = _extract_response_text(response_data)
+    if not response_text:
+        raise ValueError('AI feedback response did not include text output')
+    return _normalize_eiken_interview_feedback(
+        json.loads(response_text),
+        question['model_answer'],
+    )
+
+
 @app.route('/api/eiken-interview/assets/<path:filename>')
 def api_eiken_interview_asset(filename):
     normalized = str(filename or '').replace('\\', '/')
@@ -9500,6 +9635,33 @@ def api_eiken_interview_set_detail(set_id):
     except LookupError as exc:
         abort(404, str(exc))
     return jsonify({'set': payload})
+
+
+@app.route('/api/eiken-interview/feedback', methods=['POST'])
+def api_eiken_interview_feedback():
+    data = request.get_json(silent=True) or {}
+    student_answer = str(data.get('student_answer') or data.get('studentAnswer') or '').strip()
+    if not student_answer:
+        return jsonify(error='student_answer_required', message='まず答えを書いてね'), 400
+    try:
+        child_id = require_child_id(data.get('child_id') or data.get('childId'))
+        set_id = int(data.get('set_id') or data.get('setId'))
+        question_order = int(data.get('question_order') or data.get('questionOrder'))
+        require_child_belongs_to_current_account(child_id)
+        question = _get_eiken_interview_question_for_feedback(set_id, question_order)
+    except (TypeError, ValueError):
+        abort(400, 'set_id and question_order must be integers')
+    except LookupError as exc:
+        abort(404, str(exc))
+
+    fallback = _eiken_interview_feedback_fallback(question['model_answer'])
+    if not get_openai_api_key():
+        return jsonify(fallback)
+    try:
+        return jsonify(generate_eiken_interview_feedback(question, student_answer))
+    except Exception as exc:
+        app.logger.warning('Eiken interview AI feedback unavailable: %s', exc)
+        return jsonify(fallback)
 
 
 @app.route('/api/tts')

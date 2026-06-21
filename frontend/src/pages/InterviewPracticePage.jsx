@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
-import { getEikenInterviewSet } from '../api';
+import { getEikenInterviewFeedback, getEikenInterviewSet } from '../api';
 import { useChildren } from '../ChildrenContext';
 import {
   EQBottomNav,
@@ -25,16 +25,17 @@ function readPracticeState(childId, setId) {
     const value = JSON.parse(sessionStorage.getItem(storageKey(childId, setId)) || '{}');
     return {
       answers: value.answers && typeof value.answers === 'object' ? value.answers : {},
+      feedbacks: value.feedbacks && typeof value.feedbacks === 'object' ? value.feedbacks : {},
       step: Number.isInteger(value.step) ? value.step : 0,
     };
   } catch (err) {
-    return { answers: {}, step: 0 };
+    return { answers: {}, feedbacks: {}, step: 0 };
   }
 }
 
-function writePracticeState(childId, setId, answers, step) {
+function writePracticeState(childId, setId, answers, feedbacks, step) {
   try {
-    sessionStorage.setItem(storageKey(childId, setId), JSON.stringify({ answers, step }));
+    sessionStorage.setItem(storageKey(childId, setId), JSON.stringify({ answers, feedbacks, step }));
   } catch (err) {
     // Practice still works in memory when sessionStorage is unavailable.
   }
@@ -47,6 +48,9 @@ export default function InterviewPracticePage() {
   const [interviewSet, setInterviewSet] = useState(null);
   const [step, setStep] = useState(0);
   const [answers, setAnswers] = useState({});
+  const [feedbacks, setFeedbacks] = useState({});
+  const [checkingQuestionKey, setCheckingQuestionKey] = useState('');
+  const [feedbackMessage, setFeedbackMessage] = useState('');
   const [showModel, setShowModel] = useState(false);
   const [imageFailed, setImageFailed] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -75,6 +79,7 @@ export default function InterviewPracticePage() {
         const questionCount = nextSet?.questions?.length || 0;
         setInterviewSet(nextSet);
         setAnswers(saved.answers);
+        setFeedbacks(saved.feedbacks);
         setStep(Math.min(Math.max(saved.step, 0), questionCount));
         setImageFailed(false);
       })
@@ -129,23 +134,69 @@ export default function InterviewPracticePage() {
   const question = step > 0 ? questions[step - 1] : null;
   const answerKey = question ? String(question.id || question.question_order) : '';
   const currentAnswer = answers[answerKey] || '';
+  const currentFeedback = feedbacks[answerKey] || null;
+  const isChecking = checkingQuestionKey === answerKey;
 
   function updateAnswer(value) {
     const next = { ...answers, [answerKey]: value };
+    const nextFeedbacks = { ...feedbacks };
+    delete nextFeedbacks[answerKey];
     setAnswers(next);
-    writePracticeState(childId, setId, next, step);
+    setFeedbacks(nextFeedbacks);
+    setFeedbackMessage('');
+    writePracticeState(childId, setId, next, nextFeedbacks, step);
+  }
+
+  async function checkAnswerWithAi() {
+    const studentAnswer = currentAnswer.trim();
+    if (!studentAnswer) {
+      setFeedbackMessage('まず答えを書いてね');
+      return;
+    }
+
+    setCheckingQuestionKey(answerKey);
+    setFeedbackMessage('');
+    let feedback;
+    try {
+      feedback = await getEikenInterviewFeedback({
+        childId,
+        setId,
+        questionOrder: question.question_order,
+        questionText: question.question_text,
+        studentAnswer,
+        modelAnswer: question.model_answer,
+        tipJa: question.tip_ja,
+      });
+    } catch (err) {
+      feedback = {
+        content_score: null,
+        grammar_score: null,
+        fluency_score: null,
+        total_score: null,
+        good_point_ja: '回答を保存しました。',
+        fix_point_ja: 'AIチェックは現在利用できません。お手本を見て復習しましょう。',
+        model_answer_en: question.model_answer,
+        model_answer_ja: '',
+      };
+    } finally {
+      setCheckingQuestionKey('');
+    }
+    const nextFeedbacks = { ...feedbacks, [answerKey]: feedback };
+    setFeedbacks(nextFeedbacks);
+    writePracticeState(childId, setId, answers, nextFeedbacks, step);
   }
 
   function goNext() {
     if (step >= questions.length) {
-      writePracticeState(childId, setId, answers, step);
+      writePracticeState(childId, setId, answers, feedbacks, step);
       navigate(`/interview/result/${setId}`);
       return;
     }
     const nextStep = step + 1;
-    writePracticeState(childId, setId, answers, nextStep);
+    writePracticeState(childId, setId, answers, feedbacks, nextStep);
     setStep(nextStep);
     setShowModel(false);
+    setFeedbackMessage('');
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
@@ -189,8 +240,39 @@ export default function InterviewPracticePage() {
               onChange={(event) => updateAnswer(event.target.value)}
               placeholder="英語で答えを書いてみよう"
               rows="5"
+              disabled={isChecking}
             />
           </label>
+
+          {feedbackMessage ? <p className="eq-interview-feedback-message" role="status">{feedbackMessage}</p> : null}
+
+          <EQFantasyButton
+            variant="blue"
+            fullWidth
+            disabled={isChecking}
+            onClick={checkAnswerWithAi}
+          >
+            {isChecking ? 'AIチェック中...' : 'AIチェック'}
+          </EQFantasyButton>
+
+          {currentFeedback ? (
+            <div className="eq-interview-ai-feedback" aria-live="polite">
+              <div className="eq-interview-ai-feedback-heading">
+                <strong>AIフィードバック</strong>
+                <span>{currentFeedback.total_score == null ? 'チェック済み' : `${currentFeedback.total_score} / 7`}</span>
+              </div>
+              {currentFeedback.total_score != null ? (
+                <p className="eq-interview-ai-feedback-scores">
+                  Content {currentFeedback.content_score}/3 ・ Grammar {currentFeedback.grammar_score}/2 ・ Fluency {currentFeedback.fluency_score}/2
+                </p>
+              ) : null}
+              <dl>
+                <div><dt>Good point</dt><dd>{currentFeedback.good_point_ja}</dd></div>
+                <div><dt>Fix point</dt><dd>{currentFeedback.fix_point_ja}</dd></div>
+                <div><dt>Model answer</dt><dd>{currentFeedback.model_answer_en || question.model_answer}</dd></div>
+              </dl>
+            </div>
+          ) : null}
 
           <EQFantasyButton variant="blue" fullWidth onClick={() => setShowModel((value) => !value)}>
             {showModel ? 'お手本を閉じる' : 'お手本を見る'}
@@ -205,7 +287,7 @@ export default function InterviewPracticePage() {
             </div>
           ) : null}
 
-          <EQFantasyButton fullWidth onClick={goNext}>
+          <EQFantasyButton fullWidth disabled={isChecking} onClick={goNext}>
             {step >= questions.length ? '練習結果を見る' : '次へ'}
           </EQFantasyButton>
         </EQFantasyCard>

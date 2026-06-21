@@ -403,6 +403,21 @@ export const getEikenInterviewSet = async (setId) => {
   return fetchJson(`/api/eiken-interview/sets/${encodeURIComponent(setId)}`);
 };
 
+export const getEikenInterviewFeedback = async (payload = {}) => {
+  return fetchJson('/api/eiken-interview/feedback', {
+    method: 'POST',
+    body: {
+      child_id: payload.childId,
+      set_id: payload.setId,
+      question_order: payload.questionOrder,
+      question_text: payload.questionText,
+      student_answer: payload.studentAnswer,
+      model_answer: payload.modelAnswer,
+      tip_ja: payload.tipJa,
+    },
+  });
+};
+
 export const submitEikenPre2Attempt = async (payload) => {
   return fetchJson('/api/eiken-pre2/attempts', {
     method: 'POST',

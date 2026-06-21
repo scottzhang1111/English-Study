@@ -1,3 +1,4 @@
+import json
 import os
 import tempfile
 import unittest
@@ -29,6 +30,44 @@ class EikenInterviewApiTests(unittest.TestCase):
         finally:
             conn.close()
         self.client = app_module.app.test_client()
+        login_response = self.client.post(
+            '/api/auth/login',
+            json={'email': 'interview-api-test@example.test'},
+        )
+        self.assertEqual(200, login_response.status_code)
+        account_id = login_response.get_json()['account']['id']
+        conn = app_module.get_db_connection()
+        try:
+            now = app_module.get_now_iso()
+            conn.execute(
+                '''
+                INSERT INTO children (
+                    account_id, name, avatar, learning_goal, grade, target_level,
+                    daily_target, daily_word_target, study_mode, created_at, updated_at
+                ) VALUES (?, 'Interview Test', '', 'eiken_pre2', '小学生', 'eiken_pre2',
+                          10, 10, 'normal', ?, ?)
+                ''',
+                (account_id, now, now),
+            )
+            conn.commit()
+            self.child_id = conn.execute(
+                'SELECT id FROM children WHERE account_id = ? AND name = ?',
+                (account_id, 'Interview Test'),
+            ).fetchone()['id']
+            first_set = conn.execute(
+                "SELECT id FROM eiken_interview_sets WHERE external_id = 'PRE2_INT_001'",
+            ).fetchone()
+            self.set_id = first_set['id']
+            self.first_question = dict(conn.execute(
+                '''
+                SELECT question_text, model_answer, tip_ja
+                FROM eiken_interview_questions
+                WHERE set_id = ? AND question_order = 1
+                ''',
+                (self.set_id,),
+            ).fetchone())
+        finally:
+            conn.close()
 
     def tearDown(self):
         self.db_patch.stop()
@@ -89,6 +128,90 @@ class EikenInterviewApiTests(unittest.TestCase):
     def test_seed_default_mode_is_dry_run(self):
         with patch.object(seed_module, 'connect_database', side_effect=AssertionError('dry-run connected to DB')):
             self.assertEqual(0, seed_module.main(['--source-dir', str(seed_module.DEFAULT_SOURCE_DIR)]))
+
+    def feedback_request(self, **overrides):
+        payload = {
+            'child_id': self.child_id,
+            'set_id': self.set_id,
+            'question_order': 1,
+            'question_text': self.first_question['question_text'],
+            'student_answer': 'Because it is useful for students.',
+            'model_answer': self.first_question['model_answer'],
+            'tip_ja': self.first_question['tip_ja'],
+        }
+        payload.update(overrides)
+        return self.client.post('/api/eiken-interview/feedback', json=payload)
+
+    def test_feedback_rejects_empty_answer_without_calling_ai(self):
+        with patch.object(
+            app_module,
+            'generate_eiken_interview_feedback',
+            side_effect=AssertionError('AI should not be called for an empty answer'),
+        ):
+            response = self.feedback_request(student_answer='   ')
+        self.assertEqual(400, response.status_code)
+        self.assertEqual('まず答えを書いてね', response.get_json()['message'])
+
+    def test_feedback_without_api_key_returns_fallback(self):
+        response = None
+        with patch.object(app_module, 'get_openai_api_key', return_value=''), patch.object(
+            app_module.urllib.request,
+            'urlopen',
+            side_effect=AssertionError('OpenAI should not be called without an API key'),
+        ):
+            response = self.feedback_request(model_answer='Do not trust client model answer')
+        self.assertEqual(200, response.status_code)
+        payload = response.get_json()
+        self.assertIsNone(payload['total_score'])
+        self.assertEqual('回答を保存しました。', payload['good_point_ja'])
+        self.assertEqual(
+            'AIチェックは現在利用できません。お手本を見て復習しましょう。',
+            payload['fix_point_ja'],
+        )
+        self.assertEqual(self.first_question['model_answer'], payload['model_answer_en'])
+
+    def test_feedback_returns_normalized_structured_ai_result(self):
+        ai_payload = {
+            'content_score': 3,
+            'grammar_score': 2,
+            'fluency_score': 1,
+            'total_score': 0,
+            'good_point_ja': '質問にしっかり答えています。',
+            'fix_point_ja': 'もう一文加えるともっと自然です。',
+            'model_answer_en': 'Because it is useful for students.',
+            'model_answer_ja': '生徒にとって役に立つからです。',
+        }
+
+        class FakeOpenAiResponse:
+            def __enter__(self):
+                return self
+
+            def __exit__(self, exc_type, exc, traceback):
+                return False
+
+            def read(self):
+                return json.dumps({'output_text': json.dumps(ai_payload, ensure_ascii=False)}).encode('utf-8')
+
+        with patch.object(app_module, 'get_openai_api_key', return_value='test-key'), patch.object(
+            app_module.urllib.request,
+            'urlopen',
+            return_value=FakeOpenAiResponse(),
+        ) as mocked_urlopen:
+            response = self.feedback_request()
+
+        self.assertEqual(200, response.status_code)
+        payload = response.get_json()
+        self.assertEqual(3, payload['content_score'])
+        self.assertEqual(2, payload['grammar_score'])
+        self.assertEqual(1, payload['fluency_score'])
+        self.assertEqual(6, payload['total_score'])
+        self.assertEqual(ai_payload['good_point_ja'], payload['good_point_ja'])
+        self.assertEqual(ai_payload['model_answer_ja'], payload['model_answer_ja'])
+        mocked_urlopen.assert_called_once()
+
+    def test_feedback_rejects_unknown_question(self):
+        response = self.feedback_request(set_id=999999)
+        self.assertEqual(404, response.status_code)
 
 
 if __name__ == '__main__':
