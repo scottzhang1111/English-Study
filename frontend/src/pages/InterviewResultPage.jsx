@@ -23,9 +23,11 @@ function readPracticeState(childId, setId) {
     return {
       answers: value.answers && typeof value.answers === 'object' ? value.answers : {},
       feedbacks: value.feedbacks && typeof value.feedbacks === 'object' ? value.feedbacks : {},
+      readingTranscript: String(value.readingTranscript || ''),
+      readingFeedback: value.readingFeedback && typeof value.readingFeedback === 'object' ? value.readingFeedback : null,
     };
   } catch (err) {
-    return { answers: {}, feedbacks: {} };
+    return { answers: {}, feedbacks: {}, readingTranscript: '', readingFeedback: null };
   }
 }
 
@@ -36,6 +38,8 @@ export default function InterviewResultPage() {
   const [interviewSet, setInterviewSet] = useState(null);
   const [answers, setAnswers] = useState({});
   const [feedbacks, setFeedbacks] = useState({});
+  const [readingTranscript, setReadingTranscript] = useState('');
+  const [readingFeedback, setReadingFeedback] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const currentChild = useMemo(
@@ -59,6 +63,8 @@ export default function InterviewResultPage() {
         const saved = readPracticeState(currentChild?.id, setId);
         setAnswers(saved.answers);
         setFeedbacks(saved.feedbacks);
+        setReadingTranscript(saved.readingTranscript);
+        setReadingFeedback(saved.readingFeedback);
       })
       .catch((err) => {
         if (!active) return;
@@ -116,6 +122,34 @@ export default function InterviewResultPage() {
         subtitle={`${interviewSet.title} の答えを、お手本と見比べてみよう。`}
         badges={['5問', '自己チェック']}
       />
+
+      <EQFantasyCard
+        eyebrow="PASSAGE READING"
+        title={interviewSet.passage_title}
+        actions={<EQFantasyBadge variant="blue">音読</EQFantasyBadge>}
+        className="eq-interview-result-card"
+      >
+        <div className="eq-interview-result-block is-child">
+          <strong>音読の記録</strong>
+          <p>{readingTranscript.trim() || '未入力'}</p>
+        </div>
+        {readingFeedback ? (
+          <div className="eq-interview-result-feedback eq-interview-reading-result-feedback">
+            <div>
+              <strong>Reading Feedback</strong>
+              <span>{readingFeedback.reading_score == null ? '記録済み' : `${readingFeedback.reading_score} / 10`}</span>
+            </div>
+            {readingFeedback.reading_score != null ? (
+              <small>
+                Completion {readingFeedback.completion_score}/3 ・ Pronunciation {readingFeedback.pronunciation_score}/3 ・ Fluency {readingFeedback.fluency_score}/2 ・ Confidence {readingFeedback.confidence_score}/2
+              </small>
+            ) : null}
+            <p><b>Good point</b>{readingFeedback.good_point_ja}</p>
+            <p><b>Fix point</b>{readingFeedback.fix_point_ja}</p>
+            {readingFeedback.try_again_phrase ? <p><b>Try again</b>{readingFeedback.try_again_phrase}</p> : null}
+          </div>
+        ) : null}
+      </EQFantasyCard>
 
       <section className="eq-interview-result-list" aria-label="回答一覧">
         {(interviewSet.questions || []).map((question) => {

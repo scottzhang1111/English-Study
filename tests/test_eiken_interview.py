@@ -55,9 +55,10 @@ class EikenInterviewApiTests(unittest.TestCase):
                 (account_id, 'Interview Test'),
             ).fetchone()['id']
             first_set = conn.execute(
-                "SELECT id FROM eiken_interview_sets WHERE external_id = 'PRE2_INT_001'",
+                "SELECT id, passage_text FROM eiken_interview_sets WHERE external_id = 'PRE2_INT_001'",
             ).fetchone()
             self.set_id = first_set['id']
+            self.first_passage = first_set['passage_text']
             self.first_question = dict(conn.execute(
                 '''
                 SELECT question_text, model_answer, tip_ja
@@ -211,6 +212,88 @@ class EikenInterviewApiTests(unittest.TestCase):
 
     def test_feedback_rejects_unknown_question(self):
         response = self.feedback_request(set_id=999999)
+        self.assertEqual(404, response.status_code)
+
+    def reading_feedback_request(self, **overrides):
+        payload = {
+            'child_id': self.child_id,
+            'set_id': self.set_id,
+            'transcript': self.first_passage,
+            'passage_text': 'Do not trust this client passage.',
+        }
+        payload.update(overrides)
+        return self.client.post('/api/eiken-interview/reading-feedback', json=payload)
+
+    def test_reading_feedback_rejects_empty_transcript_without_calling_ai(self):
+        with patch.object(
+            app_module,
+            'generate_eiken_interview_reading_feedback',
+            side_effect=AssertionError('AI should not be called for an empty transcript'),
+        ):
+            response = self.reading_feedback_request(transcript='   ')
+        self.assertEqual(400, response.status_code)
+        self.assertEqual('まず音読してね', response.get_json()['message'])
+
+    def test_reading_feedback_without_api_key_returns_fallback(self):
+        with patch.object(app_module, 'get_openai_api_key', return_value=''), patch.object(
+            app_module.urllib.request,
+            'urlopen',
+            side_effect=AssertionError('OpenAI should not be called without an API key'),
+        ):
+            response = self.reading_feedback_request()
+        self.assertEqual(200, response.status_code)
+        payload = response.get_json()
+        self.assertIsNone(payload['reading_score'])
+        self.assertIsNone(payload['completion_score'])
+        self.assertEqual('音読を記録しました。最後まで読めたら大きな一歩です。', payload['good_point_ja'])
+        self.assertEqual(
+            'AIチェックは現在利用できません。もう一度ゆっくり読んでみよう。',
+            payload['fix_point_ja'],
+        )
+
+    def test_reading_feedback_uses_database_passage_and_normalizes_scores(self):
+        ai_payload = {
+            'reading_score': 0,
+            'completion_score': 3,
+            'pronunciation_score': 2,
+            'fluency_score': 2,
+            'confidence_score': 2,
+            'good_point_ja': '最後までよく読めました。',
+            'fix_point_ja': '文の区切りで少し休みましょう。',
+            'try_again_phrase': 'Many schools are improving their libraries.',
+        }
+
+        class FakeOpenAiResponse:
+            def __enter__(self):
+                return self
+
+            def __exit__(self, exc_type, exc, traceback):
+                return False
+
+            def read(self):
+                return json.dumps({'output_text': json.dumps(ai_payload, ensure_ascii=False)}).encode('utf-8')
+
+        with patch.object(app_module, 'get_openai_api_key', return_value='test-key'), patch.object(
+            app_module.urllib.request,
+            'urlopen',
+            return_value=FakeOpenAiResponse(),
+        ) as mocked_urlopen:
+            response = self.reading_feedback_request()
+
+        self.assertEqual(200, response.status_code)
+        payload = response.get_json()
+        self.assertEqual(9, payload['reading_score'])
+        self.assertEqual(3, payload['completion_score'])
+        self.assertEqual(2, payload['pronunciation_score'])
+        self.assertEqual(ai_payload['try_again_phrase'], payload['try_again_phrase'])
+        openai_request = mocked_urlopen.call_args.args[0]
+        request_body = json.loads(openai_request.data.decode('utf-8'))
+        prompt = json.loads(request_body['input'])
+        self.assertEqual(self.first_passage, prompt['expected_passage'])
+        self.assertNotEqual('Do not trust this client passage.', prompt['expected_passage'])
+
+    def test_reading_feedback_rejects_unknown_set(self):
+        response = self.reading_feedback_request(set_id=999999)
         self.assertEqual(404, response.status_code)
 
 

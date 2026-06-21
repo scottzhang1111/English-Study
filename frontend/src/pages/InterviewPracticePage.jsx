@@ -1,6 +1,10 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
-import { getEikenInterviewFeedback, getEikenInterviewSet } from '../api';
+import {
+  getEikenInterviewFeedback,
+  getEikenInterviewReadingFeedback,
+  getEikenInterviewSet,
+} from '../api';
 import { useChildren } from '../ChildrenContext';
 import {
   EQBottomNav,
@@ -26,16 +30,24 @@ function readPracticeState(childId, setId) {
     return {
       answers: value.answers && typeof value.answers === 'object' ? value.answers : {},
       feedbacks: value.feedbacks && typeof value.feedbacks === 'object' ? value.feedbacks : {},
+      readingTranscript: String(value.readingTranscript || ''),
+      readingFeedback: value.readingFeedback && typeof value.readingFeedback === 'object' ? value.readingFeedback : null,
       step: Number.isInteger(value.step) ? value.step : 0,
     };
   } catch (err) {
-    return { answers: {}, feedbacks: {}, step: 0 };
+    return { answers: {}, feedbacks: {}, readingTranscript: '', readingFeedback: null, step: 0 };
   }
 }
 
-function writePracticeState(childId, setId, answers, feedbacks, step) {
+function writePracticeState(childId, setId, answers, feedbacks, readingTranscript, readingFeedback, step) {
   try {
-    sessionStorage.setItem(storageKey(childId, setId), JSON.stringify({ answers, feedbacks, step }));
+    sessionStorage.setItem(storageKey(childId, setId), JSON.stringify({
+      answers,
+      feedbacks,
+      readingTranscript,
+      readingFeedback,
+      step,
+    }));
   } catch (err) {
     // Practice still works in memory when sessionStorage is unavailable.
   }
@@ -67,15 +79,19 @@ export default function InterviewPracticePage() {
   const [step, setStep] = useState(0);
   const [answers, setAnswers] = useState({});
   const [feedbacks, setFeedbacks] = useState({});
+  const [readingTranscript, setReadingTranscript] = useState('');
+  const [readingFeedback, setReadingFeedback] = useState(null);
+  const [isCheckingReading, setIsCheckingReading] = useState(false);
+  const [readingMessage, setReadingMessage] = useState('');
   const [checkingQuestionKey, setCheckingQuestionKey] = useState('');
   const [feedbackMessage, setFeedbackMessage] = useState('');
   const [showModel, setShowModel] = useState(false);
   const [imageFailed, setImageFailed] = useState(false);
-  const [isListening, setIsListening] = useState(false);
-  const [speechMessage, setSpeechMessage] = useState('');
+  const [isReadingListening, setIsReadingListening] = useState(false);
+  const [readingSpeechMessage, setReadingSpeechMessage] = useState('');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const introSpokenRef = useRef(false);
+  const guidanceSpokenRef = useRef(false);
   const spokenQuestionRef = useRef('');
   const recognitionRef = useRef(null);
   const currentChild = useMemo(
@@ -105,6 +121,8 @@ export default function InterviewPracticePage() {
         setInterviewSet(nextSet);
         setAnswers(saved.answers);
         setFeedbacks(saved.feedbacks);
+        setReadingTranscript(saved.readingTranscript);
+        setReadingFeedback(saved.readingFeedback);
         setStep(Math.min(Math.max(saved.step, 0), questionCount));
         setImageFailed(false);
       })
@@ -126,9 +144,9 @@ export default function InterviewPracticePage() {
 
   useEffect(() => {
     if (loading || !canPractice || !interviewSet) return;
-    if (step === 0 && !introSpokenRef.current) {
-      introSpokenRef.current = true;
-      speakInterviewText("Hello. This is the Eiken Pre-2 Interview Test. Let's begin.");
+    if (step === 0 && !guidanceSpokenRef.current) {
+      guidanceSpokenRef.current = true;
+      speakInterviewText('Please read the passage aloud.');
       return;
     }
     const currentQuestion = interviewSet.questions?.[step - 1];
@@ -195,7 +213,7 @@ export default function InterviewPracticePage() {
     setAnswers(next);
     setFeedbacks(nextFeedbacks);
     setFeedbackMessage('');
-    writePracticeState(childId, setId, next, nextFeedbacks, step);
+    writePracticeState(childId, setId, next, nextFeedbacks, readingTranscript, readingFeedback, step);
   }
 
   async function checkAnswerWithAi() {
@@ -234,78 +252,131 @@ export default function InterviewPracticePage() {
     }
     const nextFeedbacks = { ...feedbacks, [answerKey]: feedback };
     setFeedbacks(nextFeedbacks);
-    writePracticeState(childId, setId, answers, nextFeedbacks, step);
+    writePracticeState(childId, setId, answers, nextFeedbacks, readingTranscript, readingFeedback, step);
   }
 
-  function stopSpeechRecognition() {
+  function updateReadingTranscript(value) {
+    setReadingTranscript(value);
+    setReadingFeedback(null);
+    setReadingMessage('');
+    writePracticeState(childId, setId, answers, feedbacks, value, null, step);
+  }
+
+  async function checkReadingWithAi() {
+    const transcript = readingTranscript.trim();
+    if (!transcript) {
+      setReadingMessage('まず音読してね');
+      return;
+    }
+
+    setIsCheckingReading(true);
+    setReadingMessage('');
+    let feedback;
+    try {
+      feedback = await getEikenInterviewReadingFeedback({
+        childId,
+        setId,
+        transcript,
+        passageText: interviewSet.passage_text,
+      });
+    } catch (err) {
+      feedback = {
+        reading_score: null,
+        completion_score: null,
+        pronunciation_score: null,
+        fluency_score: null,
+        confidence_score: null,
+        good_point_ja: '音読を記録しました。最後まで読めたら大きな一歩です。',
+        fix_point_ja: 'AIチェックは現在利用できません。もう一度ゆっくり読んでみよう。',
+        try_again_phrase: '',
+      };
+    } finally {
+      setIsCheckingReading(false);
+    }
+    setReadingFeedback(feedback);
+    writePracticeState(childId, setId, answers, feedbacks, readingTranscript, feedback, step);
+  }
+
+  function stopReadingRecognition({ abort = false } = {}) {
     const recognition = recognitionRef.current;
     if (recognition) {
-      recognition.onresult = null;
-      recognition.onerror = null;
-      recognition.onend = null;
-      recognition.abort();
-      recognitionRef.current = null;
+      if (abort) {
+        recognition.onresult = null;
+        recognition.onerror = null;
+        recognition.onend = null;
+        recognition.abort();
+        recognitionRef.current = null;
+      } else {
+        recognition.stop();
+      }
     }
-    setIsListening(false);
+    setIsReadingListening(false);
   }
 
   function repeatQuestion() {
     if (!question) return;
-    setSpeechMessage('');
     speakInterviewText(`Question ${question.question_order}. ${question.question_text}`);
   }
 
-  function startSpeechRecognition() {
-    if (!question || typeof window === 'undefined') return;
+  function repeatReadingGuidance() {
+    setReadingSpeechMessage('');
+    speakInterviewText('Please read the passage aloud.');
+  }
+
+  function startReadingRecognition() {
+    if (typeof window === 'undefined') return;
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     if (!SpeechRecognition) {
-      setSpeechMessage('音声入力を利用できません');
+      setReadingSpeechMessage('このブラウザでは音声入力を利用できません。文字で入力してね。');
       return;
     }
 
-    stopSpeechRecognition();
+    stopReadingRecognition({ abort: true });
     if (window.speechSynthesis) window.speechSynthesis.cancel();
-    setSpeechMessage('');
+    setReadingSpeechMessage('');
     const recognition = new SpeechRecognition();
     recognition.lang = 'en-US';
-    recognition.continuous = false;
-    recognition.interimResults = false;
+    recognition.continuous = true;
+    recognition.interimResults = true;
     recognition.maxAlternatives = 1;
     recognition.onresult = (event) => {
-      const transcript = event.results?.[0]?.[0]?.transcript?.trim();
-      if (transcript) updateAnswer(transcript);
+      const parts = [];
+      for (let index = 0; index < event.results.length; index += 1) {
+        const part = event.results[index]?.[0]?.transcript?.trim();
+        if (part) parts.push(part);
+      }
+      if (parts.length) updateReadingTranscript(parts.join(' '));
     };
     recognition.onerror = () => {
-      setSpeechMessage('音声入力を利用できません');
+      setReadingSpeechMessage('このブラウザでは音声入力を利用できません。文字で入力してね。');
     };
     recognition.onend = () => {
       if (recognitionRef.current === recognition) recognitionRef.current = null;
-      setIsListening(false);
+      setIsReadingListening(false);
     };
     recognitionRef.current = recognition;
-    setIsListening(true);
+    setIsReadingListening(true);
     try {
       recognition.start();
     } catch (err) {
       recognitionRef.current = null;
-      setIsListening(false);
-      setSpeechMessage('音声入力を利用できません');
+      setIsReadingListening(false);
+      setReadingSpeechMessage('このブラウザでは音声入力を利用できません。文字で入力してね。');
     }
   }
 
   function goNext() {
-    stopSpeechRecognition();
+    stopReadingRecognition({ abort: true });
     if (step >= questions.length) {
-      writePracticeState(childId, setId, answers, feedbacks, step);
+      writePracticeState(childId, setId, answers, feedbacks, readingTranscript, readingFeedback, step);
       navigate(`/interview/result/${setId}`);
       return;
     }
     const nextStep = step + 1;
-    writePracticeState(childId, setId, answers, feedbacks, nextStep);
+    writePracticeState(childId, setId, answers, feedbacks, readingTranscript, readingFeedback, nextStep);
     setStep(nextStep);
     setShowModel(false);
     setFeedbackMessage('');
-    setSpeechMessage('');
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
@@ -314,12 +385,16 @@ export default function InterviewPracticePage() {
       <EQHeroHeader
         eyebrow={interviewSet.external_id}
         title={interviewSet.title}
-        subtitle={step === 0 ? 'まずはパッセージを落ち着いて音読しよう。' : `Question ${step} / ${questions.length}`}
+        subtitle={step === 0 ? 'パッセージを声に出して読んでみよう' : `Question ${step} / ${questions.length}`}
         badges={[step === 0 ? 'PASSAGE' : `Q${step}`, `進行 ${step}/${questions.length}`]}
       />
 
       {step === 0 ? (
         <EQFantasyCard eyebrow="PASSAGE READING" title={interviewSet.passage_title} className="eq-interview-practice-card">
+          <div className="eq-interview-reading-guidance">
+            <strong>Please read the passage aloud.</strong>
+            <span>パッセージを声に出して読んでみよう</span>
+          </div>
           <div className="eq-interview-passage-layout">
             <p className="eq-interview-passage">{interviewSet.passage_text}</p>
             <div className="eq-interview-passage-visual">
@@ -335,7 +410,81 @@ export default function InterviewPracticePage() {
               )}
             </div>
           </div>
-          <EQFantasyButton fullWidth onClick={goNext}>次へ</EQFantasyButton>
+
+          <label className="eq-interview-answer-field eq-interview-reading-transcript">
+            <span>音読した内容</span>
+            <textarea
+              value={readingTranscript}
+              onChange={(event) => updateReadingTranscript(event.target.value)}
+              placeholder="音声入力の結果がここに入ります。文字で入力しても大丈夫です。"
+              rows="6"
+              disabled={isReadingListening || isCheckingReading}
+            />
+          </label>
+
+          <div className="eq-interview-reading-actions">
+            <EQFantasyButton
+              variant="blue"
+              fullWidth
+              disabled={isReadingListening || isCheckingReading}
+              onClick={repeatReadingGuidance}
+            >
+              🔊 もう一度聞く
+            </EQFantasyButton>
+            <EQFantasyButton
+              fullWidth
+              disabled={isReadingListening || isCheckingReading}
+              onClick={startReadingRecognition}
+            >
+              🎤 音読を録音
+            </EQFantasyButton>
+            <EQFantasyButton
+              variant="blue"
+              fullWidth
+              disabled={!isReadingListening}
+              onClick={() => stopReadingRecognition()}
+            >
+              停止
+            </EQFantasyButton>
+            <EQFantasyButton
+              variant="blue"
+              fullWidth
+              disabled={isReadingListening || isCheckingReading}
+              onClick={checkReadingWithAi}
+            >
+              {isCheckingReading ? 'AIチェック中...' : 'AIチェック'}
+            </EQFantasyButton>
+          </div>
+
+          {readingSpeechMessage ? <p className="eq-interview-speech-message" role="status">{readingSpeechMessage}</p> : null}
+          {readingMessage ? <p className="eq-interview-feedback-message" role="status">{readingMessage}</p> : null}
+
+          {readingFeedback ? (
+            <div className="eq-interview-ai-feedback eq-interview-reading-feedback" aria-live="polite">
+              <div className="eq-interview-ai-feedback-heading">
+                <strong>Reading Feedback</strong>
+                <span>{readingFeedback.reading_score == null ? '記録済み' : `${readingFeedback.reading_score} / 10`}</span>
+              </div>
+              {readingFeedback.reading_score != null ? (
+                <p className="eq-interview-ai-feedback-scores">
+                  Completion {readingFeedback.completion_score}/3 ・ Pronunciation {readingFeedback.pronunciation_score}/3 ・ Fluency {readingFeedback.fluency_score}/2 ・ Confidence {readingFeedback.confidence_score}/2
+                </p>
+              ) : null}
+              <dl>
+                <div><dt>Good point</dt><dd>{readingFeedback.good_point_ja}</dd></div>
+                <div><dt>Fix point</dt><dd>{readingFeedback.fix_point_ja}</dd></div>
+                {readingFeedback.try_again_phrase ? <div><dt>Try again</dt><dd>{readingFeedback.try_again_phrase}</dd></div> : null}
+              </dl>
+            </div>
+          ) : null}
+
+          <EQFantasyButton
+            fullWidth
+            disabled={isReadingListening || isCheckingReading}
+            onClick={goNext}
+          >
+            次へ
+          </EQFantasyButton>
         </EQFantasyCard>
       ) : (
         <EQFantasyCard
@@ -367,25 +516,16 @@ export default function InterviewPracticePage() {
             />
           </label>
 
-          <div className="eq-interview-speech-actions">
-            <EQFantasyButton
-              fullWidth
-              disabled={isChecking || isListening}
-              onClick={startSpeechRecognition}
-            >
-              {isListening ? '聞き取り中...' : '🎤 回答する'}
-            </EQFantasyButton>
+          <div className="eq-interview-question-audio">
             <EQFantasyButton
               variant="blue"
               fullWidth
-              disabled={isChecking || isListening}
+              disabled={isChecking}
               onClick={repeatQuestion}
             >
               🔊 もう一度聞く
             </EQFantasyButton>
           </div>
-
-          {speechMessage ? <p className="eq-interview-speech-message" role="status">{speechMessage}</p> : null}
 
           {feedbackMessage ? <p className="eq-interview-feedback-message" role="status">{feedbackMessage}</p> : null}
 

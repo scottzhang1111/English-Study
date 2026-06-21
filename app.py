@@ -9612,6 +9612,139 @@ def generate_eiken_interview_feedback(question, student_answer):
     )
 
 
+def _eiken_interview_reading_feedback_fallback(passage_text):
+    first_sentence = str(passage_text or '').strip().split('.', 1)[0].strip()
+    return {
+        'reading_score': None,
+        'completion_score': None,
+        'pronunciation_score': None,
+        'fluency_score': None,
+        'confidence_score': None,
+        'good_point_ja': '音読を記録しました。最後まで読めたら大きな一歩です。',
+        'fix_point_ja': 'AIチェックは現在利用できません。もう一度ゆっくり読んでみよう。',
+        'try_again_phrase': f'{first_sentence}.' if first_sentence else '',
+    }
+
+
+def _eiken_interview_reading_feedback_schema():
+    return {
+        'type': 'object',
+        'additionalProperties': False,
+        'properties': {
+            'reading_score': {'type': 'integer', 'minimum': 0, 'maximum': 10},
+            'completion_score': {'type': 'integer', 'minimum': 0, 'maximum': 3},
+            'pronunciation_score': {'type': 'integer', 'minimum': 0, 'maximum': 3},
+            'fluency_score': {'type': 'integer', 'minimum': 0, 'maximum': 2},
+            'confidence_score': {'type': 'integer', 'minimum': 0, 'maximum': 2},
+            'good_point_ja': {'type': 'string'},
+            'fix_point_ja': {'type': 'string'},
+            'try_again_phrase': {'type': 'string'},
+        },
+        'required': [
+            'reading_score', 'completion_score', 'pronunciation_score',
+            'fluency_score', 'confidence_score', 'good_point_ja',
+            'fix_point_ja', 'try_again_phrase',
+        ],
+    }
+
+
+def _get_eiken_interview_passage_for_feedback(set_id):
+    init_db()
+    conn = get_db_connection()
+    try:
+        row = conn.execute(
+            '''
+            SELECT passage_text
+            FROM eiken_interview_sets
+            WHERE id = ? AND is_active = 1
+            ''',
+            (set_id,),
+        ).fetchone()
+    finally:
+        conn.close()
+    if not row:
+        raise LookupError('interview set not found')
+    return row
+
+
+def _normalize_eiken_interview_reading_feedback(payload):
+    if not isinstance(payload, dict):
+        raise ValueError('AI reading feedback response must be an object')
+    try:
+        completion_score = max(0, min(3, int(payload.get('completion_score'))))
+        pronunciation_score = max(0, min(3, int(payload.get('pronunciation_score'))))
+        fluency_score = max(0, min(2, int(payload.get('fluency_score'))))
+        confidence_score = max(0, min(2, int(payload.get('confidence_score'))))
+    except (TypeError, ValueError) as exc:
+        raise ValueError('AI reading feedback response contained invalid scores') from exc
+    return {
+        'reading_score': completion_score + pronunciation_score + fluency_score + confidence_score,
+        'completion_score': completion_score,
+        'pronunciation_score': pronunciation_score,
+        'fluency_score': fluency_score,
+        'confidence_score': confidence_score,
+        'good_point_ja': str(payload.get('good_point_ja') or '').strip(),
+        'fix_point_ja': str(payload.get('fix_point_ja') or '').strip(),
+        'try_again_phrase': str(payload.get('try_again_phrase') or '').strip(),
+    }
+
+
+def generate_eiken_interview_reading_feedback(passage_text, transcript):
+    api_key = get_openai_api_key()
+    if not api_key:
+        raise RuntimeError('OPENAI_API_KEY is not configured')
+
+    model = get_openai_model()
+    reasoning_effort = get_openai_reasoning_effort(model)
+    prompt = {
+        'expected_passage': passage_text,
+        'speech_transcript': transcript,
+        'focus': [
+            'Did the child read most of the passage?',
+            'Did the child avoid giving up?',
+            'Was the reading understandable?',
+        ],
+    }
+    body = {
+        'model': model,
+        'instructions': (
+            'You are an Eiken Pre-2 interview reading coach for a Japanese child. '
+            'Compare the expected passage and the child\'s speech transcript. '
+            'Be gentle and encouraging. Do not require perfect pronunciation. '
+            'Use simple Japanese. Return JSON only.'
+        ),
+        'input': json.dumps(prompt, ensure_ascii=False),
+        'text': {
+            'verbosity': 'low',
+            'format': {
+                'type': 'json_schema',
+                'name': 'eiken_interview_reading_feedback',
+                'strict': True,
+                'schema': _eiken_interview_reading_feedback_schema(),
+            },
+        },
+    }
+    if reasoning_effort:
+        body['reasoning'] = {'effort': reasoning_effort}
+
+    request_timeout = int(os.getenv('OPENAI_TIMEOUT', '30'))
+    openai_request = urllib.request.Request(
+        OPENAI_RESPONSES_URL,
+        data=json.dumps(body, ensure_ascii=False).encode('utf-8'),
+        headers={
+            'Authorization': f'Bearer {api_key}',
+            'Content-Type': 'application/json',
+        },
+        method='POST',
+    )
+    with urllib.request.urlopen(openai_request, timeout=request_timeout) as response:
+        response_data = json.loads(response.read().decode('utf-8'))
+    response_text = _extract_response_text(response_data)
+    if not response_text:
+        raise ValueError('AI reading feedback response did not include text output')
+    return _normalize_eiken_interview_reading_feedback(json.loads(response_text))
+
+
 @app.route('/api/eiken-interview/assets/<path:filename>')
 def api_eiken_interview_asset(filename):
     normalized = str(filename or '').replace('\\', '/')
@@ -9661,6 +9794,33 @@ def api_eiken_interview_feedback():
         return jsonify(generate_eiken_interview_feedback(question, student_answer))
     except Exception as exc:
         app.logger.warning('Eiken interview AI feedback unavailable: %s', exc)
+        return jsonify(fallback)
+
+
+@app.route('/api/eiken-interview/reading-feedback', methods=['POST'])
+def api_eiken_interview_reading_feedback():
+    data = request.get_json(silent=True) or {}
+    transcript = str(data.get('transcript') or '').strip()
+    if not transcript:
+        return jsonify(error='transcript_required', message='まず音読してね'), 400
+    try:
+        child_id = require_child_id(data.get('child_id') or data.get('childId'))
+        set_id = int(data.get('set_id') or data.get('setId'))
+        require_child_belongs_to_current_account(child_id)
+        passage = _get_eiken_interview_passage_for_feedback(set_id)
+    except (TypeError, ValueError):
+        abort(400, 'set_id must be an integer')
+    except LookupError as exc:
+        abort(404, str(exc))
+
+    passage_text = passage['passage_text']
+    fallback = _eiken_interview_reading_feedback_fallback(passage_text)
+    if not get_openai_api_key():
+        return jsonify(fallback)
+    try:
+        return jsonify(generate_eiken_interview_reading_feedback(passage_text, transcript))
+    except Exception as exc:
+        app.logger.warning('Eiken interview AI reading feedback unavailable: %s', exc)
         return jsonify(fallback)
 
 

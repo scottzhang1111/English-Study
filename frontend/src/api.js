@@ -418,6 +418,18 @@ export const getEikenInterviewFeedback = async (payload = {}) => {
   });
 };
 
+export const getEikenInterviewReadingFeedback = async (payload = {}) => {
+  return fetchJson('/api/eiken-interview/reading-feedback', {
+    method: 'POST',
+    body: {
+      child_id: payload.childId,
+      set_id: payload.setId,
+      transcript: payload.transcript,
+      passage_text: payload.passageText,
+    },
+  });
+};
+
 export const submitEikenPre2Attempt = async (payload) => {
   return fetchJson('/api/eiken-pre2/attempts', {
     method: 'POST',
