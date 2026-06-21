@@ -329,9 +329,16 @@ export const getGrammarLesson = async ({ childId, lessonId } = {}) => {
 };
 
 export const markGrammarLessonViewed = async ({ childId, lessonId } = {}) => {
-  return fetchJson(`/api/grammar/lessons/${encodeURIComponent(lessonId)}/view`, {
+  return fetchJson(`/api/grammar/lessons/${encodeURIComponent(lessonId)}/viewed`, {
     method: 'POST',
     body: { child_id: childId },
+  });
+};
+
+export const submitGrammarLessonTest = async ({ childId, lessonId, answers } = {}) => {
+  return fetchJson(`/api/grammar/lessons/${encodeURIComponent(lessonId)}/submit`, {
+    method: 'POST',
+    body: { child_id: childId, answers },
   });
 };
 
@@ -386,6 +393,14 @@ export const getEikenPre2Sets = async () => {
 
 export const getEikenPre2Set = async (setId) => {
   return fetchJson(`/api/eiken-pre2/sets/${encodeURIComponent(setId)}`);
+};
+
+export const getEikenInterviewSets = async () => {
+  return fetchJson('/api/eiken-interview/sets');
+};
+
+export const getEikenInterviewSet = async (setId) => {
+  return fetchJson(`/api/eiken-interview/sets/${encodeURIComponent(setId)}`);
 };
 
 export const submitEikenPre2Attempt = async (payload) => {

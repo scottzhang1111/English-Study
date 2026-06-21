@@ -33,7 +33,7 @@ except ImportError:
 app = Flask(__name__)
 _DB_INITIALIZED = False
 
-DB_FILENAME = 'eigo_quest_local_v1.sqlite'
+DB_FILENAME = os.getenv('EIGO_QUEST_DB_FILENAME', 'eigo_quest_local_v1.sqlite')
 VOCAB_FILENAME = os.path.join('data', 'eiken', 'eiken_pre2', 'eiken_pre2_web_ready_db', 'eiken_vocab_database_with_synonyms_utf8_bom.csv')
 EIKEN_PRE2_BANK_FILENAME = os.path.join('data', 'eiken', 'eiken_pre2', 'eiken_pre2_web_ready_db', 'eiken_pre2_web_ready.sqlite')
 EIKEN3_BANK_FILENAME = os.path.join('data', 'eiken', 'eiken_3', 'eiken_3_web_ready_db', 'eiken3_web_ready_with_G3SET10.sqlite')
@@ -60,6 +60,8 @@ EIKEN_REAL_EXAM_CONFIGS = {
 EIKEN_REAL_EXAM_ANSWER_KEY_FILENAME = os.path.join('data', 'eiken', 'eiken_real_exam_answer_key.json')
 GRAMMAR_LESSON_DB_FILENAME = os.path.join('data', 'eiken', 'eiken_pre2', 'eiken_pre2 grammar', 'eiken_pre2_grammar_lessons.db')
 GRAMMAR_FORM_TEST_DB_FILENAME = os.path.join('data', 'eiken', 'eiken_pre2', 'eiken_pre2 grammar', 'eiken_pre2_grammar_form_test_sample_17.db')
+EIKEN_PRE2_INTERVIEW_ROOT = os.path.join('data', 'eiken', 'eiken_pre2', 'eiken_pre2 interview')
+EIKEN_PRE2_INTERVIEW_IMAGE_RE = re.compile(r'^PRE2_INT_(?:00[1-9]|010)\.png$')
 OPENAI_RESPONSES_URL = 'https://api.openai.com/v1/responses'
 AI_QUESTION_TYPES = ['Vocabulary', 'Grammar', 'Conversation', 'Reading Cloze']
 AI_AUTO_QUESTION_TYPES = ['multiple_choice', 'fill_blank', 'en_to_ja', 'ja_to_en', 'sentence', 'reading', 'writing']
@@ -2197,6 +2199,12 @@ def init_db(force=False):
                 correct_count INTEGER NOT NULL DEFAULT 0,
                 wrong_count INTEGER NOT NULL DEFAULT 0,
                 last_score INTEGER NOT NULL DEFAULT 0,
+                best_score INTEGER NOT NULL DEFAULT 0,
+                total_questions INTEGER NOT NULL DEFAULT 0,
+                passed INTEGER NOT NULL DEFAULT 0,
+                attempts_count INTEGER NOT NULL DEFAULT 0,
+                viewed_at TEXT,
+                last_tested_at TEXT,
                 mastered_at TEXT,
                 last_studied_at TEXT,
                 next_review_at TEXT,
@@ -2399,6 +2407,50 @@ def init_db(force=False):
         )
         conn.execute(
             '''
+            CREATE TABLE IF NOT EXISTS eiken_interview_sets (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                external_id TEXT NOT NULL UNIQUE,
+                level TEXT NOT NULL,
+                title TEXT NOT NULL,
+                passage_title TEXT NOT NULL,
+                passage_text TEXT NOT NULL,
+                image_filename TEXT NOT NULL,
+                display_order INTEGER NOT NULL DEFAULT 0,
+                is_active INTEGER NOT NULL DEFAULT 1,
+                created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+            )
+            '''
+        )
+        conn.execute(
+            '''
+            CREATE TABLE IF NOT EXISTS eiken_interview_questions (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                set_id INTEGER NOT NULL,
+                question_order INTEGER NOT NULL,
+                question_type TEXT NOT NULL,
+                question_text TEXT NOT NULL,
+                model_answer TEXT NOT NULL,
+                tip_ja TEXT NOT NULL,
+                created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (set_id) REFERENCES eiken_interview_sets (id) ON UPDATE CASCADE ON DELETE CASCADE,
+                UNIQUE (set_id, question_order)
+            )
+            '''
+        )
+        conn.execute(
+            '''
+            CREATE INDEX IF NOT EXISTS idx_eiken_interview_sets_active_order
+            ON eiken_interview_sets (is_active, display_order, id)
+            '''
+        )
+        conn.execute(
+            '''
+            CREATE INDEX IF NOT EXISTS idx_eiken_interview_questions_set_order
+            ON eiken_interview_questions (set_id, question_order)
+            '''
+        )
+        conn.execute(
+            '''
             CREATE INDEX IF NOT EXISTS idx_eiken_real_answers_child_wrong
             ON eiken_real_exam_student_answers (child_id, is_correct, answered_at)
             '''
@@ -2508,6 +2560,7 @@ def init_db(force=False):
         migrate_pokemon_catalog(conn)
         migrate_child_pokemon_collection(conn)
         migrate_children_profile_fields(conn)
+        migrate_child_grammar_progress_fields(conn)
         if should_seed_demo_children():
             seed_demo_children(conn)
         seed_grammar_battle_data(conn)
@@ -2933,6 +2986,21 @@ def get_table_columns(conn, table_name):
         row['name']
         for row in conn.execute(f'PRAGMA table_info({table_name})').fetchall()
     }
+
+
+def migrate_child_grammar_progress_fields(conn):
+    columns = get_table_columns(conn, 'child_grammar_progress')
+    additions = {
+        'best_score': 'INTEGER NOT NULL DEFAULT 0',
+        'total_questions': 'INTEGER NOT NULL DEFAULT 0',
+        'passed': 'INTEGER NOT NULL DEFAULT 0',
+        'attempts_count': 'INTEGER NOT NULL DEFAULT 0',
+        'viewed_at': 'TEXT',
+        'last_tested_at': 'TEXT',
+    }
+    for column, definition in additions.items():
+        if column not in columns:
+            conn.execute(f'ALTER TABLE child_grammar_progress ADD COLUMN {column} {definition}')
 
 
 def sync_postgres_sequences(conn):
@@ -5382,6 +5450,8 @@ def generate_daily_review_context_question(entry, entries, difficulty, target_le
         or entry.get('example_en')
         or entry.get('example')
     )
+
+
     japanese = _clean_csv_value(entry.get('Japanese'))
     blank = make_daily_review_blank_sentence(example, word)
     if not word or not blank:
@@ -6424,7 +6494,9 @@ def _grammar_progress_map(child_id):
     try:
         rows = conn.execute(
             '''
-            SELECT lesson_id, status, view_count, correct_count, wrong_count, last_score, mastered_at, last_studied_at
+            SELECT lesson_id, status, view_count, correct_count, wrong_count, last_score,
+                   best_score, total_questions, passed, attempts_count, viewed_at,
+                   last_tested_at, mastered_at, last_studied_at
             FROM child_grammar_progress
             WHERE child_id = ?
             ''',
@@ -6443,6 +6515,12 @@ def _grammar_progress_payload(row=None):
             'correctCount': 0,
             'wrongCount': 0,
             'lastScore': 0,
+            'bestScore': 0,
+            'totalQuestions': 0,
+            'passed': False,
+            'attemptsCount': 0,
+            'viewedAt': None,
+            'lastTestedAt': None,
             'masteredAt': None,
             'lastStudiedAt': None,
         }
@@ -6452,6 +6530,12 @@ def _grammar_progress_payload(row=None):
         'correctCount': int(row['correct_count'] or 0),
         'wrongCount': int(row['wrong_count'] or 0),
         'lastScore': int(row['last_score'] or 0),
+        'bestScore': int(row['best_score'] or 0),
+        'totalQuestions': int(row['total_questions'] or 0),
+        'passed': bool(row['passed']),
+        'attemptsCount': int(row['attempts_count'] or 0),
+        'viewedAt': row['viewed_at'],
+        'lastTestedAt': row['last_tested_at'],
         'masteredAt': row['mastered_at'],
         'lastStudiedAt': row['last_studied_at'],
     }
@@ -6461,16 +6545,17 @@ def _grammar_progress_for_lesson(progress=None, quiz_count=0, correct_quiz_count
     payload = _grammar_progress_payload(progress)
     total = int(quiz_count or 0)
     solved = int(correct_quiz_count or 0)
-    if total > 0:
-        payload['lastScore'] = round((solved / total) * 100)
-        payload['correctQuizCount'] = solved
-        payload['totalQuizCount'] = total
-        if solved >= total:
-            payload['status'] = 'mastered'
-    else:
-        payload['correctQuizCount'] = solved
-        payload['totalQuizCount'] = total
+    payload['correctQuizCount'] = solved
+    payload['totalQuizCount'] = total
     return payload
+
+
+def _grammar_status_label(progress):
+    if not progress or not _row_value(progress, 'viewed_at'):
+        return '未学習'
+    if not _row_value(progress, 'last_tested_at'):
+        return '学習中'
+    return '合格' if bool(_row_value(progress, 'passed')) else 'テスト未合格'
 
 
 def _grammar_lesson_payload(row, progress=None, quiz_count=0, correct_quiz_count=0):
@@ -6502,7 +6587,10 @@ def _grammar_lesson_payload(row, progress=None, quiz_count=0, correct_quiz_count
                 ]
         except (TypeError, json.JSONDecodeError):
             sections = []
+    progress_payload = _grammar_progress_for_lesson(progress, quiz_count, correct_quiz_count)
+    status_label = _grammar_status_label(progress)
     return {
+        'id': row['lesson_id'],
         'lessonId': row['lesson_id'],
         'level': row['level'],
         'category': row['category'],
@@ -6516,11 +6604,19 @@ def _grammar_lesson_payload(row, progress=None, quiz_count=0, correct_quiz_count
         'learningGoal': row['learning_goal'] or '',
         'patterns': patterns,
         'patternCount': len(patterns),
+        'pattern_count': len(patterns),
         'sections': sections,
         'sectionCount': len(sections),
         'displayOrder': int(row['display_order'] or 0),
         'quizCount': int(quiz_count or 0),
-        'progress': _grammar_progress_for_lesson(progress, quiz_count, correct_quiz_count),
+        'question_count': int(quiz_count or 0),
+        'status': status_label,
+        'last_score': progress_payload['lastScore'] if progress_payload['lastTestedAt'] else None,
+        'best_score': progress_payload['bestScore'] if progress_payload['lastTestedAt'] else None,
+        'passed': progress_payload['passed'],
+        'viewed_at': progress_payload['viewedAt'],
+        'last_tested_at': progress_payload['lastTestedAt'],
+        'progress': progress_payload,
     }
 
 
@@ -6789,44 +6885,171 @@ def mark_grammar_lesson_viewed(child_id, lesson_id):
                             ELSE 'learning'
                         END,
                         view_count = view_count + 1,
+                        viewed_at = COALESCE(viewed_at, ?),
                         last_studied_at = ?,
                         updated_at = CURRENT_TIMESTAMP
                     WHERE child_id = ? AND (lesson_id = ? OR grammar_id = ?)
                     ''',
-                    (grammar_id, lesson_id, now, child_id, lesson_id, grammar_id),
+                    (grammar_id, lesson_id, now, now, child_id, lesson_id, grammar_id),
                 )
             else:
                 conn.execute(
                     '''
                     INSERT INTO child_grammar_progress (
-                        child_id, grammar_id, lesson_id, status, view_count, last_studied_at, created_at, updated_at
+                        child_id, grammar_id, lesson_id, status, view_count, viewed_at, last_studied_at, created_at, updated_at
                     )
-                    VALUES (?, ?, ?, 'learning', 1, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+                    VALUES (?, ?, ?, 'learning', 1, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
                     ''',
-                    (child_id, grammar_id, lesson_id, now),
+                    (child_id, grammar_id, lesson_id, now, now),
                 )
         else:
             conn.execute(
                 '''
                 INSERT INTO child_grammar_progress (
-                    child_id, lesson_id, status, view_count, last_studied_at, created_at, updated_at
+                    child_id, lesson_id, status, view_count, viewed_at, last_studied_at, created_at, updated_at
                 )
-                VALUES (?, ?, 'learning', 1, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+                VALUES (?, ?, 'learning', 1, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
                 ON CONFLICT(child_id, lesson_id) DO UPDATE SET
                     status = CASE
                         WHEN child_grammar_progress.status = 'mastered' THEN 'mastered'
                         ELSE 'learning'
                     END,
                     view_count = child_grammar_progress.view_count + 1,
+                    viewed_at = COALESCE(child_grammar_progress.viewed_at, excluded.viewed_at),
                     last_studied_at = excluded.last_studied_at,
                     updated_at = CURRENT_TIMESTAMP
                 ''',
-                (child_id, lesson_id, now),
+                (child_id, lesson_id, now, now),
             )
         conn.commit()
     finally:
         conn.close()
     return get_grammar_lesson_detail(child_id, lesson_id)
+
+
+def submit_grammar_lesson_test(child_id, lesson_id, answers):
+    child_id = require_child_id(child_id)
+    if not isinstance(answers, list) or not answers:
+        raise ValueError('answers must be a non-empty list')
+
+    submitted = {}
+    for answer in answers:
+        if not isinstance(answer, dict):
+            raise ValueError('each answer must be an object')
+        quiz_id = str(answer.get('quiz_id') or answer.get('quizId') or '').strip()
+        selected = answer.get('selected_index') if 'selected_index' in answer else answer.get('selectedIndex')
+        if not quiz_id:
+            raise ValueError('quiz_id is required')
+        try:
+            submitted[quiz_id] = int(selected)
+        except (TypeError, ValueError):
+            raise ValueError('selected_index must be an integer')
+
+    lesson_conn = get_grammar_lesson_db_connection()
+    try:
+        lesson_row = lesson_conn.execute(
+            'SELECT lesson_id, level, title FROM grammar_lessons WHERE lesson_id = ? AND is_active = 1',
+            (lesson_id,),
+        ).fetchone()
+        if not lesson_row:
+            raise LookupError('grammar lesson not found')
+        if normalize_target_level(lesson_row['level']) != get_child_target_level(child_id):
+            raise LookupError('grammar lesson not available for child')
+        quiz_rows = lesson_conn.execute(
+            'SELECT quiz_id, answer_index FROM grammar_quizzes WHERE lesson_id = ?',
+            (lesson_id,),
+        ).fetchall()
+    finally:
+        lesson_conn.close()
+
+    answer_keys = {row['quiz_id']: int(row['answer_index']) for row in quiz_rows}
+    unknown_ids = set(submitted) - set(answer_keys)
+    if unknown_ids:
+        raise ValueError('answer contains a quiz outside this lesson')
+
+    total_questions = len(submitted)
+    score = sum(1 for quiz_id, selected in submitted.items() if answer_keys[quiz_id] == selected)
+    passed = score / total_questions >= 0.8
+    now = get_now_iso()
+    grammar_id = get_grammar_id_for_lesson(lesson_id)
+    conn = get_db_connection()
+    try:
+        progress_columns = _sqlite_table_columns(conn, 'child_grammar_progress')
+        existing = _find_child_grammar_progress_row(conn, child_id, lesson_id, grammar_id, progress_columns)
+        if existing:
+            where_sql = 'child_id = ? AND (lesson_id = ? OR grammar_id = ?)' if 'grammar_id' in progress_columns else 'child_id = ? AND lesson_id = ?'
+            params = (
+                'mastered' if passed else 'learning',
+                score,
+                score,
+                score,
+                total_questions,
+                1 if passed else 0,
+                now,
+                now,
+                now,
+                now if passed else None,
+                now if passed else None,
+                child_id,
+                lesson_id,
+            )
+            if 'grammar_id' in progress_columns:
+                params += (grammar_id,)
+            conn.execute(
+                f'''
+                UPDATE child_grammar_progress
+                SET status = ?,
+                    last_score = ?,
+                    best_score = CASE WHEN best_score > ? THEN best_score ELSE ? END,
+                    total_questions = ?,
+                    passed = ?,
+                    attempts_count = attempts_count + 1,
+                    viewed_at = COALESCE(viewed_at, ?),
+                    last_tested_at = ?,
+                    last_studied_at = ?,
+                    mastered_at = CASE WHEN ? IS NOT NULL THEN COALESCE(mastered_at, ?) ELSE mastered_at END,
+                    updated_at = CURRENT_TIMESTAMP
+                WHERE {where_sql}
+                ''',
+                params,
+            )
+        else:
+            grammar_columns = ', grammar_id' if 'grammar_id' in progress_columns else ''
+            grammar_placeholder = ', ?' if 'grammar_id' in progress_columns else ''
+            params = [child_id, lesson_id]
+            if 'grammar_id' in progress_columns:
+                params.append(grammar_id)
+            params.extend([
+                'mastered' if passed else 'learning', score, score, total_questions,
+                1 if passed else 0, now, now, now, now if passed else None,
+            ])
+            conn.execute(
+                f'''
+                INSERT INTO child_grammar_progress (
+                    child_id, lesson_id{grammar_columns}, status, view_count, last_score,
+                    best_score, total_questions, passed, attempts_count, viewed_at,
+                    last_tested_at, last_studied_at, mastered_at, created_at, updated_at
+                ) VALUES (?, ?{grammar_placeholder}, ?, 1, ?, ?, ?, ?, 1, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+                ''',
+                tuple(params),
+            )
+        conn.commit()
+    finally:
+        conn.close()
+
+    lesson = get_grammar_lesson_detail(child_id, lesson_id)['lesson']
+    return {
+        'child_id': child_id,
+        'lesson_id': lesson_id,
+        'score': score,
+        'total_questions': total_questions,
+        'passed': passed,
+        'status': lesson['status'],
+        'last_score': lesson['last_score'],
+        'best_score': lesson['best_score'],
+        'attempts_count': lesson['progress']['attemptsCount'],
+        'last_tested_at': lesson['last_tested_at'],
+    }
 
 
 def submit_grammar_quiz_answer(child_id, quiz_id, selected_index):
@@ -9176,6 +9399,107 @@ def api_eiken_real_exam_asset(asset_path):
         if os.path.isfile(os.path.join(resource_root, candidate)):
             return send_from_directory(resource_root, candidate)
     abort(404, 'asset not found')
+
+
+def get_eiken_interview_root():
+    return data_path(EIKEN_PRE2_INTERVIEW_ROOT)
+
+
+def _eiken_interview_set_summary(row):
+    set_id = int(row['id'])
+    return {
+        'id': set_id,
+        'external_id': row['external_id'],
+        'level': row['level'],
+        'title': row['title'],
+        'passage_title': row['passage_title'],
+        'image_url': f"/api/eiken-interview/assets/{row['image_filename']}",
+        'display_order': int(row['display_order'] or 0),
+    }
+
+
+def get_eiken_interview_sets():
+    init_db()
+    conn = get_db_connection()
+    try:
+        rows = conn.execute(
+            '''
+            SELECT id, external_id, level, title, passage_title, image_filename, display_order
+            FROM eiken_interview_sets
+            WHERE is_active = 1
+            ORDER BY display_order ASC, id ASC
+            '''
+        ).fetchall()
+    finally:
+        conn.close()
+    return [_eiken_interview_set_summary(row) for row in rows]
+
+
+def get_eiken_interview_set_detail(set_id):
+    init_db()
+    conn = get_db_connection()
+    try:
+        row = conn.execute(
+            '''
+            SELECT id, external_id, level, title, passage_title, passage_text,
+                   image_filename, display_order
+            FROM eiken_interview_sets
+            WHERE id = ? AND is_active = 1
+            ''',
+            (set_id,),
+        ).fetchone()
+        if not row:
+            raise LookupError('interview set not found')
+        question_rows = conn.execute(
+            '''
+            SELECT id, question_order, question_type, question_text, model_answer, tip_ja
+            FROM eiken_interview_questions
+            WHERE set_id = ?
+            ORDER BY question_order ASC, id ASC
+            ''',
+            (set_id,),
+        ).fetchall()
+    finally:
+        conn.close()
+    payload = _eiken_interview_set_summary(row)
+    payload['passage_text'] = row['passage_text']
+    payload['questions'] = [
+        {
+            'id': int(question['id']),
+            'question_order': int(question['question_order']),
+            'question_type': question['question_type'],
+            'question_text': question['question_text'],
+            'model_answer': question['model_answer'],
+            'tip_ja': question['tip_ja'],
+        }
+        for question in question_rows
+    ]
+    return payload
+
+
+@app.route('/api/eiken-interview/assets/<path:filename>')
+def api_eiken_interview_asset(filename):
+    normalized = str(filename or '').replace('\\', '/')
+    if '/' in normalized or not EIKEN_PRE2_INTERVIEW_IMAGE_RE.fullmatch(normalized):
+        abort(404, 'asset not found')
+    root = get_eiken_interview_root()
+    if not os.path.isfile(os.path.join(root, normalized)):
+        abort(404, 'asset not found')
+    return send_from_directory(root, normalized, mimetype='image/png')
+
+
+@app.route('/api/eiken-interview/sets')
+def api_eiken_interview_sets():
+    return jsonify({'sets': get_eiken_interview_sets()})
+
+
+@app.route('/api/eiken-interview/sets/<int:set_id>')
+def api_eiken_interview_set_detail(set_id):
+    try:
+        payload = get_eiken_interview_set_detail(set_id)
+    except LookupError as exc:
+        abort(404, str(exc))
+    return jsonify({'set': payload})
 
 
 @app.route('/api/tts')
@@ -12088,6 +12412,7 @@ def api_grammar_lesson_detail(lesson_id):
 
 
 @app.route('/api/grammar/lessons/<lesson_id>/view', methods=['POST'])
+@app.route('/api/grammar/lessons/<lesson_id>/viewed', methods=['POST'])
 def api_grammar_lesson_view(lesson_id):
     data = request.get_json(silent=True) or {}
     try:
@@ -12098,6 +12423,22 @@ def api_grammar_lesson_view(lesson_id):
         abort(404, str(exc))
     except FileNotFoundError as exc:
         abort(500, str(exc))
+    return jsonify(result)
+
+
+@app.route('/api/grammar/lessons/<lesson_id>/submit', methods=['POST'])
+def api_grammar_lesson_submit(lesson_id):
+    data = request.get_json(silent=True) or {}
+    try:
+        result = submit_grammar_lesson_test(
+            data.get('child_id') or data.get('childId'),
+            lesson_id,
+            data.get('answers'),
+        )
+    except ValueError as exc:
+        abort(400, str(exc))
+    except LookupError as exc:
+        abort(404, str(exc))
     return jsonify(result)
 
 

@@ -111,6 +111,7 @@ export default function GrammarQuestPage() {
   const [rewardSaving, setRewardSaving] = useState(false);
   const [error, setError] = useState('');
   const fromDailyQuest = searchParams.get('from') === 'daily-quest';
+  const requestedLessonId = searchParams.get('lessonId') || '';
 
   useEffect(() => {
     if (!selectedChildId) return;
@@ -139,7 +140,8 @@ export default function GrammarQuestPage() {
           return null;
         }
         const lessons = payload.lessons || [];
-        const lessonId = payload.todayLesson?.lessonId || lessons[0]?.lessonId;
+        const requestedLesson = lessons.find((item) => item.lessonId === requestedLessonId);
+        const lessonId = requestedLesson?.lessonId || payload.todayLesson?.lessonId || lessons[0]?.lessonId;
         if (!lessonId) throw new Error('No grammar lesson found.');
         return getGrammarLesson({ childId: selectedChildId, lessonId });
       })
@@ -159,7 +161,7 @@ export default function GrammarQuestPage() {
         setUsingMockFallback(true);
       })
       .finally(() => setLessonLoading(false));
-  }, [selectedChildId]);
+  }, [requestedLessonId, selectedChildId]);
 
   const currentQuestion = questions[questionIndex] || questions[0];
   const score = useMemo(

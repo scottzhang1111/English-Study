@@ -1,14 +1,28 @@
 import json
 import os
+import sqlite3
 import sys
 from pathlib import Path
+from urllib.parse import urlparse
 
 
 ROOT_DIR = Path(__file__).resolve().parent.parent
 if str(ROOT_DIR) not in sys.path:
     sys.path.insert(0, str(ROOT_DIR))
 
-import app  # noqa: E402
+
+def load_project_database_url():
+    env_path = ROOT_DIR / ".env"
+    if env_path.exists():
+        for raw_line in env_path.read_text(encoding="utf-8-sig").splitlines():
+            line = raw_line.strip()
+            if not line or line.startswith("#") or "=" not in line:
+                continue
+            key, value = line.split("=", 1)
+            if key.strip() == "DATABASE_URL" and value.strip():
+                os.environ["DATABASE_URL"] = value.strip().strip('"').strip("'")
+                return ".env"
+    return "process environment" if os.environ.get("DATABASE_URL", "").strip() else "local SQLite"
 
 
 LESSONS = [
@@ -113,7 +127,7 @@ LESSONS = [
 
 
 def column_names(conn, table):
-    if app.use_postgres():
+    if not isinstance(conn, sqlite3.Connection):
         rows = conn.execute(
             """
             SELECT column_name AS name
@@ -216,8 +230,74 @@ def upsert_quiz(conn, lesson, quiz_index, quiz):
     )
 
 
+def database_target_label():
+    database_url = os.environ.get("DATABASE_URL", "").strip()
+    if not database_url:
+        return f"SQLite {ROOT_DIR / 'eigo_quest_local_v1.sqlite'}"
+    parsed = urlparse(database_url)
+    return f"PostgreSQL host={parsed.hostname} database={parsed.path.lstrip('/')}"
+
+
+def verify_seed(conn):
+    lesson_rows = conn.execute(
+        """
+        SELECT lesson_id AS id, level, category, title, grammar_point
+        FROM grammar_lessons
+        WHERE level = 'eiken_pre2'
+          AND title IN ('Doing', 'Do', 'To Do')
+        ORDER BY lesson_id
+        """
+    ).fetchall()
+    quiz_rows = conn.execute(
+        """
+        SELECT lesson_id, COUNT(*) AS quiz_count
+        FROM grammar_quizzes
+        WHERE lesson_id IN (
+            'G-PREP2-PATTERN-DOING',
+            'G-PREP2-PATTERN-DO',
+            'G-PREP2-PATTERN-TO-DO'
+        )
+        GROUP BY lesson_id
+        ORDER BY lesson_id
+        """
+    ).fetchall()
+    return lesson_rows, quiz_rows
+
+
+class DirectPostgresConnection:
+    def __init__(self, connection):
+        self.connection = connection
+
+    def execute(self, sql, params=None):
+        from psycopg2.extras import DictCursor
+
+        cursor = self.connection.cursor(cursor_factory=DictCursor)
+        cursor.execute(sql.replace("?", "%s"), params or ())
+        return cursor
+
+    def commit(self):
+        self.connection.commit()
+
+    def close(self):
+        self.connection.close()
+
+
+def connect_database():
+    database_url = os.environ.get("DATABASE_URL", "").strip()
+    if database_url:
+        import psycopg2
+
+        return DirectPostgresConnection(psycopg2.connect(database_url))
+    conn = sqlite3.connect(ROOT_DIR / "eigo_quest_local_v1.sqlite")
+    conn.row_factory = sqlite3.Row
+    return conn
+
+
 def main():
-    conn = app.get_db_connection()
+    database_source = load_project_database_url()
+    print(f"Database source: {database_source}")
+    print(f"Database target: {database_target_label()}")
+    conn = connect_database()
     try:
         ensure_patterns_column(conn)
         for lesson in LESSONS:
@@ -225,9 +305,16 @@ def main():
             for index, quiz in enumerate(lesson["quizzes"], start=1):
                 upsert_quiz(conn, lesson, index, quiz)
         conn.commit()
+        lesson_rows, quiz_rows = verify_seed(conn)
     finally:
         conn.close()
     print(f"Seeded {len(LESSONS)} eiken_pre2 grammar pattern lessons.")
+    print("LESSONS")
+    for row in lesson_rows:
+        print(f"{row['id']} | {row['level']} | {row['category']} | {row['title']} | {row['grammar_point']}")
+    print("QUIZZES")
+    for row in quiz_rows:
+        print(f"{row['lesson_id']} | {row['quiz_count']}")
 
 
 if __name__ == "__main__":

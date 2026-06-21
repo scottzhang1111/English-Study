@@ -43,6 +43,22 @@ const moduleEntries = [
     image: `${ASSET_BASE}/英検クエスト.png`,
   },
   {
+    title: '面接ガイド',
+    subtitle: '面接練習の前に7つのコツを覚えよう',
+    badge: '面接',
+    to: '/interview-guide',
+    image: `${ASSET_BASE}/英検クエスト.png`,
+    pre2Only: true,
+  },
+  {
+    title: 'AI面接練習',
+    subtitle: '英検準2級の流れで5つの質問に答えよう',
+    badge: '準2級',
+    to: '/interview',
+    image: `${ASSET_BASE}/英検クエスト.png`,
+    pre2Only: true,
+  },
+  {
     title: '英検本番形式',
     subtitle: '本番そっくりの問題で実力をチェック！',
     badge: '英検',
@@ -77,6 +93,15 @@ export default function LearningHubPage() {
   const { children, selectedChildId, setSelectedChildId } = useChildren();
   const { resumeGlobalBgm } = useBgm();
   const currentChild = (children || []).find((c) => String(c.id) === String(selectedChildId)) || (children && children.length ? children[0] : null);
+  const targetLevel = String(
+    currentChild?.targetLevel
+      || currentChild?.target_level
+      || currentChild?.learningGoal
+      || currentChild?.learning_goal
+      || '',
+  ).toLowerCase();
+  const isPre2Child = targetLevel === 'eiken_pre2' || targetLevel.includes('準2') || targetLevel.includes('準２');
+  const visibleModuleEntries = moduleEntries.filter((entry) => !entry.pre2Only || isPre2Child);
 
   function resolveWorldId(child) {
     const rawWorldId = child?.current_world_id || child?.currentWorldId || child?.current_world || child?.currentWorld || 1;
@@ -151,7 +176,7 @@ export default function LearningHubPage() {
         </button>
 
         <section className="eq-learning-hub-rpg-grid" aria-label="学習メニュー">
-          {moduleEntries.map((entry) => (
+          {visibleModuleEntries.map((entry) => (
             <Link
               key={entry.to}
               to={entry.to}

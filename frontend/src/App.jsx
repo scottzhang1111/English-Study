@@ -16,6 +16,10 @@ import VocabExpansionPage from './pages/VocabExpansionPage';
 import GrammarPage from './pages/GrammarPage';
 import GrammarFormPracticePage from './pages/GrammarFormPracticePage';
 import GrammarQuestPage from './pages/GrammarQuestPage';
+import InterviewGuidePage from './pages/InterviewGuidePage';
+import InterviewSetListPage from './pages/InterviewSetListPage';
+import InterviewPracticePage from './pages/InterviewPracticePage';
+import InterviewResultPage from './pages/InterviewResultPage';
 import AiPracticePage from './pages/AiPracticePage';
 import EssayCheckPage from './pages/EssayCheckPage';
 import EssayCheckResultPage from './pages/EssayCheckResultPage';
@@ -96,6 +100,8 @@ const STUDY_ROUTE_PREFIXES = [
   '/vocab-expansion',
   '/grammar-practice',
   '/grammar-quest',
+  '/interview-guide',
+  '/interview',
   '/ai-practice',
   '/essay-check',
   '/battle',
@@ -156,6 +162,10 @@ function App() {
             <Route path="/grammar" element={<AnimatedPage><ChildRequiredPage><GrammarPage /></ChildRequiredPage></AnimatedPage>} />
             <Route path="/grammar-practice" element={<AnimatedPage><ChildRequiredPage><GrammarFormPracticePage /></ChildRequiredPage></AnimatedPage>} />
             <Route path="/grammar-quest" element={<AnimatedPage><ChildRequiredPage><GrammarQuestPage /></ChildRequiredPage></AnimatedPage>} />
+            <Route path="/interview-guide" element={<AnimatedPage><ChildRequiredPage><InterviewGuidePage /></ChildRequiredPage></AnimatedPage>} />
+            <Route path="/interview" element={<AnimatedPage><ChildRequiredPage><InterviewSetListPage /></ChildRequiredPage></AnimatedPage>} />
+            <Route path="/interview/result/:setId" element={<AnimatedPage><ChildRequiredPage><InterviewResultPage /></ChildRequiredPage></AnimatedPage>} />
+            <Route path="/interview/:setId" element={<AnimatedPage><ChildRequiredPage><InterviewPracticePage /></ChildRequiredPage></AnimatedPage>} />
             <Route path="/ai-practice" element={<AnimatedPage><AiPracticePage /></AnimatedPage>} />
             <Route path="/essay-check" element={<AnimatedPage><ChildRequiredPage><EssayCheckPage /></ChildRequiredPage></AnimatedPage>} />
             <Route path="/essay-check/result" element={<AnimatedPage><ChildRequiredPage><EssayCheckResultPage /></ChildRequiredPage></AnimatedPage>} />

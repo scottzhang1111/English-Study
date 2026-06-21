@@ -14,8 +14,8 @@ const DEFAULT_LEARNING_GOAL = 'eiken_pre2';
 const DEFAULT_DAILY_TARGET = 20;
 
 const LEARNING_GOALS = [
-  { value: 'eiken3', label: '英検3級をめざす' },
-  { value: 'eiken_pre2', label: '英検準2級をめざす' },
+  { value: 'eiken3', targetLevel: '三級', label: '英検3級をめざす' },
+  { value: 'eiken_pre2', targetLevel: '準2級', label: '英検準2級をめざす' },
 ];
 
 const DAILY_TARGETS = [
@@ -70,10 +70,12 @@ export default function CreateChildProfilePage() {
     setError('');
     setIsSubmitting(true);
     try {
+      const selectedGoal = LEARNING_GOALS.find((goal) => goal.value === learningGoal);
       const result = await saveChildProfile({
         nickname: trimmedNickname,
         avatar,
         learning_goal: learningGoal,
+        target_level: selectedGoal?.targetLevel || '準2級',
         grade: learningGoal,
         daily_target: DEFAULT_DAILY_TARGET,
         daily_word_target: DEFAULT_DAILY_TARGET,

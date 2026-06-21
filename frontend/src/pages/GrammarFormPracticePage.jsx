@@ -8,7 +8,7 @@ import {
   EQPanel,
   EQPrimaryButton,
 } from '../components/eigo';
-import { getGrammarLesson, submitGrammarQuizAnswer } from '../api';
+import { getGrammarLesson, submitGrammarLessonTest, submitGrammarQuizAnswer } from '../api';
 import CompactPageHeader from '../components/eigo/CompactPageHeader';
 import { savePendingRewardQueue } from '../helpers/eigoQuestRewards';
 
@@ -48,6 +48,8 @@ export default function GrammarFormPracticePage() {
   const [retryQuestions, setRetryQuestions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
+  const [finalizing, setFinalizing] = useState(false);
+  const [lessonTestResult, setLessonTestResult] = useState(null);
   const [error, setError] = useState('');
 
   const question = questions[index] || null;
@@ -69,6 +71,7 @@ export default function GrammarFormPracticePage() {
     setSelectedIndex(null);
     setAnswerResult(null);
     setResults([]);
+    setLessonTestResult(null);
     setRetryQuestions([]);
     setLesson(null);
     if (!lessonId) {
@@ -109,22 +112,40 @@ export default function GrammarFormPracticePage() {
       .finally(() => setSubmitting(false));
   };
 
-  const handleNext = () => {
+  const handleNext = async () => {
     if (!isLast) {
       setIndex((current) => current + 1);
       setSelectedIndex(null);
       setAnswerResult(null);
       return;
     }
+    const completedResults = answerResult && !results.some((item) => item.quizId === answerResult.quizId)
+      ? [...results, answerResult]
+      : results;
+    setFinalizing(true);
+    try {
+      const testResult = await submitGrammarLessonTest({
+        childId,
+        lessonId,
+        answers: completedResults.map((result) => ({
+          quiz_id: result.quizId,
+          selected_index: result.selectedIndex,
+        })),
+      });
+      setLessonTestResult(testResult);
+    } catch (err) {
+      setError(err.message || 'テスト結果を保存できませんでした。');
+      return;
+    } finally {
+      setFinalizing(false);
+    }
+
     const nextRetryQuestions = questions.filter((item) => missedQuizIds.includes(item.quizId));
     if (nextRetryQuestions.length) {
       setRetryQuestions(nextRetryQuestions);
       setIndex(questions.length);
       return;
     }
-    const completedResults = answerResult && !results.some((item) => item.quizId === answerResult.quizId)
-      ? [...results, answerResult]
-      : results;
     const rewardQueue = collectRewardQueue(completedResults);
     if (rewardQueue.length) {
       savePendingRewardQueue(rewardQueue.map((reward) => ({
@@ -146,6 +167,7 @@ export default function GrammarFormPracticePage() {
     setSelectedIndex(null);
     setAnswerResult(null);
     setResults([]);
+    setLessonTestResult(null);
     setRetryQuestions([]);
   };
 
@@ -190,9 +212,9 @@ export default function GrammarFormPracticePage() {
       return (
         <EQPanel title={hasMissedQuestions ? 'あと少し！' : '結果'} tone="gold">
           <div className="flex flex-wrap gap-2">
-            <EQBadge tone="gold">正解 {correctCount} / {questions.length}</EQBadge>
-            <EQBadge tone={remainingToPass === 0 ? 'green' : 'rose'}>
-              合格まで {remainingToPass} 問
+            <EQBadge tone="gold">正解 {lessonTestResult?.score ?? correctCount} / {lessonTestResult?.total_questions ?? questions.length}</EQBadge>
+            <EQBadge tone={lessonTestResult?.passed ? 'green' : 'rose'}>
+              {lessonTestResult?.passed ? '合格' : 'もう一度やってみよう'}
             </EQBadge>
           </div>
           <p className="eq-caption">
@@ -251,7 +273,7 @@ export default function GrammarFormPracticePage() {
         {!answerResult ? (
           <EQPrimaryButton
             type="button"
-            disabled={selectedIndex === null || submitting}
+            disabled={selectedIndex === null || submitting || finalizing}
             onClick={handleAnswer}
             className="eq-grammar-test-main-button"
             fullWidth
@@ -270,8 +292,8 @@ export default function GrammarFormPracticePage() {
             {!answerResult.isCorrect && selectedAnswerText ? (
               <p className="eq-grammar-test-selected-answer">選んだ答え: {selectedAnswerText}</p>
             ) : null}
-            <EQPrimaryButton type="button" onClick={handleNext} className="eq-grammar-test-main-button" fullWidth>
-              {isLast ? '結果を見る' : '次へ'}
+            <EQPrimaryButton type="button" disabled={finalizing} onClick={handleNext} className="eq-grammar-test-main-button" fullWidth>
+              {finalizing ? '結果を保存中...' : isLast ? '結果を見る' : '次へ'}
             </EQPrimaryButton>
           </div>
         )}
