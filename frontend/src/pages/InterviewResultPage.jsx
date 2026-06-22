@@ -153,9 +153,10 @@ export default function InterviewResultPage() {
 
       <section className="eq-interview-result-list" aria-label="回答一覧">
         {(interviewSet.questions || []).map((question) => {
-          const answerKey = String(question.id || question.question_order);
-          const answer = answers[answerKey]?.trim();
-          const feedback = feedbacks[answerKey];
+          const answerKey = String(question.question_order);
+          const legacyAnswerKey = question.id ? String(question.id) : '';
+          const answer = (answers[answerKey] || answers[legacyAnswerKey] || '').trim();
+          const feedback = feedbacks[answerKey] || feedbacks[legacyAnswerKey];
           return (
             <EQFantasyCard
               key={question.id}
@@ -187,7 +188,7 @@ export default function InterviewResultPage() {
                   ) : null}
                   <p><b>Good point</b>{feedback.good_point_ja}</p>
                   <p><b>Fix point</b>{feedback.fix_point_ja}</p>
-                  <p><b>Model answer</b>{feedback.model_answer_en || question.model_answer}</p>
+                  <p><b>Better answer</b>{feedback.model_answer_en || question.model_answer}</p>
                   {feedback.model_answer_ja ? <p><b>日本語</b>{feedback.model_answer_ja}</p> : null}
                 </div>
               ) : null}

@@ -7278,8 +7278,33 @@ textarea {
   opacity: 1;
 }
 
-.eq-interview-question-audio {
+.eq-interview-question-audio,
+.eq-interview-question-actions {
   margin-bottom: 12px;
+}
+
+.eq-interview-question-actions {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.eq-interview-question-actions > * {
+  min-width: 0;
+}
+
+.eq-interview-question-actions .eq-fantasy-button-v2 {
+  min-height: 50px;
+  padding: 10px 12px;
+  font-size: 13px;
+}
+
+.eq-interview-question-actions .eq-fantasy-button-v2.is-listening {
+  border-color: rgba(255, 111, 139, .9);
+  background: linear-gradient(180deg, #ff7893, #b91f48);
+  color: #fff;
+  box-shadow: 0 0 20px rgba(255, 74, 115, .36);
+  opacity: 1;
 }
 
 .eq-interview-speech-message {

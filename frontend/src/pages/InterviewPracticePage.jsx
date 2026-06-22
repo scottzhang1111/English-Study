@@ -71,6 +71,14 @@ function speakInterviewText(text) {
   return true;
 }
 
+function getQuestionSpeechText(question) {
+  if (!question) return '';
+  const pictureGuidance = Number(question.question_order) === 2
+    ? 'Please look at the picture. '
+    : '';
+  return `${pictureGuidance}Question ${question.question_order}. ${question.question_text}`;
+}
+
 export default function InterviewPracticePage() {
   const { setId } = useParams();
   const navigate = useNavigate();
@@ -89,6 +97,8 @@ export default function InterviewPracticePage() {
   const [imageFailed, setImageFailed] = useState(false);
   const [isReadingListening, setIsReadingListening] = useState(false);
   const [readingSpeechMessage, setReadingSpeechMessage] = useState('');
+  const [isQuestionListening, setIsQuestionListening] = useState(false);
+  const [questionSpeechMessage, setQuestionSpeechMessage] = useState('');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const guidanceSpokenRef = useRef(false);
@@ -154,7 +164,7 @@ export default function InterviewPracticePage() {
     const speechKey = `${interviewSet.id}:${currentQuestion.question_order}`;
     if (spokenQuestionRef.current === speechKey) return;
     spokenQuestionRef.current = speechKey;
-    speakInterviewText(`Question ${currentQuestion.question_order}. ${currentQuestion.question_text}`);
+    speakInterviewText(getQuestionSpeechText(currentQuestion));
   }, [canPractice, interviewSet, loading, step]);
 
   useEffect(() => () => {
@@ -201,15 +211,17 @@ export default function InterviewPracticePage() {
     );
   }
 
-  const answerKey = question ? String(question.id || question.question_order) : '';
-  const currentAnswer = answers[answerKey] || '';
-  const currentFeedback = feedbacks[answerKey] || null;
+  const answerKey = question ? String(question.question_order) : '';
+  const legacyAnswerKey = question?.id ? String(question.id) : '';
+  const currentAnswer = answers[answerKey] || answers[legacyAnswerKey] || '';
+  const currentFeedback = feedbacks[answerKey] || feedbacks[legacyAnswerKey] || null;
   const isChecking = checkingQuestionKey === answerKey;
 
   function updateAnswer(value) {
     const next = { ...answers, [answerKey]: value };
     const nextFeedbacks = { ...feedbacks };
     delete nextFeedbacks[answerKey];
+    if (legacyAnswerKey) delete nextFeedbacks[legacyAnswerKey];
     setAnswers(next);
     setFeedbacks(nextFeedbacks);
     setFeedbackMessage('');
@@ -219,7 +231,7 @@ export default function InterviewPracticePage() {
   async function checkAnswerWithAi() {
     const studentAnswer = currentAnswer.trim();
     if (!studentAnswer) {
-      setFeedbackMessage('まず答えを書いてね');
+      setFeedbackMessage('まず答えてね');
       return;
     }
 
@@ -315,7 +327,66 @@ export default function InterviewPracticePage() {
 
   function repeatQuestion() {
     if (!question) return;
-    speakInterviewText(`Question ${question.question_order}. ${question.question_text}`);
+    setQuestionSpeechMessage('');
+    speakInterviewText(getQuestionSpeechText(question));
+  }
+
+  function stopQuestionRecognition({ abort = false } = {}) {
+    const recognition = recognitionRef.current;
+    if (recognition) {
+      if (abort) {
+        recognition.onresult = null;
+        recognition.onerror = null;
+        recognition.onend = null;
+        recognition.abort();
+        recognitionRef.current = null;
+      } else {
+        recognition.stop();
+      }
+    }
+    setIsQuestionListening(false);
+  }
+
+  function startQuestionRecognition() {
+    if (typeof window === 'undefined' || !question) return;
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SpeechRecognition) {
+      setQuestionSpeechMessage('このブラウザでは音声入力を利用できません。文字で入力してね。');
+      return;
+    }
+
+    stopQuestionRecognition({ abort: true });
+    if (window.speechSynthesis) window.speechSynthesis.cancel();
+    setQuestionSpeechMessage('');
+    const recognition = new SpeechRecognition();
+    recognition.lang = 'en-US';
+    recognition.continuous = true;
+    recognition.interimResults = true;
+    recognition.maxAlternatives = 1;
+    recognition.onresult = (event) => {
+      const parts = [];
+      for (let index = 0; index < event.results.length; index += 1) {
+        const part = event.results[index]?.[0]?.transcript?.trim();
+        if (part) parts.push(part);
+      }
+      if (parts.length) updateAnswer(parts.join(' '));
+    };
+    recognition.onerror = () => {
+      setQuestionSpeechMessage('このブラウザでは音声入力を利用できません。文字で入力してね。');
+    };
+    recognition.onend = () => {
+      if (recognitionRef.current === recognition) recognitionRef.current = null;
+      setIsQuestionListening(false);
+    };
+    recognitionRef.current = recognition;
+    setIsQuestionListening(true);
+    try {
+      recognition.start();
+    } catch (err) {
+      recognitionRef.current = null;
+      setIsQuestionListening(false);
+      setQuestionSpeechMessage('このブラウザでは音声入力を利用できません。文字で入力してね。');
+    }
   }
 
   function repeatReadingGuidance() {
@@ -367,6 +438,7 @@ export default function InterviewPracticePage() {
 
   function goNext() {
     stopReadingRecognition({ abort: true });
+    stopQuestionRecognition({ abort: true });
     if (step >= questions.length) {
       writePracticeState(childId, setId, answers, feedbacks, readingTranscript, readingFeedback, step);
       navigate(`/interview/result/${setId}`);
@@ -377,6 +449,7 @@ export default function InterviewPracticePage() {
     setStep(nextStep);
     setShowModel(false);
     setFeedbackMessage('');
+    setQuestionSpeechMessage('');
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
@@ -513,31 +586,47 @@ export default function InterviewPracticePage() {
               onChange={(event) => updateAnswer(event.target.value)}
               placeholder="英語で答えを書いてみよう"
               rows="5"
-              disabled={isChecking}
+              disabled={isQuestionListening || isChecking}
             />
           </label>
 
-          <div className="eq-interview-question-audio">
+          <div className="eq-interview-question-actions">
+            <EQFantasyButton
+              fullWidth
+              disabled={isQuestionListening || isChecking}
+              onClick={startQuestionRecognition}
+            >
+              🎤 回答を録音
+            </EQFantasyButton>
             <EQFantasyButton
               variant="blue"
               fullWidth
-              disabled={isChecking}
+              className={isQuestionListening ? 'is-listening' : ''}
+              disabled={!isQuestionListening}
+              onClick={() => stopQuestionRecognition()}
+            >
+              停止
+            </EQFantasyButton>
+            <EQFantasyButton
+              variant="blue"
+              fullWidth
+              disabled={isQuestionListening || isChecking}
               onClick={repeatQuestion}
             >
               🔊 もう一度聞く
             </EQFantasyButton>
+            <EQFantasyButton
+              variant="blue"
+              fullWidth
+              disabled={isQuestionListening || isChecking}
+              onClick={checkAnswerWithAi}
+            >
+              {isChecking ? 'AIチェック中...' : 'AIチェック'}
+            </EQFantasyButton>
           </div>
 
+          {questionSpeechMessage ? <p className="eq-interview-speech-message" role="status">{questionSpeechMessage}</p> : null}
           {feedbackMessage ? <p className="eq-interview-feedback-message" role="status">{feedbackMessage}</p> : null}
-
-          <EQFantasyButton
-            variant="blue"
-            fullWidth
-            disabled={isChecking}
-            onClick={checkAnswerWithAi}
-          >
-            {isChecking ? 'AIチェック中...' : 'AIチェック'}
-          </EQFantasyButton>
 
           {currentFeedback ? (
             <div className="eq-interview-ai-feedback" aria-live="polite">
@@ -553,7 +642,7 @@ export default function InterviewPracticePage() {
               <dl>
                 <div><dt>Good point</dt><dd>{currentFeedback.good_point_ja}</dd></div>
                 <div><dt>Fix point</dt><dd>{currentFeedback.fix_point_ja}</dd></div>
-                <div><dt>Model answer</dt><dd>{currentFeedback.model_answer_en || question.model_answer}</dd></div>
+                <div><dt>Better answer</dt><dd>{currentFeedback.model_answer_en || question.model_answer}</dd></div>
               </dl>
             </div>
           ) : null}
