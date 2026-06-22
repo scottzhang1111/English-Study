@@ -387,105 +387,106 @@ export default function InterviewPracticePage() {
         title={interviewSet.title}
         subtitle={step === 0 ? 'パッセージを声に出して読んでみよう' : `Question ${step} / ${questions.length}`}
         badges={[step === 0 ? 'PASSAGE' : `Q${step}`, `進行 ${step}/${questions.length}`]}
+        className={step === 0 ? 'eq-interview-reading-hero' : ''}
       />
 
       {step === 0 ? (
-        <EQFantasyCard eyebrow="PASSAGE READING" title={interviewSet.passage_title} className="eq-interview-practice-card">
-          <div className="eq-interview-reading-guidance">
-            <strong>Please read the passage aloud.</strong>
-            <span>パッセージを声に出して読んでみよう</span>
-          </div>
-          <div className="eq-interview-passage-layout">
-            <p className="eq-interview-passage">{interviewSet.passage_text}</p>
-            <div className="eq-interview-passage-visual">
-              {interviewSet.image_url && !imageFailed ? (
-                <img
-                  className="eq-interview-question-image eq-interview-passage-image"
-                  src={interviewSet.image_url}
-                  alt={`${interviewSet.title}のイラスト`}
-                  onError={() => setImageFailed(true)}
-                />
-              ) : (
-                <p className="eq-interview-image-fallback" role="status">画像を読み込めませんでした。文章を参考に答えてみよう。</p>
-              )}
-            </div>
-          </div>
-
-          <label className="eq-interview-answer-field eq-interview-reading-transcript">
-            <span>音読した内容</span>
-            <textarea
-              value={readingTranscript}
-              onChange={(event) => updateReadingTranscript(event.target.value)}
-              placeholder="音声入力の結果がここに入ります。文字で入力しても大丈夫です。"
-              rows="6"
-              disabled={isReadingListening || isCheckingReading}
-            />
-          </label>
-
-          <div className="eq-interview-reading-actions">
-            <EQFantasyButton
-              variant="blue"
-              fullWidth
-              disabled={isReadingListening || isCheckingReading}
-              onClick={repeatReadingGuidance}
-            >
-              🔊 もう一度聞く
-            </EQFantasyButton>
-            <EQFantasyButton
-              fullWidth
-              disabled={isReadingListening || isCheckingReading}
-              onClick={startReadingRecognition}
-            >
-              🎤 音読を録音
-            </EQFantasyButton>
-            <EQFantasyButton
-              variant="blue"
-              fullWidth
-              disabled={!isReadingListening}
-              onClick={() => stopReadingRecognition()}
-            >
-              停止
-            </EQFantasyButton>
-            <EQFantasyButton
-              variant="blue"
-              fullWidth
-              disabled={isReadingListening || isCheckingReading}
-              onClick={checkReadingWithAi}
-            >
-              {isCheckingReading ? 'AIチェック中...' : 'AIチェック'}
-            </EQFantasyButton>
-          </div>
-
-          {readingSpeechMessage ? <p className="eq-interview-speech-message" role="status">{readingSpeechMessage}</p> : null}
-          {readingMessage ? <p className="eq-interview-feedback-message" role="status">{readingMessage}</p> : null}
-
-          {readingFeedback ? (
-            <div className="eq-interview-ai-feedback eq-interview-reading-feedback" aria-live="polite">
-              <div className="eq-interview-ai-feedback-heading">
-                <strong>Reading Feedback</strong>
-                <span>{readingFeedback.reading_score == null ? '記録済み' : `${readingFeedback.reading_score} / 10`}</span>
+        <>
+          <EQFantasyCard eyebrow="READING MODE" title={interviewSet.passage_title} className="eq-interview-practice-card eq-interview-reading-card">
+            <div className="eq-interview-reading-guidance">
+              <div className="eq-interview-reading-guidance__copy">
+                <span>🎙 Interviewer</span>
+                <strong>Please read the passage aloud.</strong>
+                <small>パッセージを声に出して読んでみよう</small>
               </div>
-              {readingFeedback.reading_score != null ? (
-                <p className="eq-interview-ai-feedback-scores">
-                  Completion {readingFeedback.completion_score}/3 ・ Pronunciation {readingFeedback.pronunciation_score}/3 ・ Fluency {readingFeedback.fluency_score}/2 ・ Confidence {readingFeedback.confidence_score}/2
-                </p>
-              ) : null}
-              <dl>
-                <div><dt>Good point</dt><dd>{readingFeedback.good_point_ja}</dd></div>
-                <div><dt>Fix point</dt><dd>{readingFeedback.fix_point_ja}</dd></div>
-                {readingFeedback.try_again_phrase ? <div><dt>Try again</dt><dd>{readingFeedback.try_again_phrase}</dd></div> : null}
-              </dl>
+              <EQFantasyButton
+                variant="blue"
+                disabled={isReadingListening || isCheckingReading}
+                onClick={repeatReadingGuidance}
+              >
+                🔊 もう一度聞く
+              </EQFantasyButton>
             </div>
-          ) : null}
 
-          <EQFantasyButton
-            fullWidth
-            disabled={isReadingListening || isCheckingReading}
-            onClick={goNext}
-          >
-            次へ
-          </EQFantasyButton>
-        </EQFantasyCard>
+            <p className="eq-interview-passage">{interviewSet.passage_text}</p>
+
+            <details className="eq-interview-reading-transcript">
+              <summary>音声入力の結果</summary>
+              <label className="eq-interview-answer-field">
+                <span>認識結果を確認・修正できます</span>
+                <textarea
+                  value={readingTranscript}
+                  onChange={(event) => updateReadingTranscript(event.target.value)}
+                  placeholder="音声入力の結果がここに入ります。文字で入力しても大丈夫です。"
+                  rows="6"
+                  disabled={isReadingListening || isCheckingReading}
+                />
+              </label>
+            </details>
+
+            {readingSpeechMessage ? <p className="eq-interview-speech-message" role="status">{readingSpeechMessage}</p> : null}
+            {readingMessage ? <p className="eq-interview-feedback-message" role="status">{readingMessage}</p> : null}
+
+            {readingFeedback ? (
+              <div className="eq-interview-ai-feedback eq-interview-reading-feedback" aria-live="polite">
+                <div className="eq-interview-ai-feedback-heading">
+                  <strong>Reading Feedback</strong>
+                  <span>
+                    {readingFeedback.reading_score == null
+                      ? '記録済み'
+                      : `${Math.round((readingFeedback.reading_score / 2) * 10) / 10} / 5`}
+                  </span>
+                </div>
+                {readingFeedback.reading_score != null ? (
+                  <p className="eq-interview-ai-feedback-scores">
+                    Completion {readingFeedback.completion_score}/3 ・ Pronunciation {readingFeedback.pronunciation_score}/3 ・ Fluency {readingFeedback.fluency_score}/2 ・ Confidence {readingFeedback.confidence_score}/2
+                  </p>
+                ) : null}
+                <dl>
+                  <div><dt>よかったところ</dt><dd>{readingFeedback.good_point_ja}</dd></div>
+                  <div><dt>直すところ</dt><dd>{readingFeedback.fix_point_ja}</dd></div>
+                  {readingFeedback.try_again_phrase ? <div><dt>もう一度読むポイント</dt><dd>{readingFeedback.try_again_phrase}</dd></div> : null}
+                </dl>
+              </div>
+            ) : null}
+          </EQFantasyCard>
+
+          <div className="eq-interview-reading-toolbar" aria-label="音読の操作">
+            <div className="eq-interview-reading-actions">
+              <EQFantasyButton
+                fullWidth
+                disabled={isReadingListening || isCheckingReading}
+                onClick={startReadingRecognition}
+              >
+                🎤 音読開始
+              </EQFantasyButton>
+              <EQFantasyButton
+                variant="blue"
+                fullWidth
+                className={isReadingListening ? 'is-listening' : ''}
+                disabled={!isReadingListening}
+                onClick={() => stopReadingRecognition()}
+              >
+                停止
+              </EQFantasyButton>
+              <EQFantasyButton
+                variant="blue"
+                fullWidth
+                disabled={isReadingListening || isCheckingReading}
+                onClick={checkReadingWithAi}
+              >
+                {isCheckingReading ? 'AIチェック中...' : 'AIチェック'}
+              </EQFantasyButton>
+              <EQFantasyButton
+                fullWidth
+                disabled={isReadingListening || isCheckingReading}
+                onClick={goNext}
+              >
+                次へ
+              </EQFantasyButton>
+            </div>
+          </div>
+        </>
       ) : (
         <EQFantasyCard
           eyebrow={`QUESTION ${question?.question_order || step}`}
