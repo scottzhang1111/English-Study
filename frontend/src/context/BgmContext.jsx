@@ -1,12 +1,13 @@
-import { createContext, useCallback, useContext, useMemo, useState } from 'react';
+import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 
-const BGM_SRC = '/assets/eigo-quest/home/login.mp3';
+const BGM_SRC = '/assets/eigo-quest/audio/main-bgm.mp3';
 const HOME_BGM_SRC = '/assets/eigo-quest/home/home.mp3';
-const BGM_VOLUME = 0.3;
-const HOME_BGM_VOLUME = 0.28;
+const BGM_VOLUME = 0.25;
+const HOME_BGM_VOLUME = 0.25;
 const FADE_DURATION_MS = 700;
 const FADE_STEP_MS = 40;
-const SOUND_ENABLED_STORAGE_KEY = 'sound_enabled';
+export const BGM_ENABLED_STORAGE_KEY = 'eigo_bgm_enabled';
+export const BGM_PROMPT_SEEN_STORAGE_KEY = 'eigo_bgm_prompt_seen';
 
 let bgmAudio = null;
 let homeBgmAudio = null;
@@ -77,65 +78,76 @@ function fadeAudio(audio, targetVolume, { duration = FADE_DURATION_MS, pauseWhen
   }
 }
 
-function getInitialSoundEnabled() {
+function getInitialBgmEnabled() {
   try {
-    return localStorage.getItem(SOUND_ENABLED_STORAGE_KEY) !== 'false';
+    return localStorage.getItem(BGM_ENABLED_STORAGE_KEY) === 'true';
   } catch (err) {
-    return true;
+    return false;
   }
+}
+
+function playGlobalAudio({ fadeIn = false } = {}) {
+  const audio = getBgmAudio();
+  if (!audio) return Promise.resolve(false);
+  audio.loop = true;
+  if (!fadeIn) {
+    clearFade('global');
+    audio.volume = BGM_VOLUME;
+  }
+  if (!audio.paused) {
+    if (fadeIn) fadeAudio(audio, BGM_VOLUME, { which: 'global' });
+    return Promise.resolve(true);
+  }
+  if (fadeIn) audio.volume = 0;
+  return audio.play()
+    .then(() => {
+      if (fadeIn) fadeAudio(audio, BGM_VOLUME, { which: 'global' });
+      return true;
+    })
+    .catch((err) => {
+      console.warn('BGM playback failed', err);
+      return false;
+    });
 }
 
 const BgmContext = createContext(null);
 
 export function BgmProvider({ children }) {
-  const [soundEnabled, setSoundEnabledState] = useState(getInitialSoundEnabled);
+  const [bgmEnabled, setBgmEnabledState] = useState(getInitialBgmEnabled);
 
-  const setSoundEnabled = useCallback((enabled) => {
+  const setBgmEnabled = useCallback((enabled) => {
     const nextEnabled = Boolean(enabled);
-    setSoundEnabledState(nextEnabled);
+    setBgmEnabledState(nextEnabled);
     try {
-      localStorage.setItem(SOUND_ENABLED_STORAGE_KEY, nextEnabled ? 'true' : 'false');
+      localStorage.setItem(BGM_ENABLED_STORAGE_KEY, nextEnabled ? 'true' : 'false');
     } catch (err) {
       // Keep the app usable when localStorage is unavailable.
     }
-    if (!nextEnabled && bgmAudio) {
+    if (nextEnabled) {
+      playGlobalAudio({ fadeIn: true });
+      return;
+    }
+    if (bgmAudio) {
       clearFade('global');
       bgmAudio.pause();
     }
-    if (!nextEnabled && homeBgmAudio) {
+    if (homeBgmAudio) {
       clearFade('home');
       homeBgmAudio.pause();
     }
   }, []);
 
+  useEffect(() => {
+    if (bgmEnabled) playGlobalAudio({ fadeIn: true });
+  }, [bgmEnabled]);
+
   const startBgm = useCallback((options = {}) => {
-    if (!soundEnabled) return Promise.resolve(false);
-    const { fadeIn = false } = options;
-    const audio = getBgmAudio();
-    if (!audio) return Promise.resolve(false);
-    audio.loop = true;
-    if (!fadeIn) {
-      clearFade('global');
-      audio.volume = BGM_VOLUME;
-    }
-    if (!audio.paused) {
-      if (fadeIn) fadeAudio(audio, BGM_VOLUME, { which: 'global' });
-      return Promise.resolve(true);
-    }
-    if (fadeIn) audio.volume = 0;
-    return audio.play()
-      .then(() => {
-        if (fadeIn) fadeAudio(audio, BGM_VOLUME, { which: 'global' });
-        return true;
-      })
-      .catch((err) => {
-        console.warn('BGM playback failed', err);
-        return false;
-      });
-  }, [soundEnabled]);
+    if (!bgmEnabled) return Promise.resolve(false);
+    return playGlobalAudio(options);
+  }, [bgmEnabled]);
 
   const playHomeBgm = useCallback(() => {
-    if (!soundEnabled) return Promise.resolve(false);
+    if (!bgmEnabled) return Promise.resolve(false);
     const globalAudio = getBgmAudio();
     if (globalAudio && !globalAudio.paused) {
       fadeAudio(globalAudio, 0, { pauseWhenSilent: true, which: 'global' });
@@ -158,26 +170,34 @@ export function BgmProvider({ children }) {
         console.warn('Home BGM playback failed', err);
         return false;
       });
-  }, [soundEnabled]);
+  }, [bgmEnabled]);
 
   const resumeGlobalBgm = useCallback(() => {
-    if (!soundEnabled) return Promise.resolve(false);
+    if (!bgmEnabled) return Promise.resolve(false);
     const homeAudio = getHomeBgmAudio();
     if (homeAudio && !homeAudio.paused) {
       fadeAudio(homeAudio, 0, { pauseWhenSilent: true, which: 'home' });
     }
     return startBgm({ fadeIn: true });
-  }, [soundEnabled, startBgm]);
+  }, [bgmEnabled, startBgm]);
+
+  const toggleBgm = useCallback(() => {
+    setBgmEnabled(!bgmEnabled);
+  }, [bgmEnabled, setBgmEnabled]);
 
   const value = useMemo(
     () => ({
-      soundEnabled,
-      setSoundEnabled,
+      bgmEnabled,
+      setBgmEnabled,
+      toggleBgm,
+      // Keep the existing login controls compatible with the global BGM setting.
+      soundEnabled: bgmEnabled,
+      setSoundEnabled: setBgmEnabled,
       startBgm,
       playHomeBgm,
       resumeGlobalBgm,
     }),
-    [playHomeBgm, resumeGlobalBgm, setSoundEnabled, soundEnabled, startBgm],
+    [bgmEnabled, playHomeBgm, resumeGlobalBgm, setBgmEnabled, startBgm, toggleBgm],
   );
 
   return <BgmContext.Provider value={value}>{children}</BgmContext.Provider>;

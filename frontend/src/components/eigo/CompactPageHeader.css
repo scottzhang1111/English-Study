@@ -38,6 +38,13 @@
   gap: 12px;
 }
 
+.compact-page-header__action {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  z-index: 12;
+}
+
 .compact-page-header:has(.compact-page-header__helper-button) .compact-page-header__content {
   max-width: 300px;
 }

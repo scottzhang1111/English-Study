@@ -6,6 +6,7 @@ import { getPartner } from '../utils/childStorage';
 import eigoQuestWorlds from '../config/eigoQuestWorlds';
 import { getWorldStageByLearnedWords } from '../helpers/eigoQuestProgress';
 import CompactPageHeader from '../components/eigo/CompactPageHeader';
+import BgmToggle from '../components/eigo/BgmToggle';
 
 import {
   EQBottomNav,
@@ -509,6 +510,7 @@ export default function DailyWordUnitPage() {
             subtitle="正しい世界を読み込んでいます"
             helperImage={SPIRIT_IMAGE}
             variant="loading"
+            action={<BgmToggle />}
           />
           <section className="eq-daily-word-list-panel">
             <h2>Loading...</h2>
@@ -536,6 +538,7 @@ export default function DailyWordUnitPage() {
               '準備できたら学習を始めよう',
             ]}
             variant={questWorld?.id || 'wind'}
+            action={<BgmToggle />}
           />
 
           <section className="eq-daily-word-list-panel">
@@ -625,7 +628,8 @@ export default function DailyWordUnitPage() {
         shouldHideDesktopOnMobile ? 'max-lg:hidden' : ''
       }`}
     >
-      <header className="panel mb-4 overflow-hidden px-4 py-4 sm:px-6">
+      <header className="panel relative mb-4 overflow-hidden px-4 py-4 sm:px-6">
+        <BgmToggle className="absolute right-4 top-4" />
         <div className="flex items-center justify-between gap-4 rounded-[34px] bg-[linear-gradient(135deg,#fffef8_0%,#eef7ff_55%,#f8fbff_100%)] px-5 py-5 sm:px-7">
           <div className="flex min-w-0 items-center gap-4">
             <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-[22px] bg-[linear-gradient(180deg,#fff7be_0%,#ffd94d_100%)] text-xl font-black text-[#5d4700] shadow-[0_12px_22px_rgba(255,193,31,0.24)]">

@@ -18,6 +18,7 @@ import {
 } from '../components/eigo';
 import { getLearnedWords, getQuizData, submitPracticeAnswer } from '../api';
 import CompactPageHeader from '../components/eigo/CompactPageHeader';
+import BgmToggle from '../components/eigo/BgmToggle';
 
 function shuffleItems(items) {
   return [...items].sort(() => Math.random() - 0.5);
@@ -208,6 +209,7 @@ export default function QuizPage() {
           progressText={mobileQuestionCount}
           helperImage="/assets/eigo-quest/spirit_assets/happy.png"
           variant="quiz"
+          action={<BgmToggle />}
         />
         <QuestHeader
           title="小テスト"

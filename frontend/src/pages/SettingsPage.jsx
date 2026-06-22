@@ -3,6 +3,8 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { getAuthMe, getChildren, getProgressData } from '../api';
 import { useChildren } from '../ChildrenContext';
 import { EQBottomNav } from '../components/eigo';
+import BgmToggle from '../components/eigo/BgmToggle';
+import { useBgm } from '../context/BgmContext';
 
 const DEFAULT_CHILD_AVATAR = '/assets/eigo-quest/child icon/child4.png';
 
@@ -49,6 +51,7 @@ function formatChildProgress(summary) {
 
 export default function SettingsPage() {
   const navigate = useNavigate();
+  const { bgmEnabled } = useBgm();
   const [searchParams] = useSearchParams();
   const { selectedChildId, setSelectedChildId, refreshChildren } = useChildren();
   const [childrenList, setChildrenList] = useState([]);
@@ -193,6 +196,18 @@ export default function SettingsPage() {
             <p>子どもの学習を見守ろう</p>
           </div>
         </header>
+
+        <section className="eq-family-panel eq-family-sound-card" aria-labelledby="family-sound-title">
+          <div className="eq-family-sound-copy">
+            <span className="eq-family-sound-icon" aria-hidden="true">♫</span>
+            <div>
+              <h2 id="family-sound-title">音の設定</h2>
+              <p>冒険中のBGMを切り替えます</p>
+            </div>
+          </div>
+          <BgmToggle showLabel />
+          <span className="eq-family-sound-status" aria-live="polite">現在：{bgmEnabled ? 'オン' : 'オフ'}</span>
+        </section>
 
         {isLoading ? (
           <section className="eq-family-panel eq-family-empty">

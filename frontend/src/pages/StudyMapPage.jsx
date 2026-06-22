@@ -4,6 +4,8 @@ import { getHomeData } from '../api';
 import { EQBottomNav, EQMobileShell } from '../components/eigo';
 import eigoQuestWorlds from '../config/eigoQuestWorlds';
 import CompactPageHeader from '../components/eigo/CompactPageHeader';
+import BgmToggle from '../components/eigo/BgmToggle';
+import { BGM_PROMPT_SEEN_STORAGE_KEY, useBgm } from '../context/BgmContext';
 
 const CHILD_STORAGE_KEY = 'selected_child_id';
 
@@ -26,10 +28,28 @@ function getStageLabel(worldProgress, world) {
 
 export default function StudyMapPage() {
   const navigate = useNavigate();
+  const { setBgmEnabled } = useBgm();
   const childId = useMemo(() => localStorage.getItem(CHILD_STORAGE_KEY) || '', []);
   const [homeData, setHomeData] = useState(null);
   const [error, setError] = useState('');
   const [failedImages, setFailedImages] = useState(() => new Set());
+  const [showBgmPrompt, setShowBgmPrompt] = useState(() => {
+    try {
+      return localStorage.getItem(BGM_PROMPT_SEEN_STORAGE_KEY) !== 'true';
+    } catch (err) {
+      return true;
+    }
+  });
+
+  function answerBgmPrompt(enabled) {
+    try {
+      localStorage.setItem(BGM_PROMPT_SEEN_STORAGE_KEY, 'true');
+    } catch (err) {
+      // The preference still works for this session when storage is unavailable.
+    }
+    setShowBgmPrompt(false);
+    setBgmEnabled(enabled);
+  }
 
   useEffect(() => {
     if (!childId) {
@@ -105,6 +125,7 @@ export default function StudyMapPage() {
             'クリアしたStageはいつでも入り直せます',
           ]}
           variant={currentWorld?.id || 'wind'}
+          action={<BgmToggle />}
         />
 
         {error ? <div className="eq-study-map-error">{error}</div> : null}
@@ -151,6 +172,20 @@ export default function StudyMapPage() {
       </EQMobileShell>
 
       <EQBottomNav className="eq-study-map-bottom-nav" />
+
+      {showBgmPrompt ? (
+        <div className="eq-bgm-prompt" role="dialog" aria-modal="true" aria-labelledby="bgm-prompt-title">
+          <section className="eq-bgm-prompt__card">
+            <span className="eq-bgm-prompt__icon" aria-hidden="true">♫</span>
+            <h2 id="bgm-prompt-title">BGMを流しますか？</h2>
+            <p>冒険の音楽をオンにすると、楽しく学習できます。</p>
+            <div className="eq-bgm-prompt__actions">
+              <button type="button" className="is-later" onClick={() => answerBgmPrompt(false)}>あとで</button>
+              <button type="button" className="is-enable" onClick={() => answerBgmPrompt(true)}>オンにする</button>
+            </div>
+          </section>
+        </div>
+      ) : null}
     </div>
   );
 }

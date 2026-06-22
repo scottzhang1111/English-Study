@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import WebLearningLayout from '../components/WebLearningLayout';
 import { EQBottomNav, MagicPanel } from '../components/eigo';
 import CompactPageHeader from '../components/eigo/CompactPageHeader';
+import BgmToggle from '../components/eigo/BgmToggle';
 import { getGrammarLessons, markGrammarLessonViewed } from '../api';
 import { useChildren } from '../ChildrenContext';
 
@@ -160,6 +161,7 @@ export default function GrammarPage() {
             progressText={`${stats.mastered || 0} / ${stats.total || 0}`}
             helperImage="/assets/eigo-quest/spirit_assets/happy.png"
             variant="grammar"
+            action={<BgmToggle />}
           />
 
           {error ? <div className="mt-4 rounded-[18px] border border-rose-300/35 bg-rose-950/45 p-4 text-sm font-bold text-rose-100">{error}</div> : null}

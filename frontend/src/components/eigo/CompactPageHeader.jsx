@@ -13,6 +13,7 @@ export default function CompactPageHeader({
   helperImage,
   guidanceText,
   variant = 'default',
+  action,
 }) {
   const [guidanceIndex, setGuidanceIndex] = useState(0);
 
@@ -46,6 +47,7 @@ export default function CompactPageHeader({
           : undefined,
       }}
     >
+      {action ? <div className="compact-page-header__action">{action}</div> : null}
       <div className="compact-page-header__content">
         <h1 className="compact-page-header__title">{title}</h1>
 
