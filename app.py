@@ -23,6 +23,7 @@ except ImportError:
     DictCursor = None
 
 from pokeapi_service import PokeApiError
+from backend.utils.prompt_loader import load_prompt, prompt_file_available
 
 try:
     from flask_cors import CORS
@@ -62,6 +63,10 @@ GRAMMAR_LESSON_DB_FILENAME = os.path.join('data', 'eiken', 'eiken_pre2', 'eiken_
 GRAMMAR_FORM_TEST_DB_FILENAME = os.path.join('data', 'eiken', 'eiken_pre2', 'eiken_pre2 grammar', 'eiken_pre2_grammar_form_test_sample_17.db')
 EIKEN_PRE2_INTERVIEW_ROOT = os.path.join('data', 'eiken', 'eiken_pre2', 'eiken_pre2 interview')
 EIKEN_PRE2_INTERVIEW_IMAGE_RE = re.compile(r'^PRE2_INT_(?:00[1-9]|010)\.png$')
+EIKEN_INTERVIEW_QA_PROMPT = 'eiken_pre2_interview_qa.md'
+EIKEN_INTERVIEW_READING_PROMPT = 'eiken_pre2_interview_reading.md'
+EIKEN_INTERVIEW_ATTITUDE_PROMPT = 'eiken_pre2_interview_attitude.md'
+EIKEN_INTERVIEW_SUMMARY_PROMPT = 'eiken_pre2_interview_summary.md'
 OPENAI_RESPONSES_URL = 'https://api.openai.com/v1/responses'
 AI_QUESTION_TYPES = ['Vocabulary', 'Grammar', 'Conversation', 'Reading Cloze']
 AI_AUTO_QUESTION_TYPES = ['multiple_choice', 'fill_blank', 'en_to_ja', 'ja_to_en', 'sentence', 'reading', 'writing']
@@ -9552,6 +9557,16 @@ def _normalize_eiken_interview_feedback(payload, model_answer):
     }
 
 
+def _render_eiken_interview_prompt(filename, values):
+    app.logger.info('Using prompt: %s', filename)
+    template = load_prompt(filename)
+    return re.sub(
+        r'\{\{([a-zA-Z0-9_]+)\}\}',
+        lambda match: str(values.get(match.group(1), '')),
+        template,
+    )
+
+
 def generate_eiken_interview_feedback(question, student_answer):
     api_key = get_openai_api_key()
     if not api_key:
@@ -9559,25 +9574,14 @@ def generate_eiken_interview_feedback(question, student_answer):
 
     model = get_openai_model()
     reasoning_effort = get_openai_reasoning_effort(model)
-    prompt = {
-        'criteria': {
-            'content_0_to_3': 'Did the student answer the question?',
-            'grammar_0_to_2': 'Are there major grammar mistakes?',
-            'fluency_0_to_2': 'Is the answer complete and natural?',
-        },
+    prompt = _render_eiken_interview_prompt(EIKEN_INTERVIEW_QA_PROMPT, {
         'question_text': question['question_text'],
+        'model_answer': question['model_answer'],
         'student_answer': student_answer,
-        'reference_model_answer': question['model_answer'],
-        'tip_ja': question['tip_ja'],
-    }
+    })
     body = {
         'model': model,
-        'instructions': (
-            'You are an English interview coach for a Japanese elementary school student '
-            'preparing for Eiken Pre-2 interview. Evaluate the student\'s answer gently. '
-            'Use simple Japanese. Do not be too strict. Return JSON only.'
-        ),
-        'input': json.dumps(prompt, ensure_ascii=False),
+        'input': prompt,
         'text': {
             'verbosity': 'low',
             'format': {
@@ -9696,24 +9700,13 @@ def generate_eiken_interview_reading_feedback(passage_text, transcript):
 
     model = get_openai_model()
     reasoning_effort = get_openai_reasoning_effort(model)
-    prompt = {
-        'expected_passage': passage_text,
-        'speech_transcript': transcript,
-        'focus': [
-            'Did the child read most of the passage?',
-            'Did the child avoid giving up?',
-            'Was the reading understandable?',
-        ],
-    }
+    prompt = _render_eiken_interview_prompt(EIKEN_INTERVIEW_READING_PROMPT, {
+        'passage_text': passage_text,
+        'student_transcript': transcript,
+    })
     body = {
         'model': model,
-        'instructions': (
-            'You are an Eiken Pre-2 interview reading coach for a Japanese child. '
-            'Compare the expected passage and the child\'s speech transcript. '
-            'Be gentle and encouraging. Do not require perfect pronunciation. '
-            'Use simple Japanese. Return JSON only.'
-        ),
-        'input': json.dumps(prompt, ensure_ascii=False),
+        'input': prompt,
         'text': {
             'verbosity': 'low',
             'format': {
@@ -9822,6 +9815,18 @@ def api_eiken_interview_reading_feedback():
     except Exception as exc:
         app.logger.warning('Eiken interview AI reading feedback unavailable: %s', exc)
         return jsonify(fallback)
+
+
+@app.route('/api/debug/prompts')
+def api_debug_prompts():
+    if is_production_env():
+        abort(404)
+    return jsonify({
+        'reading_prompt_loaded': prompt_file_available(EIKEN_INTERVIEW_READING_PROMPT),
+        'qa_prompt_loaded': prompt_file_available(EIKEN_INTERVIEW_QA_PROMPT),
+        'attitude_prompt_loaded': prompt_file_available(EIKEN_INTERVIEW_ATTITUDE_PROMPT),
+        'summary_prompt_loaded': prompt_file_available(EIKEN_INTERVIEW_SUMMARY_PROMPT),
+    })
 
 
 @app.route('/api/tts')

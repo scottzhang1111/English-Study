@@ -209,6 +209,13 @@ class EikenInterviewApiTests(unittest.TestCase):
         self.assertEqual(ai_payload['good_point_ja'], payload['good_point_ja'])
         self.assertEqual(ai_payload['model_answer_ja'], payload['model_answer_ja'])
         mocked_urlopen.assert_called_once()
+        openai_request = mocked_urlopen.call_args.args[0]
+        request_body = json.loads(openai_request.data.decode('utf-8'))
+        rendered_prompt = request_body['input']
+        self.assertIn(self.first_question['question_text'], rendered_prompt)
+        self.assertIn(self.first_question['model_answer'], rendered_prompt)
+        self.assertIn('Because it is useful for students.', rendered_prompt)
+        self.assertNotIn('{{question_text}}', rendered_prompt)
 
     def test_feedback_rejects_unknown_question(self):
         response = self.feedback_request(set_id=999999)
@@ -288,12 +295,28 @@ class EikenInterviewApiTests(unittest.TestCase):
         self.assertEqual(ai_payload['try_again_phrase'], payload['try_again_phrase'])
         openai_request = mocked_urlopen.call_args.args[0]
         request_body = json.loads(openai_request.data.decode('utf-8'))
-        prompt = json.loads(request_body['input'])
-        self.assertEqual(self.first_passage, prompt['expected_passage'])
-        self.assertNotEqual('Do not trust this client passage.', prompt['expected_passage'])
+        rendered_prompt = request_body['input']
+        self.assertIn(self.first_passage, rendered_prompt)
+        self.assertNotIn('Do not trust this client passage.', rendered_prompt)
+        self.assertNotIn('{{passage_text}}', rendered_prompt)
 
     def test_reading_feedback_rejects_unknown_set(self):
         response = self.reading_feedback_request(set_id=999999)
+        self.assertEqual(404, response.status_code)
+
+    def test_debug_prompts_reports_files_only_in_development(self):
+        with patch.object(app_module, 'is_production_env', return_value=False):
+            response = self.client.get('/api/debug/prompts')
+        self.assertEqual(200, response.status_code)
+        self.assertEqual({
+            'reading_prompt_loaded': True,
+            'qa_prompt_loaded': True,
+            'attitude_prompt_loaded': True,
+            'summary_prompt_loaded': True,
+        }, response.get_json())
+
+        with patch.object(app_module, 'is_production_env', return_value=True):
+            response = self.client.get('/api/debug/prompts')
         self.assertEqual(404, response.status_code)
 
 
