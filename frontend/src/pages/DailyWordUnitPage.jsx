@@ -123,10 +123,8 @@ function getUnitWords(baseWords, unitIndex, targetCount = DEFAULT_DAILY_WORD_TAR
 
 function getDailyWordListFontSize(word) {
   const length = String(word || '').replace(/[^A-Za-z]/g, '').length;
-  if (length >= 18) return '10px';
-  if (length >= 15) return '11px';
-  if (length >= 12) return '12px';
-  if (length >= 10) return '13px';
+  if (length >= 16) return '28px';
+  if (length >= 12) return '29px';
   return '';
 }
 
@@ -558,9 +556,10 @@ export default function DailyWordUnitPage() {
                   style={wordFontSize ? { '--daily-word-font-size': wordFontSize } : undefined}
                 >
                   <span className="eq-daily-word-number">{index + 1}</span>
-                  <strong>{word.word}</strong>
-                  <em>✦</em>
-                  <small>{word.meaningJa}</small>
+                  <span className="eq-daily-word-copy">
+                    <strong>{word.word}</strong>
+                    <small>{word.meaningJa}</small>
+                  </span>
                   <span
                     className="eq-daily-word-audio"
                     aria-label={`${word.word} を聞く`}

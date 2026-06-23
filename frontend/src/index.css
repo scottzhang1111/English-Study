@@ -6952,6 +6952,107 @@ textarea {
   box-shadow: 0 0 20px rgba(255, 202, 63, .2);
 }
 
+/* Daily word preview list */
+.eq-daily-word-list {
+  display: grid;
+  gap: 14px;
+}
+
+.eq-daily-word-row {
+  display: grid;
+  grid-template-columns: 50px minmax(0, 1fr) 52px;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+  min-height: 104px;
+  border: 1px solid rgba(73, 177, 255, .36);
+  border-radius: 24px;
+  background:
+    radial-gradient(circle at 12% 18%, rgba(77, 213, 255, .12), transparent 38%),
+    linear-gradient(180deg, rgba(3, 13, 42, .82), rgba(1, 8, 29, .92));
+  padding: 16px 14px;
+  color: #fff;
+  text-align: left;
+  box-shadow:
+    inset 0 0 18px rgba(72, 161, 255, .08),
+    0 10px 22px rgba(0, 0, 0, .18);
+}
+
+.eq-daily-word-number {
+  display: grid;
+  width: 48px;
+  height: 48px;
+  place-items: center;
+  border: 2px solid rgba(255, 211, 90, .72);
+  border-radius: 50%;
+  color: #ffe27d;
+  font-size: 23px;
+  font-weight: 850;
+  line-height: 1;
+}
+
+.eq-daily-word-copy {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+}
+
+.eq-daily-word-copy strong {
+  max-width: 100%;
+  overflow-wrap: anywhere;
+  color: #fff;
+  font-size: var(--daily-word-font-size, clamp(28px, 7.6vw, 32px));
+  font-weight: 800;
+  line-height: 1.08;
+}
+
+.eq-daily-word-copy small {
+  max-width: 100%;
+  overflow: hidden;
+  color: rgba(255, 255, 255, .9);
+  font-size: clamp(20px, 5.4vw, 22px);
+  font-weight: 500;
+  line-height: 1.25;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.eq-daily-word-audio {
+  display: grid;
+  width: 50px;
+  height: 50px;
+  place-items: center;
+  justify-self: end;
+  border: 2px solid rgba(255, 211, 90, .72);
+  border-radius: 50%;
+  color: #ffe27d;
+  font-size: 22px;
+  font-weight: 900;
+  line-height: 1;
+  box-shadow: 0 0 14px rgba(255, 211, 90, .16);
+}
+
+@media (max-width: 380px) {
+  .eq-daily-word-row {
+    grid-template-columns: 46px minmax(0, 1fr) 48px;
+    gap: 10px;
+    padding: 14px 12px;
+  }
+
+  .eq-daily-word-number {
+    width: 46px;
+    height: 46px;
+    font-size: 22px;
+  }
+
+  .eq-daily-word-audio {
+    width: 48px;
+    height: 48px;
+  }
+}
+
 /* Interview practice */
 .eq-interview-page {
   min-height: 100dvh;
