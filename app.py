@@ -9694,6 +9694,68 @@ def _normalize_eiken_interview_reading_feedback(payload):
     }
 
 
+GEMINI_INTERVIEW_PRIMARY_MODEL = 'gemini-2.5-flash'
+GEMINI_INTERVIEW_FALLBACK_MODEL = 'gemini-2.0-flash'
+GEMINI_RETRYABLE_STATUSES = {429, 503, 504}
+GEMINI_RETRY_DELAYS = [1, 2, 4]
+
+
+def _get_gemini_error_status(exc):
+    for attr in ('code', 'status_code'):
+        value = getattr(exc, attr, None)
+        if isinstance(value, int):
+            return value
+        try:
+            if value is not None:
+                return int(value)
+        except (TypeError, ValueError):
+            pass
+
+    match = re.search(r'\b(429|503|504)\b', str(exc))
+    return int(match.group(1)) if match else None
+
+
+def _call_gemini_interview_model(client, prompt):
+    last_retryable_error = None
+    for model in (GEMINI_INTERVIEW_PRIMARY_MODEL, GEMINI_INTERVIEW_FALLBACK_MODEL):
+        if model == GEMINI_INTERVIEW_FALLBACK_MODEL and last_retryable_error is not None:
+            app.logger.warning(
+                'Gemini interview feedback switching model from %s to %s',
+                GEMINI_INTERVIEW_PRIMARY_MODEL,
+                GEMINI_INTERVIEW_FALLBACK_MODEL,
+            )
+
+        attempts = 1 + len(GEMINI_RETRY_DELAYS)
+        for attempt_index in range(attempts):
+            retry_count = attempt_index
+            try:
+                app.logger.info('Gemini request sent model=%s retry_count=%s', model, retry_count)
+                response = client.models.generate_content(
+                    model=model,
+                    contents=prompt,
+                )
+                app.logger.info('Gemini response status model=%s retry_count=%s status=success', model, retry_count)
+                return response
+            except Exception as exc:
+                status = _get_gemini_error_status(exc)
+                app.logger.warning(
+                    'Gemini response status model=%s retry_count=%s status=%s error=%s',
+                    model,
+                    retry_count,
+                    status or 'unknown',
+                    exc,
+                )
+                if status not in GEMINI_RETRYABLE_STATUSES:
+                    raise
+
+                last_retryable_error = exc
+                if attempt_index >= len(GEMINI_RETRY_DELAYS):
+                    break
+                time.sleep(GEMINI_RETRY_DELAYS[attempt_index])
+
+    raise last_retryable_error or RuntimeError('Gemini interview feedback failed')
+
+
 def generate_eiken_interview_reading_feedback(passage_text, transcript):
     api_key = get_gemini_api_key()
     if not api_key:
@@ -9711,11 +9773,7 @@ def generate_eiken_interview_reading_feedback(passage_text, transcript):
     })
 
     client = genai.Client(api_key=api_key)
-    app.logger.info('Gemini request sent')
-    response = client.models.generate_content(
-        model='gemini-2.5-flash',
-        contents=prompt,
-    )
+    response = _call_gemini_interview_model(client, prompt)
     response_text = response.text
     app.logger.info('Gemini raw response: %s', response_text)
     if not response_text:

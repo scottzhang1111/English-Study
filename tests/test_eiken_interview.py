@@ -19,26 +19,40 @@ class FakeGeminiResponse:
 
 
 class FakeGeminiModels:
-    def __init__(self, response_text, calls):
-        self.response_text = response_text
+    def __init__(self, responses, calls):
+        self.responses = responses
         self.calls = calls
 
     def generate_content(self, **kwargs):
         self.calls.append(kwargs)
-        return FakeGeminiResponse(self.response_text)
+        if self.responses:
+            response = self.responses.pop(0)
+        else:
+            response = '{}'
+        if isinstance(response, Exception):
+            raise response
+        return FakeGeminiResponse(response)
 
 
 class FakeGeminiClient:
-    response_text = '{}'
+    responses = ['{}']
     calls = []
 
     def __init__(self, api_key):
         self.api_key = api_key
-        self.models = FakeGeminiModels(self.response_text, self.calls)
+        self.models = FakeGeminiModels(self.responses, self.calls)
 
 
-def fake_gemini_modules(response_text):
-    FakeGeminiClient.response_text = response_text
+class FakeGeminiError(Exception):
+    def __init__(self, status_code, message='Gemini error'):
+        super().__init__(f'{status_code} {message}')
+        self.status_code = status_code
+
+
+def fake_gemini_modules(responses):
+    if not isinstance(responses, list):
+        responses = [responses]
+    FakeGeminiClient.responses = list(responses)
     FakeGeminiClient.calls = []
     fake_genai = SimpleNamespace(Client=FakeGeminiClient)
     fake_google = SimpleNamespace(genai=fake_genai)
@@ -324,6 +338,59 @@ class EikenInterviewApiTests(unittest.TestCase):
         self.assertIn(self.first_passage, rendered_prompt)
         self.assertNotIn('Do not trust this client passage.', rendered_prompt)
         self.assertNotIn('{{passage_text}}', rendered_prompt)
+
+    def test_reading_feedback_retries_503_and_falls_back_to_gemini_20_model(self):
+        ai_payload = {
+            'reading_score': 4,
+            'completion_score': 3,
+            'pronunciation_score': 2,
+            'fluency_score': 1,
+            'confidence_score': 2,
+            'good_point_ja': 'よく読めています。',
+            'fix_point_ja': '少しゆっくり読みましょう。',
+            'try_again_phrase': 'Many schools are improving their libraries.',
+        }
+        fake_modules, gemini_calls = fake_gemini_modules([
+            FakeGeminiError(503, 'high demand'),
+            FakeGeminiError(503, 'high demand'),
+            FakeGeminiError(503, 'high demand'),
+            FakeGeminiError(503, 'high demand'),
+            json.dumps(ai_payload, ensure_ascii=False),
+        ])
+
+        with patch.object(app_module, 'get_gemini_api_key', return_value='test-key'), patch.dict(sys.modules, fake_modules), patch.object(app_module.time, 'sleep') as mocked_sleep:
+            response = self.reading_feedback_request()
+
+        self.assertEqual(200, response.status_code)
+        self.assertEqual(4, response.get_json()['reading_score'])
+        self.assertEqual(
+            ['gemini-2.5-flash'] * 4 + ['gemini-2.0-flash'],
+            [call['model'] for call in gemini_calls],
+        )
+        self.assertEqual([1, 2, 4], [call.args[0] for call in mocked_sleep.call_args_list])
+
+    def test_reading_feedback_returns_fallback_only_after_all_gemini_retries_fail(self):
+        fake_modules, gemini_calls = fake_gemini_modules([
+            FakeGeminiError(503, 'high demand'),
+            FakeGeminiError(503, 'high demand'),
+            FakeGeminiError(503, 'high demand'),
+            FakeGeminiError(503, 'high demand'),
+            FakeGeminiError(503, 'high demand'),
+            FakeGeminiError(503, 'high demand'),
+            FakeGeminiError(503, 'high demand'),
+            FakeGeminiError(503, 'high demand'),
+        ])
+
+        with patch.object(app_module, 'get_gemini_api_key', return_value='test-key'), patch.dict(sys.modules, fake_modules), patch.object(app_module.time, 'sleep'):
+            response = self.reading_feedback_request()
+
+        self.assertEqual(200, response.status_code)
+        payload = response.get_json()
+        self.assertIsNone(payload['reading_score'])
+        self.assertEqual(
+            ['gemini-2.5-flash'] * 4 + ['gemini-2.0-flash'] * 4,
+            [call['model'] for call in gemini_calls],
+        )
 
     def test_reading_feedback_rejects_unknown_set(self):
         response = self.reading_feedback_request(set_id=999999)

@@ -7053,6 +7053,332 @@ textarea {
   }
 }
 
+/* Essay writing quest */
+.eq-essay-page {
+  min-height: 100dvh;
+  background:
+    radial-gradient(circle at 50% 0%, rgba(72, 126, 255, .22), transparent 34%),
+    radial-gradient(circle at 12% 28%, rgba(106, 62, 180, .22), transparent 30%),
+    linear-gradient(180deg, #040919 0%, #081333 48%, #040815 100%);
+}
+
+.eq-essay-page-content {
+  display: grid;
+  gap: 18px;
+  padding-bottom: calc(var(--eq-bottom-nav-height, 104px) + 34px + env(safe-area-inset-bottom, 0px));
+}
+
+.eq-essay-layout {
+  display: grid;
+  gap: 18px;
+}
+
+.eq-essay-left-column,
+.eq-essay-right-column {
+  display: grid;
+  align-content: start;
+  gap: 14px;
+  min-width: 0;
+}
+
+.eq-essay-control-card,
+.eq-essay-email-card,
+.eq-essay-writing-card,
+.eq-essay-tips-card {
+  border-color: rgba(255, 211, 90, .56);
+  background:
+    linear-gradient(145deg, rgba(21, 39, 86, .95), rgba(6, 15, 42, .98));
+  box-shadow:
+    0 16px 32px rgba(0, 0, 0, .32),
+    inset 0 0 24px rgba(69, 119, 255, .08),
+    0 0 18px rgba(255, 203, 65, .08);
+}
+
+.eq-essay-control-card .eq-fantasy-card-v2__body,
+.eq-essay-writing-card .eq-fantasy-card-v2__body {
+  display: grid;
+  gap: 14px;
+}
+
+.eq-essay-segmented {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  border-radius: 18px;
+  background: rgba(2, 8, 28, .42);
+  padding: 6px;
+}
+
+.eq-essay-segmented button {
+  display: flex;
+  min-height: 50px;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border: 1px solid rgba(239, 247, 255, .12);
+  border-radius: 14px;
+  background: rgba(239, 247, 255, .06);
+  color: rgba(239, 247, 255, .62);
+  font-size: 15px;
+  font-weight: 950;
+}
+
+.eq-essay-segmented button.is-active {
+  border-color: rgba(255, 211, 90, .78);
+  background: linear-gradient(180deg, rgba(21, 91, 210, .95), rgba(8, 45, 126, .98));
+  color: #fff2bc;
+  box-shadow: 0 0 18px rgba(60, 162, 255, .22), inset 0 0 0 1px rgba(255, 255, 255, .08);
+}
+
+.eq-essay-question-strip {
+  display: grid;
+  grid-template-columns: 58px 58px 58px minmax(0, 1fr);
+  gap: 9px;
+}
+
+.eq-essay-question-strip .eq-fantasy-button-v2 {
+  min-height: 48px;
+  padding: 9px 12px;
+  font-size: 14px;
+}
+
+.eq-essay-question-meta {
+  display: grid;
+  justify-items: center;
+  gap: 4px;
+  border-top: 1px solid rgba(255, 211, 90, .18);
+  padding-top: 8px;
+  text-align: center;
+}
+
+.eq-essay-question-meta span {
+  color: rgba(255, 236, 176, .62);
+  font-size: 12px;
+  font-weight: 950;
+  letter-spacing: .08em;
+}
+
+.eq-essay-question-meta strong {
+  color: #fff7db;
+  font-size: 21px;
+  font-weight: 950;
+  line-height: 1.25;
+}
+
+.eq-essay-email-card {
+  position: relative;
+  overflow: hidden;
+}
+
+.eq-essay-email-card::after {
+  content: '';
+  position: absolute;
+  right: 18px;
+  bottom: 14px;
+  width: 86px;
+  height: 86px;
+  background: radial-gradient(circle, rgba(255, 211, 90, .16), transparent 62%);
+  pointer-events: none;
+}
+
+.eq-essay-email-card p {
+  margin: 0;
+  white-space: pre-line;
+  color: #f7fbff;
+  font-size: clamp(16px, 4.2vw, 18px);
+  font-weight: 750;
+  line-height: 1.68;
+}
+
+.eq-essay-mission-card,
+.eq-essay-scroll-card {
+  border: 1px solid rgba(151, 103, 35, .4);
+  border-radius: 18px;
+  background:
+    radial-gradient(circle at 92% 70%, rgba(132, 79, 16, .16), transparent 28%),
+    linear-gradient(180deg, #f7dfa6, #d9b66f);
+  padding: 17px 18px;
+  color: #33240d;
+  box-shadow: 0 12px 22px rgba(0, 0, 0, .22), inset 0 0 0 1px rgba(255, 255, 255, .28);
+}
+
+.eq-essay-mission-card h2,
+.eq-essay-scroll-card h2 {
+  margin: 0 0 10px;
+  color: #3c2b12;
+  font-size: 18px;
+  font-weight: 950;
+  text-align: center;
+}
+
+.eq-essay-mission-card ul,
+.eq-essay-tips-card ul {
+  display: grid;
+  gap: 9px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.eq-essay-mission-card li {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 16px;
+  font-weight: 900;
+}
+
+.eq-essay-mission-card li span {
+  display: grid;
+  width: 24px;
+  height: 24px;
+  place-items: center;
+  border-radius: 50%;
+  background: #4caa3b;
+  color: #fff;
+  font-size: 13px;
+}
+
+.eq-essay-scroll-card {
+  background:
+    linear-gradient(90deg, rgba(122, 75, 23, .3), transparent 10%, transparent 90%, rgba(122, 75, 23, .26)),
+    linear-gradient(180deg, #ffe8ad, #e4bf77);
+}
+
+.eq-essay-scroll-card pre {
+  margin: 0;
+  white-space: pre-wrap;
+  color: #1f180d;
+  font-family: var(--font-main);
+  font-size: 15px;
+  font-weight: 750;
+  line-height: 1.72;
+}
+
+.eq-essay-textarea-wrap {
+  position: relative;
+  display: block;
+}
+
+.eq-essay-textarea-wrap textarea {
+  width: 100%;
+  min-height: clamp(320px, 54vh, 520px);
+  resize: vertical;
+  border: 1px solid rgba(255, 211, 90, .56);
+  border-radius: 19px;
+  background: linear-gradient(180deg, rgba(3, 10, 34, .9), rgba(1, 7, 26, .96));
+  padding: 18px 18px 44px;
+  color: #f8fbff;
+  font-size: 17px;
+  font-weight: 750;
+  line-height: 1.7;
+  outline: none;
+  box-shadow: inset 0 0 22px rgba(73, 154, 255, .08);
+}
+
+.eq-essay-textarea-wrap textarea::placeholder {
+  color: rgba(239, 247, 255, .45);
+}
+
+.eq-essay-textarea-wrap textarea:focus {
+  border-color: rgba(255, 228, 128, .95);
+  box-shadow: 0 0 0 3px rgba(255, 211, 90, .14), inset 0 0 26px rgba(73, 154, 255, .12);
+}
+
+.eq-essay-textarea-wrap > span {
+  position: absolute;
+  right: 18px;
+  bottom: 14px;
+  color: rgba(239, 247, 255, .62);
+  font-size: 13px;
+  font-weight: 850;
+}
+
+.eq-essay-submit-button.eq-fantasy-button-v2 {
+  min-height: 68px;
+  border: 1px solid rgba(255, 231, 139, .9);
+  background: linear-gradient(180deg, #ffe891, #df9f26 54%, #9b5b0d);
+  color: #2c1a04;
+  font-size: 20px;
+  font-weight: 950;
+  text-align: center;
+  box-shadow: 0 12px 22px rgba(201, 132, 19, .28), inset 0 1px 0 rgba(255, 255, 255, .45);
+}
+
+.eq-essay-submit-button.eq-fantasy-button-v2 .eq-fantasy-button-v2__trail {
+  margin-left: auto;
+}
+
+.eq-essay-status,
+.eq-essay-error,
+.eq-essay-notice {
+  margin: 0;
+  border-radius: 14px;
+  padding: 11px 12px;
+  font-size: 13px;
+  font-weight: 900;
+  line-height: 1.55;
+  text-align: center;
+}
+
+.eq-essay-status {
+  background: rgba(22, 84, 104, .46);
+  color: #9defff;
+}
+
+.eq-essay-error {
+  border: 1px solid rgba(255, 122, 154, .42);
+  background: rgba(59, 13, 36, .7);
+  color: #ffbfd0;
+}
+
+.eq-essay-notice {
+  border: 1px solid rgba(255, 211, 90, .42);
+  background: rgba(67, 47, 14, .6);
+  color: #fff0b5;
+}
+
+.eq-essay-tips-card li {
+  position: relative;
+  padding-left: 18px;
+  color: rgba(239, 247, 255, .78);
+  font-size: 14px;
+  font-weight: 800;
+  line-height: 1.6;
+}
+
+.eq-essay-tips-card li::before {
+  content: '•';
+  position: absolute;
+  left: 0;
+  color: #ffe18a;
+}
+
+@media (min-width: 860px) {
+  .eq-essay-layout {
+    grid-template-columns: minmax(0, .92fr) minmax(0, 1.08fr);
+    align-items: start;
+  }
+}
+
+@media (max-width: 520px) {
+  .eq-essay-page-content {
+    gap: 14px;
+  }
+
+  .eq-essay-question-strip {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .eq-essay-question-strip .eq-fantasy-button-v2:last-child {
+    grid-column: 1 / -1;
+  }
+
+  .eq-essay-textarea-wrap textarea {
+    min-height: 330px;
+  }
+}
+
 /* Interview practice */
 .eq-interview-page {
   min-height: 100dvh;
