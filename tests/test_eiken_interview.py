@@ -18,11 +18,6 @@ class FakeGeminiResponse:
         self.text = text
 
 
-class FakeGenerateContentConfig:
-    def __init__(self, **kwargs):
-        self.kwargs = kwargs
-
-
 class FakeGeminiModels:
     def __init__(self, response_text, calls):
         self.response_text = response_text
@@ -45,13 +40,11 @@ class FakeGeminiClient:
 def fake_gemini_modules(response_text):
     FakeGeminiClient.response_text = response_text
     FakeGeminiClient.calls = []
-    fake_types = SimpleNamespace(GenerateContentConfig=FakeGenerateContentConfig)
-    fake_genai = SimpleNamespace(Client=FakeGeminiClient, types=fake_types)
+    fake_genai = SimpleNamespace(Client=FakeGeminiClient)
     fake_google = SimpleNamespace(genai=fake_genai)
     return {
         'google': fake_google,
         'google.genai': fake_genai,
-        'google.genai.types': fake_types,
     }, FakeGeminiClient.calls
 
 
@@ -327,6 +320,7 @@ class EikenInterviewApiTests(unittest.TestCase):
         self.assertEqual(1, len(gemini_calls))
         rendered_prompt = gemini_calls[0]['contents']
         self.assertEqual('gemini-2.5-flash', gemini_calls[0]['model'])
+        self.assertNotIn('config', gemini_calls[0])
         self.assertIn(self.first_passage, rendered_prompt)
         self.assertNotIn('Do not trust this client passage.', rendered_prompt)
         self.assertNotIn('{{passage_text}}', rendered_prompt)

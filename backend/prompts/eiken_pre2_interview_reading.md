@@ -17,7 +17,15 @@ Focus on:
 
 Use simple Japanese.
 
-Return JSON only:
+Return JSON only.
+Use these score ranges:
+- reading_score: 0-5
+- completion_score: 0-3
+- pronunciation_score: 0-3
+- fluency_score: 0-2
+- confidence_score: 0-2
+
+Required JSON shape:
 
 {
   "reading_score": 0,

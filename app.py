@@ -9700,7 +9700,6 @@ def generate_eiken_interview_reading_feedback(passage_text, transcript):
         raise RuntimeError('GEMINI_API_KEY is not configured')
 
     from google import genai
-    from google.genai import types
 
     app.logger.info(
         'Eiken interview reading AI provider selected: gemini; prompt loaded=%s',
@@ -9712,22 +9711,21 @@ def generate_eiken_interview_reading_feedback(passage_text, transcript):
     })
 
     client = genai.Client(api_key=api_key)
+    app.logger.info('Gemini request sent')
     response = client.models.generate_content(
         model='gemini-2.5-flash',
         contents=prompt,
-        config=types.GenerateContentConfig(
-            response_mime_type='application/json',
-            response_schema=_eiken_interview_reading_feedback_schema(),
-        ),
     )
     response_text = response.text
+    app.logger.info('Gemini raw response: %s', response_text)
     if not response_text:
         raise ValueError('AI reading feedback response did not include text output')
     try:
         payload = _extract_json_object(response_text)
     except Exception:
-        app.logger.warning('Eiken interview reading Gemini JSON parse failed. Raw response: %s', response_text)
+        app.logger.warning('JSON parse failed')
         raise
+    app.logger.info('JSON parse success')
     return _normalize_eiken_interview_reading_feedback(payload)
 
 
