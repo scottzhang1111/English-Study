@@ -1,7 +1,7 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 
-const BGM_SRC = '/assets/eigo-quest/audio/main-bgm.mp3';
-const HOME_BGM_SRC = '/assets/eigo-quest/home/home.mp3';
+const BGM_SRC = '/assets/eigo-quest/home/login.mp3';
+const HOME_BGM_SRC = '/assets/eigo-quest/home/login.mp3';
 const BGM_VOLUME = 0.25;
 const HOME_BGM_VOLUME = 0.25;
 const FADE_DURATION_MS = 700;
