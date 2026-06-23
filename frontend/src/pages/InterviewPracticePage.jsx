@@ -507,7 +507,7 @@ export default function InterviewPracticePage() {
                   <span>
                     {readingFeedback.reading_score == null
                       ? '記録済み'
-                      : `${Math.round((readingFeedback.reading_score / 2) * 10) / 10} / 5`}
+                      : `${readingFeedback.reading_score} / 5`}
                   </span>
                 </div>
                 {readingFeedback.reading_score != null ? (

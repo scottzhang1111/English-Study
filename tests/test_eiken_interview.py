@@ -1,14 +1,58 @@
 import json
 import os
+import sys
 import tempfile
 import unittest
 from pathlib import Path
+from types import SimpleNamespace
 from unittest.mock import patch
 
 os.environ['DATABASE_URL'] = ' '
 
 import app as app_module
 from scripts import seed_pre2_interview as seed_module
+
+
+class FakeGeminiResponse:
+    def __init__(self, text):
+        self.text = text
+
+
+class FakeGenerateContentConfig:
+    def __init__(self, **kwargs):
+        self.kwargs = kwargs
+
+
+class FakeGeminiModels:
+    def __init__(self, response_text, calls):
+        self.response_text = response_text
+        self.calls = calls
+
+    def generate_content(self, **kwargs):
+        self.calls.append(kwargs)
+        return FakeGeminiResponse(self.response_text)
+
+
+class FakeGeminiClient:
+    response_text = '{}'
+    calls = []
+
+    def __init__(self, api_key):
+        self.api_key = api_key
+        self.models = FakeGeminiModels(self.response_text, self.calls)
+
+
+def fake_gemini_modules(response_text):
+    FakeGeminiClient.response_text = response_text
+    FakeGeminiClient.calls = []
+    fake_types = SimpleNamespace(GenerateContentConfig=FakeGenerateContentConfig)
+    fake_genai = SimpleNamespace(Client=FakeGeminiClient, types=fake_types)
+    fake_google = SimpleNamespace(genai=fake_genai)
+    return {
+        'google': fake_google,
+        'google.genai': fake_genai,
+        'google.genai.types': fake_types,
+    }, FakeGeminiClient.calls
 
 
 class EikenInterviewApiTests(unittest.TestCase):
@@ -242,10 +286,10 @@ class EikenInterviewApiTests(unittest.TestCase):
         self.assertEqual('まず音読してね', response.get_json()['message'])
 
     def test_reading_feedback_without_api_key_returns_fallback(self):
-        with patch.object(app_module, 'get_openai_api_key', return_value=''), patch.object(
-            app_module.urllib.request,
-            'urlopen',
-            side_effect=AssertionError('OpenAI should not be called without an API key'),
+        with patch.object(app_module, 'get_gemini_api_key', return_value=''), patch.object(
+            app_module,
+            'generate_eiken_interview_reading_feedback',
+            side_effect=AssertionError('Gemini should not be called without an API key'),
         ):
             response = self.reading_feedback_request()
         self.assertEqual(200, response.status_code)
@@ -260,7 +304,7 @@ class EikenInterviewApiTests(unittest.TestCase):
 
     def test_reading_feedback_uses_database_passage_and_normalizes_scores(self):
         ai_payload = {
-            'reading_score': 0,
+            'reading_score': 5,
             'completion_score': 3,
             'pronunciation_score': 2,
             'fluency_score': 2,
@@ -270,32 +314,19 @@ class EikenInterviewApiTests(unittest.TestCase):
             'try_again_phrase': 'Many schools are improving their libraries.',
         }
 
-        class FakeOpenAiResponse:
-            def __enter__(self):
-                return self
-
-            def __exit__(self, exc_type, exc, traceback):
-                return False
-
-            def read(self):
-                return json.dumps({'output_text': json.dumps(ai_payload, ensure_ascii=False)}).encode('utf-8')
-
-        with patch.object(app_module, 'get_openai_api_key', return_value='test-key'), patch.object(
-            app_module.urllib.request,
-            'urlopen',
-            return_value=FakeOpenAiResponse(),
-        ) as mocked_urlopen:
+        fake_modules, gemini_calls = fake_gemini_modules(json.dumps(ai_payload, ensure_ascii=False))
+        with patch.object(app_module, 'get_gemini_api_key', return_value='test-key'), patch.dict(sys.modules, fake_modules):
             response = self.reading_feedback_request()
 
         self.assertEqual(200, response.status_code)
         payload = response.get_json()
-        self.assertEqual(9, payload['reading_score'])
+        self.assertEqual(5, payload['reading_score'])
         self.assertEqual(3, payload['completion_score'])
         self.assertEqual(2, payload['pronunciation_score'])
         self.assertEqual(ai_payload['try_again_phrase'], payload['try_again_phrase'])
-        openai_request = mocked_urlopen.call_args.args[0]
-        request_body = json.loads(openai_request.data.decode('utf-8'))
-        rendered_prompt = request_body['input']
+        self.assertEqual(1, len(gemini_calls))
+        rendered_prompt = gemini_calls[0]['contents']
+        self.assertEqual('gemini-2.5-flash', gemini_calls[0]['model'])
         self.assertIn(self.first_passage, rendered_prompt)
         self.assertNotIn('Do not trust this client passage.', rendered_prompt)
         self.assertNotIn('{{passage_text}}', rendered_prompt)

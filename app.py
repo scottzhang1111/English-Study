@@ -9635,7 +9635,7 @@ def _eiken_interview_reading_feedback_schema():
         'type': 'object',
         'additionalProperties': False,
         'properties': {
-            'reading_score': {'type': 'integer', 'minimum': 0, 'maximum': 10},
+            'reading_score': {'type': 'integer', 'minimum': 0, 'maximum': 5},
             'completion_score': {'type': 'integer', 'minimum': 0, 'maximum': 3},
             'pronunciation_score': {'type': 'integer', 'minimum': 0, 'maximum': 3},
             'fluency_score': {'type': 'integer', 'minimum': 0, 'maximum': 2},
@@ -9675,6 +9675,7 @@ def _normalize_eiken_interview_reading_feedback(payload):
     if not isinstance(payload, dict):
         raise ValueError('AI reading feedback response must be an object')
     try:
+        reading_score = max(0, min(5, int(payload.get('reading_score'))))
         completion_score = max(0, min(3, int(payload.get('completion_score'))))
         pronunciation_score = max(0, min(3, int(payload.get('pronunciation_score'))))
         fluency_score = max(0, min(2, int(payload.get('fluency_score'))))
@@ -9682,7 +9683,7 @@ def _normalize_eiken_interview_reading_feedback(payload):
     except (TypeError, ValueError) as exc:
         raise ValueError('AI reading feedback response contained invalid scores') from exc
     return {
-        'reading_score': completion_score + pronunciation_score + fluency_score + confidence_score,
+        'reading_score': reading_score,
         'completion_score': completion_score,
         'pronunciation_score': pronunciation_score,
         'fluency_score': fluency_score,
@@ -9694,48 +9695,40 @@ def _normalize_eiken_interview_reading_feedback(payload):
 
 
 def generate_eiken_interview_reading_feedback(passage_text, transcript):
-    api_key = get_openai_api_key()
+    api_key = get_gemini_api_key()
     if not api_key:
-        raise RuntimeError('OPENAI_API_KEY is not configured')
+        raise RuntimeError('GEMINI_API_KEY is not configured')
 
-    model = get_openai_model()
-    reasoning_effort = get_openai_reasoning_effort(model)
+    from google import genai
+    from google.genai import types
+
+    app.logger.info(
+        'Eiken interview reading AI provider selected: gemini; prompt loaded=%s',
+        prompt_file_available(EIKEN_INTERVIEW_READING_PROMPT),
+    )
     prompt = _render_eiken_interview_prompt(EIKEN_INTERVIEW_READING_PROMPT, {
         'passage_text': passage_text,
         'student_transcript': transcript,
     })
-    body = {
-        'model': model,
-        'input': prompt,
-        'text': {
-            'verbosity': 'low',
-            'format': {
-                'type': 'json_schema',
-                'name': 'eiken_interview_reading_feedback',
-                'strict': True,
-                'schema': _eiken_interview_reading_feedback_schema(),
-            },
-        },
-    }
-    if reasoning_effort:
-        body['reasoning'] = {'effort': reasoning_effort}
 
-    request_timeout = int(os.getenv('OPENAI_TIMEOUT', '30'))
-    openai_request = urllib.request.Request(
-        OPENAI_RESPONSES_URL,
-        data=json.dumps(body, ensure_ascii=False).encode('utf-8'),
-        headers={
-            'Authorization': f'Bearer {api_key}',
-            'Content-Type': 'application/json',
-        },
-        method='POST',
+    client = genai.Client(api_key=api_key)
+    response = client.models.generate_content(
+        model='gemini-2.5-flash',
+        contents=prompt,
+        config=types.GenerateContentConfig(
+            response_mime_type='application/json',
+            response_schema=_eiken_interview_reading_feedback_schema(),
+        ),
     )
-    with urllib.request.urlopen(openai_request, timeout=request_timeout) as response:
-        response_data = json.loads(response.read().decode('utf-8'))
-    response_text = _extract_response_text(response_data)
+    response_text = response.text
     if not response_text:
         raise ValueError('AI reading feedback response did not include text output')
-    return _normalize_eiken_interview_reading_feedback(json.loads(response_text))
+    try:
+        payload = _extract_json_object(response_text)
+    except Exception:
+        app.logger.warning('Eiken interview reading Gemini JSON parse failed. Raw response: %s', response_text)
+        raise
+    return _normalize_eiken_interview_reading_feedback(payload)
 
 
 @app.route('/api/eiken-interview/assets/<path:filename>')
@@ -9794,6 +9787,8 @@ def api_eiken_interview_feedback():
 def api_eiken_interview_reading_feedback():
     data = request.get_json(silent=True) or {}
     transcript = str(data.get('transcript') or '').strip()
+    app.logger.info('Eiken interview reading feedback request received')
+    app.logger.info('Eiken interview reading feedback transcript length: %s', len(transcript))
     if not transcript:
         return jsonify(error='transcript_required', message='まず音読してね'), 400
     try:
@@ -9808,10 +9803,18 @@ def api_eiken_interview_reading_feedback():
 
     passage_text = passage['passage_text']
     fallback = _eiken_interview_reading_feedback_fallback(passage_text)
-    if not get_openai_api_key():
+    app.logger.info(
+        'Eiken interview reading feedback prompt loaded: %s',
+        prompt_file_available(EIKEN_INTERVIEW_READING_PROMPT),
+    )
+    app.logger.info('Eiken interview reading feedback AI provider selected: gemini')
+    if not get_gemini_api_key():
+        app.logger.warning('Eiken interview reading feedback fallback: GEMINI_API_KEY missing')
         return jsonify(fallback)
     try:
-        return jsonify(generate_eiken_interview_reading_feedback(passage_text, transcript))
+        result = generate_eiken_interview_reading_feedback(passage_text, transcript)
+        app.logger.info('Eiken interview reading feedback AI call success')
+        return jsonify(result)
     except Exception as exc:
         app.logger.warning('Eiken interview AI reading feedback unavailable: %s', exc)
         return jsonify(fallback)
