@@ -4245,6 +4245,88 @@ def make_blank(example, word):
     return blanked
 
 
+ANSWER_LEAKAGE_STOPWORDS = {
+    'a', 'an', 'and', 'as', 'at', 'be', 'by', 'can', 'do', 'for', 'from',
+    'have', 'in', 'is', 'it', 'of', 'on', 'or', 'the', 'to', 'with',
+}
+
+
+def _normalize_leakage_text(value):
+    return re.sub(r'[^a-z0-9]+', ' ', str(value or '').lower()).strip()
+
+
+def _answer_core_terms(answer):
+    normalized = _normalize_leakage_text(answer)
+    if not normalized:
+        return []
+
+    tokens = normalized.split()
+    terms = []
+    for token in tokens:
+        if token in ANSWER_LEAKAGE_STOPWORDS or len(token) < 3:
+            continue
+        terms.append(token)
+
+    for first, second in zip(tokens, tokens[1:]):
+        if first in ANSWER_LEAKAGE_STOPWORDS and second in ANSWER_LEAKAGE_STOPWORDS:
+            continue
+        if first == 'able' and second == 'to':
+            terms.append('able to')
+        elif first not in ANSWER_LEAKAGE_STOPWORDS and second not in ANSWER_LEAKAGE_STOPWORDS:
+            terms.append(f'{first} {second}')
+
+    if 'oneself' in tokens:
+        terms.extend(['myself', 'yourself', 'himself', 'herself', 'ourselves', 'yourselves', 'themselves'])
+
+    deduped = []
+    for term in terms:
+        if term and term not in deduped:
+            deduped.append(term)
+    return deduped
+
+
+def _word_family_pattern(term):
+    escaped = re.escape(term)
+    if ' ' in term:
+        return rf'\b{escaped}\b'
+
+    variants = {term}
+    if term.endswith('e'):
+        variants.add(f'{term}s')
+        variants.add(f'{term}d')
+        variants.add(f'{term[:-1]}ing')
+    else:
+        variants.add(f'{term}s')
+        variants.add(f'{term}ed')
+        variants.add(f'{term}ing')
+    if term.endswith('y') and len(term) > 3:
+        variants.add(f'{term[:-1]}ies')
+        variants.add(f'{term[:-1]}ied')
+    return r'\b(?:' + '|'.join(re.escape(value) for value in sorted(variants, key=len, reverse=True)) + r')\b'
+
+
+def has_answer_leakage(question_text, correct_answer):
+    normalized_question = _normalize_leakage_text(question_text)
+    if not normalized_question:
+        return False
+
+    for term in _answer_core_terms(correct_answer):
+        if re.search(_word_family_pattern(term), normalized_question, flags=re.IGNORECASE):
+            return True
+    return False
+
+
+def is_safe_choice_question(question):
+    if not question:
+        return False
+    choices = question.get('choices') or []
+    correct = str(question.get('correct') or question.get('correct_answer') or question.get('answer') or '').strip()
+    question_text = str(question.get('question') or question.get('prompt') or '').strip()
+    if choices and correct and has_answer_leakage(question_text, correct):
+        return False
+    return True
+
+
 def get_pos(word):
     w = (word or '').strip().lower()
     if w.endswith('ly'):
@@ -4482,6 +4564,8 @@ def _normalize_ai_question(question):
         deduped_choices.insert(0, correct)
     if len(deduped_choices) != 4:
         return None
+    if has_answer_leakage(question_text, correct):
+        return None
 
     return {
         'type': qtype,
@@ -4617,9 +4701,13 @@ def generate_rule_questions(entries):
         'Reading Cloze': _generate_reading_cloze_question,
     }
     for qtype in question_types:
-        for _ in range(5):
+        target_count = len(questions) + 5
+        attempts = 0
+        max_attempts = max(50, len(entries) * 2)
+        while len(questions) < target_count and attempts < max_attempts:
+            attempts += 1
             question = generators[qtype](entries)
-            if question:
+            if question and is_safe_choice_question(question):
                 questions.append(question)
     return questions
 
@@ -7484,6 +7572,8 @@ def normalize_ai_auto_question(data, fallback_entry, requested_type):
         choices = []
     if not prompt or not correct:
         raise ValueError('AI output missing prompt or correct_answer')
+    if choices and has_answer_leakage(prompt, correct):
+        raise ValueError('AI output leaks the correct answer in the prompt')
     return {
         'type': qtype,
         'question': prompt,
@@ -7500,42 +7590,51 @@ def normalize_ai_auto_question(data, fallback_entry, requested_type):
 
 
 def generate_rule_ai_auto_question(entries, question_type):
-    entry = entries[0] if entries else random.choice(vocab_list)
-    word = entry.get('English', '').strip()
-    meaning = entry.get('Japanese', '').strip()
-    example = entry.get('Example_English', '').strip() or f'I like to use {word}.'
-    choices = []
-    if question_type in ['multiple_choice', 'en_to_ja']:
-        choices = _build_review_choices(meaning, vocab_list, lambda item: item.get('Japanese', '').strip())
-        prompt = f'"{word}" の意味はどれ？'
-        correct = meaning
-    elif question_type == 'ja_to_en':
-        choices = _build_review_choices(word, vocab_list, lambda item: item.get('English', '').strip())
-        prompt = f'"{meaning}" を英語でいうと？'
-        correct = word
-    elif question_type in ['fill_blank', 'reading']:
-        choices = _build_review_choices(word, vocab_list, lambda item: item.get('English', '').strip())
-        prompt = make_blank(example, word)
-        correct = word
-    elif question_type == 'writing':
-        prompt = f'{word} を使って、短い英文を書こう。'
-        correct = word
-    else:
-        prompt = f'{word} を使って文を作ろう。'
-        correct = word
-    return {
-        'type': question_type,
-        'question': prompt,
-        'prompt': prompt,
-        'choices': choices[:4],
-        'answer': correct,
-        'correct_answer': correct,
-        'explanation': '',
-        'word': word,
-        'meaning': meaning,
-        'example': example,
-        'vocab_id': entry.get('ID', ''),
-    }
+    candidate_entries = entries[:] if entries else random.sample(vocab_list, min(20, len(vocab_list)))
+    if not candidate_entries and vocab_list:
+        candidate_entries = [random.choice(vocab_list)]
+
+    for entry in candidate_entries:
+        word = entry.get('English', '').strip()
+        meaning = entry.get('Japanese', '').strip()
+        example = entry.get('Example_English', '').strip() or f'I like to use {word}.'
+        choices = []
+        if question_type in ['multiple_choice', 'en_to_ja']:
+            choices = _build_review_choices(meaning, vocab_list, lambda item: item.get('Japanese', '').strip())
+            prompt = f'"{word}" の意味はどれ？'
+            correct = meaning
+        elif question_type == 'ja_to_en':
+            choices = _build_review_choices(word, vocab_list, lambda item: item.get('English', '').strip())
+            prompt = f'"{meaning}" を英語でいうと？'
+            correct = word
+        elif question_type in ['fill_blank', 'reading']:
+            choices = _build_review_choices(word, vocab_list, lambda item: item.get('English', '').strip())
+            prompt = make_blank(example, word)
+            correct = word
+        elif question_type == 'writing':
+            prompt = f'{word} を使って、短い英文を書こう。'
+            correct = word
+        else:
+            prompt = f'{word} を使って文を作ろう。'
+            correct = word
+
+        question = {
+            'type': question_type,
+            'question': prompt,
+            'prompt': prompt,
+            'choices': choices[:4],
+            'answer': correct,
+            'correct_answer': correct,
+            'explanation': '',
+            'word': word,
+            'meaning': meaning,
+            'example': example,
+            'vocab_id': entry.get('ID', ''),
+        }
+        if is_safe_choice_question(question):
+            return question
+
+    raise LookupError('question data not found')
 
 
 def save_ai_question(child_id, question, source='rule', difficulty='normal'):
