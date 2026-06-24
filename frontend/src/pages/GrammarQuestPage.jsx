@@ -219,15 +219,28 @@ export default function GrammarQuestPage() {
     setFeedback(null);
   };
 
+  const goPreviousQuestion = () => {
+    if (questionIndex <= 0 || feedback) return;
+    setQuestionIndex((index) => index - 1);
+    setSelectedIndex(null);
+    setFeedback(null);
+  };
+
   const correctCount = answers.filter((answer) => answer.isCorrect).length;
   const pageTitle = mode === 'quiz' ? '文法テスト' : '文法レッスン';
-  const pageSubtitle = mode === 'quiz' ? lesson?.title : lesson?.title || '';
   const lessonGoal = lesson?.learningGoal || lesson?.grammarPoint || '';
+  const pageSubtitle = mode === 'quiz'
+    ? `${lesson?.title || ''}\n${questions.length || 5}問チャレンジ！`
+    : [lesson?.title, lessonGoal].filter(Boolean).join('\n');
+  const quizProgressValue = questions.length ? questionIndex + 1 : 0;
+  const quizProgressPercent = questions.length
+    ? Math.round((quizProgressValue / questions.length) * 100)
+    : 0;
 
   return (
     <EQPageShell
       className="eq-grammar-rpg-wrap"
-      contentClassName={`eq-grammar-rpg-page eq-grammar-rpg-quest-page ${mode === 'lesson' ? 'eq-grammar-lesson-detail-page' : ''}`}
+      contentClassName={`eq-grammar-rpg-page eq-grammar-rpg-quest-page ${mode === 'lesson' ? 'eq-grammar-lesson-detail-page' : ''} ${mode === 'quiz' ? 'eq-grammar-test-page-v2' : ''}`}
       withBottomNav
       bottomNavClassName="eq-learning-hub-bottom-nav"
       maxWidth="430px"
@@ -237,17 +250,14 @@ export default function GrammarQuestPage() {
         subtitle={pageSubtitle}
         backgroundImage={mode === 'quiz' ? EQ_ASSETS.bg.grammarPractice : EQ_ASSETS.bg.grammarTemple}
         helperImage={EQ_ASSETS.spirit.happy}
-        guidanceText={mode === 'lesson' ? lessonGoal : undefined}
-        elementLabel={mode === 'quiz' ? lesson?.category : undefined}
-        progressText={mode === 'quiz' && questions.length ? `${questionIndex + 1}/${questions.length}` : undefined}
-        progressValue={mode === 'quiz' ? questionIndex + 1 : undefined}
-        progressMax={mode === 'quiz' ? questions.length : undefined}
+        guidanceText={undefined}
+        elementLabel={undefined}
         variant="grammar"
-        action={(
+        action={mode === 'quiz' ? (
           <button type="button" className="eq-grammar-rpg-back" onClick={() => navigate(-1)} aria-label="戻る">
             ←
           </button>
-        )}
+        ) : undefined}
       />
 
       {error ? <div className="eq-grammar-rpg-message is-error">{error}</div> : null}
@@ -317,22 +327,31 @@ export default function GrammarQuestPage() {
         </>
       ) : mode === 'quiz' && currentQuestion ? (
         <>
-          <section className="eq-grammar-rpg-quiz-head">
-            <span>{lesson.title}</span>
+          <section className="eq-grammar-test-progress-card" aria-label="Quiz progress">
+            <div className="eq-grammar-test-progress-row">
+              <strong>Question {quizProgressValue} / {questions.length}</strong>
+              <span>{quizProgressPercent}%</span>
+            </div>
             <EQProgressBar
-              value={questionIndex + 1}
+              value={quizProgressValue}
               max={questions.length}
-              label={`${questionIndex + 1}/${questions.length}`}
+              label={`Question ${quizProgressValue} / ${questions.length}`}
+              showText={false}
             />
           </section>
 
-          <EQQuestionCard title={currentQuestion.prompt} className="eq-grammar-rpg-question-card">
+          <EQQuestionCard className="eq-grammar-rpg-question-card">
+            <h2 className="eq-grammar-test-prompt">{currentQuestion.prompt}</h2>
             <div className="eq-grammar-rpg-choices">
               {currentQuestion.choices.map((choice, index) => {
                 const isSelected = selectedIndex === index;
                 const isCorrect = feedback && feedback.correctIndex === index;
                 const isWrong = feedback && isSelected && !feedback.isCorrect;
                 const isDimmed = feedback && !isSelected && !isCorrect;
+                const choiceClasses = [
+                  'eq-grammar-test-choice',
+                  isDimmed ? 'is-dimmed' : '',
+                ].filter(Boolean).join(' ');
                 return (
                   <EQChoiceButton
                     key={`${choice}-${index}`}
@@ -340,7 +359,7 @@ export default function GrammarQuestPage() {
                     selected={isSelected}
                     correct={Boolean(isCorrect)}
                     wrong={Boolean(isWrong)}
-                    className={isDimmed ? 'is-dimmed' : ''}
+                    className={choiceClasses}
                     onClick={() => !feedback && setSelectedIndex(index)}
                     disabled={Boolean(feedback)}
                   >
@@ -358,16 +377,25 @@ export default function GrammarQuestPage() {
                 {feedback.explanation ? <small>{feedback.explanation}</small> : null}
               </section>
             ) : null}
-          </EQQuestionCard>
 
-          <EQFantasyButton
-            fullWidth
-            className="eq-grammar-rpg-quiz-button"
-            onClick={feedback ? goNextQuestion : submitAnswer}
-            disabled={selectedIndex === null}
-          >
-            {feedback ? (questionIndex >= questions.length - 1 ? '結果を見る' : '次の問題へ') : '答えを決定'}
-          </EQFantasyButton>
+            <div className="eq-grammar-test-nav">
+              <EQFantasyButton
+                variant="dark"
+                className="eq-grammar-test-prev"
+                onClick={goPreviousQuestion}
+                disabled={questionIndex === 0 || Boolean(feedback)}
+              >
+                前へ
+              </EQFantasyButton>
+              <EQFantasyButton
+                className="eq-grammar-test-next"
+                onClick={feedback ? goNextQuestion : submitAnswer}
+                disabled={selectedIndex === null}
+              >
+                {feedback && questionIndex >= questions.length - 1 ? '結果を見る' : '次へ'}
+              </EQFantasyButton>
+            </div>
+          </EQQuestionCard>
         </>
       ) : (
         <EQQuestionCard className="eq-grammar-rpg-card eq-grammar-rpg-result">
@@ -379,3 +407,4 @@ export default function GrammarQuestPage() {
     </EQPageShell>
   );
 }
+
