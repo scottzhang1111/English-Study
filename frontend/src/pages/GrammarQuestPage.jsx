@@ -1,99 +1,10 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import {
-  EQBottomNav,
-  EQ_ASSETS,
-  EQCard,
-  EQMobileShell,
-  GoldQuestButton,
-  MagicPanel,
-} from '../components/eigo';
-import {
-  getGrammarLesson,
-  getGrammarLessons,
-  getHomeData,
-  submitGrammarQuizAnswer,
-} from '../api';
+import { EQ_ASSETS, EQBottomNav, EQFantasyButton, EQMobileShell } from '../components/eigo';
+import { getGrammarLesson, getGrammarLessons, submitGrammarQuizAnswer } from '../api';
 import { useChildren } from '../ChildrenContext';
 
-const PASS_SCORE = 2;
-
-const MOCK_LESSON = {
-  title: 'be動詞の魔法',
-  subtitle: 'am / is / are を選んで、文を完成させよう',
-  rule: '主語が I なら am、he / she / it なら is、you / we / they なら are を使います。',
-  examples: [
-    'I am happy.',
-    'She is kind.',
-    'They are friends.',
-  ],
-};
-
-const MOCK_QUESTIONS = [
-  {
-    prompt: 'I ___ a student.',
-    answer: 'am',
-    choices: ['am', 'is', 'are'],
-  },
-  {
-    prompt: 'He ___ my brother.',
-    answer: 'is',
-    choices: ['am', 'is', 'are'],
-  },
-  {
-    prompt: 'They ___ in the park.',
-    answer: 'are',
-    choices: ['am', 'is', 'are'],
-  },
-];
-
-function buildFallbackLesson() {
-  return {
-    title: MOCK_LESSON.title,
-    subtitle: MOCK_LESSON.subtitle,
-    rule: MOCK_LESSON.rule,
-    examples: MOCK_LESSON.examples,
-  };
-}
-
-function buildFallbackQuestions() {
-  return MOCK_QUESTIONS.map((question, index) => ({
-    id: `mock-${index}`,
-    prompt: question.prompt,
-    answer: question.answer,
-    choices: question.choices,
-    isMock: true,
-  }));
-}
-
-function normalizeLesson(apiLesson) {
-  if (!apiLesson) return buildFallbackLesson();
-
-  const examples = [apiLesson.enExample, apiLesson.jpExample].filter(Boolean);
-  const grammarPoint = apiLesson.grammarPoint || apiLesson.grammar_point || '';
-  const jpExplanation = apiLesson.jpExplanation || apiLesson.jp_explanation || '';
-  const enExample = apiLesson.enExample || apiLesson.en_example || '';
-  const jpExample = apiLesson.jpExample || apiLesson.jp_example || '';
-  const learningGoal = apiLesson.learningGoal || apiLesson.learning_goal || '';
-  const patterns = normalizePatterns(apiLesson.patterns || apiLesson.patterns_json || apiLesson.patternsJson);
-
-  return {
-    lessonId: apiLesson.lessonId || apiLesson.lesson_id || apiLesson.id || '',
-    level: apiLesson.level || '',
-    category: apiLesson.category || '',
-    title: apiLesson.title || MOCK_LESSON.title,
-    subtitle: apiLesson.category || learningGoal || MOCK_LESSON.subtitle,
-    displayOrder: Number(apiLesson.displayOrder || apiLesson.display_order || 0),
-    learningGoal,
-    grammarPoint,
-    jpExplanation,
-    enExample,
-    jpExample,
-    patterns,
-    rule: grammarPoint || jpExplanation || MOCK_LESSON.rule,
-    examples: examples.length ? examples : MOCK_LESSON.examples,
-  };
-}
+const HIGHLIGHT_RE = /(am|is|are|doing|to do|do|~ing)/gi;
 
 function normalizePatterns(rawPatterns) {
   let patterns = rawPatterns;
@@ -108,11 +19,7 @@ function normalizePatterns(rawPatterns) {
   return patterns
     .map((item) => {
       if (Array.isArray(item)) {
-        return {
-          pattern: item[0] || '',
-          meaningJa: item[1] || '',
-          exampleEn: item[2] || '',
-        };
+        return { pattern: item[0] || '', meaningJa: item[1] || '', exampleEn: item[2] || '' };
       }
       if (!item || typeof item !== 'object') return null;
       return {
@@ -124,32 +31,44 @@ function normalizePatterns(rawPatterns) {
     .filter((item) => item?.pattern);
 }
 
-function normalizeQuestions(apiLesson) {
-  const quizzes = Array.isArray(apiLesson?.quizzes) ? apiLesson.quizzes : [];
-  if (!quizzes.length) return [];
-
-  return quizzes
-    .map((quiz, index) => ({
-      id: quiz.quizId || `api-${index}`,
-      quizId: quiz.quizId,
-      prompt: quiz.questionJp || quiz.prompt || MOCK_QUESTIONS[index % MOCK_QUESTIONS.length].prompt,
-      choices: (quiz.choices || []).filter(Boolean),
-      isMock: false,
-    }))
-    .filter((question) => question.choices.length > 0);
+function normalizeLesson(apiLesson = {}) {
+  const grammarPoint = apiLesson.grammarPoint || apiLesson.grammar_point || '';
+  const jpExplanation = apiLesson.jpExplanation || apiLesson.jp_explanation || '';
+  const enExample = apiLesson.enExample || apiLesson.en_example || '';
+  const jpExample = apiLesson.jpExample || apiLesson.jp_example || '';
+  const learningGoal = apiLesson.learningGoal || apiLesson.learning_goal || '';
+  return {
+    lessonId: apiLesson.lessonId || apiLesson.lesson_id || apiLesson.id || '',
+    title: apiLesson.title || '文法レッスン',
+    category: apiLesson.category || '文法項目',
+    displayOrder: Number(apiLesson.displayOrder || apiLesson.display_order || 0),
+    grammarPoint,
+    jpExplanation,
+    enExample,
+    jpExample,
+    learningGoal,
+    patterns: normalizePatterns(apiLesson.patterns || apiLesson.patterns_json || apiLesson.patternsJson),
+  };
 }
 
-function highlightGrammarText(text = '') {
-  if (!text) return null;
-  const pattern = /(had\s*\+\s*過去分詞|am\s*\/\s*is\s*\/\s*are|would|could|might|doing|to do|do|~ing)/gi;
-  return String(text).split(pattern).map((part, index) => {
+function normalizeQuestions(apiLesson = {}) {
+  const quizzes = Array.isArray(apiLesson.quizzes) ? apiLesson.quizzes : [];
+  return quizzes
+    .map((quiz, index) => ({
+      id: quiz.quizId || quiz.quiz_id || `quiz-${index}`,
+      quizId: quiz.quizId || quiz.quiz_id,
+      prompt: quiz.questionJp || quiz.question_jp || quiz.questionText || quiz.question_text || '',
+      choices: (quiz.choices || [quiz.choice_a, quiz.choice_b, quiz.choice_c, quiz.choice_d]).filter(Boolean),
+      explanation: quiz.explanationJp || quiz.explanation || quiz.explanation_jp || '',
+    }))
+    .filter((question) => question.prompt && question.choices.length);
+}
+
+function highlightText(text = '') {
+  return String(text).split(HIGHLIGHT_RE).map((part, index) => {
     if (!part) return null;
-    if (pattern.test(part)) {
-      pattern.lastIndex = 0;
-      return <mark key={`${part}-${index}`}>{part}</mark>;
-    }
-    pattern.lastIndex = 0;
-    return <span key={`${part}-${index}`}>{part}</span>;
+    HIGHLIGHT_RE.lastIndex = 0;
+    return HIGHLIGHT_RE.test(part) ? <mark key={`${part}-${index}`}>{part}</mark> : <span key={`${part}-${index}`}>{part}</span>;
   });
 }
 
@@ -162,338 +81,279 @@ function speakExample(text) {
   window.speechSynthesis.speak(utterance);
 }
 
+function choiceLetter(index) {
+  return String.fromCharCode(65 + index);
+}
+
 export default function GrammarQuestPage() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const { selectedChildId } = useChildren();
-  const [homeData, setHomeData] = useState(null);
-  const [lesson, setLesson] = useState(() => buildFallbackLesson());
-  const [lessonList, setLessonList] = useState([]);
-  const [questions, setQuestions] = useState(() => buildFallbackQuestions());
-  const [usingMockFallback, setUsingMockFallback] = useState(true);
-  const [lessonLoading, setLessonLoading] = useState(true);
-  const [preparingMessage, setPreparingMessage] = useState('');
-  const [mode, setMode] = useState('lesson');
-  const [questionIndex, setQuestionIndex] = useState(0);
-  const [selectedChoice, setSelectedChoice] = useState('');
-  const [answers, setAnswers] = useState([]);
-  const [rewardSaving, setRewardSaving] = useState(false);
-  const [error, setError] = useState('');
-  const [targetExpanded, setTargetExpanded] = useState(false);
   const requestedLessonId = searchParams.get('lessonId') || '';
-
-  useEffect(() => {
-    if (!selectedChildId) return;
-    getHomeData(selectedChildId)
-      .then(setHomeData)
-      .catch(() => setHomeData(null));
-  }, [selectedChildId]);
+  const [lesson, setLesson] = useState(null);
+  const [lessonList, setLessonList] = useState([]);
+  const [questions, setQuestions] = useState([]);
+  const [mode, setMode] = useState('lesson');
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+  const [showAllPatterns, setShowAllPatterns] = useState(false);
+  const [questionIndex, setQuestionIndex] = useState(0);
+  const [selectedIndex, setSelectedIndex] = useState(null);
+  const [feedback, setFeedback] = useState(null);
+  const [answers, setAnswers] = useState([]);
 
   useEffect(() => {
     if (!selectedChildId) {
-      setLesson(buildFallbackLesson());
-      setQuestions(buildFallbackQuestions());
-      setUsingMockFallback(true);
-      setLessonLoading(false);
+      navigate('/select-child', { replace: true });
       return;
     }
 
-    setLessonLoading(true);
-    setPreparingMessage('');
+    setLoading(true);
+    setError('');
     getGrammarLessons(selectedChildId)
       .then((payload) => {
-        if (payload.preparing) {
-          setPreparingMessage(payload.message || '3級文法は準備中です');
-          setQuestions([]);
-          setUsingMockFallback(false);
-          return null;
-        }
         const lessons = payload.lessons || [];
         setLessonList(lessons);
-        const requestedLesson = lessons.find((item) => item.lessonId === requestedLessonId);
-        const lessonId = requestedLesson?.lessonId || payload.todayLesson?.lessonId || lessons[0]?.lessonId;
-        if (!lessonId) throw new Error('No grammar lesson found.');
+        const requested = lessons.find((item) => item.lessonId === requestedLessonId);
+        const lessonId = requested?.lessonId || payload.todayLesson?.lessonId || lessons[0]?.lessonId;
+        if (!lessonId) throw new Error('文法レッスンが見つかりません。');
         return getGrammarLesson({ childId: selectedChildId, lessonId });
       })
       .then((payload) => {
-        if (!payload) return;
-        const apiLesson = payload.lesson;
-        const nextQuestions = normalizeQuestions(apiLesson);
-        if (!apiLesson || !nextQuestions.length) throw new Error('No grammar quiz found.');
+        const apiLesson = payload.lesson || {};
         setLesson(normalizeLesson(apiLesson));
-        setQuestions(nextQuestions);
-        setUsingMockFallback(false);
-        setError('');
+        setQuestions(normalizeQuestions(apiLesson));
         setMode('lesson');
-        setTargetExpanded(false);
+        setQuestionIndex(0);
+        setSelectedIndex(null);
+        setFeedback(null);
+        setAnswers([]);
+        setShowAllPatterns(false);
       })
-      .catch(() => {
-        setLesson(buildFallbackLesson());
-        setQuestions(buildFallbackQuestions());
-        setUsingMockFallback(true);
-      })
-      .finally(() => setLessonLoading(false));
-  }, [requestedLessonId, selectedChildId]);
+      .catch((err) => setError(err.message || '文法レッスンを読み込めませんでした。'))
+      .finally(() => setLoading(false));
+  }, [navigate, requestedLessonId, selectedChildId]);
 
-  const currentQuestion = questions[questionIndex] || questions[0];
+  const currentQuestion = questions[questionIndex] || null;
   const currentLessonIndex = useMemo(
-    () => lessonList.findIndex((item) => item.lessonId === lesson.lessonId),
-    [lesson.lessonId, lessonList],
+    () => lessonList.findIndex((item) => item.lessonId === lesson?.lessonId),
+    [lesson?.lessonId, lessonList],
   );
   const previousLesson = currentLessonIndex > 0 ? lessonList[currentLessonIndex - 1] : null;
   const nextLesson = currentLessonIndex >= 0 && currentLessonIndex < lessonList.length - 1
     ? lessonList[currentLessonIndex + 1]
     : null;
-  const score = useMemo(
-    () => answers.filter((answer) => answer.correct).length,
-    [answers],
-  );
-  const passed = score >= PASS_SCORE;
-
-  const startQuiz = () => {
-    setMode('quiz');
-    setQuestionIndex(0);
-    setSelectedChoice('');
-    setAnswers([]);
-    setError('');
-  };
-
-  const submitAnswer = async () => {
-    if (!selectedChoice) return;
-    const selectedIndex = currentQuestion.choices.findIndex((choice) => choice === selectedChoice);
-    if (selectedIndex < 0) return;
-
-    let answerPayload = {
-      prompt: currentQuestion.prompt,
-      selected: selectedChoice,
-      correctAnswer: currentQuestion.answer,
-      correct: selectedChoice === currentQuestion.answer,
-    };
-
-    if (!currentQuestion.isMock && currentQuestion.quizId) {
-      try {
-        const result = await submitGrammarQuizAnswer({
-          childId: selectedChildId,
-          quizId: currentQuestion.quizId,
-          selectedIndex,
-        });
-        answerPayload = {
-          prompt: currentQuestion.prompt,
-          selected: selectedChoice,
-          correctAnswer: currentQuestion.choices[result.correctIndex] || '',
-          correct: Boolean(result.isCorrect),
-        };
-      } catch (err) {
-        setError(err.message || 'Answer could not be saved.');
-        return;
-      }
-    }
-
-    const nextAnswers = [...answers, answerPayload];
-    setAnswers(nextAnswers);
-    setSelectedChoice('');
-
-    if (questionIndex >= questions.length - 1) {
-      setMode('result');
-      return;
-    }
-
-    setQuestionIndex((index) => index + 1);
-  };
-
-  const retryLesson = () => {
-    setMode('lesson');
-    setQuestionIndex(0);
-    setSelectedChoice('');
-    setAnswers([]);
-    setError('');
-  };
-
-  const claimReward = () => {
-    if (!selectedChildId) return;
-    setRewardSaving(true);
-    setError('');
-    try {
-      navigate('/grammar');
-    } catch (err) {
-      setError(err.message || 'Reward could not be created.');
-      setRewardSaving(false);
-    }
-  };
-
-  const lessonTitle = lessonLoading ? 'Loading grammar...' : preparingMessage || lesson.title;
-  const categoryLabel = lesson.category || '文法';
-  const breadcrumb = `文法の塔 > ${categoryLabel} > ${lesson.title || 'レッスン'}`;
-  const summaryGoal = lesson.learningGoal || lesson.grammarPoint || '文法の使い方を文の中で確認しよう。';
-  const targetText = lesson.grammarPoint || summaryGoal;
-  const ruleText = lesson.jpExplanation || lesson.rule || 'このレッスンのルールを確認して、クイズで使ってみよう。';
-  const pointItems = lesson.patterns?.length
-    ? lesson.patterns
-    : [{ pattern: 'ポイント', meaningJa: ruleText, exampleEn: lesson.enExample || '' }];
+  const visiblePatterns = showAllPatterns ? (lesson?.patterns || []) : (lesson?.patterns || []).slice(0, 3);
+  const progressPercent = questions.length ? Math.round(((questionIndex + 1) / questions.length) * 100) : 0;
 
   const navigateLesson = (targetLesson) => {
     if (!targetLesson?.lessonId) return;
     navigate(`/grammar-quest?lessonId=${encodeURIComponent(targetLesson.lessonId)}`);
   };
 
+  const startQuiz = () => {
+    setMode('quiz');
+    setQuestionIndex(0);
+    setSelectedIndex(null);
+    setFeedback(null);
+    setAnswers([]);
+  };
+
+  const submitAnswer = async () => {
+    if (!currentQuestion || selectedIndex === null || feedback) return;
+    try {
+      const result = await submitGrammarQuizAnswer({
+        childId: selectedChildId,
+        quizId: currentQuestion.quizId,
+        selectedIndex,
+      });
+      const nextFeedback = {
+        isCorrect: Boolean(result.isCorrect),
+        selectedIndex,
+        correctIndex: Number(result.correctIndex),
+        explanation: result.explanationJp || currentQuestion.explanation || '',
+      };
+      setFeedback(nextFeedback);
+      setAnswers((items) => [...items, nextFeedback]);
+    } catch (err) {
+      setError(err.message || '答えを保存できませんでした。');
+    }
+  };
+
+  const goNextQuestion = () => {
+    if (questionIndex >= questions.length - 1) {
+      setMode('result');
+      return;
+    }
+    setQuestionIndex((index) => index + 1);
+    setSelectedIndex(null);
+    setFeedback(null);
+  };
+
+  const correctCount = answers.filter((answer) => answer.isCorrect).length;
+
   return (
-    <div className="quest-grammar-mobile-intro">
-      <EQMobileShell className="eq-grammar-screen quest-grammar-learn-page">
-        <header className="quest-grammar-header quest-header">
-          <button type="button" className="quest-back-button" onClick={() => navigate(-1)} aria-label="Back">
-            ‹
+    <div className="eq-grammar-rpg-wrap">
+      <EQMobileShell className="eq-grammar-rpg-page eq-grammar-rpg-quest-page">
+        <header className="eq-grammar-rpg-header">
+          <button type="button" className="eq-grammar-rpg-back" onClick={() => navigate(-1)} aria-label="戻る">
+            ←
           </button>
-          <div className="quest-header-copy">
-            <h1>{mode === 'lesson' ? '文法レッスン' : 'Grammar Quiz'}</h1>
-            <p>{mode === 'quiz' ? `${questionIndex + 1} / ${questions.length}` : breadcrumb}</p>
+          <div>
+            <h1>{mode === 'quiz' ? '文法テスト' : '文法レッスン'}</h1>
+            <p>{mode === 'quiz' ? lesson?.title : `文法の塔 > ${lesson?.category || '文法'} > ${lesson?.title || ''}`}</p>
           </div>
-          <img src={EQ_ASSETS.spirit.happy} alt="" className="quest-grammar-header-spirit" />
+          <img src={EQ_ASSETS.spirit.happy} alt="" />
         </header>
 
-        {mode === 'lesson' && (
+        {error ? <div className="eq-grammar-rpg-message is-error">{error}</div> : null}
+
+        {loading || !lesson ? (
+          <div className="eq-grammar-rpg-message">文法レッスンを読み込んでいます...</div>
+        ) : mode === 'lesson' ? (
           <>
-            <section className="eq-grammar-detail-stack" aria-label="文法レッスン">
-              <EQCard className={`eq-grammar-summary-card ${lessonLoading ? 'is-loading' : ''}`.trim()} glow={false}>
-                <div className="eq-grammar-summary-badge">
-                  <span>LESSON</span>
-                  <strong>{lesson.displayOrder || currentLessonIndex + 1 || '-'}</strong>
-                  <small>{categoryLabel}</small>
-                </div>
-                <div className="eq-grammar-summary-copy">
-                  <h2>{lessonTitle}</h2>
-                  <p>{lessonLoading ? 'レッスンを読み込んでいます。' : summaryGoal}</p>
-                </div>
-              </EQCard>
+            <section className="eq-grammar-rpg-summary">
+              <div className="eq-grammar-rpg-summary-no">
+                <span>LESSON</span>
+                <strong>{lesson.displayOrder || currentLessonIndex + 1 || '-'}</strong>
+                <small>{lesson.category}</small>
+              </div>
+              <div>
+                <span className="eq-grammar-rpg-category">{lesson.category}</span>
+                <h2>{lesson.title}</h2>
+                <p>{lesson.learningGoal || lesson.grammarPoint}</p>
+              </div>
+            </section>
 
-              <EQCard className="eq-grammar-detail-card eq-grammar-target-card" glow={false}>
-                <div className="eq-grammar-card-title">
-                  <span aria-hidden="true">🎯</span>
-                  <h3>ターゲット</h3>
-                </div>
-                <p className={targetExpanded ? 'is-expanded' : ''}>{targetText}</p>
-                {targetText.length > 80 ? (
-                  <button type="button" onClick={() => setTargetExpanded((value) => !value)}>
-                    {targetExpanded ? '閉じる' : 'もっと見る'}
-                  </button>
-                ) : null}
-              </EQCard>
+            <section className="eq-grammar-rpg-card">
+              <h3>🎯 ターゲット</h3>
+              <p>{lesson.grammarPoint}</p>
+            </section>
 
-              <EQCard className="eq-grammar-detail-card eq-grammar-rule-card" glow={false}>
-                <div className="eq-grammar-card-title">
-                  <span aria-hidden="true">📜</span>
-                  <h3>ルール</h3>
-                </div>
-                <p>{highlightGrammarText(ruleText)}</p>
-              </EQCard>
+            <section className="eq-grammar-rpg-card">
+              <h3>📜 ルール</h3>
+              <p>{highlightText(lesson.jpExplanation)}</p>
+            </section>
 
-              {(lesson.enExample || lesson.jpExample) ? (
-                <EQCard className="eq-grammar-detail-card eq-grammar-example-card" glow={false}>
-                  <div className="eq-grammar-card-title">
-                    <span aria-hidden="true">🔊</span>
-                    <h3>例文</h3>
+            {(lesson.enExample || lesson.jpExample) ? (
+              <section className="eq-grammar-rpg-card">
+                <h3>🔊 例文</h3>
+                <div className="eq-grammar-rpg-example">
+                  {lesson.enExample ? (
+                    <button type="button" onClick={() => speakExample(lesson.enExample)} aria-label="例文を再生">
+                      ▶
+                      <span>再生</span>
+                    </button>
+                  ) : null}
+                  <div>
+                    {lesson.enExample ? <strong>{lesson.enExample}</strong> : null}
+                    {lesson.jpExample ? <p>{lesson.jpExample}</p> : null}
                   </div>
-                  <div className="eq-grammar-example-row">
-                    {lesson.enExample ? (
-                      <button type="button" className="eq-grammar-play-button" onClick={() => speakExample(lesson.enExample)}>
-                        再生
-                      </button>
-                    ) : null}
-                    <div>
-                      {lesson.enExample ? <p className="eq-grammar-example-en">{lesson.enExample}</p> : null}
-                      {lesson.jpExample ? <p className="eq-grammar-example-ja">{lesson.jpExample}</p> : null}
-                    </div>
+                </div>
+              </section>
+            ) : null}
+
+            <section className="eq-grammar-rpg-card">
+              <h3>💡 ポイント（よく使う表現）</h3>
+              {lesson.patterns.length ? (
+                <>
+                  <div className="eq-grammar-rpg-patterns">
+                    {visiblePatterns.map((item, index) => (
+                      <article key={`${item.pattern}-${index}`}>
+                        <strong>{item.pattern}</strong>
+                        {item.meaningJa ? <p>{item.meaningJa}</p> : null}
+                        {item.exampleEn ? <small>{item.exampleEn}</small> : null}
+                      </article>
+                    ))}
                   </div>
-                </EQCard>
-              ) : null}
-
-              <EQCard className="eq-grammar-detail-card eq-grammar-pattern-card" glow={false}>
-                <div className="eq-grammar-card-title">
-                  <span aria-hidden="true">💡</span>
-                  <h3>{lesson.patterns?.length ? 'ポイント・句型リスト' : 'ポイント'}</h3>
-                </div>
-                <div className="eq-grammar-pattern-list">
-                  {pointItems.map((item, index) => (
-                    <article key={`${item.pattern}-${index}`} className="eq-grammar-pattern-item">
-                      <strong>{item.pattern}</strong>
-                      {item.meaningJa ? <p>{item.meaningJa}</p> : null}
-                      {item.exampleEn ? <small>{item.exampleEn}</small> : null}
-                    </article>
-                  ))}
-                </div>
-              </EQCard>
-
-              {usingMockFallback && !lessonLoading && (
-                <p className="text-xs font-bold text-amber-200">Fallback lesson</p>
+                  {lesson.patterns.length > 3 ? (
+                    <button type="button" className="eq-grammar-rpg-link-button" onClick={() => setShowAllPatterns((value) => !value)}>
+                      {showAllPatterns ? '最初の3個だけ見る' : `すべての ${lesson.patterns.length} 個の表現を見る`}
+                    </button>
+                  ) : null}
+                </>
+              ) : (
+                <p>{lesson.jpExplanation || lesson.learningGoal || 'この文法の使い方を例文で確認しよう。'}</p>
               )}
             </section>
 
-            <div className="eq-grammar-detail-actions">
-              <GoldQuestButton onClick={startQuiz} disabled={lessonLoading || preparingMessage || !questions.length} className="quest-grammar-next">
+            <div className="eq-grammar-rpg-detail-actions">
+              <EQFantasyButton fullWidth onClick={startQuiz} disabled={!questions.length}>
                 クイズへ進む
-              </GoldQuestButton>
-              <div className="eq-grammar-neighbor-actions">
+              </EQFantasyButton>
+              <div>
                 <button type="button" onClick={() => navigateLesson(previousLesson)} disabled={!previousLesson}>
-                  前の文法へ戻る
+                  ← 前の文法へ戻る
                 </button>
                 <button type="button" onClick={() => navigateLesson(nextLesson)} disabled={!nextLesson}>
-                  次の文法へ進む
+                  次の文法へ進む →
                 </button>
               </div>
             </div>
           </>
-        )}
+        ) : mode === 'quiz' && currentQuestion ? (
+          <>
+            <section className="eq-grammar-rpg-quiz-head">
+              <span>{lesson.title}</span>
+              <div>
+                <strong>{questionIndex + 1}/{questions.length}</strong>
+                <i><b style={{ width: `${progressPercent}%` }} /></i>
+              </div>
+            </section>
 
-        {mode === 'quiz' && (
-          <MagicPanel className="quest-grammar-test-panel">
-            <div className="quest-grammar-test-meta">
-              <span className="quest-grammar-test-label">
-                {questionIndex + 1} / {questions.length}
-              </span>
-            </div>
-            <h2 className="quest-grammar-test-question">{currentQuestion.prompt}</h2>
-            <div className="quest-grammar-test-options">
-              {currentQuestion.choices.map((choice) => (
-                <button
-                  key={choice}
-                  type="button"
-                  className={`eq-choice-button ${selectedChoice === choice ? 'is-selected' : ''}`.trim()}
-                  onClick={() => setSelectedChoice(choice)}
-                >
-                  {choice}
-                </button>
-              ))}
-            </div>
-            <GoldQuestButton
-              onClick={submitAnswer}
-              disabled={!selectedChoice}
-              className="quest-grammar-test-submit"
+            <section className="eq-grammar-rpg-question-card">
+              <h2>{currentQuestion.prompt}</h2>
+              <div className="eq-grammar-rpg-choices">
+                {currentQuestion.choices.map((choice, index) => {
+                  const isSelected = selectedIndex === index;
+                  const isCorrect = feedback && feedback.correctIndex === index;
+                  const isWrong = feedback && isSelected && !feedback.isCorrect;
+                  const isDimmed = feedback && !isSelected && !isCorrect;
+                  return (
+                    <button
+                      key={`${choice}-${index}`}
+                      type="button"
+                      className={[
+                        isSelected ? 'is-selected' : '',
+                        isCorrect ? 'is-correct' : '',
+                        isWrong ? 'is-wrong' : '',
+                        isDimmed ? 'is-dimmed' : '',
+                      ].filter(Boolean).join(' ')}
+                      onClick={() => !feedback && setSelectedIndex(index)}
+                      disabled={Boolean(feedback)}
+                    >
+                      <span>{choiceLetter(index)}</span>
+                      {choice}
+                    </button>
+                  );
+                })}
+              </div>
+            </section>
+
+            {feedback ? (
+              <section className={`eq-grammar-rpg-explanation ${feedback.isCorrect ? 'is-correct' : 'is-wrong'}`}>
+                <h3>{feedback.isCorrect ? '正解！' : 'もう少し！'}</h3>
+                <p>正解: {choiceLetter(feedback.correctIndex)} {currentQuestion.choices[feedback.correctIndex]}</p>
+                <p>選んだ答え: {choiceLetter(feedback.selectedIndex)} {currentQuestion.choices[feedback.selectedIndex]}</p>
+                {feedback.explanation ? <small>{feedback.explanation}</small> : null}
+              </section>
+            ) : null}
+
+            <EQFantasyButton
+              fullWidth
+              className="eq-grammar-rpg-quiz-button"
+              onClick={feedback ? goNextQuestion : submitAnswer}
+              disabled={selectedIndex === null}
             >
-              決定
-            </GoldQuestButton>
-          </MagicPanel>
-        )}
-
-        {mode === 'result' && (
-          <MagicPanel className="eq-grammar-state-card quest-grammar-test-state">
-            <span className="quest-grammar-test-label">RESULT</span>
-            <h1>{passed ? 'CLEAR!' : 'TRY AGAIN'}</h1>
-            <p>{score} / {questions.length}</p>
-            <p>
-              {passed
-                ? '文法の魔法をクリアしました。カード報酬へ進みましょう。'
-                : 'もう一度レッスンを見てから挑戦しましょう。'}
-            </p>
-            {error && <p className="text-sm font-bold text-rose-300">{error}</p>}
-            {passed ? (
-              <GoldQuestButton onClick={claimReward} disabled={rewardSaving} className="quest-grammar-next">
-                カードへ
-              </GoldQuestButton>
-            ) : (
-              <GoldQuestButton onClick={retryLesson} className="quest-grammar-next">
-                もう一度
-              </GoldQuestButton>
-            )}
-          </MagicPanel>
+              {feedback ? (questionIndex >= questions.length - 1 ? '結果を見る' : '次の問題へ') : '答えを決定'}
+            </EQFantasyButton>
+          </>
+        ) : (
+          <section className="eq-grammar-rpg-card eq-grammar-rpg-result">
+            <h2>{correctCount >= Math.ceil(questions.length * 0.8) ? 'CLEAR!' : 'もう一度やってみよう'}</h2>
+            <p>{correctCount} / {questions.length}</p>
+            <EQFantasyButton fullWidth onClick={() => navigate('/grammar')}>文法の塔へ戻る</EQFantasyButton>
+          </section>
         )}
       </EQMobileShell>
       <EQBottomNav />
