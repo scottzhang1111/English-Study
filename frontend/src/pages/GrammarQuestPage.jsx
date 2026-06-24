@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import {
   EQBottomNav,
+  EQ_ASSETS,
   EQCard,
   EQMobileShell,
   GoldQuestButton,
@@ -69,21 +70,58 @@ function normalizeLesson(apiLesson) {
   if (!apiLesson) return buildFallbackLesson();
 
   const examples = [apiLesson.enExample, apiLesson.jpExample].filter(Boolean);
-  const grammarPoint = apiLesson.grammarPoint || '';
-  const jpExplanation = apiLesson.jpExplanation || '';
-  const enExample = apiLesson.enExample || '';
-  const jpExample = apiLesson.jpExample || '';
+  const grammarPoint = apiLesson.grammarPoint || apiLesson.grammar_point || '';
+  const jpExplanation = apiLesson.jpExplanation || apiLesson.jp_explanation || '';
+  const enExample = apiLesson.enExample || apiLesson.en_example || '';
+  const jpExample = apiLesson.jpExample || apiLesson.jp_example || '';
+  const learningGoal = apiLesson.learningGoal || apiLesson.learning_goal || '';
+  const patterns = normalizePatterns(apiLesson.patterns || apiLesson.patterns_json || apiLesson.patternsJson);
 
   return {
+    lessonId: apiLesson.lessonId || apiLesson.lesson_id || apiLesson.id || '',
+    level: apiLesson.level || '',
+    category: apiLesson.category || '',
     title: apiLesson.title || MOCK_LESSON.title,
-    subtitle: apiLesson.category || apiLesson.learningGoal || MOCK_LESSON.subtitle,
+    subtitle: apiLesson.category || learningGoal || MOCK_LESSON.subtitle,
+    displayOrder: Number(apiLesson.displayOrder || apiLesson.display_order || 0),
+    learningGoal,
     grammarPoint,
     jpExplanation,
     enExample,
     jpExample,
+    patterns,
     rule: grammarPoint || jpExplanation || MOCK_LESSON.rule,
     examples: examples.length ? examples : MOCK_LESSON.examples,
   };
+}
+
+function normalizePatterns(rawPatterns) {
+  let patterns = rawPatterns;
+  if (typeof rawPatterns === 'string' && rawPatterns.trim()) {
+    try {
+      patterns = JSON.parse(rawPatterns);
+    } catch {
+      patterns = [];
+    }
+  }
+  if (!Array.isArray(patterns)) return [];
+  return patterns
+    .map((item) => {
+      if (Array.isArray(item)) {
+        return {
+          pattern: item[0] || '',
+          meaningJa: item[1] || '',
+          exampleEn: item[2] || '',
+        };
+      }
+      if (!item || typeof item !== 'object') return null;
+      return {
+        pattern: item.pattern || item.title || '',
+        meaningJa: item.meaningJa || item.meaning || item.jp || item.ja || '',
+        exampleEn: item.exampleEn || item.example || item.en || '',
+      };
+    })
+    .filter((item) => item?.pattern);
 }
 
 function normalizeQuestions(apiLesson) {
@@ -101,12 +139,36 @@ function normalizeQuestions(apiLesson) {
     .filter((question) => question.choices.length > 0);
 }
 
+function highlightGrammarText(text = '') {
+  if (!text) return null;
+  const pattern = /(had\s*\+\s*過去分詞|am\s*\/\s*is\s*\/\s*are|would|could|might|doing|to do|do|~ing)/gi;
+  return String(text).split(pattern).map((part, index) => {
+    if (!part) return null;
+    if (pattern.test(part)) {
+      pattern.lastIndex = 0;
+      return <mark key={`${part}-${index}`}>{part}</mark>;
+    }
+    pattern.lastIndex = 0;
+    return <span key={`${part}-${index}`}>{part}</span>;
+  });
+}
+
+function speakExample(text) {
+  if (!text || typeof window === 'undefined' || !window.speechSynthesis) return;
+  window.speechSynthesis.cancel();
+  const utterance = new SpeechSynthesisUtterance(text);
+  utterance.lang = 'en-US';
+  utterance.rate = 0.9;
+  window.speechSynthesis.speak(utterance);
+}
+
 export default function GrammarQuestPage() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const { selectedChildId } = useChildren();
   const [homeData, setHomeData] = useState(null);
   const [lesson, setLesson] = useState(() => buildFallbackLesson());
+  const [lessonList, setLessonList] = useState([]);
   const [questions, setQuestions] = useState(() => buildFallbackQuestions());
   const [usingMockFallback, setUsingMockFallback] = useState(true);
   const [lessonLoading, setLessonLoading] = useState(true);
@@ -117,7 +179,7 @@ export default function GrammarQuestPage() {
   const [answers, setAnswers] = useState([]);
   const [rewardSaving, setRewardSaving] = useState(false);
   const [error, setError] = useState('');
-  const fromDailyQuest = searchParams.get('from') === 'daily-quest';
+  const [targetExpanded, setTargetExpanded] = useState(false);
   const requestedLessonId = searchParams.get('lessonId') || '';
 
   useEffect(() => {
@@ -147,6 +209,7 @@ export default function GrammarQuestPage() {
           return null;
         }
         const lessons = payload.lessons || [];
+        setLessonList(lessons);
         const requestedLesson = lessons.find((item) => item.lessonId === requestedLessonId);
         const lessonId = requestedLesson?.lessonId || payload.todayLesson?.lessonId || lessons[0]?.lessonId;
         if (!lessonId) throw new Error('No grammar lesson found.');
@@ -161,6 +224,8 @@ export default function GrammarQuestPage() {
         setQuestions(nextQuestions);
         setUsingMockFallback(false);
         setError('');
+        setMode('lesson');
+        setTargetExpanded(false);
       })
       .catch(() => {
         setLesson(buildFallbackLesson());
@@ -171,6 +236,14 @@ export default function GrammarQuestPage() {
   }, [requestedLessonId, selectedChildId]);
 
   const currentQuestion = questions[questionIndex] || questions[0];
+  const currentLessonIndex = useMemo(
+    () => lessonList.findIndex((item) => item.lessonId === lesson.lessonId),
+    [lesson.lessonId, lessonList],
+  );
+  const previousLesson = currentLessonIndex > 0 ? lessonList[currentLessonIndex - 1] : null;
+  const nextLesson = currentLessonIndex >= 0 && currentLessonIndex < lessonList.length - 1
+    ? lessonList[currentLessonIndex + 1]
+    : null;
   const score = useMemo(
     () => answers.filter((answer) => answer.correct).length,
     [answers],
@@ -249,16 +322,19 @@ export default function GrammarQuestPage() {
   };
 
   const lessonTitle = lessonLoading ? 'Loading grammar...' : preparingMessage || lesson.title;
-  const lessonSubtitle = fromDailyQuest ? 'Daily Quest' : lesson.subtitle || 'Grammar Practice';
-  const detailRows = [
-    lesson.grammarPoint ? { label: '文法ポイント', value: lesson.grammarPoint } : null,
-    lesson.jpExplanation ? { label: '説明', value: lesson.jpExplanation } : null,
-  ].filter(Boolean);
-  const exampleRows = [
-    lesson.enExample ? { label: 'English', value: lesson.enExample } : null,
-    lesson.jpExample ? { label: '日本語', value: lesson.jpExample } : null,
-  ].filter(Boolean);
-  const fallbackExamples = !exampleRows.length ? lesson.examples : [];
+  const categoryLabel = lesson.category || '文法';
+  const breadcrumb = `文法の塔 > ${categoryLabel} > ${lesson.title || 'レッスン'}`;
+  const summaryGoal = lesson.learningGoal || lesson.grammarPoint || '文法の使い方を文の中で確認しよう。';
+  const targetText = lesson.grammarPoint || summaryGoal;
+  const ruleText = lesson.jpExplanation || lesson.rule || 'このレッスンのルールを確認して、クイズで使ってみよう。';
+  const pointItems = lesson.patterns?.length
+    ? lesson.patterns
+    : [{ pattern: 'ポイント', meaningJa: ruleText, exampleEn: lesson.enExample || '' }];
+
+  const navigateLesson = (targetLesson) => {
+    if (!targetLesson?.lessonId) return;
+    navigate(`/grammar-quest?lessonId=${encodeURIComponent(targetLesson.lessonId)}`);
+  };
 
   return (
     <div className="quest-grammar-mobile-intro">
@@ -269,66 +345,101 @@ export default function GrammarQuestPage() {
           </button>
           <div className="quest-header-copy">
             <h1>{mode === 'lesson' ? '文法レッスン' : 'Grammar Quiz'}</h1>
-            <p>{mode === 'quiz' ? `${questionIndex + 1} / ${questions.length}` : lessonSubtitle}</p>
+            <p>{mode === 'quiz' ? `${questionIndex + 1} / ${questions.length}` : breadcrumb}</p>
           </div>
-          <span className="quest-header-star" aria-hidden="true">✦</span>
+          <img src={EQ_ASSETS.spirit.happy} alt="" className="quest-grammar-header-spirit" />
         </header>
 
         {mode === 'lesson' && (
           <>
-            <section className={`eq-grammar-learning-card ${lessonLoading ? 'is-loading' : ''}`.trim()} aria-label="文法レッスン">
-              <span className="eq-grammar-learning-badge">LESSON</span>
-              <div className="eq-grammar-test-topic">
-                <span className="eq-grammar-test-emblem" aria-hidden="true">Grammar</span>
-                <div>
-                  <p>学習テーマ</p>
+            <section className="eq-grammar-detail-stack" aria-label="文法レッスン">
+              <EQCard className={`eq-grammar-summary-card ${lessonLoading ? 'is-loading' : ''}`.trim()} glow={false}>
+                <div className="eq-grammar-summary-badge">
+                  <span>LESSON</span>
+                  <strong>{lesson.displayOrder || currentLessonIndex + 1 || '-'}</strong>
+                  <small>{categoryLabel}</small>
+                </div>
+                <div className="eq-grammar-summary-copy">
                   <h2>{lessonTitle}</h2>
+                  <p>{lessonLoading ? 'レッスンを読み込んでいます。' : summaryGoal}</p>
                 </div>
-                <div>
-                  <p>ルール</p>
-                  <strong>{lessonLoading ? 'Grammar quest is preparing the next lesson.' : preparingMessage || lesson.rule}</strong>
+              </EQCard>
+
+              <EQCard className="eq-grammar-detail-card eq-grammar-target-card" glow={false}>
+                <div className="eq-grammar-card-title">
+                  <span aria-hidden="true">🎯</span>
+                  <h3>ターゲット</h3>
                 </div>
-              </div>
+                <p className={targetExpanded ? 'is-expanded' : ''}>{targetText}</p>
+                {targetText.length > 80 ? (
+                  <button type="button" onClick={() => setTargetExpanded((value) => !value)}>
+                    {targetExpanded ? '閉じる' : 'もっと見る'}
+                  </button>
+                ) : null}
+              </EQCard>
 
-              {detailRows.length ? (
-                <EQCard className="eq-grammar-point-card" glow={false}>
-                  <span>要点</span>
-                  <ul>
-                    {detailRows.map((row) => (
-                      <li key={row.label}>
-                        <strong>{row.label}: </strong>
-                        {row.value}
-                      </li>
-                    ))}
-                  </ul>
-                </EQCard>
-              ) : null}
+              <EQCard className="eq-grammar-detail-card eq-grammar-rule-card" glow={false}>
+                <div className="eq-grammar-card-title">
+                  <span aria-hidden="true">📜</span>
+                  <h3>ルール</h3>
+                </div>
+                <p>{highlightGrammarText(ruleText)}</p>
+              </EQCard>
 
-              {!preparingMessage && (exampleRows.length || fallbackExamples.length) ? (
-                <EQCard className="eq-grammar-example-card" glow={false}>
-                  <span>例文</span>
-                  <div>
-                    {exampleRows.map((row) => (
-                      <p key={row.label}>
-                        {row.value}
-                        <span>{row.label}</span>
-                      </p>
-                    ))}
-                    {!exampleRows.length ? fallbackExamples.map((example) => (
-                      <p key={example}>{example}</p>
-                    )) : null}
+              {(lesson.enExample || lesson.jpExample) ? (
+                <EQCard className="eq-grammar-detail-card eq-grammar-example-card" glow={false}>
+                  <div className="eq-grammar-card-title">
+                    <span aria-hidden="true">🔊</span>
+                    <h3>例文</h3>
+                  </div>
+                  <div className="eq-grammar-example-row">
+                    {lesson.enExample ? (
+                      <button type="button" className="eq-grammar-play-button" onClick={() => speakExample(lesson.enExample)}>
+                        再生
+                      </button>
+                    ) : null}
+                    <div>
+                      {lesson.enExample ? <p className="eq-grammar-example-en">{lesson.enExample}</p> : null}
+                      {lesson.jpExample ? <p className="eq-grammar-example-ja">{lesson.jpExample}</p> : null}
+                    </div>
                   </div>
                 </EQCard>
               ) : null}
+
+              <EQCard className="eq-grammar-detail-card eq-grammar-pattern-card" glow={false}>
+                <div className="eq-grammar-card-title">
+                  <span aria-hidden="true">💡</span>
+                  <h3>{lesson.patterns?.length ? 'ポイント・句型リスト' : 'ポイント'}</h3>
+                </div>
+                <div className="eq-grammar-pattern-list">
+                  {pointItems.map((item, index) => (
+                    <article key={`${item.pattern}-${index}`} className="eq-grammar-pattern-item">
+                      <strong>{item.pattern}</strong>
+                      {item.meaningJa ? <p>{item.meaningJa}</p> : null}
+                      {item.exampleEn ? <small>{item.exampleEn}</small> : null}
+                    </article>
+                  ))}
+                </div>
+              </EQCard>
 
               {usingMockFallback && !lessonLoading && (
                 <p className="text-xs font-bold text-amber-200">Fallback lesson</p>
               )}
             </section>
 
-            <GoldQuestButton onClick={startQuiz} disabled={lessonLoading || preparingMessage || !questions.length} className="quest-grammar-next">
-              クイズへ
-            </GoldQuestButton>
+            <div className="eq-grammar-detail-actions">
+              <GoldQuestButton onClick={startQuiz} disabled={lessonLoading || preparingMessage || !questions.length} className="quest-grammar-next">
+                クイズへ進む
+              </GoldQuestButton>
+              <div className="eq-grammar-neighbor-actions">
+                <button type="button" onClick={() => navigateLesson(previousLesson)} disabled={!previousLesson}>
+                  前の文法へ戻る
+                </button>
+                <button type="button" onClick={() => navigateLesson(nextLesson)} disabled={!nextLesson}>
+                  次の文法へ進む
+                </button>
+              </div>
+            </div>
           </>
         )}
 
