@@ -112,6 +112,21 @@ unless it is only used internally in code.
 - After each task, run: `cd frontend && npm run build`.
 - Report changed files and build result.
 
+## UI Implementation Governance
+
+UI implementation source of truth:
+
+1. `docs/EIGO_UI_SYSTEM.md` defines the Eigo World mobile visual style.
+2. `docs/UI_COMPONENT_SYSTEM.md` defines which React components to use.
+
+Rules:
+
+- Before creating new UI, check `docs/UI_COMPONENT_SYSTEM.md`.
+- Reuse official components whenever possible.
+- Extend existing component variants before creating new components.
+- Do not create duplicate button, card, header, question, or bottom-nav systems.
+- For UI-only tasks, do not change backend, API, routing, quiz, or progress logic.
+
 ## Architecture Direction
 
 At the current stage, do NOT perform a large frontend/backend repository split.

@@ -1,0 +1,98 @@
+.eq-progress-bar-official {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  color: rgba(255, 245, 210, 0.94);
+  font-size: 0.82rem;
+  font-weight: 900;
+}
+
+.eq-progress-bar-official__track {
+  position: relative;
+  min-width: 0;
+  height: 10px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 211, 90, 0.38);
+  border-radius: 999px;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.08), rgba(0, 0, 0, 0.18)),
+    rgba(4, 12, 38, 0.82);
+  box-shadow:
+    inset 0 1px 4px rgba(0, 0, 0, 0.56),
+    0 0 12px rgba(67, 216, 255, 0.12);
+}
+
+.eq-progress-bar-official__fill {
+  width: var(--eq-progress-value, 0%);
+  height: 100%;
+  border-radius: inherit;
+  background:
+    linear-gradient(90deg, #ffe06e 0%, #62f0c7 48%, #43d8ff 100%);
+  box-shadow:
+    0 0 12px rgba(67, 216, 255, 0.58),
+    inset 0 1px 0 rgba(255, 255, 255, 0.48);
+  transition: width 220ms ease;
+}
+
+.eq-progress-bar-official__text {
+  min-width: max-content;
+  color: #ffe59a;
+  letter-spacing: 0;
+  text-shadow: 0 1px 8px rgba(255, 184, 64, 0.34);
+}
+
+.eq-question-card-official {
+  --eq-question-card-min-height: 0px;
+  min-height: var(--eq-question-card-min-height);
+}
+
+.eq-question-card-official .eq-fantasy-card-v2__body {
+  display: grid;
+  gap: 14px;
+}
+
+.eq-question-card-official__body {
+  display: grid;
+  gap: 14px;
+  min-width: 0;
+}
+
+.eq-question-card-official .eq-fantasy-card-v2__footer {
+  min-height: 48px;
+}
+
+.eq-audio-button-official.eq-fantasy-button-v2 {
+  min-height: 44px;
+  padding-inline: 16px;
+  border-color: rgba(67, 216, 255, 0.46);
+  color: #f7fbff;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.14),
+    0 0 16px rgba(67, 216, 255, 0.18);
+}
+
+.eq-audio-button-official.eq-fantasy-button-v2.is-playing {
+  border-color: rgba(255, 211, 90, 0.64);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.18),
+    0 0 18px rgba(255, 211, 90, 0.24);
+}
+
+.eq-audio-button-official.eq-fantasy-button-v2:disabled {
+  cursor: not-allowed;
+  filter: grayscale(0.35);
+  opacity: 0.56;
+}
+
+@media (max-width: 420px) {
+  .eq-progress-bar-official {
+    gap: 8px;
+    font-size: 0.78rem;
+  }
+
+  .eq-progress-bar-official__track {
+    height: 9px;
+  }
+}

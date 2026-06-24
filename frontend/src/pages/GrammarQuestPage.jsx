@@ -1,6 +1,15 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { EQ_ASSETS, EQBottomNav, EQFantasyButton, EQMobileShell } from '../components/eigo';
+import {
+  CompactPageHeader,
+  EQ_ASSETS,
+  EQAudioButton,
+  EQChoiceButton,
+  EQFantasyButton,
+  EQPageShell,
+  EQProgressBar,
+  EQQuestionCard,
+} from '../components/eigo';
 import { getGrammarLesson, getGrammarLessons, submitGrammarQuizAnswer } from '../api';
 import { useChildren } from '../ChildrenContext';
 
@@ -68,7 +77,9 @@ function highlightText(text = '') {
   return String(text).split(HIGHLIGHT_RE).map((part, index) => {
     if (!part) return null;
     HIGHLIGHT_RE.lastIndex = 0;
-    return HIGHLIGHT_RE.test(part) ? <mark key={`${part}-${index}`}>{part}</mark> : <span key={`${part}-${index}`}>{part}</span>;
+    return HIGHLIGHT_RE.test(part)
+      ? <mark key={`${part}-${index}`}>{part}</mark>
+      : <span key={`${part}-${index}`}>{part}</span>;
   });
 }
 
@@ -144,7 +155,6 @@ export default function GrammarQuestPage() {
     ? lessonList[currentLessonIndex + 1]
     : null;
   const visiblePatterns = showAllPatterns ? (lesson?.patterns || []) : (lesson?.patterns || []).slice(0, 3);
-  const progressPercent = questions.length ? Math.round(((questionIndex + 1) / questions.length) * 100) : 0;
 
   const navigateLesson = (targetLesson) => {
     if (!targetLesson?.lessonId) return;
@@ -191,144 +201,150 @@ export default function GrammarQuestPage() {
   };
 
   const correctCount = answers.filter((answer) => answer.isCorrect).length;
+  const pageTitle = mode === 'quiz' ? '文法テスト' : '文法レッスン';
+  const pageSubtitle = mode === 'quiz'
+    ? lesson?.title
+    : `文法の塔 > ${lesson?.category || '文法'} > ${lesson?.title || ''}`;
 
   return (
-    <div className="eq-grammar-rpg-wrap">
-      <EQMobileShell className="eq-grammar-rpg-page eq-grammar-rpg-quest-page">
-        <header className="eq-grammar-rpg-header">
+    <EQPageShell
+      className="eq-grammar-rpg-wrap"
+      contentClassName="eq-grammar-rpg-page eq-grammar-rpg-quest-page"
+      withBottomNav
+      bottomNavClassName="eq-learning-hub-bottom-nav"
+      maxWidth="430px"
+    >
+      <CompactPageHeader
+        title={pageTitle}
+        subtitle={pageSubtitle}
+        backgroundImage={mode === 'quiz' ? EQ_ASSETS.bg.grammarPractice : EQ_ASSETS.bg.grammarTemple}
+        helperImage={EQ_ASSETS.spirit.happy}
+        elementLabel={lesson?.category}
+        progressText={mode === 'quiz' && questions.length ? `${questionIndex + 1}/${questions.length}` : undefined}
+        progressValue={mode === 'quiz' ? questionIndex + 1 : undefined}
+        progressMax={mode === 'quiz' ? questions.length : undefined}
+        variant="grammar"
+        action={(
           <button type="button" className="eq-grammar-rpg-back" onClick={() => navigate(-1)} aria-label="戻る">
             ←
           </button>
-          <div>
-            <h1>{mode === 'quiz' ? '文法テスト' : '文法レッスン'}</h1>
-            <p>{mode === 'quiz' ? lesson?.title : `文法の塔 > ${lesson?.category || '文法'} > ${lesson?.title || ''}`}</p>
-          </div>
-          <img src={EQ_ASSETS.spirit.happy} alt="" />
-        </header>
+        )}
+      />
 
-        {error ? <div className="eq-grammar-rpg-message is-error">{error}</div> : null}
+      {error ? <div className="eq-grammar-rpg-message is-error">{error}</div> : null}
 
-        {loading || !lesson ? (
-          <div className="eq-grammar-rpg-message">文法レッスンを読み込んでいます...</div>
-        ) : mode === 'lesson' ? (
-          <>
-            <section className="eq-grammar-rpg-summary">
-              <div className="eq-grammar-rpg-summary-no">
-                <span>LESSON</span>
-                <strong>{lesson.displayOrder || currentLessonIndex + 1 || '-'}</strong>
-                <small>{lesson.category}</small>
-              </div>
-              <div>
-                <span className="eq-grammar-rpg-category">{lesson.category}</span>
-                <h2>{lesson.title}</h2>
-                <p>{lesson.learningGoal || lesson.grammarPoint}</p>
-              </div>
-            </section>
-
-            <section className="eq-grammar-rpg-card">
-              <h3>🎯 ターゲット</h3>
-              <p>{lesson.grammarPoint}</p>
-            </section>
-
-            <section className="eq-grammar-rpg-card">
-              <h3>📜 ルール</h3>
-              <p>{highlightText(lesson.jpExplanation)}</p>
-            </section>
-
-            {(lesson.enExample || lesson.jpExample) ? (
-              <section className="eq-grammar-rpg-card">
-                <h3>🔊 例文</h3>
-                <div className="eq-grammar-rpg-example">
-                  {lesson.enExample ? (
-                    <button type="button" onClick={() => speakExample(lesson.enExample)} aria-label="例文を再生">
-                      ▶
-                      <span>再生</span>
-                    </button>
-                  ) : null}
-                  <div>
-                    {lesson.enExample ? <strong>{lesson.enExample}</strong> : null}
-                    {lesson.jpExample ? <p>{lesson.jpExample}</p> : null}
-                  </div>
-                </div>
-              </section>
-            ) : null}
-
-            <section className="eq-grammar-rpg-card">
-              <h3>💡 ポイント（よく使う表現）</h3>
-              {lesson.patterns.length ? (
-                <>
-                  <div className="eq-grammar-rpg-patterns">
-                    {visiblePatterns.map((item, index) => (
-                      <article key={`${item.pattern}-${index}`}>
-                        <strong>{item.pattern}</strong>
-                        {item.meaningJa ? <p>{item.meaningJa}</p> : null}
-                        {item.exampleEn ? <small>{item.exampleEn}</small> : null}
-                      </article>
-                    ))}
-                  </div>
-                  {lesson.patterns.length > 3 ? (
-                    <button type="button" className="eq-grammar-rpg-link-button" onClick={() => setShowAllPatterns((value) => !value)}>
-                      {showAllPatterns ? '最初の3個だけ見る' : `すべての ${lesson.patterns.length} 個の表現を見る`}
-                    </button>
-                  ) : null}
-                </>
-              ) : (
-                <p>{lesson.jpExplanation || lesson.learningGoal || 'この文法の使い方を例文で確認しよう。'}</p>
-              )}
-            </section>
-
-            <div className="eq-grammar-rpg-detail-actions">
-              <EQFantasyButton fullWidth onClick={startQuiz} disabled={!questions.length}>
-                クイズへ進む
-              </EQFantasyButton>
-              <div>
-                <button type="button" onClick={() => navigateLesson(previousLesson)} disabled={!previousLesson}>
-                  ← 前の文法へ戻る
-                </button>
-                <button type="button" onClick={() => navigateLesson(nextLesson)} disabled={!nextLesson}>
-                  次の文法へ進む →
-                </button>
-              </div>
+      {loading || !lesson ? (
+        <div className="eq-grammar-rpg-message">文法レッスンを読み込んでいます...</div>
+      ) : mode === 'lesson' ? (
+        <>
+          <EQQuestionCard className="eq-grammar-rpg-summary">
+            <div className="eq-grammar-rpg-summary-no">
+              <span>LESSON</span>
+              <strong>{lesson.displayOrder || currentLessonIndex + 1 || '-'}</strong>
+              <small>{lesson.category}</small>
             </div>
-          </>
-        ) : mode === 'quiz' && currentQuestion ? (
-          <>
-            <section className="eq-grammar-rpg-quiz-head">
-              <span>{lesson.title}</span>
-              <div>
-                <strong>{questionIndex + 1}/{questions.length}</strong>
-                <i><b style={{ width: `${progressPercent}%` }} /></i>
-              </div>
-            </section>
+            <div>
+              <span className="eq-grammar-rpg-category">{lesson.category}</span>
+              <h2>{lesson.title}</h2>
+              <p>{lesson.learningGoal || lesson.grammarPoint}</p>
+            </div>
+          </EQQuestionCard>
 
-            <section className="eq-grammar-rpg-question-card">
-              <h2>{currentQuestion.prompt}</h2>
-              <div className="eq-grammar-rpg-choices">
-                {currentQuestion.choices.map((choice, index) => {
-                  const isSelected = selectedIndex === index;
-                  const isCorrect = feedback && feedback.correctIndex === index;
-                  const isWrong = feedback && isSelected && !feedback.isCorrect;
-                  const isDimmed = feedback && !isSelected && !isCorrect;
-                  return (
-                    <button
-                      key={`${choice}-${index}`}
-                      type="button"
-                      className={[
-                        isSelected ? 'is-selected' : '',
-                        isCorrect ? 'is-correct' : '',
-                        isWrong ? 'is-wrong' : '',
-                        isDimmed ? 'is-dimmed' : '',
-                      ].filter(Boolean).join(' ')}
-                      onClick={() => !feedback && setSelectedIndex(index)}
-                      disabled={Boolean(feedback)}
-                    >
-                      <span>{choiceLetter(index)}</span>
-                      {choice}
-                    </button>
-                  );
-                })}
+          <EQQuestionCard title="🎯 ターゲット" className="eq-grammar-rpg-card">
+            <p>{lesson.grammarPoint}</p>
+          </EQQuestionCard>
+
+          <EQQuestionCard title="📜 ルール" className="eq-grammar-rpg-card">
+            <p>{highlightText(lesson.jpExplanation)}</p>
+          </EQQuestionCard>
+
+          {(lesson.enExample || lesson.jpExample) ? (
+            <EQQuestionCard title="🔊 例文" className="eq-grammar-rpg-card">
+              <div className="eq-grammar-rpg-example">
+                {lesson.enExample ? (
+                  <EQAudioButton onClick={() => speakExample(lesson.enExample)} label="例文を再生">
+                    再生
+                  </EQAudioButton>
+                ) : null}
+                <div>
+                  {lesson.enExample ? <strong>{lesson.enExample}</strong> : null}
+                  {lesson.jpExample ? <p>{lesson.jpExample}</p> : null}
+                </div>
               </div>
-            </section>
+            </EQQuestionCard>
+          ) : null}
+
+          <EQQuestionCard title="💡 ポイント（よく使う表現）" className="eq-grammar-rpg-card">
+            {lesson.patterns.length ? (
+              <>
+                <div className="eq-grammar-rpg-patterns">
+                  {visiblePatterns.map((item, index) => (
+                    <article key={`${item.pattern}-${index}`}>
+                      <strong>{item.pattern}</strong>
+                      {item.meaningJa ? <p>{item.meaningJa}</p> : null}
+                      {item.exampleEn ? <small>{item.exampleEn}</small> : null}
+                    </article>
+                  ))}
+                </div>
+                {lesson.patterns.length > 3 ? (
+                  <button type="button" className="eq-grammar-rpg-link-button" onClick={() => setShowAllPatterns((value) => !value)}>
+                    {showAllPatterns ? '最初の3個だけ見る' : `すべての ${lesson.patterns.length} 個の表現を見る`}
+                  </button>
+                ) : null}
+              </>
+            ) : (
+              <p>{lesson.jpExplanation || lesson.learningGoal || 'この文法の使い方を例文で確認しよう。'}</p>
+            )}
+          </EQQuestionCard>
+
+          <div className="eq-grammar-rpg-detail-actions">
+            <EQFantasyButton fullWidth onClick={startQuiz} disabled={!questions.length}>
+              クイズへ進む
+            </EQFantasyButton>
+            <div>
+              <button type="button" onClick={() => navigateLesson(previousLesson)} disabled={!previousLesson}>
+                ← 前の文法へ戻る
+              </button>
+              <button type="button" onClick={() => navigateLesson(nextLesson)} disabled={!nextLesson}>
+                次の文法へ進む →
+              </button>
+            </div>
+          </div>
+        </>
+      ) : mode === 'quiz' && currentQuestion ? (
+        <>
+          <section className="eq-grammar-rpg-quiz-head">
+            <span>{lesson.title}</span>
+            <EQProgressBar
+              value={questionIndex + 1}
+              max={questions.length}
+              label={`${questionIndex + 1}/${questions.length}`}
+            />
+          </section>
+
+          <EQQuestionCard title={currentQuestion.prompt} className="eq-grammar-rpg-question-card">
+            <div className="eq-grammar-rpg-choices">
+              {currentQuestion.choices.map((choice, index) => {
+                const isSelected = selectedIndex === index;
+                const isCorrect = feedback && feedback.correctIndex === index;
+                const isWrong = feedback && isSelected && !feedback.isCorrect;
+                const isDimmed = feedback && !isSelected && !isCorrect;
+                return (
+                  <EQChoiceButton
+                    key={`${choice}-${index}`}
+                    badge={choiceLetter(index)}
+                    selected={isSelected}
+                    correct={Boolean(isCorrect)}
+                    wrong={Boolean(isWrong)}
+                    className={isDimmed ? 'is-dimmed' : ''}
+                    onClick={() => !feedback && setSelectedIndex(index)}
+                    disabled={Boolean(feedback)}
+                  >
+                    {choice}
+                  </EQChoiceButton>
+                );
+              })}
+            </div>
 
             {feedback ? (
               <section className={`eq-grammar-rpg-explanation ${feedback.isCorrect ? 'is-correct' : 'is-wrong'}`}>
@@ -338,25 +354,24 @@ export default function GrammarQuestPage() {
                 {feedback.explanation ? <small>{feedback.explanation}</small> : null}
               </section>
             ) : null}
+          </EQQuestionCard>
 
-            <EQFantasyButton
-              fullWidth
-              className="eq-grammar-rpg-quiz-button"
-              onClick={feedback ? goNextQuestion : submitAnswer}
-              disabled={selectedIndex === null}
-            >
-              {feedback ? (questionIndex >= questions.length - 1 ? '結果を見る' : '次の問題へ') : '答えを決定'}
-            </EQFantasyButton>
-          </>
-        ) : (
-          <section className="eq-grammar-rpg-card eq-grammar-rpg-result">
-            <h2>{correctCount >= Math.ceil(questions.length * 0.8) ? 'CLEAR!' : 'もう一度やってみよう'}</h2>
-            <p>{correctCount} / {questions.length}</p>
-            <EQFantasyButton fullWidth onClick={() => navigate('/grammar')}>文法の塔へ戻る</EQFantasyButton>
-          </section>
-        )}
-      </EQMobileShell>
-      <EQBottomNav />
-    </div>
+          <EQFantasyButton
+            fullWidth
+            className="eq-grammar-rpg-quiz-button"
+            onClick={feedback ? goNextQuestion : submitAnswer}
+            disabled={selectedIndex === null}
+          >
+            {feedback ? (questionIndex >= questions.length - 1 ? '結果を見る' : '次の問題へ') : '答えを決定'}
+          </EQFantasyButton>
+        </>
+      ) : (
+        <EQQuestionCard className="eq-grammar-rpg-card eq-grammar-rpg-result">
+          <h2>{correctCount >= Math.ceil(questions.length * 0.8) ? 'CLEAR!' : 'もう一度やってみよう'}</h2>
+          <p>{correctCount} / {questions.length}</p>
+          <EQFantasyButton fullWidth onClick={() => navigate('/grammar')}>文法の塔へ戻る</EQFantasyButton>
+        </EQQuestionCard>
+      )}
+    </EQPageShell>
   );
 }
