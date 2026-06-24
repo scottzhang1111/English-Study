@@ -146,10 +146,13 @@ export default function GrammarPage() {
   const startLesson = (lesson) => {
     setBusyLessonId(lesson.lessonId);
     setError('');
+    const lessonPath = `/grammar-quest?lessonId=${encodeURIComponent(lesson.lessonId)}`;
     markGrammarLessonViewed({ childId, lessonId: lesson.lessonId })
-      .then(() => navigate(`/grammar-quest?lessonId=${encodeURIComponent(lesson.lessonId)}`))
       .catch((err) => setError(err.message || '学習を記録できませんでした。'))
-      .finally(() => setBusyLessonId(''));
+      .finally(() => {
+        navigate(lessonPath);
+        setBusyLessonId('');
+      });
   };
 
   return (

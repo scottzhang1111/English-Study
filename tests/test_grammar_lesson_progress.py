@@ -167,6 +167,30 @@ class GrammarLessonProgressApiTests(unittest.TestCase):
         self.assertEqual(3, lesson_count)
         self.assertEqual(30, quiz_count)
 
+    def test_pattern_lessons_open_by_string_lesson_id_without_grammar_point(self):
+        for lesson_id, title, _grammar_id, pattern_count in LESSONS:
+            viewed = self.client.post(
+                f'/api/grammar/lessons/{lesson_id}/viewed',
+                json={'child_id': self.child_a},
+            )
+            self.assertEqual(200, viewed.status_code)
+            viewed_lesson = viewed.get_json()['lesson']
+            self.assertEqual(lesson_id, viewed_lesson['lessonId'])
+            self.assertEqual(lesson_id, viewed_lesson['lesson_id'])
+            self.assertEqual(title, viewed_lesson['title'])
+            self.assertEqual(pattern_count, viewed_lesson['pattern_count'])
+            self.assertEqual(pattern_count, len(viewed_lesson['patterns']))
+            self.assertTrue(viewed_lesson['patterns_json'])
+            self.assertEqual(10, len(viewed_lesson['quizzes']))
+
+            detail = self.client.get(
+                f'/api/grammar/lessons/{lesson_id}?child_id={self.child_a}',
+            )
+            self.assertEqual(200, detail.status_code)
+            detail_lesson = detail.get_json()['lesson']
+            self.assertEqual(lesson_id, detail_lesson['lessonId'])
+            self.assertEqual(10, len(detail_lesson['quizzes']))
+
     def test_view_test_status_best_score_and_child_isolation(self):
         lesson_id = LESSONS[0][0]
         viewed = self.client.post(
