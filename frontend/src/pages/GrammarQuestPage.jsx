@@ -6,6 +6,7 @@ import {
   EQAudioButton,
   EQChoiceButton,
   EQFantasyButton,
+  EQFantasyCard,
   EQPageShell,
   EQProgressBar,
   EQQuestionCard,
@@ -96,6 +97,23 @@ function choiceLetter(index) {
   return String.fromCharCode(65 + index);
 }
 
+function lessonPointContent(lesson) {
+  if (lesson?.patterns?.length) return lesson.patterns;
+  return lesson?.learningGoal || lesson?.jpExplanation || 'この文法の使い方を例文で確認しよう。';
+}
+
+function LessonDetailCard({ icon, title, children, className = '' }) {
+  return (
+    <EQFantasyCard className={`eq-grammar-lesson-card ${className}`} hideHeader>
+      <div className="eq-grammar-lesson-card__icon" aria-hidden="true">{icon}</div>
+      <div className="eq-grammar-lesson-card__copy">
+        <h2>{title}</h2>
+        {children}
+      </div>
+    </EQFantasyCard>
+  );
+}
+
 export default function GrammarQuestPage() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
@@ -155,6 +173,7 @@ export default function GrammarQuestPage() {
     ? lessonList[currentLessonIndex + 1]
     : null;
   const visiblePatterns = showAllPatterns ? (lesson?.patterns || []) : (lesson?.patterns || []).slice(0, 3);
+  const pointContent = lessonPointContent(lesson);
 
   const navigateLesson = (targetLesson) => {
     if (!targetLesson?.lessonId) return;
@@ -202,14 +221,13 @@ export default function GrammarQuestPage() {
 
   const correctCount = answers.filter((answer) => answer.isCorrect).length;
   const pageTitle = mode === 'quiz' ? '文法テスト' : '文法レッスン';
-  const pageSubtitle = mode === 'quiz'
-    ? lesson?.title
-    : `文法の塔 > ${lesson?.category || '文法'} > ${lesson?.title || ''}`;
+  const pageSubtitle = mode === 'quiz' ? lesson?.title : lesson?.title || '';
+  const lessonGoal = lesson?.learningGoal || lesson?.grammarPoint || '';
 
   return (
     <EQPageShell
       className="eq-grammar-rpg-wrap"
-      contentClassName="eq-grammar-rpg-page eq-grammar-rpg-quest-page"
+      contentClassName={`eq-grammar-rpg-page eq-grammar-rpg-quest-page ${mode === 'lesson' ? 'eq-grammar-lesson-detail-page' : ''}`}
       withBottomNav
       bottomNavClassName="eq-learning-hub-bottom-nav"
       maxWidth="430px"
@@ -219,7 +237,8 @@ export default function GrammarQuestPage() {
         subtitle={pageSubtitle}
         backgroundImage={mode === 'quiz' ? EQ_ASSETS.bg.grammarPractice : EQ_ASSETS.bg.grammarTemple}
         helperImage={EQ_ASSETS.spirit.happy}
-        elementLabel={lesson?.category}
+        guidanceText={mode === 'lesson' ? lessonGoal : undefined}
+        elementLabel={mode === 'quiz' ? lesson?.category : undefined}
         progressText={mode === 'quiz' && questions.length ? `${questionIndex + 1}/${questions.length}` : undefined}
         progressValue={mode === 'quiz' ? questionIndex + 1 : undefined}
         progressMax={mode === 'quiz' ? questions.length : undefined}
@@ -237,30 +256,17 @@ export default function GrammarQuestPage() {
         <div className="eq-grammar-rpg-message">文法レッスンを読み込んでいます...</div>
       ) : mode === 'lesson' ? (
         <>
-          <EQQuestionCard className="eq-grammar-rpg-summary">
-            <div className="eq-grammar-rpg-summary-no">
-              <span>LESSON</span>
-              <strong>{lesson.displayOrder || currentLessonIndex + 1 || '-'}</strong>
-              <small>{lesson.category}</small>
-            </div>
-            <div>
-              <span className="eq-grammar-rpg-category">{lesson.category}</span>
-              <h2>{lesson.title}</h2>
-              <p>{lesson.learningGoal || lesson.grammarPoint}</p>
-            </div>
-          </EQQuestionCard>
-
-          <EQQuestionCard title="🎯 ターゲット" className="eq-grammar-rpg-card">
+          <LessonDetailCard icon="🎯" title="ターゲット">
             <p>{lesson.grammarPoint}</p>
-          </EQQuestionCard>
+          </LessonDetailCard>
 
-          <EQQuestionCard title="📜 ルール" className="eq-grammar-rpg-card">
+          <LessonDetailCard icon="📜" title="ルール">
             <p>{highlightText(lesson.jpExplanation)}</p>
-          </EQQuestionCard>
+          </LessonDetailCard>
 
           {(lesson.enExample || lesson.jpExample) ? (
-            <EQQuestionCard title="🔊 例文" className="eq-grammar-rpg-card">
-              <div className="eq-grammar-rpg-example">
+            <LessonDetailCard icon="🔊" title="例文" className="eq-grammar-lesson-card--example">
+              <div className="eq-grammar-lesson-example">
                 {lesson.enExample ? (
                   <EQAudioButton onClick={() => speakExample(lesson.enExample)} label="例文を再生">
                     再生
@@ -271,37 +277,35 @@ export default function GrammarQuestPage() {
                   {lesson.jpExample ? <p>{lesson.jpExample}</p> : null}
                 </div>
               </div>
-            </EQQuestionCard>
+            </LessonDetailCard>
           ) : null}
 
-          <EQQuestionCard title="💡 ポイント（よく使う表現）" className="eq-grammar-rpg-card">
-            {lesson.patterns.length ? (
-              <>
-                <div className="eq-grammar-rpg-patterns">
-                  {visiblePatterns.map((item, index) => (
-                    <article key={`${item.pattern}-${index}`}>
-                      <strong>{item.pattern}</strong>
-                      {item.meaningJa ? <p>{item.meaningJa}</p> : null}
-                      {item.exampleEn ? <small>{item.exampleEn}</small> : null}
-                    </article>
-                  ))}
-                </div>
+          <LessonDetailCard icon="💡" title="ポイント">
+            {Array.isArray(pointContent) ? (
+              <div className="eq-grammar-rpg-patterns">
+                {visiblePatterns.map((item, index) => (
+                  <article key={`${item.pattern}-${index}`}>
+                    <strong>{item.pattern}</strong>
+                    {item.meaningJa ? <p>{item.meaningJa}</p> : null}
+                    {item.exampleEn ? <small>{item.exampleEn}</small> : null}
+                  </article>
+                ))}
                 {lesson.patterns.length > 3 ? (
                   <button type="button" className="eq-grammar-rpg-link-button" onClick={() => setShowAllPatterns((value) => !value)}>
                     {showAllPatterns ? '最初の3個だけ見る' : `すべての ${lesson.patterns.length} 個の表現を見る`}
                   </button>
                 ) : null}
-              </>
+              </div>
             ) : (
-              <p>{lesson.jpExplanation || lesson.learningGoal || 'この文法の使い方を例文で確認しよう。'}</p>
+              <p>{pointContent}</p>
             )}
-          </EQQuestionCard>
+          </LessonDetailCard>
 
           <div className="eq-grammar-rpg-detail-actions">
-            <EQFantasyButton fullWidth onClick={startQuiz} disabled={!questions.length}>
-              クイズへ進む
+            <EQFantasyButton fullWidth className="eq-grammar-lesson-cta" onClick={startQuiz} disabled={!questions.length}>
+              理解した！テストへ進む
             </EQFantasyButton>
-            <div>
+            <div className="eq-grammar-lesson-neighbor-actions">
               <button type="button" onClick={() => navigateLesson(previousLesson)} disabled={!previousLesson}>
                 ← 前の文法へ戻る
               </button>
