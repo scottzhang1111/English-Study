@@ -6717,6 +6717,19 @@ def _sqlite_table_columns(conn, table_name):
     return {row['name'] for row in conn.execute(f'PRAGMA table_info({table_name})').fetchall()}
 
 
+def _child_grammar_progress_grammar_id(conn, grammar_id, progress_columns):
+    if 'grammar_id' not in progress_columns or grammar_id in [None, '']:
+        return None
+    grammar_point_columns = _sqlite_table_columns(conn, 'grammar_points')
+    if 'id' not in grammar_point_columns:
+        return None
+    row = conn.execute(
+        'SELECT id FROM grammar_points WHERE id = ? LIMIT 1',
+        (int(grammar_id),),
+    ).fetchone()
+    return int(grammar_id) if row else None
+
+
 def _grammar_quiz_order_sql(conn):
     columns = _sqlite_table_columns(conn, 'grammar_quizzes')
     return 'quiz_order ASC, quiz_id ASC' if 'quiz_order' in columns else 'quiz_id ASC'
@@ -6757,7 +6770,7 @@ def get_grammar_id_for_lesson(lesson_id):
 
 
 def _find_child_grammar_progress_row(conn, child_id, lesson_id, grammar_id, progress_columns):
-    if 'grammar_id' in progress_columns:
+    if 'grammar_id' in progress_columns and grammar_id is not None:
         return conn.execute(
             '''
             SELECT child_id
@@ -6781,8 +6794,9 @@ def _find_child_grammar_progress_row(conn, child_id, lesson_id, grammar_id, prog
 def mark_child_grammar_lesson_mastered(conn, child_id, lesson_id, now):
     grammar_id = get_grammar_id_for_lesson(lesson_id)
     progress_columns = _sqlite_table_columns(conn, 'child_grammar_progress')
-    if 'grammar_id' in progress_columns:
-        existing = _find_child_grammar_progress_row(conn, child_id, lesson_id, grammar_id, progress_columns)
+    progress_grammar_id = _child_grammar_progress_grammar_id(conn, grammar_id, progress_columns)
+    if progress_grammar_id is not None:
+        existing = _find_child_grammar_progress_row(conn, child_id, lesson_id, progress_grammar_id, progress_columns)
         if existing:
             conn.execute(
                 '''
@@ -6796,7 +6810,7 @@ def mark_child_grammar_lesson_mastered(conn, child_id, lesson_id, now):
                     updated_at = CURRENT_TIMESTAMP
                 WHERE child_id = ? AND (lesson_id = ? OR grammar_id = ?)
                 ''',
-                (grammar_id, lesson_id, now, now, child_id, lesson_id, grammar_id),
+                (progress_grammar_id, lesson_id, now, now, child_id, lesson_id, progress_grammar_id),
             )
         else:
             conn.execute(
@@ -6807,7 +6821,7 @@ def mark_child_grammar_lesson_mastered(conn, child_id, lesson_id, now):
                 )
                 VALUES (?, ?, ?, 'mastered', 1, 100, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
                 ''',
-                (child_id, grammar_id, lesson_id, now, now),
+                (child_id, progress_grammar_id, lesson_id, now, now),
             )
     else:
         conn.execute(
@@ -6965,8 +6979,9 @@ def mark_grammar_lesson_viewed(child_id, lesson_id):
     conn = get_db_connection()
     try:
         progress_columns = _sqlite_table_columns(conn, 'child_grammar_progress')
-        if 'grammar_id' in progress_columns:
-            existing = _find_child_grammar_progress_row(conn, child_id, lesson_id, grammar_id, progress_columns)
+        progress_grammar_id = _child_grammar_progress_grammar_id(conn, grammar_id, progress_columns)
+        if progress_grammar_id is not None:
+            existing = _find_child_grammar_progress_row(conn, child_id, lesson_id, progress_grammar_id, progress_columns)
             if existing:
                 conn.execute(
                     '''
@@ -6983,7 +6998,7 @@ def mark_grammar_lesson_viewed(child_id, lesson_id):
                         updated_at = CURRENT_TIMESTAMP
                     WHERE child_id = ? AND (lesson_id = ? OR grammar_id = ?)
                     ''',
-                    (grammar_id, lesson_id, now, now, child_id, lesson_id, grammar_id),
+                    (progress_grammar_id, lesson_id, now, now, child_id, lesson_id, progress_grammar_id),
                 )
             else:
                 conn.execute(
@@ -6993,7 +7008,7 @@ def mark_grammar_lesson_viewed(child_id, lesson_id):
                     )
                     VALUES (?, ?, ?, 'learning', 1, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
                     ''',
-                    (child_id, grammar_id, lesson_id, now, now),
+                    (child_id, progress_grammar_id, lesson_id, now, now),
                 )
         else:
             conn.execute(
@@ -7068,9 +7083,11 @@ def submit_grammar_lesson_test(child_id, lesson_id, answers):
     conn = get_db_connection()
     try:
         progress_columns = _sqlite_table_columns(conn, 'child_grammar_progress')
-        existing = _find_child_grammar_progress_row(conn, child_id, lesson_id, grammar_id, progress_columns)
+        progress_grammar_id = _child_grammar_progress_grammar_id(conn, grammar_id, progress_columns)
+        existing = _find_child_grammar_progress_row(conn, child_id, lesson_id, progress_grammar_id, progress_columns)
         if existing:
-            where_sql = 'child_id = ? AND (lesson_id = ? OR grammar_id = ?)' if 'grammar_id' in progress_columns else 'child_id = ? AND lesson_id = ?'
+            use_grammar_id = progress_grammar_id is not None
+            where_sql = 'child_id = ? AND (lesson_id = ? OR grammar_id = ?)' if use_grammar_id else 'child_id = ? AND lesson_id = ?'
             params = (
                 'mastered' if passed else 'learning',
                 score,
@@ -7086,8 +7103,8 @@ def submit_grammar_lesson_test(child_id, lesson_id, answers):
                 child_id,
                 lesson_id,
             )
-            if 'grammar_id' in progress_columns:
-                params += (grammar_id,)
+            if use_grammar_id:
+                params += (progress_grammar_id,)
             conn.execute(
                 f'''
                 UPDATE child_grammar_progress
@@ -7107,11 +7124,12 @@ def submit_grammar_lesson_test(child_id, lesson_id, answers):
                 params,
             )
         else:
-            grammar_columns = ', grammar_id' if 'grammar_id' in progress_columns else ''
-            grammar_placeholder = ', ?' if 'grammar_id' in progress_columns else ''
+            use_grammar_id = progress_grammar_id is not None
+            grammar_columns = ', grammar_id' if use_grammar_id else ''
+            grammar_placeholder = ', ?' if use_grammar_id else ''
             params = [child_id, lesson_id]
-            if 'grammar_id' in progress_columns:
-                params.append(grammar_id)
+            if use_grammar_id:
+                params.append(progress_grammar_id)
             params.extend([
                 'mastered' if passed else 'learning', score, score, total_questions,
                 1 if passed else 0, now, now, now, now if passed else None,
@@ -7196,8 +7214,9 @@ def submit_grammar_quiz_answer(child_id, quiz_id, selected_index):
         last_score = round((correct_quiz_count / max(1, total_quizzes)) * 100)
         status = 'mastered' if total_quizzes and correct_quiz_count >= total_quizzes else 'learning'
         progress_columns = _sqlite_table_columns(conn, 'child_grammar_progress')
-        if 'grammar_id' in progress_columns:
-            existing = _find_child_grammar_progress_row(conn, child_id, quiz['lesson_id'], grammar_id, progress_columns)
+        progress_grammar_id = _child_grammar_progress_grammar_id(conn, grammar_id, progress_columns)
+        if progress_grammar_id is not None:
+            existing = _find_child_grammar_progress_row(conn, child_id, quiz['lesson_id'], progress_grammar_id, progress_columns)
             if existing:
                 conn.execute(
                     '''
@@ -7221,7 +7240,7 @@ def submit_grammar_quiz_answer(child_id, quiz_id, selected_index):
                     WHERE child_id = ? AND (lesson_id = ? OR grammar_id = ?)
                     ''',
                     (
-                        grammar_id,
+                        progress_grammar_id,
                         quiz['lesson_id'],
                         status,
                         1 if is_correct else 0,
@@ -7232,7 +7251,7 @@ def submit_grammar_quiz_answer(child_id, quiz_id, selected_index):
                         now,
                         child_id,
                         quiz['lesson_id'],
-                        grammar_id,
+                        progress_grammar_id,
                     ),
                 )
             else:
@@ -7246,7 +7265,7 @@ def submit_grammar_quiz_answer(child_id, quiz_id, selected_index):
                     ''',
                     (
                         child_id,
-                        grammar_id,
+                        progress_grammar_id,
                         quiz['lesson_id'],
                         status,
                         1 if is_correct else 0,

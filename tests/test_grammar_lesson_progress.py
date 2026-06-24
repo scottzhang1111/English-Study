@@ -65,6 +65,16 @@ class GrammarLessonProgressApiTests(unittest.TestCase):
                 )
                 '''
             )
+            conn.execute('CREATE TABLE IF NOT EXISTS grammar_points (id INTEGER PRIMARY KEY)')
+            progress_columns = {
+                row['name']
+                for row in conn.execute('PRAGMA table_info(child_grammar_progress)').fetchall()
+            }
+            if 'grammar_id' not in progress_columns:
+                conn.execute(
+                    'ALTER TABLE child_grammar_progress ADD COLUMN grammar_id INTEGER REFERENCES grammar_points(id)'
+                )
+
             account_id = conn.execute('SELECT id FROM accounts ORDER BY id LIMIT 1').fetchone()['id']
             conn.execute(
                 "INSERT INTO children (account_id, name, grade, target_level) VALUES (?, 'A', '小5', '準2級')",
@@ -82,7 +92,7 @@ class GrammarLessonProgressApiTests(unittest.TestCase):
             )
             self.child_eiken3 = conn.execute("SELECT id FROM children WHERE name = 'C'").fetchone()['id']
 
-            for grammar_id, (lesson_id, title, order, pattern_count) in enumerate(LESSONS, start=1):
+            for lesson_id, title, grammar_id, pattern_count in LESSONS:
                 patterns = [{'pattern': f'pattern-{index}'} for index in range(pattern_count)]
                 conn.execute(
                     '''
@@ -91,7 +101,7 @@ class GrammarLessonProgressApiTests(unittest.TestCase):
                         display_order, is_active, patterns_json
                     ) VALUES (?, ?, 'eiken_pre2', '高頻句型', ?, '重要句型', ?, 1, ?)
                     ''',
-                    (lesson_id, grammar_id, title, order, json.dumps(patterns)),
+                    (lesson_id, grammar_id, title, grammar_id, json.dumps(patterns)),
                 )
                 for index in range(10):
                     conn.execute(

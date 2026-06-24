@@ -14,7 +14,6 @@ import {
   submitGrammarQuizAnswer,
 } from '../api';
 import { useChildren } from '../ChildrenContext';
-import CompactPageHeader from '../components/eigo/CompactPageHeader';
 
 const PASS_SCORE = 2;
 
@@ -70,11 +69,19 @@ function normalizeLesson(apiLesson) {
   if (!apiLesson) return buildFallbackLesson();
 
   const examples = [apiLesson.enExample, apiLesson.jpExample].filter(Boolean);
+  const grammarPoint = apiLesson.grammarPoint || '';
+  const jpExplanation = apiLesson.jpExplanation || '';
+  const enExample = apiLesson.enExample || '';
+  const jpExample = apiLesson.jpExample || '';
 
   return {
     title: apiLesson.title || MOCK_LESSON.title,
     subtitle: apiLesson.category || apiLesson.learningGoal || MOCK_LESSON.subtitle,
-    rule: apiLesson.grammarPoint || apiLesson.jpExplanation || MOCK_LESSON.rule,
+    grammarPoint,
+    jpExplanation,
+    enExample,
+    jpExample,
+    rule: grammarPoint || jpExplanation || MOCK_LESSON.rule,
     examples: examples.length ? examples : MOCK_LESSON.examples,
   };
 }
@@ -241,52 +248,83 @@ export default function GrammarQuestPage() {
     }
   };
 
+  const lessonTitle = lessonLoading ? 'Loading grammar...' : preparingMessage || lesson.title;
+  const lessonSubtitle = fromDailyQuest ? 'Daily Quest' : lesson.subtitle || 'Grammar Practice';
+  const detailRows = [
+    lesson.grammarPoint ? { label: '文法ポイント', value: lesson.grammarPoint } : null,
+    lesson.jpExplanation ? { label: '説明', value: lesson.jpExplanation } : null,
+  ].filter(Boolean);
+  const exampleRows = [
+    lesson.enExample ? { label: 'English', value: lesson.enExample } : null,
+    lesson.jpExample ? { label: '日本語', value: lesson.jpExample } : null,
+  ].filter(Boolean);
+  const fallbackExamples = !exampleRows.length ? lesson.examples : [];
+
   return (
     <div className="quest-grammar-mobile-intro">
       <EQMobileShell className="eq-grammar-screen quest-grammar-learn-page">
-        <CompactPageHeader
-          title="文法クエスト"
-          subtitle={fromDailyQuest ? '今日の文法をクリアしよう' : 'ルールを覚えて挑戦しよう'}
-          backgroundImage="/assets/eigo-quest/learning-hub/文法の神殿.png"
-          elementLabel="文"
-          progressText={mode === 'quiz' ? `${questionIndex + 1} / ${questions.length}` : 'LESSON'}
-          helperImage="/assets/eigo-quest/spirit_assets/happy.png"
-          variant="grammar"
-        />
         <header className="quest-grammar-header quest-header">
           <button type="button" className="quest-back-button" onClick={() => navigate(-1)} aria-label="Back">
             ‹
           </button>
           <div className="quest-header-copy">
-            <h1>Grammar Quest</h1>
-            <p>{fromDailyQuest ? 'Daily Quest' : 'Grammar Practice'}</p>
+            <h1>{mode === 'lesson' ? '文法レッスン' : 'Grammar Quiz'}</h1>
+            <p>{mode === 'quiz' ? `${questionIndex + 1} / ${questions.length}` : lessonSubtitle}</p>
           </div>
           <span className="quest-header-star" aria-hidden="true">✦</span>
         </header>
 
         {mode === 'lesson' && (
           <>
-            <MagicPanel className="quest-grammar-learn-panel">
-              <span className="quest-grammar-label">LESSON</span>
-              <h2>{lessonLoading ? 'Loading grammar...' : preparingMessage || lesson.title}</h2>
-              <p className="quest-grammar-rule">
-                {lessonLoading ? 'Grammar quest is preparing the next lesson.' : preparingMessage || lesson.rule}
-              </p>
+            <section className={`eq-grammar-learning-card ${lessonLoading ? 'is-loading' : ''}`.trim()} aria-label="文法レッスン">
+              <span className="eq-grammar-learning-badge">LESSON</span>
+              <div className="eq-grammar-test-topic">
+                <span className="eq-grammar-test-emblem" aria-hidden="true">Grammar</span>
+                <div>
+                  <p>学習テーマ</p>
+                  <h2>{lessonTitle}</h2>
+                </div>
+                <div>
+                  <p>ルール</p>
+                  <strong>{lessonLoading ? 'Grammar quest is preparing the next lesson.' : preparingMessage || lesson.rule}</strong>
+                </div>
+              </div>
+
+              {detailRows.length ? (
+                <EQCard className="eq-grammar-point-card" glow={false}>
+                  <span>要点</span>
+                  <ul>
+                    {detailRows.map((row) => (
+                      <li key={row.label}>
+                        <strong>{row.label}: </strong>
+                        {row.value}
+                      </li>
+                    ))}
+                  </ul>
+                </EQCard>
+              ) : null}
+
+              {!preparingMessage && (exampleRows.length || fallbackExamples.length) ? (
+                <EQCard className="eq-grammar-example-card" glow={false}>
+                  <span>例文</span>
+                  <div>
+                    {exampleRows.map((row) => (
+                      <p key={row.label}>
+                        {row.value}
+                        <span>{row.label}</span>
+                      </p>
+                    ))}
+                    {!exampleRows.length ? fallbackExamples.map((example) => (
+                      <p key={example}>{example}</p>
+                    )) : null}
+                  </div>
+                </EQCard>
+              ) : null}
+
               {usingMockFallback && !lessonLoading && (
                 <p className="text-xs font-bold text-amber-200">Fallback lesson</p>
               )}
-            </MagicPanel>
-
-            {!preparingMessage && (
-              <EQCard className="quest-grammar-point-card">
-                <span>例文</span>
-                <ul>
-                  {lesson.examples.map((example) => (
-                    <li key={example}>{example}</li>
-                  ))}
-                </ul>
-              </EQCard>
-            )}
+            </section>
 
             <GoldQuestButton onClick={startQuiz} disabled={lessonLoading || preparingMessage || !questions.length} className="quest-grammar-next">
               クイズへ
