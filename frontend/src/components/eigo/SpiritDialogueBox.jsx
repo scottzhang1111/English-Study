@@ -40,3 +40,5 @@ function SpiritDialogueBox({
     </div>
   );
 }
+
+export default SpiritDialogueBox;

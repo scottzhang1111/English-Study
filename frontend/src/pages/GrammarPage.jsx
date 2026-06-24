@@ -34,29 +34,12 @@ function lessonDescription(lesson) {
   return lesson.grammarPoint || lesson.grammar_point || lesson.learningGoal || lesson.learning_goal || lesson.jpExplanation || '';
 }
 
-function lessonScore(lesson) {
-  const progress = lesson.progress || {};
-  const total = Number(progress.totalQuizCount || progress.totalQuestions || lesson.quizCount || lesson.question_count || 10);
-  const score = Number(progress.bestScore || lesson.best_score || lesson.last_score || 0);
-  return score ? `${score}/${total || 10}` : `-/${total || 10}`;
-}
-
 function lessonProgress(lesson) {
   const progress = lesson.progress || {};
   const total = Number(progress.totalQuizCount || progress.totalQuestions || lesson.quizCount || lesson.question_count || 0);
   const correct = Number(progress.correctQuizCount || progress.correct_count || 0);
   if (!total || !correct) return null;
   return { value: correct, max: total };
-}
-
-function formatDate(value) {
-  if (!value) return '';
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return String(value).slice(0, 10);
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, '0');
-  const day = String(date.getDate()).padStart(2, '0');
-  return `${year}/${month}/${day}`;
 }
 
 function crestIcon(lesson) {
@@ -70,7 +53,6 @@ function crestIcon(lesson) {
 }
 
 function actionLabel(meta) {
-  if (meta.key === 'passed') return '復習する';
   if (meta.key === 'learning' || meta.key === 'failed') return '続きから学習';
   return '学習する';
 }
@@ -88,7 +70,6 @@ function GrammarTowerCard({ lesson, busy, onLearn }) {
   const meta = statusMeta(lesson.status);
   const description = lessonDescription(lesson);
   const category = lesson.category || (isHighFrequency(lesson) ? '高頻句型' : '文法項目');
-  const lastTestedAt = lesson.last_tested_at || lesson.progress?.lastTestedAt;
   const progress = lessonProgress(lesson);
 
   return (
@@ -106,19 +87,16 @@ function GrammarTowerCard({ lesson, busy, onLearn }) {
         </div>
         <h2>{lesson.title}</h2>
         <p>{description}</p>
-        <div className="eq-grammar-rpg-list-meta">
-          <strong>{lessonScore(lesson)}</strong>
-          {lastTestedAt ? <time>{formatDate(lastTestedAt)}</time> : null}
-        </div>
-      </div>
-      <div className="eq-grammar-rpg-card-actions">
         {progress ? (
           <EQProgressBar
+            className="eq-grammar-rpg-tiny-progress"
             value={progress.value}
             max={progress.max}
-            label={`${Math.round((progress.value / progress.max) * 100)}%`}
+            showText={false}
           />
         ) : null}
+      </div>
+      <div className="eq-grammar-rpg-card-actions">
         <EQFantasyButton className="eq-grammar-rpg-card-button" onClick={onLearn} disabled={busy}>
           {busy ? '準備中...' : actionLabel(meta)}
         </EQFantasyButton>
@@ -187,7 +165,7 @@ export default function GrammarPage() {
       >
         <div className="eq-grammar-rpg-hero-badges">
           <EQFantasyBadge icon="⚒">文法</EQFantasyBadge>
-          <EQFantasyBadge>{progressMastered} / {progressTotal}</EQFantasyBadge>
+          <EQFantasyBadge>{progressTotal || 0} lessons</EQFantasyBadge>
         </div>
       </EQHeroHeader>
 
