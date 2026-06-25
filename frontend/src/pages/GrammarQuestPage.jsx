@@ -253,11 +253,6 @@ export default function GrammarQuestPage() {
         guidanceText={undefined}
         elementLabel={undefined}
         variant="grammar"
-        action={mode === 'quiz' ? (
-          <button type="button" className="eq-grammar-rpg-back" onClick={() => navigate(-1)} aria-label="戻る">
-            ←
-          </button>
-        ) : undefined}
       />
 
       {error ? <div className="eq-grammar-rpg-message is-error">{error}</div> : null}
