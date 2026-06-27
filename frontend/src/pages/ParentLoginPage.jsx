@@ -11,7 +11,7 @@ export default function ParentLoginPage() {
   const { login, authLoading } = useAuth();
   const { setSelectedChildId } = useChildren();
   const { soundEnabled, setSoundEnabled, startBgm } = useBgm();
-  const [email, setEmail] = useState('');
+  const [loginId, setLoginId] = useState('');
   const [formError, setFormError] = useState('');
   const [pageNotice, setPageNotice] = useState(location.state?.message || '');
 
@@ -19,16 +19,19 @@ export default function ParentLoginPage() {
     event.preventDefault();
     startBgm();
 
-    const trimmedEmail = email.trim();
-    if (!trimmedEmail) {
-      setFormError('メールアドレスを入力してください');
+    const trimmedLoginId = loginId.trim();
+    if (!trimmedLoginId) {
+      setFormError('メールアドレスまたはファミリーコードを入力してください');
       return;
     }
 
     setFormError('');
     setPageNotice('');
     try {
-      await login({ email: trimmedEmail });
+      const credentials = trimmedLoginId.includes('@')
+        ? { email: trimmedLoginId }
+        : { code: trimmedLoginId };
+      await login(credentials);
     } catch (err) {
       setFormError('ログインできませんでした');
       return;
@@ -90,14 +93,14 @@ export default function ParentLoginPage() {
             </div>
 
             <label className="parent-login-field">
-              <span>メールアドレス</span>
+              <span>メールアドレス / ファミリーコード</span>
               <span className="parent-login-input">
                 <input
-                  type="email"
-                  value={email}
-                  onChange={(event) => setEmail(event.target.value)}
-                  autoComplete="email"
-                  placeholder="メールアドレスを入力"
+                  type="text"
+                  value={loginId}
+                  onChange={(event) => setLoginId(event.target.value)}
+                  autoComplete="username"
+                  placeholder="メールアドレス または FAM-XXXXXX"
                 />
               </span>
             </label>

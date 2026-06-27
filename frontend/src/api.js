@@ -1,6 +1,6 @@
 import { PET_STARTER_OPTIONS, buildStaticPetCollection, decoratePet } from './lib/petMaster';
 
-export const API_BASE_URL = '';
+export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '';
 
 function toQuery(params = {}) {
   const searchParams = new URLSearchParams();
