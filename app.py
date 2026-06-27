@@ -11598,6 +11598,21 @@ def require_child_belongs_to_current_account(child_id):
 
 
 def is_production_env():
+    falsey_values = {'0', 'false', 'no', 'off', 'local', 'development', 'dev'}
+    if any(
+        (os.getenv(name, '').strip().lower() not in {'', *falsey_values})
+        for name in ['RENDER', 'IS_RENDER']
+    ):
+        return True
+    render_service_markers = [
+        'RENDER_SERVICE_ID',
+        'RENDER_SERVICE_NAME',
+        'RENDER_EXTERNAL_HOSTNAME',
+        'RENDER_EXTERNAL_URL',
+        'RENDER_INSTANCE_ID',
+    ]
+    if any(os.getenv(name, '').strip() for name in render_service_markers):
+        return True
     if any(
         os.getenv(name, '').strip().lower() in {'1', 'true', 'yes', 'on', 'production', 'prod'}
         for name in ['ENV', 'FLASK_ENV', 'APP_ENV', 'RENDER']
@@ -11631,6 +11646,19 @@ def get_auth_cookie_options():
         'samesite': get_auth_cookie_samesite(),
         'path': '/',
     }
+
+
+def log_auth_cookie_debug(context):
+    cookie_options = get_auth_cookie_options()
+    app.logger.info(
+        '[auth-cookie] context=%s origin=%s is_production=%s samesite=%s secure=%s has_eq_auth_session=%s',
+        context,
+        request.headers.get('Origin') or '',
+        is_production_env(),
+        cookie_options['samesite'],
+        cookie_options['secure'],
+        bool(request.cookies.get(AUTH_SESSION_COOKIE_NAME)),
+    )
 
 
 def auth_account_payload(row):
@@ -11688,6 +11716,7 @@ def create_session_response(account):
     session = create_auth_session(account['id'])
     children = get_children_list(account['id'])
     response = jsonify(ok=True, account=auth_account_payload(account), children=children)
+    log_auth_cookie_debug('login')
     response.set_cookie(
         AUTH_SESSION_COOKIE_NAME,
         session['session_token'],
@@ -12006,6 +12035,7 @@ def api_auth_login():
 
 @app.route('/api/auth/me')
 def api_auth_me():
+    log_auth_cookie_debug('me')
     session_token = request.cookies.get(AUTH_SESSION_COOKIE_NAME)
     session = refresh_auth_session(session_token)
     if not session:
