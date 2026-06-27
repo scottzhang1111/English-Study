@@ -11747,7 +11747,8 @@ def get_account_by_id(account_id):
 def create_session_response(account):
     session = create_auth_session(account['id'])
     children = get_children_list(account['id'])
-    response = jsonify(ok=True, account=auth_account_payload(account), children=children)
+    # Return session_token in JSON to support bearer-token fallback on cross-site requests
+    response = jsonify(ok=True, account=auth_account_payload(account), children=children, session_token=session.get('session_token'))
     # safe auth debug: log session count for account and token prefix (never full token)
     try:
         token_prefix = (session.get('session_token') or '')[:8]
@@ -11831,29 +11832,29 @@ def refresh_auth_session(session_token):
 
 def get_current_account_id():
     init_db()
-    session_token = request.cookies.get(AUTH_SESSION_COOKIE_NAME)
+    # Prefer Authorization: Bearer <token> header for cross-site fallback, otherwise use cookie
+    auth_header = (request.headers.get('Authorization') or '').strip()
+    session_token = None
+    if auth_header.lower().startswith('bearer '):
+        session_token = auth_header.split(None, 1)[1].strip()
+    else:
+        session_token = request.cookies.get(AUTH_SESSION_COOKIE_NAME)
+
     if not session_token:
         return None
-    now = get_now_iso()
-    conn = get_db_connection()
+
+    # Use existing refresh logic to validate and extend session expiry
+    session = refresh_auth_session(session_token)
+    if not session:
+        return None
+    # Log auth source (cookie or bearer) and account id for quick diagnostics (no tokens)
     try:
-        row = conn.execute(
-            '''
-            SELECT account_id, expires_at
-            FROM auth_sessions
-            WHERE session_token = ?
-            ''',
-            (session_token,),
-        ).fetchone()
-        if not row:
-            return None
-        if row['expires_at'] <= now:
-            conn.execute('DELETE FROM auth_sessions WHERE session_token = ?', (session_token,))
-            conn.commit()
-            return None
-        return row['account_id']
-    finally:
-        conn.close()
+        source = 'bearer' if auth_header and auth_header.lower().startswith('bearer ') else 'cookie'
+        app.logger.info('[auth] source=%s account_id=%s', source, session.get('account_id'))
+    except Exception:
+        # never fail auth flow due to logging
+        app.logger.debug('Failed to log auth source')
+    return session['account_id']
 
 
 def require_current_account():
@@ -12085,20 +12086,32 @@ def api_auth_login():
 
 @app.route('/api/auth/me')
 def api_auth_me():
+    # Log debug info (do not include full tokens)
     log_auth_cookie_debug('me')
-    session_token = request.cookies.get(AUTH_SESSION_COOKIE_NAME)
-    cookie_present = bool(session_token)
-    # safe debug: token prefix received and whether it exists in auth_sessions
+    auth_header = (request.headers.get('Authorization') or '').strip()
+    auth_header_present = bool(auth_header and auth_header.lower().startswith('bearer '))
+    cookie_token = request.cookies.get(AUTH_SESSION_COOKIE_NAME)
+    cookie_present = bool(cookie_token)
     try:
-        token_prefix = (session_token or '')[:8]
+        token_to_check = None
+        token_prefix = ''
+        if auth_header_present:
+            token_to_check = auth_header.split(None, 1)[1].strip()
+            token_prefix = (token_to_check or '')[:8]
+        else:
+            token_to_check = cookie_token
+            token_prefix = (cookie_token or '')[:8]
+
         conn = get_db_connection()
         try:
-            row = conn.execute('SELECT COUNT(*) AS c FROM auth_sessions WHERE session_token = ?', (session_token,)).fetchone()
-            exists = bool(row and int(row['c'] or 0) > 0)
+            row = conn.execute('SELECT COUNT(*) AS c FROM auth_sessions WHERE session_token = ?', (token_to_check,)).fetchone() if token_to_check else None
+            exists = bool(row and int(row['c'] or 0) > 0) if row is not None else False
         finally:
             conn.close()
+
         app.logger.warning(
-            '[auth] me cookie_present=%s auth_session_found=%s backend=%s token_prefix=%s',
+            '[auth] me auth_header_present=%s cookie_present=%s auth_session_found=%s backend=%s token_prefix=%s',
+            auth_header_present,
             cookie_present,
             exists,
             get_db_backend(),
@@ -12106,19 +12119,25 @@ def api_auth_me():
         )
     except Exception:
         app.logger.exception('Failed to log auth debug info on /api/auth/me')
-    session = refresh_auth_session(session_token)
-    if not session:
+
+    # Resolve current account (prefers bearer header via get_current_account_id)
+    try:
+        account = require_current_account()
+    except HTTPException:
         abort(401, 'login required')
-    account = get_account_by_id(session['account_id'])
-    if not account:
-        abort(401, 'login required')
+
     response = jsonify(account=auth_account_payload(account))
-    response.set_cookie(
-        AUTH_SESSION_COOKIE_NAME,
-        session_token,
-        max_age=AUTH_SESSION_DAYS * 24 * 60 * 60,
-        **get_auth_cookie_options(),
-    )
+
+    # Preserve existing cookie behavior: if the client did not use Authorization header, refresh cookie
+    if not auth_header_present and cookie_present:
+        # extend the cookie expiration using the same token from cookie
+        response.set_cookie(
+            AUTH_SESSION_COOKIE_NAME,
+            cookie_token,
+            max_age=AUTH_SESSION_DAYS * 24 * 60 * 60,
+            **get_auth_cookie_options(),
+        )
+
     return response
 
 
@@ -12273,7 +12292,13 @@ def api_admin_disable_family_code(code_id):
 
 @app.route('/api/auth/logout', methods=['POST'])
 def api_auth_logout():
-    session_token = request.cookies.get(AUTH_SESSION_COOKIE_NAME)
+    # If Authorization: Bearer <token> is provided, invalidate that token; otherwise fallback to cookie
+    auth_header = (request.headers.get('Authorization') or '').strip()
+    bearer_token = None
+    if auth_header.lower().startswith('bearer '):
+        bearer_token = auth_header.split(None, 1)[1].strip()
+
+    session_token = bearer_token or request.cookies.get(AUTH_SESSION_COOKIE_NAME)
     if session_token:
         conn = get_db_connection()
         try:

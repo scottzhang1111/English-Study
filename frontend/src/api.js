@@ -15,6 +15,17 @@ function toQuery(params = {}) {
 
 async function fetchJson(path, { method = 'GET', params, body, headers } = {}) {
   const resolvedMethod = method || 'GET';
+  // Inject Authorization header from localStorage eq_auth_token when present
+  try {
+    if (typeof window !== 'undefined' && window.localStorage) {
+      const stored = window.localStorage.getItem('eq_auth_token');
+      if (stored) {
+        headers = { ...(headers || {}), Authorization: `Bearer ${stored}` };
+      }
+    }
+  } catch (e) {
+    // ignore localStorage errors
+  }
   const response = await fetch(`${API_BASE_URL}${path}${toQuery(params)}`, {
     method: resolvedMethod,
     headers: {
@@ -65,10 +76,20 @@ export const getHomeData = async (childId) => {
 
 export const loginAccount = async ({ email, code, familyCode, identifier } = {}) => {
   console.log('[auth] login endpoint', '/api/auth/login');
-  return fetchJson('/api/auth/login', {
+  const payload = await fetchJson('/api/auth/login', {
     method: 'POST',
     body: { email, code, familyCode, identifier },
   });
+  try {
+    const token = payload?.session_token;
+    if (token && typeof window !== 'undefined' && window.localStorage) {
+      // store token for bearer fallback when cookies are not sent
+      window.localStorage.setItem('eq_auth_token', token);
+    }
+  } catch (e) {
+    // ignore storage errors
+  }
+  return payload;
 };
 
 export const getAuthMe = async () => {
@@ -98,7 +119,16 @@ export const disableAdminFamilyCode = async (adminCode, codeId) => {
 };
 
 export const logoutAccount = async () => {
-  return fetchJson('/api/auth/logout', { method: 'POST', body: {} });
+  // Request server to invalidate session, then remove local token
+  const result = await fetchJson('/api/auth/logout', { method: 'POST', body: {} });
+  try {
+    if (typeof window !== 'undefined' && window.localStorage) {
+      window.localStorage.removeItem('eq_auth_token');
+    }
+  } catch (e) {
+    // ignore
+  }
+  return result;
 };
 
 export const getHeroCards = async () => {
