@@ -285,7 +285,11 @@ def get_use_postgres_flag():
 
 
 def use_postgres():
-    return get_use_postgres_flag() and bool(get_database_url())
+    return bool(get_database_url())
+
+
+def get_db_backend():
+    return 'postgres' if use_postgres() else 'sqlite'
 
 
 def get_database_mode_message():
@@ -296,7 +300,17 @@ def get_database_mode_message():
 
 
 def print_database_mode():
-    print(get_database_mode_message(), flush=True)
+    message = get_database_mode_message()
+    print(message, flush=True)
+    try:
+        app.logger.warning(
+            '[DB] backend=%s has_database_url=%s use_postgres_flag=%s',
+            get_db_backend(),
+            bool(get_database_url()),
+            get_use_postgres_flag(),
+        )
+    except Exception:
+        pass
 
 
 def _pg_transform_sql(sql):
@@ -11308,6 +11322,24 @@ def get_database_host_for_debug():
     return parsed.hostname or ''
 
 
+def get_database_host_and_name_for_debug():
+    """Return a safe DATABASE_URL summary: host and database name (no password).
+    For sqlite, return the file path.
+    """
+    database_url = get_database_url()
+    if not database_url:
+        return ''
+    parsed = urllib.parse.urlparse(database_url)
+    # sqlite:///absolute/path or sqlite:///:memory:
+    if parsed.scheme and parsed.scheme.startswith('sqlite'):
+        return parsed.path or ''
+    host = parsed.hostname or ''
+    dbname = (parsed.path or '').lstrip('/')
+    if dbname:
+        return f"{host}/{dbname}"
+    return host
+
+
 def get_table_count_for_debug(conn, table_name):
     try:
         row = conn.execute(f'SELECT COUNT(*) AS count FROM {table_name}').fetchone()
@@ -11716,6 +11748,24 @@ def create_session_response(account):
     session = create_auth_session(account['id'])
     children = get_children_list(account['id'])
     response = jsonify(ok=True, account=auth_account_payload(account), children=children)
+    # safe auth debug: log session count for account and token prefix (never full token)
+    try:
+        token_prefix = (session.get('session_token') or '')[:8]
+        conn = get_db_connection()
+        try:
+            row = conn.execute('SELECT COUNT(*) AS c FROM auth_sessions WHERE account_id = ?', (account['id'],)).fetchone()
+            session_count = int(row['c'] or 0) if row else 0
+        finally:
+            conn.close()
+        app.logger.warning(
+            '[auth] login auth_session_written=%s backend=%s auth_sessions_count=%s token_prefix=%s',
+            bool(session.get('session_token')),
+            get_db_backend(),
+            session_count,
+            token_prefix,
+        )
+    except Exception:
+        app.logger.exception('Failed to log auth debug info on login')
     log_auth_cookie_debug('login')
     response.set_cookie(
         AUTH_SESSION_COOKIE_NAME,
@@ -12037,6 +12087,25 @@ def api_auth_login():
 def api_auth_me():
     log_auth_cookie_debug('me')
     session_token = request.cookies.get(AUTH_SESSION_COOKIE_NAME)
+    cookie_present = bool(session_token)
+    # safe debug: token prefix received and whether it exists in auth_sessions
+    try:
+        token_prefix = (session_token or '')[:8]
+        conn = get_db_connection()
+        try:
+            row = conn.execute('SELECT COUNT(*) AS c FROM auth_sessions WHERE session_token = ?', (session_token,)).fetchone()
+            exists = bool(row and int(row['c'] or 0) > 0)
+        finally:
+            conn.close()
+        app.logger.warning(
+            '[auth] me cookie_present=%s auth_session_found=%s backend=%s token_prefix=%s',
+            cookie_present,
+            exists,
+            get_db_backend(),
+            token_prefix,
+        )
+    except Exception:
+        app.logger.exception('Failed to log auth debug info on /api/auth/me')
     session = refresh_auth_session(session_token)
     if not session:
         abort(401, 'login required')
