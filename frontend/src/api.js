@@ -64,6 +64,7 @@ export const getHomeData = async (childId) => {
 };
 
 export const loginAccount = async ({ email, code, familyCode, identifier } = {}) => {
+  console.log('[auth] login endpoint', '/api/auth/login');
   return fetchJson('/api/auth/login', {
     method: 'POST',
     body: { email, code, familyCode, identifier },
