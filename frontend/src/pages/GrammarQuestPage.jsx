@@ -61,16 +61,30 @@ function normalizeLesson(apiLesson = {}) {
   };
 }
 
+function shuffleChoiceIndexes(choices) {
+  const entries = choices.map((choice, originalIndex) => ({ choice, originalIndex }));
+  for (let index = entries.length - 1; index > 0; index -= 1) {
+    const swapIndex = Math.floor(Math.random() * (index + 1));
+    [entries[index], entries[swapIndex]] = [entries[swapIndex], entries[index]];
+  }
+  return entries;
+}
+
 function normalizeQuestions(apiLesson = {}) {
   const quizzes = Array.isArray(apiLesson.quizzes) ? apiLesson.quizzes : [];
   return quizzes
-    .map((quiz, index) => ({
-      id: quiz.quizId || quiz.quiz_id || `quiz-${index}`,
-      quizId: quiz.quizId || quiz.quiz_id,
-      prompt: quiz.questionJp || quiz.question_jp || quiz.questionText || quiz.question_text || '',
-      choices: (quiz.choices || [quiz.choice_a, quiz.choice_b, quiz.choice_c, quiz.choice_d]).filter(Boolean),
-      explanation: quiz.explanationJp || quiz.explanation || quiz.explanation_jp || '',
-    }))
+    .map((quiz, index) => {
+      const rawChoices = (quiz.choices || [quiz.choice_a, quiz.choice_b, quiz.choice_c, quiz.choice_d]).filter(Boolean);
+      const shuffledChoices = shuffleChoiceIndexes(rawChoices);
+      return {
+        id: quiz.quizId || quiz.quiz_id || `quiz-${index}`,
+        quizId: quiz.quizId || quiz.quiz_id,
+        prompt: quiz.questionJp || quiz.question_jp || quiz.questionText || quiz.question_text || '',
+        choices: shuffledChoices.map((entry) => entry.choice),
+        choiceIndexes: shuffledChoices.map((entry) => entry.originalIndex),
+        explanation: quiz.explanationJp || quiz.explanation || quiz.explanation_jp || '',
+      };
+    })
     .filter((question) => question.prompt && question.choices.length);
 }
 
@@ -190,16 +204,19 @@ export default function GrammarQuestPage() {
 
   const submitAnswer = async () => {
     if (!currentQuestion || selectedIndex === null || feedback) return;
+    const selectedOriginalIndex = currentQuestion.choiceIndexes?.[selectedIndex] ?? selectedIndex;
     try {
       const result = await submitGrammarQuizAnswer({
         childId: selectedChildId,
         quizId: currentQuestion.quizId,
-        selectedIndex,
+        selectedIndex: selectedOriginalIndex,
       });
+      const correctOriginalIndex = Number(result.correctIndex);
+      const displayedCorrectIndex = currentQuestion.choiceIndexes?.indexOf(correctOriginalIndex);
       const nextFeedback = {
         isCorrect: Boolean(result.isCorrect),
         selectedIndex,
-        correctIndex: Number(result.correctIndex),
+        correctIndex: displayedCorrectIndex >= 0 ? displayedCorrectIndex : correctOriginalIndex,
         explanation: result.explanationJp || currentQuestion.explanation || '',
       };
       setFeedback(nextFeedback);

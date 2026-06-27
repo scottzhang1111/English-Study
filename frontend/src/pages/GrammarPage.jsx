@@ -18,6 +18,28 @@ const FILTERS = [
   { id: 'done', label: '完了', icon: '★' },
 ];
 
+function targetLevelLabel(value) {
+  const raw = String(value || '').trim();
+  const normalized = raw.toLowerCase();
+  if (!raw) return '英検';
+  if (normalized === 'eiken_pre2' || normalized.includes('pre2') || raw.includes('準2') || raw.includes('準２')) {
+    return '英検準2級';
+  }
+  if (normalized === 'eiken3' || raw.includes('3級') || raw.includes('３級')) {
+    return '英検3級';
+  }
+  if (normalized === 'eiken2' || raw.includes('2級') || raw.includes('２級')) {
+    return '英検2級';
+  }
+  if (normalized === 'eiken4' || raw.includes('4級') || raw.includes('４級')) {
+    return '英検4級';
+  }
+  if (normalized === 'eiken5' || raw.includes('5級') || raw.includes('５級')) {
+    return '英検5級';
+  }
+  return raw;
+}
+
 function statusMeta(status = '未学習') {
   if (status === '合格') return { label: '合格', key: 'passed', icon: '♛', tone: 'green' };
   if (status === 'テスト未合格') return { label: 'テスト未合格', key: 'failed', icon: '×', tone: 'red' };
@@ -107,11 +129,16 @@ function GrammarTowerCard({ lesson, busy, onLearn }) {
 
 export default function GrammarPage() {
   const navigate = useNavigate();
-  const { selectedChildId } = useChildren();
+  const { children, selectedChildId } = useChildren();
   const childId = useMemo(() => selectedChildId || '', [selectedChildId]);
+  const currentChild = useMemo(
+    () => (children || []).find((child) => String(child.id) === String(childId)) || null,
+    [childId, children],
+  );
   const [lessons, setLessons] = useState([]);
   const [stats, setStats] = useState({ total: 0, mastered: 0 });
   const [preparingMessage, setPreparingMessage] = useState('');
+  const [apiTargetLevel, setApiTargetLevel] = useState('');
   const [activeFilter, setActiveFilter] = useState('all');
   const [busyLessonId, setBusyLessonId] = useState('');
   const [loading, setLoading] = useState(true);
@@ -128,6 +155,7 @@ export default function GrammarPage() {
       .then((payload) => {
         setLessons(payload.lessons || []);
         setStats(payload.stats || {});
+        setApiTargetLevel(payload.targetLevel || payload.target_level || '');
         setPreparingMessage(payload.preparing ? (payload.message || '3級文法は準備中です') : '');
       })
       .catch((err) => setError(err.message || '文法レッスンを読み込めませんでした。'))
@@ -141,6 +169,13 @@ export default function GrammarPage() {
 
   const progressTotal = stats.total || lessons.length || 0;
   const progressMastered = stats.mastered || 0;
+  const childTargetLevelLabel = targetLevelLabel(
+    apiTargetLevel
+      || currentChild?.targetLevel
+      || currentChild?.target_level
+      || currentChild?.learningGoal
+      || currentChild?.learning_goal,
+  );
 
   const startLesson = (lesson) => {
     const lessonPath = `/grammar-quest?lessonId=${encodeURIComponent(lesson.lessonId)}`;
@@ -159,11 +194,12 @@ export default function GrammarPage() {
       <EQHeroHeader
         className="eq-grammar-rpg-hero"
         title="文法の塔"
-        subtitle={'英検準2級の重要文法を\n一つずつ攻略しよう！'}
+        subtitle={`${childTargetLevelLabel}の重要文法を\n一つずつ攻略しよう！`}
         bgImage={EQ_ASSETS.bg.grammarTemple}
         helperImage={EQ_ASSETS.spirit.happy}
       >
         <div className="eq-grammar-rpg-hero-badges">
+          <EQFantasyBadge>{childTargetLevelLabel}</EQFantasyBadge>
           <EQFantasyBadge icon="⚒">文法</EQFantasyBadge>
           <EQFantasyBadge>{progressTotal || 0} lessons</EQFantasyBadge>
         </div>

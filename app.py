@@ -33,6 +33,7 @@ except ImportError:
 
 app = Flask(__name__)
 _DB_INITIALIZED = False
+_DB_INITIALIZED_PATH = None
 
 DB_FILENAME = os.getenv('EIGO_QUEST_DB_FILENAME', 'eigo_quest_local_v1.sqlite')
 VOCAB_FILENAME = os.path.join('data', 'eiken', 'eiken_pre2', 'eiken_pre2_web_ready_db', 'eiken_vocab_database_with_synonyms_utf8_bom.csv')
@@ -279,8 +280,23 @@ def get_database_url():
     return os.getenv('DATABASE_URL', '').strip()
 
 
+def get_use_postgres_flag():
+    return os.getenv('USE_POSTGRES', '').strip().lower() == 'true'
+
+
 def use_postgres():
-    return bool(get_database_url())
+    return get_use_postgres_flag() and bool(get_database_url())
+
+
+def get_database_mode_message():
+    if use_postgres():
+        host = get_database_host_for_debug() or 'unknown'
+        return f'[DB] mode=postgres host={host}'
+    return f'[DB] mode=sqlite path={get_db_path()}'
+
+
+def print_database_mode():
+    print(get_database_mode_message(), flush=True)
 
 
 def _pg_transform_sql(sql):
@@ -703,7 +719,7 @@ def load_vocabulary(filename=VOCAB_FILENAME):
 
     if use_postgres():
         raise RuntimeError(
-            "DATABASE_URL is set, but no vocabulary was loaded from PostgreSQL words table."
+            "USE_POSTGRES=true, but no vocabulary was loaded from PostgreSQL words table."
         )
 
     app.logger.warning(
@@ -1752,7 +1768,7 @@ def get_db_path():
 def get_db_connection():
     if use_postgres():
         if psycopg2 is None:
-            raise RuntimeError('DATABASE_URL is set, but psycopg2-binary is not installed.')
+            raise RuntimeError('USE_POSTGRES=true, but psycopg2-binary is not installed.')
         conn = psycopg2.connect(get_database_url(), cursor_factory=DictCursor)
         return PostgresConnection(conn)
 
@@ -1810,8 +1826,9 @@ def ensure_eiken_pre2_bank_runtime_columns(conn):
 
 
 def init_db(force=False):
-    global _DB_INITIALIZED
-    if _DB_INITIALIZED and not force:
+    global _DB_INITIALIZED, _DB_INITIALIZED_PATH
+    db_path = get_db_path()
+    if _DB_INITIALIZED and not force and _DB_INITIALIZED_PATH == db_path:
         return
 
     started_at = time.perf_counter()
@@ -2576,6 +2593,7 @@ def init_db(force=False):
         sync_postgres_sequences(conn)
         conn.commit()
         _DB_INITIALIZED = True
+        _DB_INITIALIZED_PATH = db_path
         elapsed_ms = int((time.perf_counter() - started_at) * 1000)
         if elapsed_ms > 500:
             app.logger.info('init_db completed in %sms', elapsed_ms)
@@ -7163,7 +7181,9 @@ def submit_grammar_lesson_test(child_id, lesson_id, answers):
         'child_id': child_id,
         'lesson_id': lesson_id,
         'score': score,
+        'correct_count': score,
         'total_questions': total_questions,
+        'total': total_questions,
         'passed': passed,
         'status': lesson['status'],
         'last_score': lesson['last_score'],
@@ -13574,5 +13594,6 @@ def settings_redirect():
 
 
 if __name__ == '__main__':
+    print_database_mode()
     app.run(host="0.0.0.0", port=5000, debug=True)
 

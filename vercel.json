@@ -5,7 +5,7 @@
   "rewrites": [
     {
       "source": "/api/:path*",
-      "destination": "https://english-study-yezm.onrender.com/api/:path*"
+      "destination": "https://english-study-yzem.onrender.com/api/:path*"
     },
     {
       "source": "/(.*)",

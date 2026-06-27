@@ -209,6 +209,12 @@ class GrammarLessonProgressApiTests(unittest.TestCase):
         self.assertEqual('テスト未合格', failed.get_json()['status'])
         self.assertEqual(7, failed.get_json()['best_score'])
 
+        failed_payload = failed.get_json()
+        self.assertEqual(7, failed_payload['score'])
+        self.assertEqual(7, failed_payload['correct_count'])
+        self.assertEqual(10, failed_payload['total_questions'])
+        self.assertEqual(10, failed_payload['total'])
+
         passed = self.client.post(
             f'/api/grammar/lessons/{lesson_id}/submit',
             json={'child_id': self.child_a, 'answers': self.answers(9)},
