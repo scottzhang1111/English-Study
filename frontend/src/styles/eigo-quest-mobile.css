@@ -15868,11 +15868,11 @@ body,
 
 /* Grammar lesson detail: approved compact reference layout */
 .eq-grammar-lesson-detail-page {
-  gap: 11px;
+  gap: 10px;
 }
 
 .eq-grammar-lesson-detail-page .compact-page-header {
-  min-height: clamp(178px, 49vw, 218px);
+  min-height: clamp(150px, 42vw, 180px);
   overflow: hidden;
   border: 2px solid rgba(255, 211, 90, 0.78);
   border-radius: 24px;
@@ -15896,12 +15896,12 @@ body,
 .eq-grammar-lesson-detail-page .compact-page-header__content {
   width: 72%;
   max-width: 72%;
-  padding: 24px 8px 22px 24px;
+  padding: 20px 8px 18px 22px;
 }
 
 .eq-grammar-lesson-detail-page .compact-page-header__title {
   color: #ffdb69;
-  font-size: clamp(34px, 9.2vw, 44px);
+  font-size: clamp(30px, 8vw, 40px);
   line-height: 1.02;
   overflow: visible;
   text-overflow: clip;
@@ -15912,7 +15912,7 @@ body,
   width: 100%;
   max-width: 100%;
   min-height: 0;
-  margin-top: 8px;
+  margin-top: 6px;
   padding: 0;
   border: 0;
   background: transparent;
@@ -15921,7 +15921,7 @@ body,
 
 .eq-grammar-lesson-detail-page .compact-page-header__guidance-text {
   color: #f8fbff;
-  font-size: clamp(15px, 4vw, 19px);
+  font-size: clamp(14px, 3.7vw, 18px);
   font-weight: 850;
   line-height: 1.45;
   display: block;
@@ -15945,9 +15945,9 @@ body,
 
 .eq-grammar-lesson-detail-page .compact-page-header__helper-button {
   right: 10px;
-  bottom: 14px;
-  width: clamp(92px, 28vw, 122px);
-  height: clamp(92px, 28vw, 122px);
+  bottom: 8px;
+  width: clamp(82px, 25vw, 108px);
+  height: clamp(82px, 25vw, 108px);
 }
 
 .eq-grammar-lesson-detail-page .compact-page-header__helper-button img {
@@ -15958,29 +15958,38 @@ body,
 
 .eq-grammar-lesson-card.eq-fantasy-card-v2 {
   overflow: hidden;
-  border-radius: 20px;
-  padding: 14px;
+  border-radius: 16px;
+  padding: 10px 12px;
+  background:
+    linear-gradient(145deg, rgba(18, 38, 82, 0.96), rgba(5, 16, 42, 0.98));
 }
 
 .eq-grammar-lesson-card .eq-fantasy-card-v2__body {
   display: grid;
-  grid-template-columns: 48px minmax(0, 1fr);
-  gap: 14px;
+  grid-template-columns: 52px minmax(0, 1fr);
+  gap: 12px;
   align-items: center;
 }
 
 .eq-grammar-lesson-card__icon {
   display: grid;
-  width: 44px;
-  height: 44px;
+  width: 50px;
+  height: 50px;
   place-items: center;
   border-radius: 999px;
+  border: 1px solid rgba(255, 211, 90, 0.42);
   background:
     radial-gradient(circle at 45% 35%, rgba(255, 255, 255, 0.22), transparent 34%),
     rgba(5, 20, 54, 0.74);
-  font-size: 30px;
+  font-size: 28px;
   line-height: 1;
   filter: drop-shadow(0 8px 14px rgba(0, 0, 0, 0.28));
+}
+
+.eq-grammar-lesson-card__icon img {
+  width: 34px;
+  height: 34px;
+  object-fit: contain;
 }
 
 .eq-grammar-lesson-card__copy {
@@ -15988,9 +15997,9 @@ body,
 }
 
 .eq-grammar-lesson-card__copy h2 {
-  margin: 0 0 8px;
+  margin: 0 0 5px;
   color: #ffdb69;
-  font-size: clamp(22px, 6vw, 28px);
+  font-size: clamp(20px, 5.4vw, 24px);
   font-weight: 1000;
   line-height: 1.1;
 }
@@ -15998,10 +16007,44 @@ body,
 .eq-grammar-lesson-card__copy p {
   margin: 0;
   color: #f8fbff;
-  font-size: clamp(17px, 4.5vw, 22px);
+  font-size: clamp(15px, 4vw, 19px);
   font-weight: 760;
-  line-height: 1.52;
+  line-height: 1.48;
   overflow-wrap: anywhere;
+}
+
+.eq-grammar-lesson-card.is-target.eq-fantasy-card-v2 {
+  border-color: rgba(255, 113, 113, 0.7);
+}
+
+.eq-grammar-lesson-card.is-target .eq-grammar-lesson-card__copy h2 {
+  color: #ff7474;
+}
+
+.eq-grammar-lesson-card.is-rule.eq-fantasy-card-v2 {
+  border-color: rgba(126, 220, 92, 0.62);
+  background:
+    linear-gradient(145deg, rgba(11, 73, 55, 0.92), rgba(5, 22, 43, 0.98));
+}
+
+.eq-grammar-lesson-card.is-rule .eq-grammar-lesson-card__copy h2 {
+  color: #9bed78;
+}
+
+.eq-grammar-lesson-card.is-example.eq-fantasy-card-v2 {
+  border-color: rgba(70, 178, 255, 0.7);
+}
+
+.eq-grammar-lesson-card.is-example .eq-grammar-lesson-card__copy h2 {
+  color: #56c5ff;
+}
+
+.eq-grammar-lesson-card.is-point.eq-fantasy-card-v2 {
+  border-color: rgba(211, 89, 255, 0.58);
+}
+
+.eq-grammar-lesson-card.is-point .eq-grammar-lesson-card__copy h2 {
+  color: #cf8bff;
 }
 
 .eq-grammar-lesson-card__copy mark {
@@ -16013,16 +16056,16 @@ body,
 
 .eq-grammar-lesson-example {
   display: grid;
-  grid-template-columns: 76px minmax(0, 1fr);
+  grid-template-columns: minmax(0, 1fr) 46px;
   gap: 12px;
   align-items: center;
 }
 
 .eq-grammar-lesson-example .eq-audio-button-official.eq-fantasy-button-v2 {
   display: grid;
-  width: 62px;
-  height: 62px;
-  min-height: 62px;
+  width: 44px;
+  height: 44px;
+  min-height: 44px;
   place-items: center;
   border-radius: 999px;
   padding: 0;
@@ -16039,33 +16082,34 @@ body,
 .eq-grammar-lesson-example strong {
   display: block;
   color: #ffffff;
-  font-size: clamp(21px, 5.4vw, 28px);
+  font-size: clamp(20px, 5.2vw, 24px);
   font-weight: 1000;
-  line-height: 1.18;
+  line-height: 1.14;
 }
 
 .eq-grammar-lesson-example p {
-  margin-top: 7px;
+  margin-top: 5px;
   color: rgba(248, 251, 255, 0.86);
-  font-size: clamp(15px, 4vw, 18px);
-  line-height: 1.45;
+  font-size: clamp(14px, 3.7vw, 16px);
+  line-height: 1.35;
 }
 
 .eq-grammar-lesson-detail-page .eq-grammar-rpg-patterns {
-  gap: 7px;
+  gap: 5px;
 }
 
 .eq-grammar-lesson-detail-page .eq-grammar-rpg-patterns article {
-  padding-left: 10px;
+  padding: 0 0 0 8px;
 }
 
 .eq-grammar-lesson-detail-page .eq-grammar-rpg-patterns strong {
-  font-size: 16px;
+  font-size: 15px;
 }
 
 .eq-grammar-lesson-detail-page .eq-grammar-rpg-patterns p,
 .eq-grammar-lesson-detail-page .eq-grammar-rpg-patterns small {
-  font-size: 14px;
+  font-size: 13px;
+  line-height: 1.4;
 }
 
 .eq-grammar-rpg-detail-actions {
@@ -16073,15 +16117,21 @@ body,
 }
 
 .eq-grammar-lesson-cta.eq-fantasy-button-v2 {
-  min-height: 58px;
-  height: 58px;
-  font-size: clamp(18px, 5vw, 22px);
+  min-height: 56px;
+  height: 56px;
+  font-size: clamp(18px, 4.8vw, 21px);
 }
 
 .eq-grammar-lesson-neighbor-actions {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 8px;
+}
+
+.eq-grammar-lesson-neighbor-button.eq-fantasy-button-v2 {
+  min-height: 42px;
+  padding: 8px 10px;
+  font-size: 12px;
 }
 
 @media (max-width: 380px) {
@@ -16092,12 +16142,12 @@ body,
   }
 
   .eq-grammar-lesson-detail-page .compact-page-header__title {
-    font-size: 32px;
+    font-size: 29px;
   }
 
   .eq-grammar-lesson-detail-page .compact-page-header__helper-button {
-    width: 92px;
-    height: 92px;
+    width: 82px;
+    height: 82px;
   }
 
   .eq-grammar-lesson-card .eq-fantasy-card-v2__body {
@@ -16106,19 +16156,19 @@ body,
   }
 
   .eq-grammar-lesson-card__icon {
-    width: 38px;
-    height: 38px;
-    font-size: 24px;
+    width: 40px;
+    height: 40px;
   }
 
-  .eq-grammar-lesson-example {
-    grid-template-columns: 58px minmax(0, 1fr);
+  .eq-grammar-lesson-card__icon img {
+    width: 28px;
+    height: 28px;
   }
 
   .eq-grammar-lesson-example .eq-audio-button-official.eq-fantasy-button-v2 {
-    width: 52px;
-    height: 52px;
-    min-height: 52px;
+    width: 40px;
+    height: 40px;
+    min-height: 40px;
   }
 }
 

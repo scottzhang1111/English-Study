@@ -116,10 +116,12 @@ function lessonPointContent(lesson) {
   return lesson?.learningGoal || lesson?.jpExplanation || 'この文法の使い方を例文で確認しよう。';
 }
 
-function LessonDetailCard({ icon, title, children, className = '' }) {
+function LessonDetailCard({ icon, iconImage, title, tone = 'gold', children, className = '' }) {
   return (
-    <EQFantasyCard className={`eq-grammar-lesson-card ${className}`} hideHeader>
-      <div className="eq-grammar-lesson-card__icon" aria-hidden="true">{icon}</div>
+    <EQFantasyCard className={`eq-grammar-lesson-card is-${tone} ${className}`} hideHeader>
+      <div className="eq-grammar-lesson-card__icon" aria-hidden="true">
+        {iconImage ? <img src={iconImage} alt="" /> : icon}
+      </div>
       <div className="eq-grammar-lesson-card__copy">
         <h2>{title}</h2>
         {children}
@@ -278,31 +280,31 @@ export default function GrammarQuestPage() {
         <div className="eq-grammar-rpg-message">文法レッスンを読み込んでいます...</div>
       ) : mode === 'lesson' ? (
         <>
-          <LessonDetailCard icon="🎯" title="ターゲット">
+          <LessonDetailCard iconImage={EQ_ASSETS.ui.iconStudy} title="ターゲット" tone="target">
             <p>{lesson.grammarPoint}</p>
           </LessonDetailCard>
 
-          <LessonDetailCard icon="📜" title="ルール">
+          <LessonDetailCard iconImage={EQ_ASSETS.ui.grammarScroll} title="ルール" tone="rule">
             <p>{highlightText(lesson.jpExplanation)}</p>
           </LessonDetailCard>
 
           {(lesson.enExample || lesson.jpExample) ? (
-            <LessonDetailCard icon="🔊" title="例文" className="eq-grammar-lesson-card--example">
+            <LessonDetailCard iconImage={EQ_ASSETS.ui.wordBook} title="例文" tone="example" className="eq-grammar-lesson-card--example">
               <div className="eq-grammar-lesson-example">
+                <div>
+                  {lesson.enExample ? <strong>{lesson.enExample}</strong> : null}
+                  {lesson.jpExample ? <p>{lesson.jpExample}</p> : null}
+                </div>
                 {lesson.enExample ? (
                   <EQAudioButton onClick={() => speakExample(lesson.enExample)} label="例文を再生">
                     再生
                   </EQAudioButton>
                 ) : null}
-                <div>
-                  {lesson.enExample ? <strong>{lesson.enExample}</strong> : null}
-                  {lesson.jpExample ? <p>{lesson.jpExample}</p> : null}
-                </div>
               </div>
             </LessonDetailCard>
           ) : null}
 
-          <LessonDetailCard icon="💡" title="ポイント">
+          <LessonDetailCard iconImage={EQ_ASSETS.ui.bookIcon} title="ポイント" tone="point">
             {Array.isArray(pointContent) ? (
               <div className="eq-grammar-rpg-patterns">
                 {visiblePatterns.map((item, index) => (
@@ -328,12 +330,12 @@ export default function GrammarQuestPage() {
               理解した！テストへ進む
             </EQFantasyButton>
             <div className="eq-grammar-lesson-neighbor-actions">
-              <button type="button" onClick={() => navigateLesson(previousLesson)} disabled={!previousLesson}>
+              <EQFantasyButton variant="dark" className="eq-grammar-lesson-neighbor-button" onClick={() => navigateLesson(previousLesson)} disabled={!previousLesson}>
                 ← 前の文法へ戻る
-              </button>
-              <button type="button" onClick={() => navigateLesson(nextLesson)} disabled={!nextLesson}>
+              </EQFantasyButton>
+              <EQFantasyButton variant="blue" className="eq-grammar-lesson-neighbor-button" onClick={() => navigateLesson(nextLesson)} disabled={!nextLesson}>
                 次の文法へ進む →
-              </button>
+              </EQFantasyButton>
             </div>
           </div>
         </>
