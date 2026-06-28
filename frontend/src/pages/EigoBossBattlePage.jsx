@@ -41,12 +41,12 @@ function createInitialBattleState() {
   };
 }
 
-function HpBar({ label, value, max, tone = 'cyan' }) {
+function HpBar({ label, value, max, tone = 'cyan', className = '' }) {
   const safeValue = Math.max(0, value);
   const percent = max > 0 ? Math.max(0, Math.min(100, Math.round((safeValue / max) * 100))) : 0;
 
   return (
-    <section className={`eq-boss-hp is-${tone}`} aria-label={label}>
+    <section className={`eq-boss-hp is-${tone} ${className}`} aria-label={label}>
       <div className="eq-boss-hp__row">
         <strong>{label}</strong>
         <span>{safeValue} / {max}</span>
@@ -65,6 +65,8 @@ export default function EigoBossBattlePage() {
   const currentQuestion = state.questionDeck[state.currentQuestionIndex];
   const activeHero = battle.heroes[state.activeHeroIndex] || battle.heroes[0];
   const rewardPath = FIRST_BOSS_REWARD.nextPath || '/card-reward?source=wind_trial_001';
+  const bossHpRatio = battle.boss.hp > 0 ? state.bossHp / battle.boss.hp : 0;
+  const bossIsDanger = state.battleStatus === 'playing' && state.bossHp > 0 && bossHpRatio <= 0.3;
 
   const resetBattle = () => {
     setState(createInitialBattleState());
@@ -173,7 +175,7 @@ export default function EigoBossBattlePage() {
       withBottomNav
       bottomNavClassName="eq-learning-hub-bottom-nav"
     >
-      <header className={`eq-boss-hud ${state.bossReaction}`} aria-label="Boss battle status">
+      <header className={`eq-boss-hud ${state.bossReaction} ${bossIsDanger ? 'is-danger' : ''}`} aria-label="Boss battle status">
         <div className="eq-boss-hud__world">
           <span aria-hidden="true">風</span>
           <strong>WIND</strong>
@@ -188,16 +190,22 @@ export default function EigoBossBattlePage() {
               <strong>{state.combo}</strong>
             </div>
           </div>
-          <HpBar label="Boss HP" value={state.bossHp} max={battle.boss.hp} tone="rose" />
+          <HpBar label="Boss HP" value={state.bossHp} max={battle.boss.hp} tone="rose" className={bossIsDanger ? 'is-danger' : ''} />
         </div>
 
         <figure className="eq-boss-hud__thumb">
           <img src={battle.boss.image} alt={battle.boss.name} />
           <figcaption>{battle.boss.name}</figcaption>
+          {bossIsDanger ? <span className="eq-boss-danger-label">DANGER</span> : null}
         </figure>
       </header>
 
-      <HpBar label="Player HP" value={state.playerHp} max={battle.playerHp} />
+      <HpBar
+        label="Player HP"
+        value={state.playerHp}
+        max={battle.playerHp}
+        className={state.bossReaction === 'is-counter' ? 'is-countered' : ''}
+      />
 
       {state.battleStatus === 'clear' ? (
         <EQFantasyCard hideHeader className="eq-boss-result-card is-clear">
@@ -251,7 +259,7 @@ export default function EigoBossBattlePage() {
         </EQFantasyCard>
       )}
 
-      <p className={`eq-boss-battle-message is-${state.battleStatus}`} role="status">
+      <p className={`eq-boss-battle-message is-${state.battleStatus} ${state.bossReaction}`} role="status">
         {state.message}
       </p>
 
