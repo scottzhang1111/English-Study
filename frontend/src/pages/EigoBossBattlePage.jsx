@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
+import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   EQChoiceButton,
@@ -58,24 +59,216 @@ function HpBar({ label, value, max, tone = 'cyan', className = '' }) {
   );
 }
 
+function getRelativeRect(element, container) {
+  if (!element || !container) return null;
+
+  const rect = element.getBoundingClientRect();
+  const containerRect = container.getBoundingClientRect();
+  return {
+    x: rect.left - containerRect.left,
+    y: rect.top - containerRect.top,
+    width: rect.width,
+    height: rect.height,
+    centerX: rect.left - containerRect.left + rect.width / 2,
+    centerY: rect.top - containerRect.top + rect.height / 2,
+  };
+}
+
+function createWindBladePaths(sequence) {
+  const { from, to } = sequence;
+  const midX = (from.centerX + to.centerX) / 2;
+  const midY = (from.centerY + to.centerY) / 2;
+  const lift = Math.max(34, Math.min(88, Math.abs(to.centerY - from.centerY) * 0.22));
+
+  return [
+    {
+      d: `M ${from.centerX} ${from.centerY} Q ${midX - 42} ${midY - lift} ${to.centerX - 9} ${to.centerY - 5}`,
+      delay: 0,
+    },
+    {
+      d: `M ${from.centerX + 12} ${from.centerY - 10} Q ${midX + 24} ${midY - lift - 20} ${to.centerX + 16} ${to.centerY + 2}`,
+      delay: 0.08,
+    },
+    {
+      d: `M ${from.centerX - 10} ${from.centerY + 8} Q ${midX - 8} ${midY + lift * 0.15} ${to.centerX - 2} ${to.centerY + 18}`,
+      delay: 0.15,
+    },
+  ];
+}
+
+function WindAttackOverlay({ sequence, reducedMotion }) {
+  if (!sequence) return null;
+
+  const cloneWidth = Math.min(Math.max(sequence.from.width, 54), 72);
+  const cloneHeight = cloneWidth * 1.34;
+  const startX = sequence.from.centerX - cloneWidth / 2;
+  const startY = sequence.from.centerY - cloneHeight / 2;
+  const endX = sequence.to.centerX - cloneWidth / 2;
+  const endY = sequence.to.centerY - cloneHeight / 2;
+  const showImpact = sequence.phase === 'impact';
+  const bladePaths = createWindBladePaths(sequence);
+
+  return (
+    <div className="eq-battle-animation-layer" aria-hidden="true">
+      <svg
+        className="eq-wind-slash-layer"
+        viewBox={`0 0 ${sequence.containerWidth} ${sequence.containerHeight}`}
+        preserveAspectRatio="none"
+      >
+        <defs>
+          <linearGradient id={`eqWindBlade-${sequence.id}`} x1="0%" y1="100%" x2="100%" y2="0%">
+            <stop offset="0%" stopColor="rgba(53, 217, 255, 0)" />
+            <stop offset="35%" stopColor="#eaffff" />
+            <stop offset="70%" stopColor="#35d9ff" />
+            <stop offset="100%" stopColor="#ffd35a" />
+          </linearGradient>
+        </defs>
+        {bladePaths.map((blade, index) => (
+          <motion.path
+            key={`${sequence.id}-blade-${index}`}
+            d={blade.d}
+            pathLength="1"
+            className={`eq-wind-slash-path is-${index + 1}`}
+            stroke={`url(#eqWindBlade-${sequence.id})`}
+            initial={{ pathLength: 0, opacity: 0 }}
+            animate={{
+              pathLength: reducedMotion ? 1 : [0, 1, 1],
+              opacity: reducedMotion ? 0 : [0, 1, 0],
+            }}
+            transition={{
+              duration: reducedMotion ? 0.01 : 0.42,
+              delay: reducedMotion ? 0 : blade.delay,
+              ease: 'easeOut',
+            }}
+          />
+        ))}
+      </svg>
+
+      <motion.div
+        className="eq-attack-clone-card"
+        style={{ width: cloneWidth, height: cloneHeight }}
+        initial={{ x: startX, y: startY, opacity: 0.96, rotate: -7, scale: 0.92 }}
+        animate={showImpact || reducedMotion
+          ? { x: endX, y: endY, opacity: 0, rotate: 12, scale: 0.56 }
+          : { x: endX, y: endY, opacity: 1, rotate: 8, scale: 1.16 }}
+        exit={{ opacity: 0, scale: 0.52 }}
+        transition={{ duration: reducedMotion ? 0.01 : 0.5, ease: [0.2, 0.8, 0.18, 1] }}
+      >
+        <img src={sequence.heroImage} alt="" />
+      </motion.div>
+
+      <AnimatePresence>
+        {showImpact ? (
+          <motion.div
+            key={`${sequence.id}-impact`}
+            className="eq-wind-impact"
+            style={{ left: sequence.to.centerX, top: sequence.to.centerY }}
+            initial={{ opacity: 0, scale: 0.34, rotate: -10 }}
+            animate={{ opacity: 1, scale: 1, rotate: 0 }}
+            exit={{ opacity: 0, scale: 1.36 }}
+            transition={{ duration: reducedMotion ? 0.01 : 0.24, ease: 'easeOut' }}
+          >
+            <span className="eq-wind-impact__burst" />
+            <span className="eq-wind-impact__ring" />
+            <span className="eq-wind-impact__slash" />
+            <span className="eq-damage-number">-{sequence.damage}</span>
+          </motion.div>
+        ) : null}
+      </AnimatePresence>
+    </div>
+  );
+}
+
 export default function EigoBossBattlePage() {
   const navigate = useNavigate();
   const battle = FIRST_BOSS_BATTLE;
   const [state, setState] = useState(createInitialBattleState);
+  const [attackSequence, setAttackSequence] = useState(null);
+  const battleRef = useRef(null);
+  const bossCardRef = useRef(null);
+  const heroCardRefs = useRef([]);
+  const timeoutRefs = useRef([]);
+  const reducedMotion = useReducedMotion();
   const currentQuestion = state.questionDeck[state.currentQuestionIndex];
   const activeHero = battle.heroes[state.activeHeroIndex] || battle.heroes[0];
   const rewardPath = FIRST_BOSS_REWARD.nextPath || '/card-reward?source=wind_trial_001';
   const bossHpRatio = battle.boss.hp > 0 ? state.bossHp / battle.boss.hp : 0;
   const bossIsDanger = state.battleStatus === 'playing' && state.bossHp > 0 && bossHpRatio <= 0.3;
 
+  useEffect(() => () => {
+    timeoutRefs.current.forEach((timeoutId) => window.clearTimeout(timeoutId));
+    timeoutRefs.current = [];
+  }, []);
+
+  const scheduleTimeout = (callback, delay) => {
+    const timeoutId = window.setTimeout(() => {
+      timeoutRefs.current = timeoutRefs.current.filter((id) => id !== timeoutId);
+      callback();
+    }, delay);
+    timeoutRefs.current.push(timeoutId);
+    return timeoutId;
+  };
+
   const resetBattle = () => {
+    setAttackSequence(null);
     setState(createInitialBattleState());
   };
 
   const clearBossReactionSoon = () => {
-    window.setTimeout(() => {
+    scheduleTimeout(() => {
       setState((current) => ({ ...current, bossReaction: '' }));
     }, 360);
+  };
+
+  const startAttackSequence = (hero, damage, heroIndex) => {
+    const container = battleRef.current;
+    const heroElement = heroCardRefs.current[heroIndex];
+    const bossElement = bossCardRef.current;
+    const containerRect = container?.getBoundingClientRect();
+    const id = `${hero.id}-${Date.now()}`;
+    const from = getRelativeRect(heroElement, container);
+    const to = getRelativeRect(bossElement, container);
+    const containerWidth = containerRect?.width || 430;
+    const containerHeight = containerRect?.height || 760;
+    const fallbackFrom = {
+      x: 34,
+      y: containerHeight - 150,
+      width: 64,
+      height: 86,
+      centerX: 66,
+      centerY: containerHeight - 107,
+    };
+    const fallbackTo = {
+      x: containerWidth - 82,
+      y: 18,
+      width: 66,
+      height: 86,
+      centerX: containerWidth - 49,
+      centerY: 61,
+    };
+
+    setAttackSequence({
+      id,
+      heroImage: hero.image,
+      heroName: hero.name,
+      damage,
+      from: from || fallbackFrom,
+      to: to || fallbackTo,
+      containerWidth,
+      containerHeight,
+      sourceHeroIndex: heroIndex,
+      phase: 'dash',
+    });
+
+    scheduleTimeout(() => {
+      setAttackSequence((current) => (
+        current?.id === id ? { ...current, phase: 'impact' } : current
+      ));
+    }, reducedMotion ? 30 : 520);
+
+    scheduleTimeout(() => {
+      setAttackSequence((current) => (current?.id === id ? null : current));
+    }, reducedMotion ? 220 : 900);
   };
 
   const moveToNextQuestion = (draft) => {
@@ -96,11 +289,12 @@ export default function EigoBossBattlePage() {
   };
 
   const answerQuestion = (choice) => {
-    if (state.battleStatus !== 'playing' || !currentQuestion) return;
+    if (state.battleStatus !== 'playing' || !currentQuestion || attackSequence) return;
 
     const isCorrect = choice === currentQuestion.answer;
     if (isCorrect) {
       const damage = activeHero.attack;
+      startAttackSequence(activeHero, damage, state.activeHeroIndex);
       const nextBossHp = Math.max(0, state.bossHp - damage);
       const nextState = {
         ...state,
@@ -151,19 +345,27 @@ export default function EigoBossBattlePage() {
 
   const renderHeroParty = () => (
     <section className="eq-boss-party" aria-label="Hero party">
-      {battle.heroes.map((hero, index) => (
-        <article
-          key={hero.id}
-          className={`eq-boss-hero ${index === state.activeHeroIndex && state.battleStatus === 'playing' ? 'is-active' : ''}`}
-        >
-          {index === state.activeHeroIndex && state.battleStatus === 'playing' ? (
-            <span className="eq-boss-hero__active">攻撃中！</span>
-          ) : null}
-          <img src={hero.image} alt={hero.name} />
-          <strong>{hero.name}</strong>
-          <span className="eq-boss-hero__attack">剣 {hero.attack}</span>
-        </article>
-      ))}
+      {battle.heroes.map((hero, index) => {
+        const isActive = index === state.activeHeroIndex && state.battleStatus === 'playing';
+        const isCharging = attackSequence?.sourceHeroIndex === index;
+
+        return (
+          <article
+            key={hero.id}
+            ref={(element) => {
+              heroCardRefs.current[index] = element;
+            }}
+            className={`eq-boss-hero ${isActive ? 'is-active' : ''} ${isCharging ? 'is-charging' : ''}`}
+          >
+            {isActive || isCharging ? (
+              <span className="eq-boss-hero__active">攻撃中！</span>
+            ) : null}
+            <img src={hero.image} alt={hero.name} />
+            <strong>{hero.name}</strong>
+            <span className="eq-boss-hero__attack">剣 {hero.attack}</span>
+          </article>
+        );
+      })}
     </section>
   );
 
@@ -175,7 +377,8 @@ export default function EigoBossBattlePage() {
       withBottomNav
       bottomNavClassName="eq-learning-hub-bottom-nav"
     >
-      <header className={`eq-boss-hud ${state.bossReaction} ${bossIsDanger ? 'is-danger' : ''}`} aria-label="Boss battle status">
+      <div ref={battleRef} className="eq-boss-battle-stage">
+      <header className={`eq-boss-hud ${state.bossReaction} ${attackSequence?.phase === 'impact' ? 'is-impact' : ''} ${bossIsDanger ? 'is-danger' : ''}`} aria-label="Boss battle status">
         <div className="eq-boss-hud__world">
           <span aria-hidden="true">風</span>
           <strong>WIND</strong>
@@ -193,7 +396,7 @@ export default function EigoBossBattlePage() {
           <HpBar label="Boss HP" value={state.bossHp} max={battle.boss.hp} tone="rose" className={bossIsDanger ? 'is-danger' : ''} />
         </div>
 
-        <figure className="eq-boss-hud__thumb">
+        <figure ref={bossCardRef} className="eq-boss-hud__thumb">
           <img src={battle.boss.image} alt={battle.boss.name} />
           <figcaption>{battle.boss.name}</figcaption>
           {bossIsDanger ? <span className="eq-boss-danger-label">DANGER</span> : null}
@@ -251,6 +454,7 @@ export default function EigoBossBattlePage() {
                 key={`${currentQuestion.id}-${choice}`}
                 badge={String.fromCharCode(65 + index)}
                 onClick={() => answerQuestion(choice)}
+                disabled={Boolean(attackSequence)}
               >
                 {choice}
               </EQChoiceButton>
@@ -264,6 +468,16 @@ export default function EigoBossBattlePage() {
       </p>
 
       {renderHeroParty()}
+      <AnimatePresence>
+        {attackSequence ? (
+          <WindAttackOverlay
+            key={attackSequence.id}
+            sequence={attackSequence}
+            reducedMotion={reducedMotion}
+          />
+        ) : null}
+      </AnimatePresence>
+      </div>
     </EQPageShell>
   );
 }
