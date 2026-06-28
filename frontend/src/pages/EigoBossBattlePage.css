@@ -23,6 +23,9 @@
 }
 
 .eq-boss-hud {
+  --eq-boss-aura-primary: rgba(255, 25, 91, 0.34);
+  --eq-boss-aura-secondary: rgba(88, 14, 64, 0.48);
+  --eq-boss-aura-shadow: rgba(142, 9, 54, 0.24);
   position: relative;
   overflow: hidden;
   display: grid;
@@ -34,12 +37,12 @@
   border: 1px solid rgba(255, 211, 90, 0.58);
   border-radius: 18px;
   background:
-    radial-gradient(circle at 82% 34%, rgba(255, 25, 91, 0.34), transparent 36%),
-    radial-gradient(circle at 56% 12%, rgba(88, 14, 64, 0.48), transparent 42%),
+    radial-gradient(circle at 82% 34%, var(--eq-boss-aura-primary), transparent 36%),
+    radial-gradient(circle at 56% 12%, var(--eq-boss-aura-secondary), transparent 42%),
     radial-gradient(circle at 16% 8%, rgba(53, 217, 255, 0.12), transparent 34%),
     linear-gradient(180deg, rgba(12, 2, 18, 0.96), rgba(3, 8, 28, 0.96));
   box-shadow:
-    0 0 24px rgba(142, 9, 54, 0.24),
+    0 0 24px var(--eq-boss-aura-shadow),
     inset 0 0 30px rgba(255, 28, 89, 0.08);
 }
 
@@ -54,8 +57,8 @@
 
 .eq-boss-hud::before {
   background:
-    radial-gradient(ellipse at 78% 46%, rgba(255, 40, 104, 0.34), transparent 36%),
-    radial-gradient(ellipse at 62% 38%, rgba(95, 13, 70, 0.38), transparent 46%);
+    radial-gradient(ellipse at 78% 46%, var(--eq-boss-aura-primary), transparent 36%),
+    radial-gradient(ellipse at 62% 38%, var(--eq-boss-aura-secondary), transparent 46%);
   filter: blur(4px);
 }
 
@@ -68,7 +71,19 @@
 
 .eq-boss-hud > * {
   position: relative;
-  z-index: 1;
+  z-index: 2;
+}
+
+.eq-boss-hud__banner {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0.46;
+  filter: saturate(1.08) contrast(1.1) brightness(0.64);
+  pointer-events: none;
 }
 
 .eq-boss-hud.is-hit .eq-boss-hud__thumb {

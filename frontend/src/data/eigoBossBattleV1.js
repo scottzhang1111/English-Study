@@ -12,7 +12,15 @@ export const FIRST_BOSS_BATTLE = {
     name: "風裂きハーピィ",
     title: "第一の風妖",
     hp: 120,
-    image: "/assets/eigo-quest/cards/boss/wind-mini-boss1.png"
+    image: "/assets/eigo-quest/cards/boss/wind-mini-boss1.png",
+    bannerImage: "/assets/eigo-quest/cards/boss/wind-mini-boss1.png",
+    bannerObjectPosition: "center 32%",
+    aura: {
+      primary: "rgba(255, 25, 91, 0.34)",
+      secondary: "rgba(88, 14, 64, 0.48)",
+      shadow: "rgba(142, 9, 54, 0.24)"
+    },
+    dangerLabel: "弱点露出！"
   },
   heroes: [
     {

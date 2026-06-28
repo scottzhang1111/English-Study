@@ -194,6 +194,14 @@ export default function EigoBossBattlePage() {
   const rewardPath = FIRST_BOSS_REWARD.nextPath || '/card-reward?source=wind_trial_001';
   const bossHpRatio = battle.boss.hp > 0 ? state.bossHp / battle.boss.hp : 0;
   const bossIsDanger = state.battleStatus === 'playing' && state.bossHp > 0 && bossHpRatio <= 0.3;
+  const bossBannerImage = battle.boss.bannerImage || battle.boss.image;
+  const bossBannerObjectPosition = battle.boss.bannerObjectPosition || 'center center';
+  const bossAura = battle.boss.aura || {};
+  const bossHudStyle = {
+    '--eq-boss-aura-primary': bossAura.primary || 'rgba(255, 25, 91, 0.34)',
+    '--eq-boss-aura-secondary': bossAura.secondary || 'rgba(88, 14, 64, 0.48)',
+    '--eq-boss-aura-shadow': bossAura.shadow || 'rgba(142, 9, 54, 0.24)',
+  };
 
   useEffect(() => () => {
     timeoutRefs.current.forEach((timeoutId) => window.clearTimeout(timeoutId));
@@ -378,7 +386,17 @@ export default function EigoBossBattlePage() {
       bottomNavClassName="eq-learning-hub-bottom-nav"
     >
       <div ref={battleRef} className="eq-boss-battle-stage">
-      <header className={`eq-boss-hud ${state.bossReaction} ${attackSequence?.phase === 'impact' ? 'is-impact' : ''} ${bossIsDanger ? 'is-danger' : ''}`} aria-label="Boss battle status">
+      <header
+        className={`eq-boss-hud ${state.bossReaction} ${attackSequence?.phase === 'impact' ? 'is-impact' : ''} ${bossIsDanger ? 'is-danger' : ''}`}
+        style={bossHudStyle}
+        aria-label="Boss battle status"
+      >
+        <img
+          className="eq-boss-hud__banner"
+          src={bossBannerImage}
+          alt=""
+          style={{ objectPosition: bossBannerObjectPosition }}
+        />
         <div className="eq-boss-hud__world">
           <span aria-hidden="true">風</span>
           <strong>WIND</strong>
@@ -399,7 +417,7 @@ export default function EigoBossBattlePage() {
         <figure ref={bossCardRef} className="eq-boss-hud__thumb">
           <img src={battle.boss.image} alt={battle.boss.name} />
           <figcaption>{battle.boss.name}</figcaption>
-          {bossIsDanger ? <span className="eq-boss-danger-label">DANGER</span> : null}
+          {bossIsDanger ? <span className="eq-boss-danger-label">{battle.boss.dangerLabel || 'DANGER'}</span> : null}
         </figure>
       </header>
 
