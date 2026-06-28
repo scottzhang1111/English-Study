@@ -81,6 +81,24 @@ function getRelativeRect(element, container) {
   };
 }
 
+function getViewportRect(element) {
+  if (!element) return null;
+
+  const rect = element.getBoundingClientRect();
+  return {
+    x: rect.left,
+    y: rect.top,
+    width: rect.width,
+    height: rect.height,
+    centerX: rect.left + rect.width / 2,
+    centerY: rect.top + rect.height / 2,
+  };
+}
+
+function getSkillEffectClass(skillMotion) {
+  return `skill-effect-${(skillMotion || 'wind_slash').replaceAll('_', '-')}`;
+}
+
 function createWindBladePaths(sequence) {
   const { from, to } = sequence;
   const midX = (from.centerX + to.centerX) / 2;
@@ -117,6 +135,7 @@ function WindAttackOverlay({ sequence, reducedMotion }) {
   const bladePaths = createWindBladePaths(sequence);
   const showCyclone = showImpact && skillMotion === 'cyclone_combo';
   const showBlessing = skillMotion === 'wind_blessing';
+  const showComboBonus = showCyclone && sequence.combo >= 2;
   const deltaX = sequence.to.centerX - sequence.from.centerX;
   const deltaY = sequence.to.centerY - sequence.from.centerY;
   const beamDistance = Math.max(120, Math.hypot(deltaX, deltaY));
@@ -125,7 +144,7 @@ function WindAttackOverlay({ sequence, reducedMotion }) {
   const beamY = sequence.from.centerY + deltaY / 2;
 
   return (
-    <div className={`eq-battle-animation-layer is-hero-skill is-${skillMotion}`} aria-hidden="true">
+    <div className={`eq-battle-animation-layer is-hero-skill is-${skillMotion} ${getSkillEffectClass(skillMotion)}`} aria-hidden="true">
       <motion.div
         className={`eq-cinematic-skill-beam is-${skillMotion}`}
         style={{
@@ -238,7 +257,7 @@ function WindAttackOverlay({ sequence, reducedMotion }) {
             <span className="eq-wind-impact__burst" />
             <span className="eq-wind-impact__ring" />
             <span className="eq-wind-impact__slash" />
-            <span className="eq-damage-number">-{sequence.damage}</span>
+            <span className="eq-damage-number damage-burst">-{sequence.damage}</span>
           </motion.div>
         ) : null}
       </AnimatePresence>
@@ -256,6 +275,7 @@ function WindAttackOverlay({ sequence, reducedMotion }) {
           >
             <span className="eq-cyclone-combo-ring__hit is-1" />
             <span className="eq-cyclone-combo-ring__hit is-2" />
+            {showComboBonus ? <span className="eq-combo-bonus-burst">COMBO BONUS</span> : null}
           </motion.div>
         ) : null}
       </AnimatePresence>
@@ -284,7 +304,7 @@ function BossCounterOverlay({ sequence, reducedMotion }) {
   const slashY = startY + deltaY / 2 - 7;
 
   return (
-    <div className="eq-battle-animation-layer is-counter" aria-hidden="true">
+    <div className="eq-battle-animation-layer is-counter boss-counter-flash" aria-hidden="true">
       <motion.div
         className="eq-boss-attack-clone-card"
         style={{ width: cloneWidth, height: cloneHeight }}
@@ -327,7 +347,16 @@ function BossCounterOverlay({ sequence, reducedMotion }) {
         exit={{ opacity: 0 }}
         transition={{ duration: reducedMotion ? 0.01 : 0.46, ease: 'easeOut', delay: reducedMotion ? 0 : 0.12 }}
       >
-        <span className="eq-counter-damage-number">-{sequence.damage || COUNTER_DAMAGE}</span>
+        <span className="eq-counter-damage-number damage-burst">-{sequence.damage || COUNTER_DAMAGE}</span>
+      </motion.div>
+      <motion.div
+        className="eq-player-damage-burst damage-burst"
+        initial={{ opacity: 0, scale: 0.62, y: 8 }}
+        animate={{ opacity: reducedMotion ? 1 : [0, 1, 1, 0], scale: reducedMotion ? 1 : [0.62, 1.24, 1, 0.94], y: reducedMotion ? 0 : [8, -8, -18, -30] }}
+        exit={{ opacity: 0 }}
+        transition={{ duration: reducedMotion ? 0.01 : 0.58, ease: 'easeOut' }}
+      >
+        -{sequence.damage || COUNTER_DAMAGE}
       </motion.div>
     </div>
   );
@@ -340,6 +369,7 @@ export default function EigoBossBattlePage() {
   const [attackSequence, setAttackSequence] = useState(null);
   const [counterSequence, setCounterSequence] = useState(null);
   const [actionEffect, setActionEffect] = useState(null);
+  const [isResolving, setIsResolving] = useState(false);
   const battleRef = useRef(null);
   const bossCardRef = useRef(null);
   const heroPartyRef = useRef(null);
@@ -378,6 +408,7 @@ export default function EigoBossBattlePage() {
     setAttackSequence(null);
     setCounterSequence(null);
     setActionEffect(null);
+    setIsResolving(false);
     setState(createInitialBattleState());
   };
 
@@ -388,22 +419,22 @@ export default function EigoBossBattlePage() {
   };
 
   const startAttackSequence = (hero, damage, heroIndex, combo) => {
-    const container = battleRef.current;
     const heroElement = heroCardRefs.current[heroIndex];
     const bossElement = bossCardRef.current;
-    const containerRect = container?.getBoundingClientRect();
+    const viewportWidth = window.innerWidth || 430;
+    const viewportHeight = window.innerHeight || 760;
     const id = `${hero.id}-${Date.now()}`;
-    const from = getRelativeRect(heroElement, container);
-    const to = getRelativeRect(bossElement, container);
-    const containerWidth = containerRect?.width || 430;
-    const containerHeight = containerRect?.height || 760;
+    const from = getViewportRect(heroElement);
+    const to = getViewportRect(bossElement);
+    const containerWidth = viewportWidth;
+    const containerHeight = viewportHeight;
     const fallbackFrom = {
       x: 34,
-      y: containerHeight - 150,
+      y: containerHeight - 190,
       width: 64,
       height: 86,
       centerX: 66,
-      centerY: containerHeight - 107,
+      centerY: containerHeight - 147,
     };
     const fallbackTo = {
       x: containerWidth - 82,
@@ -441,15 +472,15 @@ export default function EigoBossBattlePage() {
   };
 
   const startCounterSequence = () => {
-    const container = battleRef.current;
     const bossElement = bossCardRef.current;
     const partyElement = heroPartyRef.current;
-    const containerRect = container?.getBoundingClientRect();
-    const containerWidth = containerRect?.width || 430;
-    const containerHeight = containerRect?.height || 760;
+    const viewportWidth = window.innerWidth || 430;
+    const viewportHeight = window.innerHeight || 760;
+    const containerWidth = viewportWidth;
+    const containerHeight = viewportHeight;
     const id = `boss-counter-${Date.now()}`;
-    const from = getRelativeRect(bossElement, container);
-    const to = getRelativeRect(partyElement, container);
+    const from = getViewportRect(bossElement);
+    const to = getViewportRect(partyElement);
     const fallbackFrom = {
       x: containerWidth - 82,
       y: 18,
@@ -501,9 +532,10 @@ export default function EigoBossBattlePage() {
   };
 
   const answerQuestion = (choice) => {
-    if (state.battleStatus !== 'playing' || !currentQuestion || attackSequence || counterSequence) return;
+    if (state.battleStatus !== 'playing' || !currentQuestion || attackSequence || counterSequence || isResolving) return;
 
     const isCorrect = choice === currentQuestion.answer;
+    setIsResolving(true);
     if (isCorrect) {
       const damage = activeHero.attack;
       const nextCombo = state.combo + 1;
@@ -527,17 +559,25 @@ export default function EigoBossBattlePage() {
       };
 
       if (nextBossHp <= 0) {
-        setState({
-          ...nextState,
-          battleStatus: 'clear',
-          message: '風の試練クリア！Boss カードを手に入れた！',
-        });
+        setState(nextState);
         clearBossReactionSoon();
+        scheduleTimeout(() => {
+          setState({
+            ...nextState,
+            battleStatus: 'clear',
+            message: '風の試練クリア！Boss カードを手に入れた！',
+          });
+          setIsResolving(false);
+        }, reducedMotion ? 180 : 620);
         return;
       }
 
-      setState(moveToNextQuestion(nextState));
+      setState(nextState);
       clearBossReactionSoon();
+      scheduleTimeout(() => {
+        setState(moveToNextQuestion(nextState));
+        setIsResolving(false);
+      }, reducedMotion ? 180 : 620);
       return;
     }
 
@@ -566,6 +606,7 @@ export default function EigoBossBattlePage() {
           message: FAILED_MESSAGE,
           bossReaction: '',
         });
+        setIsResolving(false);
         return;
       }
 
@@ -573,7 +614,8 @@ export default function EigoBossBattlePage() {
         ...moveToNextQuestion(nextState),
         bossReaction: '',
       });
-    }, reducedMotion ? 180 : 540);
+      setIsResolving(false);
+    }, reducedMotion ? 180 : 620);
   };
 
   const renderHeroParty = () => (
@@ -712,7 +754,7 @@ export default function EigoBossBattlePage() {
                 key={`${currentQuestion.id}-${choice}`}
                 badge={String.fromCharCode(65 + index)}
                 onClick={() => answerQuestion(choice)}
-                disabled={Boolean(attackSequence || counterSequence)}
+                disabled={Boolean(attackSequence || counterSequence || isResolving)}
               >
                 {choice}
               </EQChoiceButton>
