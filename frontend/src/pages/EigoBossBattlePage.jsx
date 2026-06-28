@@ -179,13 +179,55 @@ function WindAttackOverlay({ sequence, reducedMotion }) {
   );
 }
 
+function BossCounterOverlay({ sequence, reducedMotion }) {
+  if (!sequence) return null;
+
+  const startX = sequence.from.centerX;
+  const startY = sequence.from.centerY;
+  const endX = sequence.to.centerX;
+  const endY = sequence.to.centerY;
+  const deltaX = endX - startX;
+  const deltaY = endY - startY;
+  const distance = Math.max(120, Math.hypot(deltaX, deltaY));
+  const angle = Math.atan2(deltaY, deltaX) * (180 / Math.PI);
+  const slashX = startX + deltaX / 2 - distance / 2;
+  const slashY = startY + deltaY / 2 - 7;
+
+  return (
+    <div className="eq-battle-animation-layer is-counter" aria-hidden="true">
+      <motion.div
+        className="eq-boss-counter-slash"
+        style={{
+          left: slashX,
+          top: slashY,
+          width: distance,
+        }}
+        initial={{ opacity: 0, rotate: angle, scaleX: 0.16 }}
+        animate={{ opacity: reducedMotion ? 0.28 : [0, 1, 0], rotate: angle, scaleX: 1 }}
+        exit={{ opacity: 0 }}
+        transition={{ duration: reducedMotion ? 0.01 : 0.42, ease: 'easeOut' }}
+      />
+      <motion.div
+        className="eq-boss-counter-impact"
+        style={{ left: endX, top: endY }}
+        initial={{ opacity: 0, scale: 0.45 }}
+        animate={{ opacity: reducedMotion ? 0.7 : [0, 1, 0], scale: reducedMotion ? 1 : [0.45, 1.1, 1.35] }}
+        exit={{ opacity: 0 }}
+        transition={{ duration: reducedMotion ? 0.01 : 0.46, ease: 'easeOut', delay: reducedMotion ? 0 : 0.12 }}
+      />
+    </div>
+  );
+}
+
 export default function EigoBossBattlePage() {
   const navigate = useNavigate();
   const battle = FIRST_BOSS_BATTLE;
   const [state, setState] = useState(createInitialBattleState);
   const [attackSequence, setAttackSequence] = useState(null);
+  const [counterSequence, setCounterSequence] = useState(null);
   const battleRef = useRef(null);
   const bossCardRef = useRef(null);
+  const heroPartyRef = useRef(null);
   const heroCardRefs = useRef([]);
   const timeoutRefs = useRef([]);
   const reducedMotion = useReducedMotion();
@@ -219,6 +261,7 @@ export default function EigoBossBattlePage() {
 
   const resetBattle = () => {
     setAttackSequence(null);
+    setCounterSequence(null);
     setState(createInitialBattleState());
   };
 
@@ -279,6 +322,46 @@ export default function EigoBossBattlePage() {
     }, reducedMotion ? 220 : 900);
   };
 
+  const startCounterSequence = () => {
+    const container = battleRef.current;
+    const bossElement = bossCardRef.current;
+    const partyElement = heroPartyRef.current;
+    const containerRect = container?.getBoundingClientRect();
+    const containerWidth = containerRect?.width || 430;
+    const containerHeight = containerRect?.height || 760;
+    const id = `boss-counter-${Date.now()}`;
+    const from = getRelativeRect(bossElement, container);
+    const to = getRelativeRect(partyElement, container);
+    const fallbackFrom = {
+      x: containerWidth - 82,
+      y: 18,
+      width: 66,
+      height: 86,
+      centerX: containerWidth - 49,
+      centerY: 61,
+    };
+    const fallbackTo = {
+      x: 18,
+      y: containerHeight - 160,
+      width: containerWidth - 36,
+      height: 92,
+      centerX: containerWidth / 2,
+      centerY: containerHeight - 114,
+    };
+
+    setCounterSequence({
+      id,
+      from: from || fallbackFrom,
+      to: to || fallbackTo,
+      containerWidth,
+      containerHeight,
+    });
+
+    scheduleTimeout(() => {
+      setCounterSequence((current) => (current?.id === id ? null : current));
+    }, reducedMotion ? 220 : 620);
+  };
+
   const moveToNextQuestion = (draft) => {
     const nextQuestionIndex = draft.currentQuestionIndex + 1;
     if (nextQuestionIndex >= draft.questionDeck.length) {
@@ -297,7 +380,7 @@ export default function EigoBossBattlePage() {
   };
 
   const answerQuestion = (choice) => {
-    if (state.battleStatus !== 'playing' || !currentQuestion || attackSequence) return;
+    if (state.battleStatus !== 'playing' || !currentQuestion || attackSequence || counterSequence) return;
 
     const isCorrect = choice === currentQuestion.answer;
     if (isCorrect) {
@@ -333,26 +416,37 @@ export default function EigoBossBattlePage() {
       ...state,
       playerHp: nextPlayerHp,
       combo: 0,
-      message: 'もう少し！Boss の反撃！',
+      message: `Boss の反撃！Player HP -${COUNTER_DAMAGE}`,
       bossReaction: 'is-counter',
     };
 
-    if (nextPlayerHp <= 0) {
-      setState({
-        ...nextState,
-        battleStatus: 'failed',
-        message: FAILED_MESSAGE,
-      });
-      clearBossReactionSoon();
-      return;
-    }
+    startCounterSequence();
+    setState(nextState);
 
-    setState(moveToNextQuestion(nextState));
-    clearBossReactionSoon();
+    scheduleTimeout(() => {
+      if (nextPlayerHp <= 0) {
+        setState({
+          ...nextState,
+          battleStatus: 'failed',
+          message: FAILED_MESSAGE,
+          bossReaction: '',
+        });
+        return;
+      }
+
+      setState({
+        ...moveToNextQuestion(nextState),
+        bossReaction: '',
+      });
+    }, reducedMotion ? 180 : 540);
   };
 
   const renderHeroParty = () => (
-    <section className="eq-boss-party" aria-label="Hero party">
+    <section
+      ref={heroPartyRef}
+      className={`eq-boss-party ${counterSequence ? 'is-hit' : ''}`}
+      aria-label="Hero party"
+    >
       {battle.heroes.map((hero, index) => {
         const isActive = index === state.activeHeroIndex && state.battleStatus === 'playing';
         const isCharging = attackSequence?.sourceHeroIndex === index;
@@ -387,7 +481,7 @@ export default function EigoBossBattlePage() {
     >
       <div ref={battleRef} className="eq-boss-battle-stage">
       <header
-        className={`eq-boss-hud ${state.bossReaction} ${attackSequence?.phase === 'impact' ? 'is-impact' : ''} ${bossIsDanger ? 'is-danger' : ''}`}
+        className={`eq-boss-hud ${state.bossReaction} ${counterSequence ? 'is-countering' : ''} ${attackSequence?.phase === 'impact' ? 'is-impact' : ''} ${bossIsDanger ? 'is-danger' : ''}`}
         style={bossHudStyle}
         aria-label="Boss battle status"
       >
@@ -425,7 +519,7 @@ export default function EigoBossBattlePage() {
         label="Player HP"
         value={state.playerHp}
         max={battle.playerHp}
-        className={state.bossReaction === 'is-counter' ? 'is-countered' : ''}
+        className={state.bossReaction === 'is-counter' || counterSequence ? 'is-countered' : ''}
       />
 
       {state.battleStatus === 'clear' ? (
@@ -472,7 +566,7 @@ export default function EigoBossBattlePage() {
                 key={`${currentQuestion.id}-${choice}`}
                 badge={String.fromCharCode(65 + index)}
                 onClick={() => answerQuestion(choice)}
-                disabled={Boolean(attackSequence)}
+                disabled={Boolean(attackSequence || counterSequence)}
               >
                 {choice}
               </EQChoiceButton>
@@ -491,6 +585,15 @@ export default function EigoBossBattlePage() {
           <WindAttackOverlay
             key={attackSequence.id}
             sequence={attackSequence}
+            reducedMotion={reducedMotion}
+          />
+        ) : null}
+      </AnimatePresence>
+      <AnimatePresence>
+        {counterSequence ? (
+          <BossCounterOverlay
+            key={counterSequence.id}
+            sequence={counterSequence}
             reducedMotion={reducedMotion}
           />
         ) : null}
