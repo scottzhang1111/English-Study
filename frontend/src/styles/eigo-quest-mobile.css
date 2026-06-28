@@ -4919,19 +4919,26 @@ body,
   font-weight: 800;
 }
 
+.eq-card-boss-test-entry {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: -6px;
+}
+
 .eq-card-boss-test-button {
-  justify-self: start;
+  display: inline-flex;
   min-height: 34px;
-  margin-top: 6px;
+  align-items: center;
+  justify-content: center;
   padding: 7px 12px;
-  border: 1px solid rgba(53, 217, 255, 0.44);
+  border: 1px solid rgba(255, 211, 90, 0.66);
   border-radius: var(--eq-radius-pill);
   background:
-    radial-gradient(circle at 20% 20%, rgba(255, 211, 90, 0.18), transparent 42%),
-    rgba(5, 14, 42, 0.72);
-  color: #d8f8ff;
+    linear-gradient(180deg, rgba(255, 225, 138, 0.22), rgba(255, 211, 90, 0.1)),
+    rgba(5, 14, 42, 0.86);
+  color: #fff1b8;
   box-shadow:
-    0 0 14px rgba(53, 217, 255, 0.18),
+    0 0 14px rgba(255, 211, 90, 0.18),
     inset 0 0 12px rgba(53, 217, 255, 0.08);
   cursor: pointer;
   font-size: 12px;

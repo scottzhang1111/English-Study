@@ -187,18 +187,22 @@ export default function CardCollectionPage() {
           variant="cards"
         />
 
+        <div className="eq-card-boss-test-entry">
+          <button
+            type="button"
+            data-testid="wind-trial-test-button"
+            className="eq-card-boss-test-button"
+            onClick={() => navigate('/boss-battle-v1')}
+          >
+            風の試練テスト
+          </button>
+        </div>
+
         <header className="eq-card-page-header">
           <div>
             <p>Card Collection</p>
             <h1 className="eq-page-title">カードコレクション</h1>
             <span>世界ごとのカードを集めて、復習クエストへ進もう</span>
-            <button
-              type="button"
-              className="eq-card-boss-test-button"
-              onClick={() => navigate('/boss-battle-v1')}
-            >
-              風の試練テスト
-            </button>
           </div>
           <EQCard className="eq-card-collection-summary">
             <div>
