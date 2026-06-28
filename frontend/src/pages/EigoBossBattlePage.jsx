@@ -182,10 +182,16 @@ function WindAttackOverlay({ sequence, reducedMotion }) {
 function BossCounterOverlay({ sequence, reducedMotion }) {
   if (!sequence) return null;
 
+  const cloneWidth = Math.min(Math.max(sequence.from.width, 66), 88);
+  const cloneHeight = cloneWidth * 1.28;
   const startX = sequence.from.centerX;
   const startY = sequence.from.centerY;
   const endX = sequence.to.centerX;
   const endY = sequence.to.centerY;
+  const cloneStartX = startX - cloneWidth / 2;
+  const cloneStartY = startY - cloneHeight / 2;
+  const cloneEndX = endX - cloneWidth / 2;
+  const cloneEndY = endY - cloneHeight / 2;
   const deltaX = endX - startX;
   const deltaY = endY - startY;
   const distance = Math.max(120, Math.hypot(deltaX, deltaY));
@@ -195,6 +201,28 @@ function BossCounterOverlay({ sequence, reducedMotion }) {
 
   return (
     <div className="eq-battle-animation-layer is-counter" aria-hidden="true">
+      <motion.div
+        className="eq-boss-attack-clone-card"
+        style={{ width: cloneWidth, height: cloneHeight }}
+        initial={{ x: cloneStartX, y: cloneStartY, opacity: 0, rotate: 2, scale: 0.92 }}
+        animate={reducedMotion
+          ? { x: cloneStartX, y: cloneStartY, opacity: 0.72, rotate: 0, scale: 1 }
+          : {
+              x: [cloneStartX, cloneStartX - 10, cloneEndX],
+              y: [cloneStartY, cloneStartY - 8, cloneEndY],
+              opacity: [0, 1, 1],
+              rotate: [2, -3, -8],
+              scale: [0.92, 1.08, 1.16],
+            }}
+        exit={{ opacity: 0, scale: 0.82, rotate: 0 }}
+        transition={{
+          duration: reducedMotion ? 0.01 : 0.5,
+          times: reducedMotion ? undefined : [0, 0.28, 1],
+          ease: [0.2, 0.8, 0.18, 1],
+        }}
+      >
+        <img src={sequence.bossImage} alt="" />
+      </motion.div>
       <motion.div
         className="eq-boss-counter-slash"
         style={{
@@ -351,6 +379,8 @@ export default function EigoBossBattlePage() {
 
     setCounterSequence({
       id,
+      bossImage: battle.boss.image,
+      bossName: battle.boss.name,
       from: from || fallbackFrom,
       to: to || fallbackTo,
       containerWidth,

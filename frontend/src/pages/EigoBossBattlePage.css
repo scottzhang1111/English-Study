@@ -785,6 +785,56 @@
     0 0 34px rgba(101, 20, 91, 0.34);
 }
 
+.eq-boss-attack-clone-card {
+  position: absolute;
+  z-index: 45;
+  overflow: hidden;
+  border: 1px solid rgba(255, 211, 90, 0.72);
+  border-radius: 12px;
+  background:
+    radial-gradient(circle at 50% 40%, rgba(255, 32, 93, 0.24), transparent 58%),
+    rgba(2, 8, 28, 0.92);
+  box-shadow:
+    0 0 26px rgba(255, 38, 90, 0.82),
+    0 0 44px rgba(122, 18, 104, 0.5),
+    0 16px 24px rgba(0, 0, 0, 0.46);
+}
+
+.eq-boss-attack-clone-card::before {
+  position: absolute;
+  inset: -20px -28px -20px 28px;
+  z-index: -1;
+  border-radius: 999px;
+  background:
+    linear-gradient(90deg, rgba(255, 36, 89, 0), rgba(255, 36, 89, 0.58), rgba(117, 22, 109, 0.56), rgba(255, 255, 255, 0));
+  filter: blur(7px);
+  content: "";
+  opacity: 0.9;
+}
+
+.eq-boss-attack-clone-card::after {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background:
+    linear-gradient(130deg, rgba(255, 255, 255, 0.38), transparent 28%),
+    radial-gradient(circle at 50% 60%, transparent 42%, rgba(255, 42, 91, 0.22));
+  content: "";
+  pointer-events: none;
+}
+
+.eq-boss-attack-clone-card img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border-radius: 11px;
+  object-fit: cover;
+  filter:
+    saturate(1.16)
+    contrast(1.08)
+    drop-shadow(0 8px 12px rgba(0, 0, 0, 0.52));
+}
+
 .eq-wind-slash-layer {
   position: absolute;
   inset: 0;
@@ -1310,7 +1360,8 @@
   .eq-wind-impact__slash,
   .eq-damage-number,
   .eq-boss-counter-slash,
-  .eq-boss-counter-impact {
+  .eq-boss-counter-impact,
+  .eq-boss-attack-clone-card {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
