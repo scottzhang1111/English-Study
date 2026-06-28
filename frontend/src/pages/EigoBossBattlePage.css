@@ -390,73 +390,49 @@
   position: relative;
   z-index: 2;
   display: grid;
-  grid-template-rows: auto minmax(110px, 1fr) auto;
-  gap: 12px;
+  grid-template-rows: minmax(132px, 1fr) auto;
+  gap: 14px;
   height: 100%;
-  padding: clamp(16px, 3.8vw, 22px);
+  padding: clamp(22px, 4.8vw, 30px) clamp(16px, 3.8vw, 22px) clamp(16px, 3.8vw, 22px);
 }
 
 .eq-boss-question-head {
+  position: absolute;
+  top: clamp(12px, 3vw, 16px);
+  right: clamp(14px, 3.8vw, 22px);
+  z-index: 3;
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 14px;
-}
-
-.eq-boss-question-head h2 {
-  position: relative;
-  margin: 0;
-  color: #0b2a56;
-  font-size: clamp(20px, 5.2vw, 27px);
-  font-weight: 1000;
-  line-height: 1.1;
-  text-shadow:
-    0 1px 0 rgba(255, 250, 225, 0.88),
-    0 0 10px rgba(255, 228, 143, 0.24);
-}
-
-.eq-boss-question-head h2::before,
-.eq-boss-question-head h2::after {
-  display: inline-block;
-  color: rgba(119, 75, 24, 0.72);
-  font-size: 0.7em;
-  vertical-align: 0.08em;
-  content: "✦";
-}
-
-.eq-boss-question-head h2::before {
-  margin-right: 9px;
-}
-
-.eq-boss-question-head h2::after {
-  margin-left: 9px;
+  justify-content: flex-end;
+  pointer-events: none;
 }
 
 .eq-boss-question-head .eq-fantasy-badge {
   flex: 0 0 auto;
-  min-width: 70px;
+  min-width: 62px;
+  min-height: 34px;
   justify-content: center;
   border: 1px solid rgba(255, 229, 148, 0.72);
-  border-radius: 12px;
+  border-radius: 999px;
   background:
     linear-gradient(180deg, rgba(99, 69, 34, 0.92), rgba(49, 35, 24, 0.96));
   color: #fff1c2;
   box-shadow:
     0 2px 0 rgba(68, 38, 10, 0.42),
     inset 0 1px 0 rgba(255, 255, 255, 0.22);
-  font-size: clamp(14px, 4vw, 18px);
+  font-size: clamp(14px, 4vw, 17px);
+  font-weight: 950;
 }
 
 .eq-boss-question-prompt {
   display: grid;
   align-content: center;
-  min-height: 110px;
+  min-height: 132px;
   margin: 0;
   color: #241506;
   font-family: Georgia, 'Times New Roman', 'Yu Mincho', 'Hiragino Mincho ProN', serif;
-  font-size: clamp(20px, 5.7vw, 30px);
-  font-weight: 850;
-  line-height: 1.32;
+  font-size: clamp(25px, 7vw, 38px);
+  font-weight: 900;
+  line-height: 1.22;
   hyphens: none;
   opacity: 1;
   overflow-wrap: break-word;
@@ -483,9 +459,9 @@
   grid-template-columns: 32px minmax(0, 1fr);
   gap: 8px;
   align-items: center;
-  min-height: clamp(56px, 12vw, 70px);
+  min-height: clamp(60px, 13vw, 76px);
   overflow: hidden;
-  padding: 8px 9px;
+  padding: 8px 10px;
   border: 2px solid rgba(255, 203, 86, 0.78);
   border-radius: 15px;
   background:
@@ -538,16 +514,16 @@
   width: 100%;
   min-width: 0;
   max-width: 100%;
-  overflow: hidden;
+  overflow: visible;
   hyphens: none;
   white-space: normal;
-  overflow-wrap: break-word;
+  overflow-wrap: anywhere;
   text-align: left;
   word-break: normal;
   font-family: Georgia, 'Times New Roman', serif;
-  font-size: clamp(14px, 3.9vw, 18px);
+  font-size: clamp(15px, 4.2vw, 20px);
   font-weight: 800;
-  line-height: 1.22;
+  line-height: 1.18;
 }
 
 .eq-boss-battle-message {
@@ -1398,33 +1374,26 @@
   }
 
   .eq-boss-question-card .eq-fantasy-card-v2__body {
-    grid-template-rows: auto minmax(98px, 1fr) auto;
-    gap: 9px;
-    padding: 13px;
+    grid-template-rows: minmax(122px, 1fr) auto;
+    gap: 10px;
+    padding: 24px 13px 13px;
   }
 
   .eq-boss-question-head {
-    gap: 8px;
-  }
-
-  .eq-boss-question-head h2 {
-    font-size: clamp(18px, 4.8vw, 22px);
-  }
-
-  .eq-boss-question-head h2::before,
-  .eq-boss-question-head h2::after {
-    display: none;
+    top: 10px;
+    right: 13px;
   }
 
   .eq-boss-question-head .eq-fantasy-badge {
-    min-width: 58px;
+    min-width: 54px;
+    min-height: 30px;
     font-size: 13px;
   }
 
   .eq-boss-question-prompt {
-    min-height: 98px;
-    font-size: clamp(18px, 5.4vw, 25px);
-    line-height: 1.3;
+    min-height: 122px;
+    font-size: clamp(23px, 6.6vw, 32px);
+    line-height: 1.2;
   }
 
   .eq-boss-choice-grid {
@@ -1434,7 +1403,7 @@
   .eq-boss-choice-grid .eq-choice-button {
     grid-template-columns: 28px minmax(0, 1fr);
     gap: 6px;
-    min-height: 54px;
+    min-height: 56px;
     padding: 7px;
     border-radius: 13px;
   }
@@ -1447,8 +1416,8 @@
   }
 
   .eq-boss-choice-grid .eq-choice-text {
-    font-size: clamp(13px, 3.7vw, 16px);
-    line-height: 1.2;
+    font-size: clamp(13px, 3.9vw, 17px);
+    line-height: 1.16;
   }
 
   .eq-boss-party {

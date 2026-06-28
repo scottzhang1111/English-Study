@@ -653,8 +653,7 @@ export default function EigoBossBattlePage() {
           hideHeader
         >
           <div className="eq-boss-question-head">
-            <h2>BATTLE QUESTION</h2>
-            <EQFantasyBadge variant="cyan">Q{state.currentQuestionIndex + 1} / {state.questionDeck.length}</EQFantasyBadge>
+            <EQFantasyBadge variant="cyan">{state.currentQuestionIndex + 1} / {state.questionDeck.length}</EQFantasyBadge>
           </div>
           <p className="eq-boss-question-prompt">
             {currentQuestion?.prompt || '問題を読み込んでいます'}
