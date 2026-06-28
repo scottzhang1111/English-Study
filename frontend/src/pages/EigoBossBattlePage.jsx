@@ -362,6 +362,50 @@ function BossCounterOverlay({ sequence, reducedMotion }) {
   );
 }
 
+function SkillDebugOverlay({ effect }) {
+  if (!effect) return null;
+
+  const isCounter = effect.type === 'boss_counter';
+
+  return (
+    <div className={`eq-battle-animation-layer is-debug ${isCounter ? 'is-debug-counter' : 'is-debug-skill'}`} aria-hidden="true">
+      <div className="eq-debug-action-label">
+        <span>motion: {effect.motion || 'none'}</span>
+        <span>type: {effect.type || 'none'}</span>
+        <span>damage: {effect.damage || 0}</span>
+      </div>
+      <motion.div
+        className="eq-debug-test-banner"
+        initial={{ opacity: 0, scale: 0.86 }}
+        animate={{ opacity: [0, 1, 1, 0], scale: [0.86, 1.08, 1, 0.98] }}
+        exit={{ opacity: 0 }}
+        transition={{ duration: 0.7, ease: 'easeOut' }}
+      >
+        SKILL EFFECT TEST
+      </motion.div>
+      {isCounter ? (
+        <motion.div
+          className="eq-debug-counter-overlay"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: [0, 1, 1, 0] }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.7, ease: 'easeOut' }}
+        >
+          <span>BOSS COUNTER -{effect.damage || COUNTER_DAMAGE}</span>
+        </motion.div>
+      ) : (
+        <motion.div
+          className="eq-debug-force-slash"
+          initial={{ opacity: 0, scaleX: 0.12, rotate: -24 }}
+          animate={{ opacity: [0, 1, 1, 0], scaleX: [0.12, 1, 1, 1], rotate: -24 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.7, ease: 'easeOut' }}
+        />
+      )}
+    </div>
+  );
+}
+
 export default function EigoBossBattlePage() {
   const navigate = useNavigate();
   const battle = FIRST_BOSS_BATTLE;
@@ -369,11 +413,13 @@ export default function EigoBossBattlePage() {
   const [attackSequence, setAttackSequence] = useState(null);
   const [counterSequence, setCounterSequence] = useState(null);
   const [actionEffect, setActionEffect] = useState(null);
+  const [debugEffect, setDebugEffect] = useState(null);
   const [isResolving, setIsResolving] = useState(false);
   const battleRef = useRef(null);
   const bossCardRef = useRef(null);
   const heroPartyRef = useRef(null);
   const heroCardRefs = useRef([]);
+  const actionEffectIdRef = useRef(0);
   const timeoutRefs = useRef([]);
   const reducedMotion = useReducedMotion();
   const currentQuestion = state.questionDeck[state.currentQuestionIndex];
@@ -404,10 +450,26 @@ export default function EigoBossBattlePage() {
     return timeoutId;
   };
 
+  const createActionEffect = (payload) => {
+    actionEffectIdRef.current += 1;
+    return {
+      id: `${Date.now()}-${actionEffectIdRef.current}`,
+      ...payload,
+    };
+  };
+
+  const showDebugEffect = (effect) => {
+    setDebugEffect(effect);
+    scheduleTimeout(() => {
+      setDebugEffect((current) => (current?.id === effect.id ? null : current));
+    }, 700);
+  };
+
   const resetBattle = () => {
     setAttackSequence(null);
     setCounterSequence(null);
     setActionEffect(null);
+    setDebugEffect(null);
     setIsResolving(false);
     setState(createInitialBattleState());
   };
@@ -539,15 +601,15 @@ export default function EigoBossBattlePage() {
     if (isCorrect) {
       const damage = activeHero.attack;
       const nextCombo = state.combo + 1;
-      const effectId = Date.now();
-      startAttackSequence(activeHero, damage, state.activeHeroIndex, nextCombo);
-      setActionEffect({
-        id: effectId,
+      const effect = createActionEffect({
         type: 'hero_attack',
         heroId: activeHero.id,
         motion: getHeroSkillMotion(activeHero),
         damage,
       });
+      startAttackSequence(activeHero, damage, state.activeHeroIndex, nextCombo);
+      setActionEffect(effect);
+      showDebugEffect(effect);
       const nextBossHp = Math.max(0, state.bossHp - damage);
       const nextState = {
         ...state,
@@ -582,11 +644,12 @@ export default function EigoBossBattlePage() {
     }
 
     const nextPlayerHp = Math.max(0, state.playerHp - COUNTER_DAMAGE);
-    setActionEffect({
-      id: Date.now(),
+    const effect = createActionEffect({
       type: 'boss_counter',
       damage: COUNTER_DAMAGE,
     });
+    setActionEffect(effect);
+    showDebugEffect(effect);
     const nextState = {
       ...state,
       playerHp: nextPlayerHp,
@@ -770,6 +833,7 @@ export default function EigoBossBattlePage() {
       <div className={attackSequence?.motion === 'wind_blessing' ? 'eq-boss-party-wrap is-blessed' : 'eq-boss-party-wrap'}>
         {renderHeroParty()}
       </div>
+      </div>
       <AnimatePresence>
         {attackSequence ? (
           <WindAttackOverlay
@@ -788,7 +852,11 @@ export default function EigoBossBattlePage() {
           />
         ) : null}
       </AnimatePresence>
-      </div>
+      <AnimatePresence>
+        {debugEffect ? (
+          <SkillDebugOverlay key={debugEffect.id} effect={debugEffect} />
+        ) : null}
+      </AnimatePresence>
     </EQPageShell>
   );
 }

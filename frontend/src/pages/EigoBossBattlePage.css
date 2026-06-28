@@ -793,13 +793,105 @@
 .eq-battle-animation-layer {
   position: fixed;
   inset: 0;
-  z-index: 80;
+  z-index: 2147483647;
   pointer-events: none;
   overflow: visible;
 }
 
-.eq-battle-animation-layer.is-counter {
-  z-index: 82;
+.eq-battle-animation-layer.is-counter,
+.eq-battle-animation-layer.is-debug {
+  z-index: 2147483647;
+}
+
+.eq-debug-action-label {
+  position: fixed;
+  top: calc(10px + env(safe-area-inset-top));
+  left: 10px;
+  z-index: 2147483647;
+  display: grid;
+  gap: 2px;
+  min-width: 178px;
+  padding: 8px 10px;
+  border: 3px solid #ff174d;
+  border-radius: 8px;
+  background: rgba(0, 0, 0, 0.92);
+  color: #fff84a;
+  font-family: Consolas, 'Courier New', monospace;
+  font-size: 14px;
+  font-weight: 900;
+  line-height: 1.25;
+  text-shadow: 0 0 8px rgba(255, 23, 77, 0.9);
+}
+
+.eq-debug-test-banner {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  z-index: 2147483647;
+  width: min(92vw, 760px);
+  padding: 18px 20px;
+  border: 6px solid #fff84a;
+  border-radius: 18px;
+  background:
+    linear-gradient(135deg, #060000 0%, #850000 46%, #140000 100%);
+  color: #fff84a;
+  font-size: clamp(40px, 11vw, 68px);
+  font-weight: 1000;
+  line-height: 1.02;
+  text-align: center;
+  text-shadow:
+    0 3px 0 #000,
+    0 0 18px rgba(255, 255, 255, 0.9),
+    0 0 34px rgba(255, 23, 77, 0.9);
+  transform: translate(-50%, -50%);
+  box-shadow:
+    0 0 0 4px rgba(0, 0, 0, 0.95),
+    0 0 42px rgba(255, 23, 77, 0.9),
+    inset 0 0 24px rgba(255, 248, 74, 0.2);
+}
+
+.eq-debug-force-slash {
+  position: fixed;
+  top: 52vh;
+  left: -20vw;
+  z-index: 2147483647;
+  width: 140vw;
+  height: 24px;
+  border-radius: 999px;
+  background:
+    linear-gradient(90deg, transparent 0 4%, #ffffff 18%, #aaffff 38%, #35d9ff 62%, #ffffff 78%, transparent 96%);
+  box-shadow:
+    0 0 18px rgba(255, 255, 255, 1),
+    0 0 38px rgba(53, 217, 255, 1),
+    0 0 68px rgba(53, 217, 255, 0.9),
+    0 0 96px rgba(255, 248, 74, 0.62);
+  transform-origin: center;
+}
+
+.eq-debug-counter-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 2147483646;
+  display: grid;
+  place-items: center;
+  background: rgba(255, 0, 0, 0.35);
+  box-shadow: inset 0 0 120px rgba(255, 0, 0, 0.72);
+}
+
+.eq-debug-counter-overlay span {
+  padding: 18px 22px;
+  border: 5px solid #fff84a;
+  border-radius: 16px;
+  background: rgba(0, 0, 0, 0.86);
+  color: #ffffff;
+  font-size: clamp(36px, 10vw, 64px);
+  font-weight: 1000;
+  line-height: 1;
+  text-align: center;
+  text-shadow:
+    0 3px 0 #610000,
+    0 0 18px rgba(255, 23, 77, 1),
+    0 0 30px rgba(255, 248, 74, 0.8);
 }
 
 .eq-battle-animation-layer.boss-counter-flash::before {
