@@ -19,6 +19,14 @@ const COUNTER_DAMAGE = 15;
 const INITIAL_MESSAGE = '風の守護者たちと一緒に挑戦しよう！';
 const FAILED_MESSAGE = 'Boss の弱点をもう一度練習しよう';
 
+function getHeroSkillName(hero) {
+  return hero?.skill?.name || 'スキル発動';
+}
+
+function getHeroSkillMotion(hero) {
+  return hero?.skill?.motion || 'wind_slash';
+}
+
 function shuffleQuestions(questions) {
   const deck = [...questions];
   for (let index = deck.length - 1; index > 0; index -= 1) {
@@ -99,6 +107,7 @@ function createWindBladePaths(sequence) {
 function WindAttackOverlay({ sequence, reducedMotion }) {
   if (!sequence) return null;
 
+  const skillMotion = sequence.motion || 'wind_slash';
   const cloneWidth = Math.min(Math.max(sequence.from.width, 54), 72);
   const cloneHeight = cloneWidth * 1.34;
   const startX = sequence.from.centerX - cloneWidth / 2;
@@ -107,9 +116,11 @@ function WindAttackOverlay({ sequence, reducedMotion }) {
   const endY = sequence.to.centerY - cloneHeight / 2;
   const showImpact = sequence.phase === 'impact';
   const bladePaths = createWindBladePaths(sequence);
+  const showCyclone = showImpact && skillMotion === 'cyclone_combo';
+  const showBlessing = skillMotion === 'wind_blessing';
 
   return (
-    <div className="eq-battle-animation-layer" aria-hidden="true">
+    <div className={`eq-battle-animation-layer is-hero-skill is-${skillMotion}`} aria-hidden="true">
       <svg
         className="eq-wind-slash-layer"
         viewBox={`0 0 ${sequence.containerWidth} ${sequence.containerHeight}`}
@@ -145,7 +156,7 @@ function WindAttackOverlay({ sequence, reducedMotion }) {
       </svg>
 
       <motion.div
-        className="eq-attack-clone-card"
+        className={`eq-attack-clone-card is-${skillMotion}`}
         style={{ width: cloneWidth, height: cloneHeight }}
         initial={{ x: startX, y: startY, opacity: 0.96, rotate: -7, scale: 0.92 }}
         animate={showImpact || reducedMotion
@@ -156,6 +167,20 @@ function WindAttackOverlay({ sequence, reducedMotion }) {
       >
         <img src={sequence.heroImage} alt="" />
       </motion.div>
+
+      <AnimatePresence>
+        {showBlessing ? (
+          <motion.div
+            key={`${sequence.id}-blessing`}
+            className="eq-wind-blessing-aura"
+            style={{ left: sequence.from.centerX, top: sequence.from.centerY }}
+            initial={{ opacity: 0, scale: 0.44 }}
+            animate={{ opacity: reducedMotion ? 0.55 : [0, 0.9, 0], scale: reducedMotion ? 1 : [0.44, 1.1, 1.42] }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: reducedMotion ? 0.01 : 0.58, ease: 'easeOut' }}
+          />
+        ) : null}
+      </AnimatePresence>
 
       <AnimatePresence>
         {showImpact ? (
@@ -173,6 +198,20 @@ function WindAttackOverlay({ sequence, reducedMotion }) {
             <span className="eq-wind-impact__slash" />
             <span className="eq-damage-number">-{sequence.damage}</span>
           </motion.div>
+        ) : null}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {showCyclone ? (
+          <motion.div
+            key={`${sequence.id}-cyclone`}
+            className="eq-cyclone-combo-ring"
+            style={{ left: sequence.to.centerX, top: sequence.to.centerY }}
+            initial={{ opacity: 0, scale: 0.38, rotate: 0 }}
+            animate={{ opacity: reducedMotion ? 0.7 : [0, 1, 0], scale: reducedMotion ? 1 : [0.38, 1.08, 1.36], rotate: reducedMotion ? 0 : 260 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: reducedMotion ? 0.01 : 0.62, ease: 'easeOut' }}
+          />
         ) : null}
       </AnimatePresence>
     </div>
@@ -236,13 +275,15 @@ function BossCounterOverlay({ sequence, reducedMotion }) {
         transition={{ duration: reducedMotion ? 0.01 : 0.42, ease: 'easeOut' }}
       />
       <motion.div
-        className="eq-boss-counter-impact"
-        style={{ left: endX, top: endY }}
+          className="eq-boss-counter-impact"
+          style={{ left: endX, top: endY }}
         initial={{ opacity: 0, scale: 0.45 }}
         animate={{ opacity: reducedMotion ? 0.7 : [0, 1, 0], scale: reducedMotion ? 1 : [0.45, 1.1, 1.35] }}
         exit={{ opacity: 0 }}
         transition={{ duration: reducedMotion ? 0.01 : 0.46, ease: 'easeOut', delay: reducedMotion ? 0 : 0.12 }}
-      />
+      >
+        <span className="eq-counter-damage-number">-{sequence.damage || COUNTER_DAMAGE}</span>
+      </motion.div>
     </div>
   );
 }
@@ -253,6 +294,7 @@ export default function EigoBossBattlePage() {
   const [state, setState] = useState(createInitialBattleState);
   const [attackSequence, setAttackSequence] = useState(null);
   const [counterSequence, setCounterSequence] = useState(null);
+  const [actionEffect, setActionEffect] = useState(null);
   const battleRef = useRef(null);
   const bossCardRef = useRef(null);
   const heroPartyRef = useRef(null);
@@ -290,6 +332,7 @@ export default function EigoBossBattlePage() {
   const resetBattle = () => {
     setAttackSequence(null);
     setCounterSequence(null);
+    setActionEffect(null);
     setState(createInitialBattleState());
   };
 
@@ -299,7 +342,7 @@ export default function EigoBossBattlePage() {
     }, 360);
   };
 
-  const startAttackSequence = (hero, damage, heroIndex) => {
+  const startAttackSequence = (hero, damage, heroIndex, combo) => {
     const container = battleRef.current;
     const heroElement = heroCardRefs.current[heroIndex];
     const bossElement = bossCardRef.current;
@@ -330,7 +373,9 @@ export default function EigoBossBattlePage() {
       id,
       heroImage: hero.image,
       heroName: hero.name,
+      motion: getHeroSkillMotion(hero),
       damage,
+      combo,
       from: from || fallbackFrom,
       to: to || fallbackTo,
       containerWidth,
@@ -381,6 +426,7 @@ export default function EigoBossBattlePage() {
       id,
       bossImage: battle.boss.image,
       bossName: battle.boss.name,
+      damage: COUNTER_DAMAGE,
       from: from || fallbackFrom,
       to: to || fallbackTo,
       containerWidth,
@@ -415,14 +461,23 @@ export default function EigoBossBattlePage() {
     const isCorrect = choice === currentQuestion.answer;
     if (isCorrect) {
       const damage = activeHero.attack;
-      startAttackSequence(activeHero, damage, state.activeHeroIndex);
+      const nextCombo = state.combo + 1;
+      const effectId = Date.now();
+      startAttackSequence(activeHero, damage, state.activeHeroIndex, nextCombo);
+      setActionEffect({
+        id: effectId,
+        type: 'hero_attack',
+        heroId: activeHero.id,
+        motion: getHeroSkillMotion(activeHero),
+        damage,
+      });
       const nextBossHp = Math.max(0, state.bossHp - damage);
       const nextState = {
         ...state,
         bossHp: nextBossHp,
-        combo: state.combo + 1,
+        combo: nextCombo,
         activeHeroIndex: (state.activeHeroIndex + 1) % battle.heroes.length,
-        message: `Good! ${activeHero.name} のスキル発動！Boss に ${damage} ダメージ！`,
+        message: `Good! ${activeHero.name} の ${getHeroSkillName(activeHero)}！Boss に ${damage} ダメージ！`,
         bossReaction: 'is-hit',
       };
 
@@ -442,6 +497,11 @@ export default function EigoBossBattlePage() {
     }
 
     const nextPlayerHp = Math.max(0, state.playerHp - COUNTER_DAMAGE);
+    setActionEffect({
+      id: Date.now(),
+      type: 'boss_counter',
+      damage: COUNTER_DAMAGE,
+    });
     const nextState = {
       ...state,
       playerHp: nextPlayerHp,
@@ -530,9 +590,18 @@ export default function EigoBossBattlePage() {
         <div className="eq-boss-hud__main">
           <div className="eq-boss-hud__title-row">
             <h1>STAGE {battle.stage} BOSS: {battle.title}</h1>
-            <div className="eq-boss-hud__combo">
+          <div className="eq-boss-hud__combo">
               <span>COMBO</span>
-              <strong>{state.combo}</strong>
+              <motion.strong
+                key={`combo-${state.combo}-${actionEffect?.id || 'idle'}`}
+                initial={actionEffect?.type === 'hero_attack' && !reducedMotion
+                  ? { scale: 1.48, color: '#fff1b8', textShadow: '0 0 18px rgba(255, 211, 90, 0.9)' }
+                  : false}
+                animate={{ scale: 1, color: '#ffd35a', textShadow: '0 0 12px rgba(255, 211, 90, 0.34)' }}
+                transition={{ duration: reducedMotion ? 0.01 : 0.32, ease: 'easeOut' }}
+              >
+                {state.combo}
+              </motion.strong>
             </div>
           </div>
           <HpBar label="Boss HP" value={state.bossHp} max={battle.boss.hp} tone="rose" className={bossIsDanger ? 'is-danger' : ''} />

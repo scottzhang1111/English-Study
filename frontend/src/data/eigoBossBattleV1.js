@@ -27,25 +27,41 @@ export const FIRST_BOSS_BATTLE = {
       id: "wind_guardian_1",
       name: "風の守護者 1",
       image: "/assets/eigo-quest/cards/wind/wind-guardian1.png",
-      attack: 20
+      attack: 20,
+      skill: {
+        name: "風刃斬り",
+        motion: "wind_slash"
+      }
     },
     {
       id: "wind_guardian_2",
       name: "風の守護者 2",
       image: "/assets/eigo-quest/cards/wind/wind-guardian2.png",
-      attack: 20
+      attack: 20,
+      skill: {
+        name: "疾風突き",
+        motion: "gale_thrust"
+      }
     },
     {
       id: "wind_guardian_3",
       name: "風の守護者 3",
       image: "/assets/eigo-quest/cards/wind/wind-guardian3.png",
-      attack: 20
+      attack: 20,
+      skill: {
+        name: "旋風連撃",
+        motion: "cyclone_combo"
+      }
     },
     {
       id: "wind_guardian_4",
       name: "風の守護者 4",
       image: "/assets/eigo-quest/cards/wind/wind-guardian4.png",
-      attack: 20
+      attack: 20,
+      skill: {
+        name: "風の加護",
+        motion: "wind_blessing"
+      }
     }
   ]
 };

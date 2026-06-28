@@ -867,6 +867,31 @@
     drop-shadow(0 0 8px rgba(255, 211, 90, 0.45));
 }
 
+.eq-battle-animation-layer.is-gale_thrust .eq-wind-slash-path {
+  stroke-width: 5;
+  filter:
+    drop-shadow(0 0 8px rgba(180, 247, 255, 0.92))
+    drop-shadow(0 0 16px rgba(53, 217, 255, 0.76));
+}
+
+.eq-battle-animation-layer.is-gale_thrust .eq-wind-slash-path.is-1 {
+  stroke-width: 12;
+}
+
+.eq-battle-animation-layer.is-cyclone_combo .eq-wind-slash-path {
+  stroke-width: 7;
+  filter:
+    drop-shadow(0 0 8px rgba(53, 217, 255, 0.82))
+    drop-shadow(0 0 16px rgba(136, 255, 197, 0.5));
+}
+
+.eq-battle-animation-layer.is-wind_blessing .eq-wind-slash-path {
+  stroke-width: 6;
+  filter:
+    drop-shadow(0 0 8px rgba(136, 255, 197, 0.9))
+    drop-shadow(0 0 14px rgba(53, 217, 255, 0.62));
+}
+
 .eq-attack-clone-card {
   position: absolute;
   z-index: 43;
@@ -897,6 +922,34 @@
   height: 100%;
   border-radius: 9px;
   object-fit: cover;
+}
+
+.eq-attack-clone-card.is-gale_thrust {
+  box-shadow:
+    0 0 26px rgba(180, 247, 255, 0.86),
+    0 0 34px rgba(53, 217, 255, 0.58),
+    0 12px 20px rgba(0, 0, 0, 0.4);
+}
+
+.eq-attack-clone-card.is-gale_thrust::after {
+  inset: -6px -28px -6px 26px;
+  background:
+    linear-gradient(90deg, rgba(180, 247, 255, 0), rgba(180, 247, 255, 0.74), rgba(53, 217, 255, 0.62), rgba(255, 255, 255, 0));
+}
+
+.eq-attack-clone-card.is-cyclone_combo {
+  box-shadow:
+    0 0 26px rgba(53, 217, 255, 0.72),
+    0 0 30px rgba(136, 255, 197, 0.42),
+    0 12px 20px rgba(0, 0, 0, 0.4);
+}
+
+.eq-attack-clone-card.is-wind_blessing {
+  border-color: rgba(136, 255, 197, 0.9);
+  box-shadow:
+    0 0 24px rgba(136, 255, 197, 0.68),
+    0 0 34px rgba(53, 217, 255, 0.44),
+    0 12px 20px rgba(0, 0, 0, 0.4);
 }
 
 .eq-wind-impact {
@@ -943,6 +996,39 @@
   animation: eq-wind-impact-slash 0.42s ease-out forwards;
 }
 
+.eq-cyclone-combo-ring,
+.eq-wind-blessing-aura {
+  position: absolute;
+  z-index: 44;
+  pointer-events: none;
+}
+
+.eq-cyclone-combo-ring {
+  width: 126px;
+  height: 126px;
+  margin: -63px 0 0 -63px;
+  border-radius: 999px;
+  background:
+    conic-gradient(from 0deg, transparent 0 12%, rgba(180, 247, 255, 0.92) 18%, transparent 30%, rgba(136, 255, 197, 0.8) 42%, transparent 58%, rgba(53, 217, 255, 0.82) 72%, transparent 88%),
+    radial-gradient(circle, transparent 0 42%, rgba(53, 217, 255, 0.18) 43% 62%, transparent 70%);
+  filter:
+    drop-shadow(0 0 12px rgba(53, 217, 255, 0.68))
+    drop-shadow(0 0 18px rgba(136, 255, 197, 0.38));
+}
+
+.eq-wind-blessing-aura {
+  width: 112px;
+  height: 112px;
+  margin: -56px 0 0 -56px;
+  border: 2px solid rgba(136, 255, 197, 0.72);
+  border-radius: 999px;
+  background:
+    radial-gradient(circle, rgba(136, 255, 197, 0.3) 0 24%, rgba(53, 217, 255, 0.18) 25% 48%, transparent 62%);
+  box-shadow:
+    0 0 18px rgba(136, 255, 197, 0.48),
+    inset 0 0 18px rgba(53, 217, 255, 0.34);
+}
+
 .eq-damage-number {
   position: absolute;
   left: 58%;
@@ -957,6 +1043,22 @@
     0 0 12px rgba(255, 61, 88, 0.82),
     0 0 18px rgba(255, 211, 90, 0.52);
   animation: eq-damage-number-pop 0.72s ease-out forwards;
+}
+
+.eq-counter-damage-number {
+  position: absolute;
+  left: 55%;
+  top: 24%;
+  z-index: 1;
+  color: #ffd0a3;
+  font-size: 25px;
+  font-weight: 1000;
+  line-height: 1;
+  text-shadow:
+    0 2px 0 rgba(94, 9, 26, 0.9),
+    0 0 12px rgba(255, 58, 78, 0.78),
+    0 0 18px rgba(255, 211, 90, 0.42);
+  animation: eq-counter-damage-pop 0.56s ease-out forwards;
 }
 
 @keyframes eq-boss-hit-pulse {
@@ -1237,6 +1339,21 @@
   }
 }
 
+@keyframes eq-counter-damage-pop {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, 8px) scale(0.72);
+  }
+  28% {
+    opacity: 1;
+    transform: translate(-50%, -2px) scale(1.08);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -28px) scale(0.96);
+  }
+}
+
 @media (max-width: 380px) {
   .eq-boss-battle-stage {
     grid-template-rows: auto auto minmax(270px, 1fr) auto auto;
@@ -1361,7 +1478,10 @@
   .eq-damage-number,
   .eq-boss-counter-slash,
   .eq-boss-counter-impact,
-  .eq-boss-attack-clone-card {
+  .eq-boss-attack-clone-card,
+  .eq-cyclone-combo-ring,
+  .eq-wind-blessing-aura,
+  .eq-counter-damage-number {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
