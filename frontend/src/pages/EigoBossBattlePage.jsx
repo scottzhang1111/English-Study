@@ -5,7 +5,6 @@ import {
   EQFantasyBadge,
   EQFantasyButton,
   EQFantasyCard,
-  EQPageHeader,
   EQPageShell,
 } from '../components/eigo';
 import {
@@ -155,8 +154,12 @@ export default function EigoBossBattlePage() {
           key={hero.id}
           className={`eq-boss-hero ${index === state.activeHeroIndex && state.battleStatus === 'playing' ? 'is-active' : ''}`}
         >
+          {index === state.activeHeroIndex && state.battleStatus === 'playing' ? (
+            <span className="eq-boss-hero__active">攻撃中！</span>
+          ) : null}
           <img src={hero.image} alt={hero.name} />
-          <span>{hero.name}</span>
+          <strong>{hero.name}</strong>
+          <span className="eq-boss-hero__attack">剣 {hero.attack}</span>
         </article>
       ))}
     </section>
@@ -170,35 +173,31 @@ export default function EigoBossBattlePage() {
       withBottomNav
       bottomNavClassName="eq-learning-hub-bottom-nav"
     >
-      <EQPageHeader
-        eyebrow={`STAGE ${battle.stage} BOSS`}
-        title={battle.title}
-        subtitle={battle.subtitle}
-        icon="風"
-        meta={(
-          <>
-            <EQFantasyBadge variant="cyan">Wind Realm</EQFantasyBadge>
-            <EQFantasyBadge>Combo {state.combo}</EQFantasyBadge>
-          </>
-        )}
-      />
+      <header className={`eq-boss-hud ${state.bossReaction}`} aria-label="Boss battle status">
+        <div className="eq-boss-hud__world">
+          <span aria-hidden="true">風</span>
+          <strong>WIND</strong>
+          <small>REALM</small>
+        </div>
 
-      <EQFantasyCard hideHeader className={`eq-boss-card ${state.bossReaction}`}>
-        <div className="eq-boss-card__image-frame">
+        <div className="eq-boss-hud__main">
+          <div className="eq-boss-hud__title-row">
+            <h1>STAGE {battle.stage} BOSS: {battle.title}</h1>
+            <div className="eq-boss-hud__combo">
+              <span>COMBO</span>
+              <strong>{state.combo}</strong>
+            </div>
+          </div>
+          <HpBar label="Boss HP" value={state.bossHp} max={battle.boss.hp} tone="rose" />
+        </div>
+
+        <figure className="eq-boss-hud__thumb">
           <img src={battle.boss.image} alt={battle.boss.name} />
-        </div>
-        <div className="eq-boss-card__copy">
-          <span>{battle.boss.title}</span>
-          <h2>{battle.boss.name}</h2>
-        </div>
-        <HpBar label="Boss HP" value={state.bossHp} max={battle.boss.hp} tone="rose" />
-      </EQFantasyCard>
+          <figcaption>{battle.boss.name}</figcaption>
+        </figure>
+      </header>
 
       <HpBar label="Player HP" value={state.playerHp} max={battle.playerHp} />
-
-      <p className={`eq-boss-battle-message is-${state.battleStatus}`} role="status">
-        {state.message}
-      </p>
 
       {state.battleStatus === 'clear' ? (
         <EQFantasyCard hideHeader className="eq-boss-result-card is-clear">
@@ -229,14 +228,15 @@ export default function EigoBossBattlePage() {
       ) : (
         <EQFantasyCard
           className="eq-boss-question-card"
-          eyebrow="Battle Question"
-          title={currentQuestion?.prompt || '問題を読み込んでいます'}
-          actions={<EQFantasyBadge variant="cyan">Q{state.currentQuestionIndex + 1} / {state.questionDeck.length}</EQFantasyBadge>}
+          hideHeader
         >
-          <div className="eq-boss-active-hero">
-            <span>Active Hero</span>
-            <strong>{activeHero.name}</strong>
+          <div className="eq-boss-question-head">
+            <h2>BATTLE QUESTION</h2>
+            <EQFantasyBadge variant="cyan">Q{state.currentQuestionIndex + 1} / {state.questionDeck.length}</EQFantasyBadge>
           </div>
+          <p className="eq-boss-question-prompt">
+            {currentQuestion?.prompt || '問題を読み込んでいます'}
+          </p>
           <div className="eq-boss-choice-grid">
             {(currentQuestion?.choices || []).map((choice, index) => (
               <EQChoiceButton
@@ -250,6 +250,10 @@ export default function EigoBossBattlePage() {
           </div>
         </EQFantasyCard>
       )}
+
+      <p className={`eq-boss-battle-message is-${state.battleStatus}`} role="status">
+        {state.message}
+      </p>
 
       {renderHeroParty()}
     </EQPageShell>

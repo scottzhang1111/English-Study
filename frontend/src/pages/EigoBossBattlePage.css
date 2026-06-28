@@ -1,121 +1,180 @@
 .eq-boss-battle-page {
+  min-height: 100dvh;
+  overflow-x: hidden;
   background:
-    radial-gradient(circle at 50% 0%, rgba(53, 217, 255, 0.2), transparent 32%),
-    radial-gradient(circle at 82% 22%, rgba(255, 211, 90, 0.16), transparent 28%),
-    linear-gradient(180deg, #06122e 0%, #04091f 56%, #020513 100%);
+    radial-gradient(circle at 50% 0%, rgba(53, 217, 255, 0.18), transparent 30%),
+    radial-gradient(circle at 88% 12%, rgba(255, 211, 90, 0.14), transparent 22%),
+    linear-gradient(180deg, #06122e 0%, #03091f 58%, #020513 100%);
 }
 
 .eq-boss-battle-content {
-  gap: 10px;
-  padding: 12px 12px calc(96px + env(safe-area-inset-bottom));
-}
-
-.eq-boss-battle-content .eq-fantasy-page-header {
-  padding-bottom: 0;
-}
-
-.eq-boss-battle-content .eq-fantasy-page-header h1 {
-  font-size: clamp(26px, 8vw, 34px);
-}
-
-.eq-boss-battle-content .eq-fantasy-page-header p {
-  font-size: 13px;
-}
-
-.eq-boss-battle-content .eq-fantasy-page-header__meta {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-}
-
-.eq-boss-card {
-  overflow: hidden;
-  border-color: rgba(255, 211, 90, 0.72);
-  background:
-    radial-gradient(circle at 50% 0%, rgba(255, 211, 90, 0.16), transparent 38%),
-    linear-gradient(180deg, rgba(8, 21, 58, 0.94), rgba(4, 8, 29, 0.96));
-}
-
-.eq-boss-card .eq-fantasy-card-v2__body {
   display: grid;
-  gap: 9px;
-  padding: 12px;
+  grid-template-rows: auto auto minmax(292px, 1fr) auto auto;
+  gap: 7px;
+  min-height: 100dvh;
+  padding: 8px 10px calc(94px + env(safe-area-inset-bottom));
 }
 
-.eq-boss-card__image-frame {
+.eq-boss-hud {
   display: grid;
-  min-height: 180px;
-  max-height: 220px;
-  place-items: center;
-  border: 1px solid rgba(53, 217, 255, 0.42);
+  grid-template-columns: 58px minmax(0, 1fr) 66px;
+  gap: 8px;
+  align-items: center;
+  min-height: 96px;
+  padding: 8px;
+  border: 1px solid rgba(255, 211, 90, 0.58);
   border-radius: 18px;
   background:
-    radial-gradient(circle at 50% 42%, rgba(53, 217, 255, 0.2), transparent 48%),
-    rgba(1, 8, 28, 0.58);
+    radial-gradient(circle at 16% 8%, rgba(53, 217, 255, 0.14), transparent 34%),
+    linear-gradient(180deg, rgba(3, 16, 45, 0.92), rgba(2, 8, 29, 0.94));
   box-shadow:
-    inset 0 0 22px rgba(53, 217, 255, 0.14),
-    0 0 18px rgba(53, 217, 255, 0.18);
+    0 0 22px rgba(53, 217, 255, 0.12),
+    inset 0 0 24px rgba(255, 211, 90, 0.06);
 }
 
-.eq-boss-card__image-frame img {
-  width: 100%;
-  height: clamp(180px, 42vw, 220px);
-  object-fit: contain;
-  filter: drop-shadow(0 12px 18px rgba(0, 0, 0, 0.52));
-}
-
-.eq-boss-card__copy {
-  display: grid;
-  gap: 2px;
-  text-align: center;
-}
-
-.eq-boss-card__copy span {
-  color: #80ecff;
-  font-size: 12px;
-  font-weight: 900;
-}
-
-.eq-boss-card__copy h2 {
-  margin: 0;
-  color: #fff1b8;
-  font-size: 22px;
-  font-weight: 950;
-  line-height: 1.1;
-  text-shadow: 0 0 16px rgba(255, 211, 90, 0.28);
-}
-
-.eq-boss-card.is-hit .eq-boss-card__image-frame {
+.eq-boss-hud.is-hit .eq-boss-hud__thumb {
   animation: eq-boss-hit-pulse 0.32s ease;
 }
 
-.eq-boss-card.is-counter {
+.eq-boss-hud.is-counter {
   animation: eq-boss-counter-shake 0.34s ease;
+}
+
+.eq-boss-hud__world {
+  display: grid;
+  justify-items: center;
+  gap: 1px;
+  min-width: 0;
+  color: #35d9ff;
+  font-weight: 950;
+  line-height: 1;
+  text-align: center;
+}
+
+.eq-boss-hud__world > span {
+  display: grid;
+  width: 48px;
+  height: 48px;
+  place-items: center;
+  border: 2px solid rgba(122, 236, 255, 0.82);
+  border-radius: 999px;
+  background:
+    radial-gradient(circle at 35% 25%, rgba(255, 255, 255, 0.62), transparent 28%),
+    linear-gradient(135deg, #45d7ff, #0b4f9e 68%, #06164e);
+  color: #e8fdff;
+  box-shadow: 0 0 18px rgba(53, 217, 255, 0.34);
+  font-size: 25px;
+}
+
+.eq-boss-hud__world strong,
+.eq-boss-hud__world small {
+  font-size: 10px;
+  letter-spacing: 0;
+}
+
+.eq-boss-hud__main {
+  display: grid;
+  min-width: 0;
+  gap: 8px;
+}
+
+.eq-boss-hud__title-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 8px;
+  align-items: end;
+}
+
+.eq-boss-hud__title-row h1 {
+  margin: 0;
+  overflow-wrap: anywhere;
+  color: #fff1b8;
+  font-size: clamp(16px, 4.6vw, 21px);
+  font-weight: 1000;
+  letter-spacing: 0;
+  line-height: 1.12;
+  text-shadow: 0 0 14px rgba(255, 211, 90, 0.24);
+}
+
+.eq-boss-hud__combo {
+  display: grid;
+  justify-items: center;
+  color: #ffd35a;
+  line-height: 1;
+}
+
+.eq-boss-hud__combo span {
+  font-size: 10px;
+  font-weight: 950;
+}
+
+.eq-boss-hud__combo strong {
+  font-size: 30px;
+  font-weight: 1000;
+  text-shadow: 0 0 12px rgba(255, 211, 90, 0.34);
+}
+
+.eq-boss-hud__thumb {
+  display: grid;
+  gap: 2px;
+  justify-items: center;
+  margin: 0;
+  padding: 4px;
+  border: 1px solid rgba(255, 211, 90, 0.62);
+  border-radius: 12px;
+  background: rgba(2, 8, 28, 0.78);
+  box-shadow: 0 0 16px rgba(255, 211, 90, 0.16);
+}
+
+.eq-boss-hud__thumb img {
+  width: 58px;
+  height: 70px;
+  border-radius: 8px;
+  object-fit: contain;
+  filter: drop-shadow(0 7px 10px rgba(0, 0, 0, 0.52));
+}
+
+.eq-boss-hud__thumb figcaption {
+  width: 58px;
+  overflow: hidden;
+  color: #fff1b8;
+  font-size: 8px;
+  font-weight: 900;
+  line-height: 1.1;
+  text-align: center;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .eq-boss-hp {
   display: grid;
-  gap: 6px;
-  padding: 10px 12px;
-  border: 1px solid rgba(53, 217, 255, 0.42);
-  border-radius: 16px;
-  background: rgba(3, 10, 34, 0.72);
-  box-shadow: inset 0 0 18px rgba(53, 217, 255, 0.08);
+  gap: 5px;
+  padding: 7px 9px;
+  border: 1px solid rgba(53, 217, 255, 0.38);
+  border-radius: 14px;
+  background: rgba(3, 10, 34, 0.64);
+  box-shadow: inset 0 0 16px rgba(53, 217, 255, 0.08);
 }
 
 .eq-boss-hp.is-rose {
-  border-color: rgba(255, 107, 138, 0.48);
-  box-shadow: inset 0 0 18px rgba(255, 107, 138, 0.08);
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+  padding: 0;
 }
 
 .eq-boss-hp__row {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
-  color: rgba(248, 251, 255, 0.9);
+  gap: 10px;
+  color: rgba(248, 251, 255, 0.92);
   font-size: 12px;
-  font-weight: 900;
+  font-weight: 950;
+}
+
+.eq-boss-hp.is-rose .eq-boss-hp__row strong {
+  color: #ff7a9c;
 }
 
 .eq-boss-hp__track {
@@ -123,6 +182,11 @@
   overflow: hidden;
   border-radius: 999px;
   background: rgba(226, 237, 255, 0.16);
+}
+
+.eq-boss-hp.is-rose .eq-boss-hp__track {
+  height: 12px;
+  border: 1px solid rgba(255, 211, 90, 0.34);
 }
 
 .eq-boss-hp__track span {
@@ -134,64 +198,91 @@
 }
 
 .eq-boss-hp.is-rose .eq-boss-hp__track span {
-  background: linear-gradient(90deg, #ff6b8a, #ffd35a);
+  background: linear-gradient(90deg, #f52b7b, #ff7a4f 58%, #ffd35a);
   box-shadow: 0 0 14px rgba(255, 107, 138, 0.5);
 }
 
-.eq-boss-party {
+.eq-boss-question-card {
+  min-height: clamp(292px, 42dvh, 382px);
+  overflow: hidden;
+  border-color: rgba(255, 211, 90, 0.76);
+  background:
+    radial-gradient(circle at 50% 20%, rgba(255, 247, 220, 0.55), transparent 46%),
+    linear-gradient(180deg, rgba(255, 238, 190, 0.96), rgba(232, 197, 126, 0.96));
+}
+
+.eq-boss-question-card .eq-fantasy-card-v2__body {
   display: grid;
-  grid-template-columns: repeat(4, minmax(58px, 72px));
-  justify-content: center;
+  grid-template-rows: auto minmax(104px, 1fr) auto;
+  gap: 12px;
+  height: 100%;
+  padding: clamp(14px, 3.4vw, 18px);
+}
+
+.eq-boss-question-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.eq-boss-question-head h2 {
+  margin: 0;
+  color: #0e2b57;
+  font-size: clamp(18px, 5vw, 25px);
+  font-weight: 1000;
+  line-height: 1.1;
+}
+
+.eq-boss-question-prompt {
+  display: grid;
+  align-content: center;
+  min-height: 104px;
+  margin: 0;
+  color: #1a1209;
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: clamp(24px, 7vw, 36px);
+  font-weight: 800;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+  text-align: center;
+}
+
+.eq-boss-choice-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
   gap: 8px;
 }
 
-.eq-boss-hero {
-  display: grid;
-  gap: 4px;
-  justify-items: center;
-  min-width: 0;
-  padding: 5px;
-  border: 1px solid rgba(255, 211, 90, 0.34);
+.eq-boss-choice-grid .eq-choice-button {
+  min-height: clamp(42px, 10vw, 56px);
+  padding: 8px 10px;
   border-radius: 14px;
-  background: rgba(4, 12, 38, 0.76);
+  text-align: left;
 }
 
-.eq-boss-hero.is-active {
-  border-color: rgba(53, 217, 255, 0.92);
-  box-shadow:
-    0 0 18px rgba(53, 217, 255, 0.36),
-    inset 0 0 12px rgba(53, 217, 255, 0.1);
-}
-
-.eq-boss-hero img {
-  width: clamp(58px, 16vw, 72px);
-  aspect-ratio: 3 / 4;
-  border-radius: 9px;
-  object-fit: cover;
-}
-
-.eq-boss-hero span {
-  width: 100%;
-  overflow: hidden;
-  color: rgba(248, 251, 255, 0.82);
-  font-size: 9px;
-  font-weight: 850;
-  line-height: 1.2;
-  text-align: center;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+.eq-boss-choice-grid .eq-choice-text {
+  min-width: 0;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  font-size: clamp(13px, 3.8vw, 16px);
+  line-height: 1.18;
 }
 
 .eq-boss-battle-message {
+  display: flex;
+  min-height: 34px;
+  align-items: center;
+  justify-content: center;
   margin: 0;
-  padding: 9px 12px;
+  padding: 7px 10px;
   border: 1px solid rgba(53, 217, 255, 0.38);
-  border-radius: 14px;
-  background: rgba(3, 10, 34, 0.66);
+  border-radius: 13px;
+  background: rgba(3, 10, 34, 0.72);
   color: rgba(248, 251, 255, 0.92);
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 900;
-  line-height: 1.38;
+  line-height: 1.28;
   text-align: center;
   text-shadow: 0 2px 10px rgba(0, 0, 0, 0.46);
 }
@@ -206,61 +297,72 @@
   color: #ffd6de;
 }
 
-.eq-boss-question-card .eq-fantasy-card-v2__head {
-  padding: 12px 12px 0;
-}
-
-.eq-boss-question-card .eq-fantasy-card-v2__copy h2 {
-  font-size: 18px;
-}
-
-.eq-boss-question-card .eq-fantasy-card-v2__body {
+.eq-boss-party {
   display: grid;
-  gap: 10px;
-  padding: 12px;
+  grid-template-columns: repeat(4, minmax(52px, 1fr));
+  gap: 7px;
 }
 
-.eq-boss-active-hero {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 10px;
-  padding: 7px 9px;
-  border: 1px solid rgba(53, 217, 255, 0.34);
-  border-radius: 12px;
-  background: rgba(53, 217, 255, 0.08);
-}
-
-.eq-boss-active-hero span {
-  color: rgba(226, 237, 255, 0.72);
-  font-size: 11px;
-  font-weight: 850;
-}
-
-.eq-boss-active-hero strong {
+.eq-boss-hero {
+  position: relative;
+  display: grid;
+  gap: 2px;
+  justify-items: center;
   min-width: 0;
-  overflow: hidden;
-  color: #9ef4ff;
-  font-size: 12px;
+  padding: 4px;
+  border: 1px solid rgba(255, 211, 90, 0.34);
+  border-radius: 12px;
+  background: rgba(4, 12, 38, 0.78);
+}
+
+.eq-boss-hero.is-active {
+  border-color: rgba(53, 217, 255, 0.96);
+  box-shadow:
+    0 0 18px rgba(53, 217, 255, 0.42),
+    inset 0 0 12px rgba(53, 217, 255, 0.1);
+}
+
+.eq-boss-hero__active {
+  position: absolute;
+  top: -10px;
+  left: 50%;
+  z-index: 1;
+  transform: translateX(-50%);
+  padding: 3px 7px;
+  border-radius: 999px;
+  background: linear-gradient(180deg, #35d9ff, #1266e0);
+  color: #f8fbff;
+  font-size: 9px;
   font-weight: 950;
+  line-height: 1;
+  white-space: nowrap;
+  box-shadow: 0 0 12px rgba(53, 217, 255, 0.48);
+}
+
+.eq-boss-hero img {
+  width: clamp(52px, 14vw, 60px);
+  aspect-ratio: 3 / 4;
+  border-radius: 8px;
+  object-fit: cover;
+}
+
+.eq-boss-hero strong {
+  width: 100%;
+  overflow: hidden;
+  color: rgba(248, 251, 255, 0.84);
+  font-size: 8px;
+  font-weight: 850;
+  line-height: 1.1;
+  text-align: center;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
-.eq-boss-choice-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 8px;
-}
-
-.eq-boss-choice-grid .eq-choice-button {
-  min-height: 46px;
-  padding: 10px;
-  text-align: left;
-}
-
-.eq-boss-choice-grid .eq-choice-text {
-  font-size: 14px;
+.eq-boss-hero__attack {
+  color: #fff1b8;
+  font-size: 11px;
+  font-weight: 950;
+  line-height: 1;
 }
 
 .eq-boss-result-card .eq-fantasy-card-v2__body {
@@ -355,24 +457,60 @@
 
 @media (max-width: 380px) {
   .eq-boss-battle-content {
-    gap: 8px;
-    padding-inline: 10px;
+    grid-template-rows: auto auto minmax(270px, 1fr) auto auto;
+    gap: 6px;
+    padding: 6px 8px calc(92px + env(safe-area-inset-bottom));
   }
 
-  .eq-boss-card__image-frame {
-    min-height: 170px;
+  .eq-boss-hud {
+    grid-template-columns: 50px minmax(0, 1fr) 58px;
+    gap: 6px;
+    min-height: 88px;
+    padding: 7px;
   }
 
-  .eq-boss-card__image-frame img {
-    height: 170px;
+  .eq-boss-hud__world > span {
+    width: 42px;
+    height: 42px;
+    font-size: 22px;
+  }
+
+  .eq-boss-hud__combo strong {
+    font-size: 24px;
+  }
+
+  .eq-boss-hud__thumb img {
+    width: 50px;
+    height: 60px;
+  }
+
+  .eq-boss-hud__thumb figcaption {
+    width: 50px;
+  }
+
+  .eq-boss-question-card {
+    min-height: 270px;
+  }
+
+  .eq-boss-question-card .eq-fantasy-card-v2__body {
+    gap: 9px;
+    padding: 12px;
+  }
+
+  .eq-boss-question-prompt {
+    min-height: 92px;
+    font-size: clamp(21px, 6.2vw, 28px);
+  }
+
+  .eq-boss-choice-grid {
+    gap: 7px;
   }
 
   .eq-boss-party {
-    grid-template-columns: repeat(4, minmax(56px, 66px));
-    gap: 6px;
+    gap: 5px;
   }
 
   .eq-boss-hero img {
-    width: 56px;
+    width: 50px;
   }
 }
