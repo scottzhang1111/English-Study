@@ -363,8 +363,8 @@
   position: relative;
   z-index: 2;
   display: grid;
-  grid-template-rows: auto minmax(116px, 1fr) auto;
-  gap: 14px;
+  grid-template-rows: auto minmax(110px, 1fr) auto;
+  gap: 12px;
   height: 100%;
   padding: clamp(16px, 3.8vw, 22px);
 }
@@ -423,14 +423,14 @@
 .eq-boss-question-prompt {
   display: grid;
   align-content: center;
-  min-height: 116px;
+  min-height: 110px;
   margin: 0;
-  color: #1d1409;
-  font-family: Georgia, 'Times New Roman', serif;
-  font-size: clamp(22px, 6.2vw, 34px);
-  font-weight: 800;
-  line-height: 1.28;
-  hyphens: auto;
+  color: #17100a;
+  font-family: Georgia, 'Times New Roman', 'Yu Mincho', 'Hiragino Mincho ProN', serif;
+  font-size: clamp(20px, 5.7vw, 30px);
+  font-weight: 850;
+  line-height: 1.32;
+  hyphens: none;
   overflow-wrap: break-word;
   text-align: center;
   text-wrap: pretty;
@@ -445,11 +445,12 @@
 
 .eq-boss-choice-grid .eq-choice-button {
   display: grid;
-  grid-template-columns: 34px minmax(0, 1fr);
-  gap: 9px;
+  grid-template-columns: 32px minmax(0, 1fr);
+  gap: 8px;
   align-items: center;
-  min-height: clamp(54px, 12vw, 68px);
-  padding: 8px 10px;
+  min-height: clamp(56px, 12vw, 70px);
+  overflow: hidden;
+  padding: 8px 9px;
   border: 2px solid rgba(255, 203, 86, 0.78);
   border-radius: 15px;
   background:
@@ -481,9 +482,9 @@
 
 .eq-boss-choice-grid .eq-choice-badge {
   display: inline-grid;
-  width: 34px;
-  min-width: 34px;
-  height: 34px;
+  width: 32px;
+  min-width: 32px;
+  height: 32px;
   place-items: center;
   border: 2px solid rgba(255, 197, 72, 0.84);
   border-radius: 999px;
@@ -492,23 +493,26 @@
     rgba(5, 15, 39, 0.92);
   color: #fff1b8;
   box-shadow: 0 0 10px rgba(255, 211, 90, 0.14);
-  font-size: clamp(18px, 4.8vw, 24px);
+  font-size: clamp(17px, 4.6vw, 22px);
   font-weight: 1000;
   line-height: 1;
 }
 
 .eq-boss-choice-grid .eq-choice-text {
+  display: block;
+  width: 100%;
   min-width: 0;
-  overflow: visible;
+  max-width: 100%;
+  overflow: hidden;
   hyphens: none;
   white-space: normal;
-  overflow-wrap: normal;
+  overflow-wrap: break-word;
   text-align: left;
   word-break: normal;
   font-family: Georgia, 'Times New Roman', serif;
-  font-size: clamp(15px, 4.25vw, 20px);
+  font-size: clamp(14px, 3.9vw, 18px);
   font-weight: 800;
-  line-height: 1.18;
+  line-height: 1.22;
 }
 
 .eq-boss-battle-message {
@@ -1084,8 +1088,8 @@
   }
 
   .eq-boss-question-card .eq-fantasy-card-v2__body {
-    grid-template-rows: auto minmax(104px, 1fr) auto;
-    gap: 10px;
+    grid-template-rows: auto minmax(98px, 1fr) auto;
+    gap: 9px;
     padding: 13px;
   }
 
@@ -1108,8 +1112,9 @@
   }
 
   .eq-boss-question-prompt {
-    min-height: 104px;
-    font-size: clamp(19px, 5.8vw, 27px);
+    min-height: 98px;
+    font-size: clamp(18px, 5.4vw, 25px);
+    line-height: 1.3;
   }
 
   .eq-boss-choice-grid {
@@ -1117,23 +1122,23 @@
   }
 
   .eq-boss-choice-grid .eq-choice-button {
-    grid-template-columns: 30px minmax(0, 1fr);
-    gap: 7px;
-    min-height: 52px;
-    padding: 7px 8px;
+    grid-template-columns: 28px minmax(0, 1fr);
+    gap: 6px;
+    min-height: 54px;
+    padding: 7px;
     border-radius: 13px;
   }
 
   .eq-boss-choice-grid .eq-choice-badge {
-    width: 30px;
-    min-width: 30px;
-    height: 30px;
-    font-size: 18px;
+    width: 28px;
+    min-width: 28px;
+    height: 28px;
+    font-size: 17px;
   }
 
   .eq-boss-choice-grid .eq-choice-text {
-    font-size: clamp(14px, 4vw, 17px);
-    line-height: 1.16;
+    font-size: clamp(13px, 3.7vw, 16px);
+    line-height: 1.2;
   }
 
   .eq-boss-party {
