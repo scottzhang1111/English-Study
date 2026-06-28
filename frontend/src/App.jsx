@@ -44,6 +44,7 @@ import PetLevelPage from './pages/PetLevelPage';
 import ProgressPage from './pages/ProgressPage';
 import CardCollectionPage from './pages/CardCollectionPage';
 import CardRewardPage from './pages/CardRewardPage';
+import EigoBossBattlePage from './pages/EigoBossBattlePage';
 import StudyMapPage from './pages/StudyMapPage';
 import WorldStagePage from './pages/WorldStagePage';
 import SettingsPage from './pages/SettingsPage';
@@ -115,6 +116,7 @@ const STUDY_ROUTE_PREFIXES = [
   '/today-review-quiz',
   '/cards',
   '/card-reward',
+  '/boss-battle-v1',
   '/study-map',
   '/app/study-map',
   '/world-stage',
@@ -191,6 +193,7 @@ function App() {
             <Route path="/hatch" element={<AnimatedPage><HatchPage /></AnimatedPage>} />
             <Route path="/cards" element={<AnimatedPage><ChildRequiredPage><CardCollectionPage /></ChildRequiredPage></AnimatedPage>} />
             <Route path="/card-reward" element={<AnimatedPage><ChildRequiredPage><CardRewardPage /></ChildRequiredPage></AnimatedPage>} />
+            <Route path="/boss-battle-v1" element={<AnimatedPage><ChildRequiredPage><EigoBossBattlePage /></ChildRequiredPage></AnimatedPage>} />
             <Route path="/study-map" element={<AnimatedPage><ChildRequiredPage><StudyMapPage /></ChildRequiredPage></AnimatedPage>} />
             <Route path="/app/study-map" element={<AnimatedPage><ChildRequiredPage><StudyMapPage /></ChildRequiredPage></AnimatedPage>} />
             <Route path="/world-stage" element={<AnimatedPage><ChildRequiredPage><WorldStagePage /></ChildRequiredPage></AnimatedPage>} />

@@ -73,13 +73,6 @@ export default function ParentLoginPage() {
         </header>
 
         <form className="parent-login-card" onSubmit={handleSubmit}>
-          <img
-            className="parent-login-panel-frame"
-            src="/assets/eigo-quest/login/login-panel-frame.png"
-            alt=""
-            aria-hidden="true"
-          />
-
           <div className="parent-login-card-content">
             <div className="parent-login-card-heading">
               <h1 id="parent-login-title">保護者ログイン</h1>
@@ -112,11 +105,12 @@ export default function ParentLoginPage() {
             )}
 
             <button type="submit" className="parent-login-main-button" disabled={authLoading}>
-              {authLoading ? 'ログイン中...' : 'ログイン / 新規登録'}
+              <span>{authLoading ? 'ログイン中...' : 'ログイン'}</span>
+              {!authLoading && <span aria-hidden="true">→</span>}
             </button>
 
             <p className="parent-login-hint">
-              はじめての方もメールアドレスだけで始められます
+              はじめての方は自動で新規登録されます
             </p>
 
             <label className="parent-login-sound-toggle">
@@ -130,15 +124,6 @@ export default function ParentLoginPage() {
             </label>
           </div>
         </form>
-
-        <aside className="parent-login-note-card">
-          <span className="parent-login-shield" aria-hidden="true">盾</span>
-          <p>
-            お子さまの学習データは
-            <br />
-            保護者アカウントで管理されます
-          </p>
-        </aside>
       </section>
     </main>
   );

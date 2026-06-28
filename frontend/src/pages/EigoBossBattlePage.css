@@ -1,0 +1,378 @@
+.eq-boss-battle-page {
+  background:
+    radial-gradient(circle at 50% 0%, rgba(53, 217, 255, 0.2), transparent 32%),
+    radial-gradient(circle at 82% 22%, rgba(255, 211, 90, 0.16), transparent 28%),
+    linear-gradient(180deg, #06122e 0%, #04091f 56%, #020513 100%);
+}
+
+.eq-boss-battle-content {
+  gap: 10px;
+  padding: 12px 12px calc(96px + env(safe-area-inset-bottom));
+}
+
+.eq-boss-battle-content .eq-fantasy-page-header {
+  padding-bottom: 0;
+}
+
+.eq-boss-battle-content .eq-fantasy-page-header h1 {
+  font-size: clamp(26px, 8vw, 34px);
+}
+
+.eq-boss-battle-content .eq-fantasy-page-header p {
+  font-size: 13px;
+}
+
+.eq-boss-battle-content .eq-fantasy-page-header__meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.eq-boss-card {
+  overflow: hidden;
+  border-color: rgba(255, 211, 90, 0.72);
+  background:
+    radial-gradient(circle at 50% 0%, rgba(255, 211, 90, 0.16), transparent 38%),
+    linear-gradient(180deg, rgba(8, 21, 58, 0.94), rgba(4, 8, 29, 0.96));
+}
+
+.eq-boss-card .eq-fantasy-card-v2__body {
+  display: grid;
+  gap: 9px;
+  padding: 12px;
+}
+
+.eq-boss-card__image-frame {
+  display: grid;
+  min-height: 180px;
+  max-height: 220px;
+  place-items: center;
+  border: 1px solid rgba(53, 217, 255, 0.42);
+  border-radius: 18px;
+  background:
+    radial-gradient(circle at 50% 42%, rgba(53, 217, 255, 0.2), transparent 48%),
+    rgba(1, 8, 28, 0.58);
+  box-shadow:
+    inset 0 0 22px rgba(53, 217, 255, 0.14),
+    0 0 18px rgba(53, 217, 255, 0.18);
+}
+
+.eq-boss-card__image-frame img {
+  width: 100%;
+  height: clamp(180px, 42vw, 220px);
+  object-fit: contain;
+  filter: drop-shadow(0 12px 18px rgba(0, 0, 0, 0.52));
+}
+
+.eq-boss-card__copy {
+  display: grid;
+  gap: 2px;
+  text-align: center;
+}
+
+.eq-boss-card__copy span {
+  color: #80ecff;
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.eq-boss-card__copy h2 {
+  margin: 0;
+  color: #fff1b8;
+  font-size: 22px;
+  font-weight: 950;
+  line-height: 1.1;
+  text-shadow: 0 0 16px rgba(255, 211, 90, 0.28);
+}
+
+.eq-boss-card.is-hit .eq-boss-card__image-frame {
+  animation: eq-boss-hit-pulse 0.32s ease;
+}
+
+.eq-boss-card.is-counter {
+  animation: eq-boss-counter-shake 0.34s ease;
+}
+
+.eq-boss-hp {
+  display: grid;
+  gap: 6px;
+  padding: 10px 12px;
+  border: 1px solid rgba(53, 217, 255, 0.42);
+  border-radius: 16px;
+  background: rgba(3, 10, 34, 0.72);
+  box-shadow: inset 0 0 18px rgba(53, 217, 255, 0.08);
+}
+
+.eq-boss-hp.is-rose {
+  border-color: rgba(255, 107, 138, 0.48);
+  box-shadow: inset 0 0 18px rgba(255, 107, 138, 0.08);
+}
+
+.eq-boss-hp__row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  color: rgba(248, 251, 255, 0.9);
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.eq-boss-hp__track {
+  height: 10px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: rgba(226, 237, 255, 0.16);
+}
+
+.eq-boss-hp__track span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #35d9ff, #b4f7ff);
+  box-shadow: 0 0 14px rgba(53, 217, 255, 0.54);
+}
+
+.eq-boss-hp.is-rose .eq-boss-hp__track span {
+  background: linear-gradient(90deg, #ff6b8a, #ffd35a);
+  box-shadow: 0 0 14px rgba(255, 107, 138, 0.5);
+}
+
+.eq-boss-party {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(58px, 72px));
+  justify-content: center;
+  gap: 8px;
+}
+
+.eq-boss-hero {
+  display: grid;
+  gap: 4px;
+  justify-items: center;
+  min-width: 0;
+  padding: 5px;
+  border: 1px solid rgba(255, 211, 90, 0.34);
+  border-radius: 14px;
+  background: rgba(4, 12, 38, 0.76);
+}
+
+.eq-boss-hero.is-active {
+  border-color: rgba(53, 217, 255, 0.92);
+  box-shadow:
+    0 0 18px rgba(53, 217, 255, 0.36),
+    inset 0 0 12px rgba(53, 217, 255, 0.1);
+}
+
+.eq-boss-hero img {
+  width: clamp(58px, 16vw, 72px);
+  aspect-ratio: 3 / 4;
+  border-radius: 9px;
+  object-fit: cover;
+}
+
+.eq-boss-hero span {
+  width: 100%;
+  overflow: hidden;
+  color: rgba(248, 251, 255, 0.82);
+  font-size: 9px;
+  font-weight: 850;
+  line-height: 1.2;
+  text-align: center;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.eq-boss-battle-message {
+  margin: 0;
+  padding: 9px 12px;
+  border: 1px solid rgba(53, 217, 255, 0.38);
+  border-radius: 14px;
+  background: rgba(3, 10, 34, 0.66);
+  color: rgba(248, 251, 255, 0.92);
+  font-size: 13px;
+  font-weight: 900;
+  line-height: 1.38;
+  text-align: center;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.46);
+}
+
+.eq-boss-battle-message.is-clear {
+  border-color: rgba(255, 211, 90, 0.58);
+  color: #fff1b8;
+}
+
+.eq-boss-battle-message.is-failed {
+  border-color: rgba(255, 107, 138, 0.46);
+  color: #ffd6de;
+}
+
+.eq-boss-question-card .eq-fantasy-card-v2__head {
+  padding: 12px 12px 0;
+}
+
+.eq-boss-question-card .eq-fantasy-card-v2__copy h2 {
+  font-size: 18px;
+}
+
+.eq-boss-question-card .eq-fantasy-card-v2__body {
+  display: grid;
+  gap: 10px;
+  padding: 12px;
+}
+
+.eq-boss-active-hero {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 7px 9px;
+  border: 1px solid rgba(53, 217, 255, 0.34);
+  border-radius: 12px;
+  background: rgba(53, 217, 255, 0.08);
+}
+
+.eq-boss-active-hero span {
+  color: rgba(226, 237, 255, 0.72);
+  font-size: 11px;
+  font-weight: 850;
+}
+
+.eq-boss-active-hero strong {
+  min-width: 0;
+  overflow: hidden;
+  color: #9ef4ff;
+  font-size: 12px;
+  font-weight: 950;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.eq-boss-choice-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.eq-boss-choice-grid .eq-choice-button {
+  min-height: 46px;
+  padding: 10px;
+  text-align: left;
+}
+
+.eq-boss-choice-grid .eq-choice-text {
+  font-size: 14px;
+}
+
+.eq-boss-result-card .eq-fantasy-card-v2__body {
+  display: grid;
+  gap: 12px;
+  padding: 14px;
+}
+
+.eq-boss-result-card__copy {
+  display: grid;
+  gap: 5px;
+  text-align: center;
+}
+
+.eq-boss-result-card__copy span {
+  color: #ffd35a;
+  font-size: 13px;
+  font-weight: 1000;
+}
+
+.eq-boss-result-card__copy h2 {
+  margin: 0;
+  color: #fff1b8;
+  font-size: 22px;
+  font-weight: 950;
+  line-height: 1.16;
+}
+
+.eq-boss-result-card__copy p {
+  margin: 0;
+  color: rgba(248, 251, 255, 0.84);
+  font-size: 13px;
+  font-weight: 850;
+  line-height: 1.45;
+}
+
+.eq-boss-result-card__reward {
+  display: grid;
+  justify-items: center;
+  gap: 7px;
+  padding: 10px;
+  border: 1px solid rgba(255, 211, 90, 0.42);
+  border-radius: 18px;
+  background:
+    radial-gradient(circle at 50% 38%, rgba(255, 211, 90, 0.16), transparent 46%),
+    rgba(3, 10, 34, 0.62);
+}
+
+.eq-boss-result-card__reward img {
+  width: min(46vw, 156px);
+  height: min(62vw, 210px);
+  object-fit: contain;
+  filter: drop-shadow(0 12px 18px rgba(0, 0, 0, 0.52));
+}
+
+.eq-boss-result-card__reward strong {
+  color: #fff1b8;
+  font-size: 14px;
+  font-weight: 950;
+}
+
+@keyframes eq-boss-hit-pulse {
+  0% {
+    filter: brightness(1);
+    transform: scale(1);
+  }
+  45% {
+    filter: brightness(1.36);
+    transform: scale(1.025);
+  }
+  100% {
+    filter: brightness(1);
+    transform: scale(1);
+  }
+}
+
+@keyframes eq-boss-counter-shake {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  25% {
+    transform: translateX(-4px);
+  }
+  50% {
+    transform: translateX(4px);
+  }
+  75% {
+    transform: translateX(-2px);
+  }
+}
+
+@media (max-width: 380px) {
+  .eq-boss-battle-content {
+    gap: 8px;
+    padding-inline: 10px;
+  }
+
+  .eq-boss-card__image-frame {
+    min-height: 170px;
+  }
+
+  .eq-boss-card__image-frame img {
+    height: 170px;
+  }
+
+  .eq-boss-party {
+    grid-template-columns: repeat(4, minmax(56px, 66px));
+    gap: 6px;
+  }
+
+  .eq-boss-hero img {
+    width: 56px;
+  }
+}

@@ -6883,6 +6883,202 @@ textarea {
     padding: 12px 14px;
   }
 }
+
+.parent-login-page {
+  padding:
+    calc(10px + env(safe-area-inset-top))
+    18px
+    calc(28px + env(safe-area-inset-bottom));
+}
+
+.parent-login-page__overlay {
+  background:
+    radial-gradient(circle at 50% 9%, rgba(255, 226, 145, 0.12), transparent 28%),
+    linear-gradient(180deg, rgba(0, 4, 15, 0.28), rgba(0, 6, 24, 0.58) 46%, rgba(0, 3, 14, 0.76));
+}
+
+.parent-login-shell {
+  min-height: calc(100dvh - 38px);
+  justify-content: flex-start;
+  gap: clamp(14px, 3.2vh, 28px);
+  padding-top: clamp(10px, 3vh, 32px);
+}
+
+.parent-login-logo-wrap {
+  margin: 0;
+}
+
+.parent-login-logo {
+  width: min(84vw, 520px);
+  max-height: clamp(132px, 24vh, 230px);
+}
+
+.parent-login-card {
+  width: min(86vw, 440px);
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  overflow: visible;
+  padding: 0;
+}
+
+.parent-login-card::before,
+.parent-login-panel-frame {
+  display: none !important;
+}
+
+.parent-login-card-content {
+  gap: clamp(14px, 2.2vh, 20px);
+}
+
+.parent-login-card-heading {
+  gap: 10px;
+}
+
+.parent-login-card-heading h1 {
+  font-size: clamp(40px, 8vw, 58px);
+  line-height: 1.06;
+}
+
+.parent-login-card-heading p {
+  font-size: clamp(18px, 4.2vw, 28px);
+  font-weight: 950;
+}
+
+.parent-login-divider {
+  width: min(52vw, 250px);
+  margin-top: 10px;
+  opacity: 0.86;
+}
+
+.parent-login-field {
+  gap: 12px;
+  color: #ffe18a;
+  font-size: clamp(17px, 4.1vw, 22px);
+  font-weight: 1000;
+}
+
+.parent-login-input {
+  display: flex;
+  min-height: 64px;
+  align-items: center;
+  border: 1px solid rgba(255, 255, 255, 0.64);
+  border-radius: 18px;
+  background: linear-gradient(180deg, #f8fbff 0%, #edf4ff 100%);
+  box-shadow:
+    0 9px 22px rgba(0, 0, 0, 0.34),
+    inset 0 1px 0 rgba(255, 255, 255, 0.92);
+}
+
+.parent-login-input::before {
+  flex: 0 0 auto;
+  width: 27px;
+  height: 20px;
+  margin-left: 18px;
+  border: 2px solid #4d5868;
+  border-radius: 3px;
+  background:
+    linear-gradient(135deg, transparent 46%, #4d5868 48%, #4d5868 52%, transparent 54%),
+    linear-gradient(225deg, transparent 46%, #4d5868 48%, #4d5868 52%, transparent 54%);
+  content: "";
+  opacity: 0.92;
+}
+
+.parent-login-input input {
+  min-height: 64px;
+  color: #111827;
+  font-size: clamp(18px, 4vw, 22px);
+  font-weight: 900;
+  padding: 0 18px 0 14px;
+}
+
+.parent-login-input input::placeholder {
+  color: rgba(42, 53, 70, 0.58);
+}
+
+.parent-login-input:focus-within {
+  border-color: rgba(255, 255, 255, 0.95);
+  box-shadow:
+    0 0 0 4px rgba(91, 210, 255, 0.22),
+    0 10px 24px rgba(0, 0, 0, 0.36),
+    inset 0 1px 0 rgba(255, 255, 255, 0.95);
+}
+
+.parent-login-message {
+  margin: 0;
+  color: #ff97a7;
+  font-size: clamp(14px, 3.6vw, 17px);
+  padding: 0;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.72);
+}
+
+.parent-login-main-button {
+  display: flex;
+  height: 66px;
+  min-height: 66px;
+  align-items: center;
+  justify-content: center;
+  gap: 22px;
+  border: 1px solid rgba(109, 62, 3, 0.78);
+  background:
+    linear-gradient(180deg, #fff3a8 0%, #ffd35d 33%, #f4aa23 68%, #c6790a 100%);
+  font-size: clamp(22px, 5.6vw, 31px);
+}
+
+.parent-login-main-button img {
+  display: none !important;
+}
+
+.parent-login-main-button span {
+  display: inline-flex !important;
+  align-items: center;
+}
+
+.parent-login-hint {
+  color: rgba(248, 251, 255, 0.88);
+  font-size: clamp(13px, 3.5vw, 17px);
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.72);
+}
+
+.parent-login-sound-toggle {
+  margin-top: 2px;
+  border-color: rgba(255, 211, 90, 0.58);
+  background: rgba(2, 10, 33, 0.52);
+  color: rgba(248, 251, 255, 0.82);
+  font-size: 14px;
+  padding: 9px 14px 9px 12px;
+}
+
+.parent-login-note-card {
+  display: none !important;
+}
+
+@media (max-width: 380px) {
+  .parent-login-shell {
+    gap: 12px;
+    padding-top: 8px;
+  }
+
+  .parent-login-logo {
+    width: min(82vw, 340px);
+    max-height: 122px;
+  }
+
+  .parent-login-card {
+    padding: 0;
+  }
+
+  .parent-login-input,
+  .parent-login-input input {
+    min-height: 58px;
+  }
+
+  .parent-login-main-button {
+    height: 60px;
+    min-height: 60px;
+  }
+}
 /* Interview guide */
 .eq-interview-guide-page {
   min-height: 100dvh;
