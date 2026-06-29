@@ -91,6 +91,26 @@ function createInitialBattleState() {
   };
 }
 
+function getTextLength(value) {
+  return Array.from(String(value || '')).length;
+}
+
+function getQuestionTextClass(questionText) {
+  const length = getTextLength(questionText);
+  if (length <= 18) return 'question-text-lg';
+  if (length <= 32) return 'question-text-md';
+  if (length <= 50) return 'question-text-sm';
+  return 'question-text-xs';
+}
+
+function getAnswerTextClass(answerText) {
+  const length = getTextLength(answerText);
+  if (length <= 8) return 'answer-text-lg';
+  if (length <= 12) return 'answer-text-md';
+  if (length <= 16) return 'answer-text-sm';
+  return 'answer-text-xs';
+}
+
 function getViewportRect(element) {
   if (!element) return null;
 
@@ -443,6 +463,9 @@ export default function EigoBossBattlePage() {
   const timeoutRefs = useRef([]);
   const reducedMotion = useReducedMotion();
   const currentQuestion = state.questionDeck[state.currentQuestionIndex];
+  const currentQuestionText = currentQuestion?.prompt || '問題を読み込んでいます';
+  const questionTextClass = getQuestionTextClass(currentQuestionText);
+  const showDialogueSubtitle = getTextLength(currentQuestionText) <= 50;
   const activeHero = battle.heroes[state.activeHeroIndex] || battle.heroes[0];
   const rewardPath = FIRST_BOSS_REWARD.nextPath || '/card-reward?source=wind_trial_001';
   const bossHpRatio = battle.boss.hp > 0 ? state.bossHp / battle.boss.hp : 0;
@@ -831,10 +854,10 @@ export default function EigoBossBattlePage() {
           <section className="eq-battle-question-frame" aria-label="Battle question">
             <div className="eq-battle-dialogue-heading">
               <span>{battle.boss.name} の問い</span>
-              <small>Answer me...</small>
+              {showDialogueSubtitle ? <small>Answer me...</small> : null}
             </div>
-            <p className="eq-battle-question-text">
-              {currentQuestion?.prompt || '問題を読み込んでいます'}
+            <p className={`eq-battle-question-text ${questionTextClass}`}>
+              {currentQuestionText}
             </p>
           </section>
 
@@ -843,7 +866,7 @@ export default function EigoBossBattlePage() {
               <EQChoiceButton
                 key={`${currentQuestion.id}-${choice}`}
                 badge={String.fromCharCode(65 + index)}
-                className="eq-battle-answer-button"
+                className={`eq-battle-answer-button ${getAnswerTextClass(choice)}`}
                 onClick={() => answerQuestion(choice)}
                 disabled={Boolean(attackSequence || counterSequence || isResolving)}
               >
@@ -860,11 +883,7 @@ export default function EigoBossBattlePage() {
             {renderHeroParty()}
           </div>
 
-          <p className="eq-battle-guide-text">
-            <span aria-hidden="true">◆</span>
-            風の守護者たちと一緒に挑戦しよう！
-            <span aria-hidden="true">◆</span>
-          </p>
+          <p className="eq-battle-guide-text">風の守護者たちと一緒に挑戦しよう！</p>
         </>
       )}
       </div>
