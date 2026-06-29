@@ -503,8 +503,8 @@ export default function EigoBossBattlePage() {
   const currentQuestionText = currentQuestion?.prompt || '問題を読み込んでいます';
   const currentQuestionLength = getTextLength(currentQuestionText);
   const questionTextClass = getQuestionTextClass(currentQuestionText);
-  const showDialogueTitle = currentQuestionLength <= 58;
-  const showDialogueSubtitle = currentQuestionLength <= 40;
+  const showDialogueTitle = currentQuestionLength <= 52;
+  const showDialogueSubtitle = currentQuestionLength <= 34;
   const dialogueClass = currentQuestionLength > 58 ? 'is-question-extra-long' : currentQuestionLength > 40 ? 'is-question-long' : 'is-question-short';
   const activeHero = battle.heroes[state.activeHeroIndex] || battle.heroes[0];
   const rewardPath = FIRST_BOSS_REWARD.nextPath || '/card-reward?source=wind_trial_001';
@@ -900,7 +900,9 @@ export default function EigoBossBattlePage() {
             <div className="eq-battle-boss-center">
             <figure ref={bossCardRef} className="eq-battle-boss-card eq-battle-boss-card-wrap">
               <span className="eq-battle-boss-aura" aria-hidden="true" />
-              <img className="eq-battle-boss-art" src={battle.boss.image} alt={battle.boss.name} />
+              <div className="eq-battle-boss-art-safe">
+                <img className="eq-battle-boss-art" src={battle.boss.image} alt={battle.boss.name} />
+              </div>
               <img
                 className="eq-battle-boss-card-frame"
                 src="/assets/eigo-quest/battle-ui/card-frame.png"

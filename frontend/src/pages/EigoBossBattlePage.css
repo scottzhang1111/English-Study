@@ -4793,3 +4793,343 @@
 .eq-battle-page-v2 .eq-battle-hero-card img {
   height: clamp(62px, 8.5dvh, 82px);
 }
+
+/* Step 33 fitting lock: frame-safe layout, readable scale, centered boss. */
+.eq-battle-page-v2 .eq-battle-top-hud {
+  position: relative;
+  width: min(92vw, 680px);
+  height: 72px;
+  min-height: 72px;
+  margin: 0 auto;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+.eq-battle-page-v2 .eq-battle-status-frame-img {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: fill;
+  pointer-events: none;
+}
+
+.eq-battle-page-v2 .eq-battle-top-hud-content {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 56px minmax(0, 1fr);
+  column-gap: 8px;
+  align-items: center;
+  height: 100%;
+  padding: 10px clamp(18px, 6.5vw, 34px);
+  box-sizing: border-box;
+}
+
+.eq-battle-page-v2 .eq-battle-hud-side {
+  min-width: 0;
+}
+
+.eq-battle-page-v2 .eq-battle-hud-side.is-boss .eq-battle-hud-label-row {
+  flex-direction: row;
+}
+
+.eq-battle-page-v2 .eq-battle-hud-label-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+  min-width: 0;
+  white-space: nowrap;
+}
+
+.eq-battle-page-v2 .eq-battle-hud-label-row strong {
+  flex: 0 1 auto;
+  min-width: 0;
+  overflow: visible;
+  color: inherit;
+  font-size: clamp(15px, 3.7vw, 21px);
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.eq-battle-page-v2 .eq-battle-hud-label-row span {
+  flex: 0 0 auto;
+  color: #fff8df;
+  font-size: clamp(13px, 3.15vw, 18px);
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.eq-battle-page-v2 .eq-battle-hp-track {
+  width: 100%;
+  height: 9px;
+  margin-top: 4px;
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.eq-battle-page-v2 .eq-battle-vs-badge {
+  justify-self: center;
+  width: 52px;
+  height: 52px;
+  font-size: 24px;
+}
+
+.eq-battle-page-v2 .eq-battle-combo-panel {
+  display: none !important;
+}
+
+.eq-battle-page-v2 .eq-battle-arena {
+  grid-template-rows: minmax(238px, 32dvh) minmax(236px, auto) minmax(126px, auto);
+  gap: 5px;
+}
+
+.eq-battle-page-v2 .eq-battle-boss-stage {
+  grid-template-columns: 1fr;
+  justify-items: center;
+  width: min(92vw, 430px);
+  margin: 0 auto;
+}
+
+.eq-battle-page-v2 .eq-battle-boss-center {
+  grid-column: 1;
+  justify-self: center;
+  width: 100%;
+}
+
+.eq-battle-page-v2 .eq-battle-boss-magic-circle {
+  left: 50%;
+  top: 50%;
+  width: min(92vw, 500px);
+  max-width: 500px;
+  transform: translate(-50%, -50%);
+}
+
+.eq-battle-page-v2 .eq-battle-boss-card-wrap {
+  position: relative;
+  width: min(56vw, 280px);
+  max-width: 280px;
+  aspect-ratio: 0.72 / 1;
+  height: auto;
+  min-height: 0;
+  margin: 0 auto;
+  padding: 0;
+  box-sizing: border-box;
+  overflow: visible;
+  border: 0;
+  border-radius: 18px;
+  background: transparent;
+  box-shadow: none;
+}
+
+.eq-battle-page-v2 .eq-battle-boss-art-safe {
+  position: absolute;
+  inset: 12px;
+  z-index: 1;
+  overflow: hidden;
+  border-radius: 14px;
+  background: #07101f;
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 226, 147, 0.32),
+    0 0 18px rgba(78, 220, 255, 0.2);
+}
+
+.eq-battle-page-v2 .eq-battle-boss-card .eq-battle-boss-art {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+}
+
+.eq-battle-page-v2 .eq-battle-boss-card .eq-battle-boss-card-frame {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  width: 100%;
+  height: 100%;
+  object-fit: fill;
+  pointer-events: none;
+}
+
+.eq-battle-page-v2 .eq-battle-boss-aura,
+.eq-battle-page-v2 .eq-boss-danger-label {
+  z-index: 3;
+}
+
+.eq-battle-page-v2 .eq-battle-quiz-stage {
+  width: min(88vw, 640px);
+  margin: 0 auto;
+  justify-self: center;
+  grid-template-rows: minmax(112px, auto) minmax(126px, auto);
+  gap: 8px;
+}
+
+.eq-battle-page-v2 .eq-battle-question-content {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  min-height: 112px;
+  padding: 14px 42px 16px;
+  box-sizing: border-box;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.eq-battle-page-v2 .eq-battle-dialogue-heading {
+  margin: 0 0 4px;
+  line-height: 1.05;
+}
+
+.eq-battle-page-v2 .eq-battle-dialogue-heading span {
+  font-size: clamp(11px, 2.4vw, 15px);
+  line-height: 1.05;
+}
+
+.eq-battle-page-v2 .eq-battle-dialogue-heading small {
+  font-size: clamp(10px, 2.2vw, 13px);
+  line-height: 1.05;
+}
+
+.eq-battle-page-v2 .eq-battle-question-text {
+  max-width: 100%;
+  margin: 0;
+  color: #fff6dc;
+  line-height: 1.14;
+  overflow: visible;
+  overflow-wrap: normal;
+  text-align: center;
+  text-shadow:
+    0 2px 0 rgba(0, 0, 0, 0.86),
+    0 0 10px rgba(255, 236, 177, 0.18);
+  word-break: keep-all;
+}
+
+.eq-battle-page-v2 .eq-battle-question-text.q-xl {
+  font-size: clamp(25px, 5.4vw, 34px);
+  line-height: 1.08;
+}
+
+.eq-battle-page-v2 .eq-battle-question-text.q-lg {
+  font-size: clamp(22px, 4.8vw, 30px);
+  line-height: 1.12;
+}
+
+.eq-battle-page-v2 .eq-battle-question-text.q-md {
+  font-size: clamp(19px, 4.2vw, 25px);
+  line-height: 1.16;
+}
+
+.eq-battle-page-v2 .eq-battle-question-text.q-sm {
+  font-size: clamp(16px, 3.6vw, 21px);
+  line-height: 1.2;
+}
+
+.eq-battle-page-v2 .eq-battle-question-text.q-xs {
+  font-size: clamp(14px, 3.2vw, 18px);
+  line-height: 1.22;
+}
+
+.eq-battle-page-v2 .eq-battle-answer-grid {
+  width: 100%;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-rows: repeat(2, minmax(58px, auto));
+  gap: 10px 14px;
+  padding: 0;
+}
+
+.eq-battle-page-v2 .eq-battle-answer-grid .eq-battle-answer-button {
+  display: grid;
+  grid-template-columns: 38px minmax(0, 1fr);
+  min-height: 58px;
+  padding: 8px 22px 8px 18px;
+  gap: 8px;
+  align-items: center;
+  box-sizing: border-box;
+  overflow: visible;
+}
+
+.eq-battle-page-v2 .eq-battle-answer-grid .eq-choice-badge {
+  width: 38px;
+  min-width: 38px;
+  height: 38px;
+  font-size: clamp(20px, 4.5vw, 28px);
+}
+
+.eq-battle-page-v2 .eq-battle-answer-grid .eq-choice-text {
+  min-width: 0;
+  max-width: 100%;
+  overflow: visible;
+  hyphens: none;
+  line-height: 1.05;
+  overflow-wrap: normal;
+  text-align: left;
+  text-overflow: clip;
+  white-space: nowrap;
+  word-break: keep-all;
+}
+
+.eq-battle-page-v2 .eq-battle-answer-button.ans-xl .eq-choice-text {
+  font-size: clamp(21px, 4.6vw, 27px);
+}
+
+.eq-battle-page-v2 .eq-battle-answer-button.ans-lg .eq-choice-text {
+  font-size: clamp(19px, 4.2vw, 24px);
+}
+
+.eq-battle-page-v2 .eq-battle-answer-button.ans-md .eq-choice-text {
+  font-size: clamp(16px, 3.7vw, 21px);
+}
+
+.eq-battle-page-v2 .eq-battle-answer-button.ans-sm .eq-choice-text {
+  font-size: clamp(14px, 3.2vw, 18px);
+}
+
+.eq-battle-page-v2 .eq-battle-answer-button.ans-xs .eq-choice-text {
+  font-size: clamp(12px, 2.8vw, 16px);
+}
+
+.eq-battle-page-v2 .eq-battle-guide-line {
+  width: 100%;
+  margin: 0;
+  font-size: clamp(11px, 3.2vw, 14px);
+  line-height: 1.1;
+  white-space: nowrap;
+}
+
+@media (max-width: 380px) {
+  .eq-battle-page-v2 .eq-battle-top-hud-content {
+    grid-template-columns: minmax(0, 1fr) 48px minmax(0, 1fr);
+    padding-inline: 14px;
+  }
+
+  .eq-battle-page-v2 .eq-battle-vs-badge {
+    width: 46px;
+    height: 46px;
+    font-size: 22px;
+  }
+
+  .eq-battle-page-v2 .eq-battle-question-content {
+    padding: 12px 34px 14px;
+  }
+
+  .eq-battle-page-v2 .eq-battle-answer-grid {
+    gap: 9px 10px;
+  }
+
+  .eq-battle-page-v2 .eq-battle-answer-grid .eq-battle-answer-button {
+    grid-template-columns: 34px minmax(0, 1fr);
+    padding: 7px 14px 7px 12px;
+    gap: 7px;
+  }
+
+  .eq-battle-page-v2 .eq-battle-answer-grid .eq-choice-badge {
+    width: 34px;
+    min-width: 34px;
+    height: 34px;
+    font-size: 22px;
+  }
+}
