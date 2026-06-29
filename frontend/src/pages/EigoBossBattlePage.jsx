@@ -776,6 +776,12 @@ export default function EigoBossBattlePage() {
         className={`eq-battle-vs-hud ${state.bossReaction === 'is-counter' || counterSequence ? 'is-countered' : ''} ${state.bossReaction === 'is-hit' || attackSequence?.phase === 'impact' ? 'is-boss-hit' : ''} ${attackSequence?.motion === 'wind_blessing' ? 'is-blessed' : ''}`}
         aria-label="Battle HP status"
       >
+        <img
+          className="eq-battle-status-frame-img"
+          src="/assets/eigo-quest/battle-ui/battle-status-frame.png"
+          alt=""
+          aria-hidden="true"
+        />
         <section className="eq-battle-hud-side is-player">
           <div className="eq-battle-hud-label-row">
             <strong>PLAYER</strong>
@@ -830,6 +836,12 @@ export default function EigoBossBattlePage() {
             style={bossHudStyle}
             aria-label="Boss card"
           >
+            <img
+              className="eq-battle-boss-magic-circle"
+              src="/assets/eigo-quest/battle-ui/boss-magic-circle.png"
+              alt=""
+              aria-hidden="true"
+            />
             <div className="eq-battle-combo-panel">
               <span>COMBO</span>
               <motion.strong
@@ -850,13 +862,26 @@ export default function EigoBossBattlePage() {
 
             <figure ref={bossCardRef} className="eq-battle-boss-card">
               <span className="eq-battle-boss-aura" aria-hidden="true" />
-              <img src={battle.boss.image} alt={battle.boss.name} />
+              <img className="eq-battle-boss-art" src={battle.boss.image} alt={battle.boss.name} />
+              <img
+                className="eq-battle-boss-card-frame"
+                src="/assets/eigo-quest/battle-ui/card-frame.png"
+                alt=""
+                aria-hidden="true"
+              />
               <figcaption>{battle.boss.name}</figcaption>
               {bossIsDanger ? <span className="eq-boss-danger-label">{battle.boss.dangerLabel || 'DANGER'}</span> : null}
             </figure>
           </section>
 
           <section className={`eq-battle-question-frame ${dialogueClass}`} aria-label="Battle question">
+            <img
+              className="eq-battle-dialogue-frame-img"
+              src="/assets/eigo-quest/battle-ui/dialogue-frame.png"
+              alt=""
+              aria-hidden="true"
+            />
+            <div className="eq-battle-question-content">
             {showDialogueTitle ? (
               <div className="eq-battle-dialogue-heading">
               <span>{battle.boss.name} の問い</span>
@@ -866,6 +891,7 @@ export default function EigoBossBattlePage() {
             <p className={`eq-battle-question-text ${questionTextClass}`}>
               {currentQuestionText}
             </p>
+            </div>
           </section>
 
           <div className="eq-battle-answer-grid">
