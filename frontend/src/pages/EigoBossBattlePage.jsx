@@ -15,7 +15,48 @@ import {
 import './EigoBossBattlePage.css';
 
 const COUNTER_DAMAGE = 15;
-const WIND_CUT_IMPACT_VIDEO = '/assets/eigo-quest/effects/wind/wind-cut-impact.webm';
+const SKILL_ASSET_MAP = {
+  wind_slash: {
+    src: '/assets/eigo-quest/effects/wind/wind-cut-impact.webm',
+    placement: 'boss',
+    className: 'eq-skill-asset--wind-cut',
+    size: 300,
+    offsetX: 0,
+    offsetY: 0,
+    rotate: -8,
+    duration: 0.68,
+  },
+  gale_thrust: {
+    src: '/assets/eigo-quest/effects/wind/wind-pierce-impact.webm',
+    placement: 'boss',
+    className: 'eq-skill-asset--wind-pierce',
+    size: 250,
+    offsetX: 14,
+    offsetY: -10,
+    rotate: 4,
+    duration: 0.48,
+  },
+  cyclone_combo: {
+    src: '/assets/eigo-quest/effects/wind/wind-combo-impact.webm',
+    placement: 'boss',
+    className: 'eq-skill-asset--wind-combo',
+    size: 300,
+    offsetX: 0,
+    offsetY: 0,
+    rotate: 0,
+    duration: 0.64,
+  },
+  wind_blessing: {
+    src: '/assets/eigo-quest/effects/wind/wind-blessing-aura.webm',
+    placement: 'hero',
+    className: 'eq-skill-asset--wind-blessing',
+    size: 286,
+    offsetX: 0,
+    offsetY: -22,
+    rotate: 0,
+    duration: 0.72,
+  },
+};
 const INITIAL_MESSAGE = '風の守護者たちと一緒に挑戦しよう！';
 const FAILED_MESSAGE = 'Boss の弱点をもう一度練習しよう';
 
@@ -91,10 +132,11 @@ function createWindBladePaths(sequence) {
 }
 
 function WindAttackOverlay({ sequence, reducedMotion }) {
-  const [windAssetFailed, setWindAssetFailed] = useState(false);
+  const [skillAssetFailed, setSkillAssetFailed] = useState(false);
   if (!sequence) return null;
 
   const skillMotion = sequence.motion || 'wind_slash';
+  const skillAsset = SKILL_ASSET_MAP[skillMotion];
   const cloneWidth = Math.min(Math.max(sequence.from.width, 54), 72);
   const cloneHeight = cloneWidth * 1.34;
   const startX = sequence.from.centerX - cloneWidth / 2;
@@ -106,18 +148,28 @@ function WindAttackOverlay({ sequence, reducedMotion }) {
   const showCyclone = showImpact && skillMotion === 'cyclone_combo';
   const showBlessing = skillMotion === 'wind_blessing';
   const showComboBonus = showCyclone && sequence.combo >= 2;
-  const useWindCutAsset = skillMotion === 'wind_slash' && !windAssetFailed;
-  const showWindCutAsset = showImpact && useWindCutAsset;
-  const showFallbackTravelEffect = !useWindCutAsset;
+  const useSkillAsset = Boolean(skillAsset && !skillAssetFailed);
+  const showSkillAsset = showImpact && useSkillAsset;
+  const showFallbackTravelEffect = !useSkillAsset;
+  const showAttackClone = !(useSkillAsset && skillAsset?.placement === 'hero');
   const deltaX = sequence.to.centerX - sequence.from.centerX;
   const deltaY = sequence.to.centerY - sequence.from.centerY;
   const beamDistance = Math.max(120, Math.hypot(deltaX, deltaY));
   const beamAngle = Math.atan2(deltaY, deltaX) * (180 / Math.PI);
   const beamX = sequence.from.centerX + deltaX / 2 - beamDistance / 2;
   const beamY = sequence.from.centerY + deltaY / 2;
+  const assetCenter = skillAsset?.placement === 'hero' ? sequence.from : sequence.to;
+  const assetInitialScale = skillMotion === 'gale_thrust' ? 0.64 : skillMotion === 'cyclone_combo' ? 0.7 : skillMotion === 'wind_blessing' ? 0.62 : 0.72;
+  const assetScaleFrames = skillMotion === 'gale_thrust'
+    ? [0.64, 1.12, 1, 0.9]
+    : skillMotion === 'cyclone_combo'
+      ? [0.7, 1.02, 1.1, 1.02, 0.94]
+      : skillMotion === 'wind_blessing'
+        ? [0.62, 1.04, 1.08, 1]
+        : [0.72, 1.06, 1.02, 0.96];
 
   return (
-    <div className={`eq-battle-animation-layer is-hero-skill is-${skillMotion} ${getSkillEffectClass(skillMotion)} ${useWindCutAsset ? 'has-wind-cut-asset' : ''}`} aria-hidden="true">
+    <div className={`eq-battle-animation-layer is-hero-skill is-${skillMotion} ${getSkillEffectClass(skillMotion)} ${useSkillAsset ? 'has-real-skill-asset has-wind-cut-asset' : ''}`} aria-hidden="true">
       {showFallbackTravelEffect ? (
         <>
           <motion.div
@@ -174,18 +226,20 @@ function WindAttackOverlay({ sequence, reducedMotion }) {
         </>
       ) : null}
 
-      <motion.div
-        className={`eq-attack-clone-card is-${skillMotion}`}
-        style={{ width: cloneWidth, height: cloneHeight }}
-        initial={{ x: startX, y: startY, opacity: 0.96, rotate: -7, scale: 0.92 }}
-        animate={showImpact || reducedMotion
-          ? { x: endX, y: endY, opacity: 0, rotate: 12, scale: 0.56 }
-          : { x: endX, y: endY, opacity: 1, rotate: 8, scale: 1.16 }}
-        exit={{ opacity: 0, scale: 0.52 }}
-        transition={{ duration: reducedMotion ? 0.01 : 0.5, ease: [0.2, 0.8, 0.18, 1] }}
-      >
-        <img src={sequence.heroImage} alt="" />
-      </motion.div>
+      {showAttackClone ? (
+        <motion.div
+          className={`eq-attack-clone-card is-${skillMotion}`}
+          style={{ width: cloneWidth, height: cloneHeight }}
+          initial={{ x: startX, y: startY, opacity: 0.96, rotate: -7, scale: 0.92 }}
+          animate={showImpact || reducedMotion
+            ? { x: endX, y: endY, opacity: 0, rotate: 12, scale: 0.56 }
+            : { x: endX, y: endY, opacity: 1, rotate: 8, scale: 1.16 }}
+          exit={{ opacity: 0, scale: 0.52 }}
+          transition={{ duration: reducedMotion ? 0.01 : 0.5, ease: [0.2, 0.8, 0.18, 1] }}
+        >
+          <img src={sequence.heroImage} alt="" />
+        </motion.div>
+      ) : null}
 
       <AnimatePresence>
         {showBlessing ? (
@@ -221,25 +275,34 @@ function WindAttackOverlay({ sequence, reducedMotion }) {
       </AnimatePresence>
 
       <AnimatePresence>
-        {showWindCutAsset ? (
+        {showSkillAsset ? (
           <motion.div
-            key={`${sequence.id}-wind-cut-video`}
-            className="eq-skill-asset-layer eq-skill-asset-layer--boss"
-            style={{ left: sequence.to.centerX - 150, top: sequence.to.centerY - 150 }}
-            initial={{ opacity: 0, scale: 0.72, rotate: -8 }}
-            animate={{ opacity: reducedMotion ? 0.9 : [0, 1, 1, 0], scale: reducedMotion ? 1 : [0.72, 1.06, 1.02, 0.96], rotate: -8 }}
+            key={`${sequence.id}-${skillMotion}-video`}
+            className={`eq-skill-asset-layer eq-skill-asset-layer--${skillAsset.placement} ${skillAsset.className}`}
+            style={{
+              left: assetCenter.centerX - skillAsset.size / 2 + skillAsset.offsetX,
+              top: assetCenter.centerY - skillAsset.size / 2 + skillAsset.offsetY,
+              width: skillAsset.size,
+              height: skillAsset.size,
+            }}
+            initial={{ opacity: 0, scale: assetInitialScale, rotate: skillAsset.rotate }}
+            animate={{
+              opacity: reducedMotion ? 0.9 : [0, 1, 1, 0],
+              scale: reducedMotion ? 1 : assetScaleFrames,
+              rotate: skillAsset.rotate,
+            }}
             exit={{ opacity: 0, scale: 0.92 }}
-            transition={{ duration: reducedMotion ? 0.01 : 0.68, ease: 'easeOut' }}
+            transition={{ duration: reducedMotion ? 0.01 : skillAsset.duration, ease: 'easeOut' }}
           >
             <video
               key={sequence.id}
               className="eq-skill-video"
-              src={WIND_CUT_IMPACT_VIDEO}
+              src={skillAsset.src}
               autoPlay
               muted
               playsInline
               preload="auto"
-              onError={() => setWindAssetFailed(true)}
+              onError={() => setSkillAssetFailed(true)}
             />
           </motion.div>
         ) : null}
@@ -766,23 +829,28 @@ export default function EigoBossBattlePage() {
           </section>
 
           <section className="eq-battle-question-frame" aria-label="Battle question">
+            <div className="eq-battle-dialogue-heading">
+              <span>{battle.boss.name} の問い</span>
+              <small>Answer me...</small>
+            </div>
             <p className="eq-battle-question-text">
               {currentQuestion?.prompt || '問題を読み込んでいます'}
             </p>
-            <div className="eq-battle-answer-grid">
-              {(currentQuestion?.choices || []).map((choice, index) => (
-                <EQChoiceButton
-                  key={`${currentQuestion.id}-${choice}`}
-                  badge={String.fromCharCode(65 + index)}
-                  className="eq-battle-answer-button"
-                  onClick={() => answerQuestion(choice)}
-                  disabled={Boolean(attackSequence || counterSequence || isResolving)}
-                >
-                  {choice}
-                </EQChoiceButton>
-              ))}
-            </div>
           </section>
+
+          <div className="eq-battle-answer-grid">
+            {(currentQuestion?.choices || []).map((choice, index) => (
+              <EQChoiceButton
+                key={`${currentQuestion.id}-${choice}`}
+                badge={String.fromCharCode(65 + index)}
+                className="eq-battle-answer-button"
+                onClick={() => answerQuestion(choice)}
+                disabled={Boolean(attackSequence || counterSequence || isResolving)}
+              >
+                {choice}
+              </EQChoiceButton>
+            ))}
+          </div>
 
           <p className={`eq-boss-battle-message is-${state.battleStatus} ${state.bossReaction}`} role="status">
             {state.message}
