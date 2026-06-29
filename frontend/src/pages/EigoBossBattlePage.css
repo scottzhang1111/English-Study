@@ -4564,6 +4564,7 @@
 .eq-battle-page-v2 .eq-battle-top-hud {
   position: relative;
   display: block;
+  order: 0;
   width: min(100%, 414px);
   justify-self: center;
   padding: 9px 14px 10px;
@@ -4609,6 +4610,7 @@
 
 .eq-battle-arena {
   display: grid;
+  order: 1;
   grid-template-rows: minmax(242px, 32dvh) minmax(242px, auto) minmax(132px, auto);
   gap: 4px;
   min-height: 0;
@@ -4616,6 +4618,7 @@
 
 .eq-battle-page-v2 .eq-battle-boss-stage {
   display: grid;
+  order: 0;
   grid-template-columns: minmax(62px, 18%) minmax(0, 1fr) minmax(38px, 12%);
   align-items: center;
   width: min(100%, 414px);
@@ -4652,6 +4655,7 @@
 
 .eq-battle-page-v2 .eq-battle-quiz-stage {
   display: grid;
+  order: 1;
   grid-template-rows: minmax(106px, auto) minmax(132px, auto);
   gap: 6px;
   width: min(92%, 396px);
@@ -4660,6 +4664,9 @@
 
 .eq-battle-page-v2 .eq-battle-question-frame {
   display: block;
+  order: 0;
+  grid-row: auto;
+  grid-area: auto;
   min-height: 104px;
   padding: 0;
   overflow: visible;
@@ -4688,6 +4695,9 @@
 
 .eq-battle-page-v2 .eq-battle-answer-grid {
   display: grid;
+  order: 1;
+  grid-row: auto;
+  grid-area: auto;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   grid-template-rows: repeat(2, minmax(58px, 1fr));
   gap: 8px 10px;
@@ -4739,6 +4749,7 @@
 
 .eq-battle-party-stage {
   display: grid;
+  order: 2;
   grid-template-rows: minmax(26px, auto) minmax(22px, auto) minmax(84px, auto);
   gap: 4px;
   width: min(92%, 396px);
@@ -4746,6 +4757,9 @@
 }
 
 .eq-battle-page-v2 .eq-battle-log {
+  order: 0;
+  grid-row: auto;
+  grid-area: auto;
   min-height: 28px;
   margin: 0;
   padding: 5px 12px;
@@ -4759,6 +4773,9 @@
 }
 
 .eq-battle-page-v2 .eq-battle-guide-line {
+  order: 1;
+  grid-row: auto;
+  grid-area: auto;
   width: 100%;
   margin: 0;
   font-size: clamp(12px, 3.6vw, 16px);
@@ -4766,6 +4783,9 @@
 }
 
 .eq-battle-page-v2 .eq-battle-hero-party {
+  order: 2;
+  grid-row: auto;
+  grid-area: auto;
   grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 7px;
 }
