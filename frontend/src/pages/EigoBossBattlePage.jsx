@@ -1,4 +1,4 @@
-import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
+﻿import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
@@ -522,9 +522,9 @@ export default function EigoBossBattlePage() {
   const getHeroSkillShortLabel = (hero) => {
     const motion = getHeroSkillMotion(hero);
     if (motion === 'gale_thrust') return '突';
-    if (motion === 'cyclone_combo') return '連';
+    if (motion === 'cyclone_combo') return '騾｣';
     if (motion === 'wind_blessing') return '癒';
-    return '斬';
+    return '譁ｬ';
   };
 
   useEffect(() => () => {
@@ -735,7 +735,7 @@ export default function EigoBossBattlePage() {
       ...state,
       playerHp: nextPlayerHp,
       combo: 0,
-      message: `Boss の反撃！Player HP -${COUNTER_DAMAGE}`,
+      message: `Boss 縺ｮ蜿肴茶・￣layer HP -${COUNTER_DAMAGE}`,
       bossReaction: 'is-counter',
     };
 
@@ -805,10 +805,10 @@ export default function EigoBossBattlePage() {
     >
       <div
         ref={battleRef}
-        className={`eq-boss-battle-stage ${attackSequence?.phase === 'impact' ? 'is-skill-impact' : ''} ${counterSequence ? 'is-counter-impact' : ''} ${attackSequence?.motion ? `is-skill-${attackSequence.motion}` : ''}`}
+        className={`eq-boss-battle-stage eq-battle-page-v2 ${attackSequence?.phase === 'impact' ? 'is-skill-impact' : ''} ${counterSequence ? 'is-counter-impact' : ''} ${attackSequence?.motion ? `is-skill-${attackSequence.motion}` : ''}`}
       >
       <header
-        className={`eq-battle-vs-hud ${state.bossReaction === 'is-counter' || counterSequence ? 'is-countered' : ''} ${state.bossReaction === 'is-hit' || attackSequence?.phase === 'impact' ? 'is-boss-hit' : ''} ${attackSequence?.motion === 'wind_blessing' ? 'is-blessed' : ''}`}
+        className={`eq-battle-top-hud eq-battle-vs-hud ${state.bossReaction === 'is-counter' || counterSequence ? 'is-countered' : ''} ${state.bossReaction === 'is-hit' || attackSequence?.phase === 'impact' ? 'is-boss-hit' : ''} ${attackSequence?.motion === 'wind_blessing' ? 'is-blessed' : ''}`}
         aria-label="Battle HP status"
       >
         <img
@@ -817,25 +817,27 @@ export default function EigoBossBattlePage() {
           alt=""
           aria-hidden="true"
         />
-        <section className="eq-battle-hud-side is-player">
-          <div className="eq-battle-hud-label-row">
+        <div className="eq-battle-top-hud-content">
+        <section className="eq-battle-hud-side eq-hud-side eq-hud-player is-player">
+          <div className="eq-battle-hud-label-row eq-hud-row">
             <strong>PLAYER</strong>
             <span>{state.playerHp} / {battle.playerHp}</span>
           </div>
-          <div className="eq-battle-hp-track">
-            <span className="eq-battle-hp-fill-player" style={{ width: `${playerHpPercent}%` }} />
+          <div className="eq-battle-hp-track eq-hp-track">
+            <span className="eq-battle-hp-fill-player eq-hp-fill-player" style={{ width: `${playerHpPercent}%` }} />
           </div>
         </section>
-        <div className="eq-battle-vs-badge" aria-hidden="true">VS</div>
-        <section className="eq-battle-hud-side is-boss">
-          <div className="eq-battle-hud-label-row">
+        <div className="eq-battle-vs-badge eq-vs-medallion" aria-hidden="true">VS</div>
+        <section className="eq-battle-hud-side eq-hud-side eq-hud-boss is-boss">
+          <div className="eq-battle-hud-label-row eq-hud-row">
             <strong>BOSS</strong>
             <span>{state.bossHp} / {battle.boss.hp}</span>
           </div>
-          <div className="eq-battle-hp-track">
-            <span className="eq-battle-hp-fill-boss" style={{ width: `${bossHpPercent}%` }} />
+          <div className="eq-battle-hp-track eq-hp-track">
+            <span className="eq-battle-hp-fill-boss eq-hp-fill-boss" style={{ width: `${bossHpPercent}%` }} />
           </div>
         </section>
+        </div>
       </header>
 
       {state.battleStatus === 'clear' ? (
@@ -865,9 +867,9 @@ export default function EigoBossBattlePage() {
           </EQFantasyButton>
         </EQFantasyCard>
       ) : (
-        <>
+        <main className="eq-battle-arena">
           <section
-            className={`eq-battle-boss-zone ${state.bossReaction} ${counterSequence ? 'is-countering' : ''} ${attackSequence?.phase === 'impact' ? 'is-impact' : ''} ${bossIsDanger ? 'is-danger' : ''}`}
+            className={`eq-battle-boss-stage eq-battle-boss-zone ${state.bossReaction} ${counterSequence ? 'is-countering' : ''} ${attackSequence?.phase === 'impact' ? 'is-impact' : ''} ${bossIsDanger ? 'is-danger' : ''}`}
             style={bossHudStyle}
             aria-label="Boss card"
           >
@@ -890,12 +892,13 @@ export default function EigoBossBattlePage() {
                 {state.combo}
               </motion.strong>
               <div className="eq-battle-element-badge">
-                <span aria-hidden="true">風</span>
+                <span aria-hidden="true">鬚ｨ</span>
                 <small>WIND</small>
               </div>
             </div>
 
-            <figure ref={bossCardRef} className="eq-battle-boss-card">
+            <div className="eq-battle-boss-center">
+            <figure ref={bossCardRef} className="eq-battle-boss-card eq-battle-boss-card-wrap">
               <span className="eq-battle-boss-aura" aria-hidden="true" />
               <img className="eq-battle-boss-art" src={battle.boss.image} alt={battle.boss.name} />
               <img
@@ -907,19 +910,22 @@ export default function EigoBossBattlePage() {
               <figcaption>{battle.boss.name}</figcaption>
               {bossIsDanger ? <span className="eq-boss-danger-label">{battle.boss.dangerLabel || 'DANGER'}</span> : null}
             </figure>
+            <div className="eq-battle-boss-nameplate">{battle.boss.name}</div>
+            </div>
           </section>
 
-          <section className={`eq-battle-question-frame ${dialogueClass}`} aria-label="Battle question">
+          <section className="eq-battle-quiz-stage">
+          <section className={`eq-battle-question-frame eq-battle-speech-panel ${dialogueClass}`} aria-label="Battle question">
             <img
               className="eq-battle-dialogue-frame-img"
               src="/assets/eigo-quest/battle-ui/dialogue-frame.png"
               alt=""
               aria-hidden="true"
             />
-            <div className="eq-battle-question-content">
+            <div className="eq-battle-question-content eq-battle-speech-content">
             {showDialogueTitle ? (
               <div className="eq-battle-dialogue-heading">
-              <span>{battle.boss.name} の問い</span>
+              <span>{battle.boss.name} 縺ｮ蝠上＞</span>
               {showDialogueSubtitle ? <small>Answer me...</small> : null}
               </div>
             ) : null}
@@ -942,17 +948,20 @@ export default function EigoBossBattlePage() {
               </EQChoiceButton>
             ))}
           </div>
+          </section>
 
-          <p className={`eq-boss-battle-message is-${state.battleStatus} ${state.bossReaction}`} role="status">
-            {state.message}
-          </p>
+          <section className="eq-battle-party-stage">
+            <p className={`eq-boss-battle-message eq-battle-log is-${state.battleStatus} ${state.bossReaction}`} role="status">
+              {state.message}
+            </p>
 
-          <div className={attackSequence?.motion === 'wind_blessing' ? 'eq-battle-hero-party-wrap is-blessed' : 'eq-battle-hero-party-wrap'}>
-            {renderHeroParty()}
-          </div>
+            <p className="eq-battle-guide-text eq-battle-guide-line">風の守護者たちと一緒に挑戦しよう！</p>
 
-          <p className="eq-battle-guide-text">風の守護者たちと一緒に挑戦しよう！</p>
-        </>
+            <div className={attackSequence?.motion === 'wind_blessing' ? 'eq-battle-hero-party-wrap is-blessed' : 'eq-battle-hero-party-wrap'}>
+              {renderHeroParty()}
+            </div>
+          </section>
+        </main>
       )}
       </div>
       <AnimatePresence>
