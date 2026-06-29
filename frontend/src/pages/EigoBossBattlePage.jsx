@@ -57,7 +57,7 @@ const SKILL_ASSET_MAP = {
     duration: 0.72,
   },
 };
-const INITIAL_MESSAGE = '風の守護者たちと一緒に挑戦しよう！';
+const INITIAL_MESSAGE = '答えを選んでスキル発動！';
 const FAILED_MESSAGE = 'Boss の弱点をもう一度練習しよう';
 
 function getHeroSkillName(hero) {
@@ -812,29 +812,29 @@ export default function EigoBossBattlePage() {
         aria-label="Battle HP status"
       >
         <img
-          className="eq-battle-status-frame-img"
+          className="eq-battle-top-hud-frame eq-battle-status-frame-img"
           src="/assets/eigo-quest/battle-ui/battle-status-frame.png"
           alt=""
           aria-hidden="true"
         />
         <div className="eq-battle-top-hud-content">
-        <section className="eq-battle-hud-side eq-hud-side eq-hud-player is-player">
+        <section className="eq-battle-hud-side eq-hud-side eq-hud-side-player eq-hud-player is-player">
           <div className="eq-battle-hud-label-row eq-hud-row">
-            <strong>PLAYER</strong>
-            <span>{state.playerHp} / {battle.playerHp}</span>
+            <span className="eq-hud-label eq-hud-label-player">PLAYER</span>
+            <span className="eq-hud-hp-text">{state.playerHp} / {battle.playerHp}</span>
           </div>
-          <div className="eq-battle-hp-track eq-hp-track">
-            <span className="eq-battle-hp-fill-player eq-hp-fill-player" style={{ width: `${playerHpPercent}%` }} />
+          <div className="eq-battle-hp-track eq-hp-track eq-hp-track-player">
+            <span className="eq-battle-hp-fill-player eq-hp-fill eq-hp-fill-player" style={{ width: `${playerHpPercent}%` }} />
           </div>
         </section>
-        <div className="eq-battle-vs-badge eq-vs-medallion" aria-hidden="true">VS</div>
-        <section className="eq-battle-hud-side eq-hud-side eq-hud-boss is-boss">
+        <div className="eq-battle-vs-badge eq-hud-vs eq-vs-medallion" aria-hidden="true">VS</div>
+        <section className="eq-battle-hud-side eq-hud-side eq-hud-side-boss eq-hud-boss is-boss">
           <div className="eq-battle-hud-label-row eq-hud-row">
-            <strong>BOSS</strong>
-            <span>{state.bossHp} / {battle.boss.hp}</span>
+            <span className="eq-hud-label eq-hud-label-boss">BOSS</span>
+            <span className="eq-hud-hp-text">{state.bossHp} / {battle.boss.hp}</span>
           </div>
-          <div className="eq-battle-hp-track eq-hp-track">
-            <span className="eq-battle-hp-fill-boss eq-hp-fill-boss" style={{ width: `${bossHpPercent}%` }} />
+          <div className="eq-battle-hp-track eq-hp-track eq-hp-track-boss">
+            <span className="eq-battle-hp-fill-boss eq-hp-fill eq-hp-fill-boss" style={{ width: `${bossHpPercent}%` }} />
           </div>
         </section>
         </div>
@@ -873,12 +873,6 @@ export default function EigoBossBattlePage() {
             style={bossHudStyle}
             aria-label="Boss card"
           >
-            <img
-              className="eq-battle-boss-magic-circle"
-              src="/assets/eigo-quest/battle-ui/boss-magic-circle.png"
-              alt=""
-              aria-hidden="true"
-            />
             <div className="eq-battle-combo-panel">
               <span>COMBO</span>
               <motion.strong
@@ -898,21 +892,21 @@ export default function EigoBossBattlePage() {
             </div>
 
             <div className="eq-battle-boss-center">
-            <figure ref={bossCardRef} className="eq-battle-boss-card eq-battle-boss-card-wrap">
-              <span className="eq-battle-boss-aura" aria-hidden="true" />
-              <div className="eq-battle-boss-art-safe">
-                <img className="eq-battle-boss-art" src={battle.boss.image} alt={battle.boss.name} />
-              </div>
               <img
-                className="eq-battle-boss-card-frame"
-                src="/assets/eigo-quest/battle-ui/card-frame.png"
+                className="eq-battle-boss-magic-circle"
+                src="/assets/eigo-quest/battle-ui/boss-magic-circle.png"
                 alt=""
                 aria-hidden="true"
               />
-              <figcaption>{battle.boss.name}</figcaption>
-              {bossIsDanger ? <span className="eq-boss-danger-label">{battle.boss.dangerLabel || 'DANGER'}</span> : null}
-            </figure>
-            <div className="eq-battle-boss-nameplate">{battle.boss.name}</div>
+              <figure ref={bossCardRef} className="eq-battle-boss-card eq-battle-boss-card-wrap">
+                <span className="eq-battle-boss-aura" aria-hidden="true" />
+                <div className="eq-battle-boss-art-safe">
+                  <img className="eq-battle-boss-art" src={battle.boss.image} alt={battle.boss.name} />
+                </div>
+                <figcaption>{battle.boss.name}</figcaption>
+                {bossIsDanger ? <span className="eq-boss-danger-label">{battle.boss.dangerLabel || 'DANGER'}</span> : null}
+              </figure>
+              <div className="eq-battle-boss-nameplate">{battle.boss.name}</div>
             </div>
           </section>
 
@@ -956,8 +950,6 @@ export default function EigoBossBattlePage() {
             <p className={`eq-boss-battle-message eq-battle-log is-${state.battleStatus} ${state.bossReaction}`} role="status">
               {state.message}
             </p>
-
-            <p className="eq-battle-guide-text eq-battle-guide-line">風の守護者たちと一緒に挑戦しよう！</p>
 
             <div className={attackSequence?.motion === 'wind_blessing' ? 'eq-battle-hero-party-wrap is-blessed' : 'eq-battle-hero-party-wrap'}>
               {renderHeroParty()}
