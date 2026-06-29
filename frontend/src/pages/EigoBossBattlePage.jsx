@@ -170,10 +170,14 @@ function WindAttackOverlay({ sequence, reducedMotion }) {
   const showCyclone = showImpact && skillMotion === 'cyclone_combo';
   const showBlessing = skillMotion === 'wind_blessing';
   const showComboBonus = showCyclone && sequence.combo >= 2;
-  const useSkillAsset = Boolean(skillAsset && !skillAssetFailed);
-  const showSkillAsset = showImpact && useSkillAsset;
-  const showFallbackTravelEffect = !useSkillAsset;
-  const showAttackClone = !(useSkillAsset && skillAsset?.placement === 'hero');
+  const hasRealSkillAsset = Boolean(skillAsset && !skillAssetFailed);
+  const showSkillAsset = showImpact && hasRealSkillAsset;
+  const showLegacyImpact = showImpact && !hasRealSkillAsset;
+  const showDamageNumber = showImpact && skillMotion !== 'wind_blessing';
+  const showLegacyCyclone = showCyclone && !hasRealSkillAsset;
+  const showLegacyBlessing = showBlessing && !hasRealSkillAsset;
+  const showFallbackTravelEffect = !hasRealSkillAsset;
+  const showAttackClone = !(hasRealSkillAsset && skillAsset?.placement === 'hero');
   const deltaX = sequence.to.centerX - sequence.from.centerX;
   const deltaY = sequence.to.centerY - sequence.from.centerY;
   const beamDistance = Math.max(120, Math.hypot(deltaX, deltaY));
@@ -191,7 +195,7 @@ function WindAttackOverlay({ sequence, reducedMotion }) {
         : [0.72, 1.06, 1.02, 0.96];
 
   return (
-    <div className={`eq-battle-animation-layer is-hero-skill is-${skillMotion} ${getSkillEffectClass(skillMotion)} ${useSkillAsset ? `has-real-skill-asset has-${skillMotion.replaceAll('_', '-')}-asset` : ''}`} aria-hidden="true">
+    <div className={`eq-battle-animation-layer is-hero-skill is-${skillMotion} ${getSkillEffectClass(skillMotion)} ${hasRealSkillAsset ? `has-real-skill-asset has-${skillMotion.replaceAll('_', '-')}-asset` : ''}`} aria-hidden="true">
       {showFallbackTravelEffect ? (
         <>
           <motion.div
@@ -264,7 +268,7 @@ function WindAttackOverlay({ sequence, reducedMotion }) {
       ) : null}
 
       <AnimatePresence>
-        {showBlessing ? (
+        {showLegacyBlessing ? (
           <motion.div
             key={`${sequence.id}-blessing`}
             className="eq-wind-blessing-aura"
@@ -278,7 +282,7 @@ function WindAttackOverlay({ sequence, reducedMotion }) {
       </AnimatePresence>
 
       <AnimatePresence>
-        {showBlessing ? (
+        {showLegacyBlessing ? (
           <motion.div
             key={`${sequence.id}-party-blessing`}
             className="eq-wind-party-blessing"
@@ -331,7 +335,7 @@ function WindAttackOverlay({ sequence, reducedMotion }) {
       </AnimatePresence>
 
       <AnimatePresence>
-        {showImpact ? (
+        {showLegacyImpact ? (
           <motion.div
             key={`${sequence.id}-impact`}
             className="eq-wind-impact"
@@ -344,13 +348,28 @@ function WindAttackOverlay({ sequence, reducedMotion }) {
             <span className="eq-wind-impact__burst" />
             <span className="eq-wind-impact__ring" />
             <span className="eq-wind-impact__slash" />
-            <span className="eq-damage-number damage-burst">-{sequence.damage}</span>
           </motion.div>
         ) : null}
       </AnimatePresence>
 
       <AnimatePresence>
-        {showCyclone ? (
+        {showDamageNumber ? (
+          <motion.span
+            key={`${sequence.id}-damage`}
+            className="eq-damage-number eq-damage-number--standalone damage-burst"
+            style={{ left: sequence.to.centerX, top: sequence.to.centerY }}
+            initial={{ opacity: 0, scale: 0.62, y: 10 }}
+            animate={{ opacity: reducedMotion ? 1 : [0, 1, 1, 0], scale: reducedMotion ? 1 : [0.62, 1.22, 1, 0.94], y: reducedMotion ? 0 : [10, -8, -18, -30] }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: reducedMotion ? 0.01 : 0.58, ease: 'easeOut' }}
+          >
+            -{sequence.damage}
+          </motion.span>
+        ) : null}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {showLegacyCyclone ? (
           <motion.div
             key={`${sequence.id}-cyclone`}
             className="eq-cyclone-combo-ring"
@@ -364,6 +383,22 @@ function WindAttackOverlay({ sequence, reducedMotion }) {
             <span className="eq-cyclone-combo-ring__hit is-2" />
             {showComboBonus ? <span className="eq-combo-bonus-burst">COMBO BONUS</span> : null}
           </motion.div>
+        ) : null}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {showComboBonus && hasRealSkillAsset ? (
+          <motion.span
+            key={`${sequence.id}-combo-bonus`}
+            className="eq-combo-bonus-burst eq-combo-bonus-burst--standalone"
+            style={{ left: sequence.to.centerX, top: sequence.to.centerY + 34 }}
+            initial={{ opacity: 0, scale: 0.72, y: 8 }}
+            animate={{ opacity: reducedMotion ? 0.9 : [0, 1, 0], scale: reducedMotion ? 1 : [0.72, 1.12, 1], y: reducedMotion ? 0 : [8, -2, -12] }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: reducedMotion ? 0.01 : 0.56, ease: 'easeOut' }}
+          >
+            COMBO BONUS
+          </motion.span>
         ) : null}
       </AnimatePresence>
     </div>

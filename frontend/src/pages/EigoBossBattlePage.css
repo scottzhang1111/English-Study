@@ -1399,6 +1399,14 @@
   animation: eq-damage-number-pop 0.68s ease-out forwards;
 }
 
+.eq-damage-number--standalone {
+  margin: -28px 0 0 -36px;
+}
+
+.eq-combo-bonus-burst--standalone {
+  margin: 0 0 0 -50px;
+}
+
 .eq-counter-damage-number {
   position: absolute;
   left: 55%;
