@@ -97,18 +97,20 @@ function getTextLength(value) {
 
 function getQuestionTextClass(questionText) {
   const length = getTextLength(questionText);
-  if (length <= 18) return 'question-text-lg';
-  if (length <= 32) return 'question-text-md';
-  if (length <= 50) return 'question-text-sm';
-  return 'question-text-xs';
+  if (length <= 18) return 'q-xl';
+  if (length <= 30) return 'q-lg';
+  if (length <= 42) return 'q-md';
+  if (length <= 58) return 'q-sm';
+  return 'q-xs';
 }
 
 function getAnswerTextClass(answerText) {
   const length = getTextLength(answerText);
-  if (length <= 8) return 'answer-text-lg';
-  if (length <= 12) return 'answer-text-md';
-  if (length <= 16) return 'answer-text-sm';
-  return 'answer-text-xs';
+  if (length <= 6) return 'ans-xl';
+  if (length <= 10) return 'ans-lg';
+  if (length <= 14) return 'ans-md';
+  if (length <= 18) return 'ans-sm';
+  return 'ans-xs';
 }
 
 function getViewportRect(element) {
@@ -464,8 +466,11 @@ export default function EigoBossBattlePage() {
   const reducedMotion = useReducedMotion();
   const currentQuestion = state.questionDeck[state.currentQuestionIndex];
   const currentQuestionText = currentQuestion?.prompt || '問題を読み込んでいます';
+  const currentQuestionLength = getTextLength(currentQuestionText);
   const questionTextClass = getQuestionTextClass(currentQuestionText);
-  const showDialogueSubtitle = getTextLength(currentQuestionText) <= 50;
+  const showDialogueTitle = currentQuestionLength <= 58;
+  const showDialogueSubtitle = currentQuestionLength <= 40;
+  const dialogueClass = currentQuestionLength > 58 ? 'is-question-extra-long' : currentQuestionLength > 40 ? 'is-question-long' : 'is-question-short';
   const activeHero = battle.heroes[state.activeHeroIndex] || battle.heroes[0];
   const rewardPath = FIRST_BOSS_REWARD.nextPath || '/card-reward?source=wind_trial_001';
   const bossHpRatio = battle.boss.hp > 0 ? state.bossHp / battle.boss.hp : 0;
@@ -851,11 +856,13 @@ export default function EigoBossBattlePage() {
             </figure>
           </section>
 
-          <section className="eq-battle-question-frame" aria-label="Battle question">
-            <div className="eq-battle-dialogue-heading">
+          <section className={`eq-battle-question-frame ${dialogueClass}`} aria-label="Battle question">
+            {showDialogueTitle ? (
+              <div className="eq-battle-dialogue-heading">
               <span>{battle.boss.name} の問い</span>
               {showDialogueSubtitle ? <small>Answer me...</small> : null}
-            </div>
+              </div>
+            ) : null}
             <p className={`eq-battle-question-text ${questionTextClass}`}>
               {currentQuestionText}
             </p>

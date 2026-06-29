@@ -19,7 +19,7 @@
   gap: 6px;
   min-height: 100dvh;
   padding: 8px 10px calc(104px + env(safe-area-inset-bottom));
-  overflow: hidden;
+  overflow: visible;
 }
 
 .eq-boss-battle-stage.is-skill-impact {
@@ -268,7 +268,7 @@
   font-weight: 900;
   line-height: 1.1;
   text-align: center;
-  text-overflow: ellipsis;
+  text-overflow: clip;
   white-space: nowrap;
 }
 
@@ -720,7 +720,7 @@
   font-weight: 850;
   line-height: 1.1;
   text-align: center;
-  text-overflow: ellipsis;
+  text-overflow: clip;
   white-space: nowrap;
 }
 
@@ -2449,8 +2449,8 @@
   font-weight: 900;
   line-height: 1.12;
   overflow-wrap: normal;
-  text-overflow: ellipsis;
-  white-space: normal;
+  text-overflow: clip;
+  white-space: nowrap;
   word-break: keep-all;
 }
 
@@ -2555,7 +2555,7 @@
   font-weight: 900;
   line-height: 1.1;
   text-align: center;
-  text-overflow: ellipsis;
+  text-overflow: clip;
   white-space: nowrap;
 }
 
@@ -2921,9 +2921,9 @@
 
 .eq-battle-dialogue-heading span {
   max-width: 100%;
-  overflow: hidden;
+  overflow: visible;
   font-size: clamp(12px, 3.5vw, 15px);
-  text-overflow: ellipsis;
+  text-overflow: clip;
   white-space: nowrap;
 }
 
@@ -3243,7 +3243,7 @@
   line-height: 1;
   overflow-wrap: normal;
   text-align: left;
-  text-overflow: ellipsis;
+  text-overflow: clip;
   white-space: nowrap;
   word-break: keep-all;
 }
@@ -3277,7 +3277,7 @@
   color: #fff1b8;
   font-size: clamp(12px, 3.5vw, 15px);
   line-height: 1;
-  text-overflow: ellipsis;
+  text-overflow: clip;
   white-space: nowrap;
 }
 
@@ -3333,5 +3333,231 @@
     min-width: 32px;
     height: 32px;
     font-size: 21px;
+  }
+}
+
+/* Step 27 final text-fit pass: show learning text fully, never ellipsize answers. */
+.eq-battle-question-frame,
+.eq-battle-question-frame * ,
+.eq-battle-answer-grid,
+.eq-battle-answer-grid * {
+  box-sizing: border-box;
+}
+
+.eq-battle-question-frame {
+  overflow: hidden;
+  grid-template-rows: auto minmax(0, 1fr);
+  padding: 7px 13px 8px;
+}
+
+.eq-battle-question-frame.is-question-long {
+  padding-top: 6px;
+}
+
+.eq-battle-question-frame.is-question-extra-long {
+  grid-template-rows: minmax(0, 1fr);
+  padding: 6px 12px;
+}
+
+.eq-battle-dialogue-heading {
+  min-height: 0;
+  gap: 0;
+  line-height: 1;
+}
+
+.eq-battle-dialogue-heading span {
+  display: block;
+  max-width: 100%;
+  overflow: hidden;
+  font-size: clamp(10px, 2.8vw, 13px);
+  line-height: 1.05;
+  text-overflow: clip;
+  white-space: nowrap;
+}
+
+.eq-battle-dialogue-heading small {
+  display: block;
+  font-size: clamp(9px, 2.4vw, 11px);
+  line-height: 1;
+  opacity: 0.86;
+}
+
+.eq-battle-question-frame.is-question-long .eq-battle-dialogue-heading span {
+  font-size: clamp(9px, 2.5vw, 12px);
+}
+
+.eq-battle-question-text {
+  width: 100%;
+  max-width: 100%;
+  min-height: 0;
+  margin: 0;
+  overflow: visible;
+  hyphens: none;
+  overflow-wrap: normal;
+  text-align: center;
+  text-shadow: none;
+  word-break: normal;
+}
+
+.eq-battle-question-text.q-xl {
+  font-size: clamp(28px, 6.4vw, 42px);
+  line-height: 1.08;
+}
+
+.eq-battle-question-text.q-lg {
+  font-size: clamp(24px, 5.6vw, 34px);
+  line-height: 1.12;
+}
+
+.eq-battle-question-text.q-md {
+  font-size: clamp(20px, 4.9vw, 28px);
+  line-height: 1.16;
+}
+
+.eq-battle-question-text.q-sm {
+  font-size: clamp(17px, 4.2vw, 23px);
+  line-height: 1.2;
+}
+
+.eq-battle-question-text.q-xs {
+  font-size: clamp(15px, 3.7vw, 19px);
+  line-height: 1.22;
+}
+
+.eq-battle-answer-grid {
+  gap: 8px 9px;
+  min-width: 0;
+  overflow: visible;
+}
+
+.eq-battle-answer-grid .eq-battle-answer-button {
+  display: flex;
+  min-width: 0;
+  min-height: 0;
+  height: 100%;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 7px;
+  overflow: hidden;
+  padding: 7px 9px;
+}
+
+.eq-battle-answer-grid .eq-choice-badge {
+  flex: 0 0 34px;
+  width: 34px;
+  min-width: 34px;
+  height: 34px;
+  font-size: 22px;
+}
+
+.eq-battle-answer-grid .eq-choice-text {
+  display: block;
+  flex: 1 1 auto;
+  min-width: 0;
+  max-width: 100%;
+  overflow: visible;
+  hyphens: none;
+  line-height: 1.04;
+  overflow-wrap: normal;
+  text-align: left;
+  text-overflow: clip;
+  white-space: nowrap;
+  word-break: keep-all;
+}
+
+.eq-battle-answer-grid .eq-battle-answer-button.ans-xl .eq-choice-text {
+  font-size: clamp(21px, 4.8vw, 28px);
+}
+
+.eq-battle-answer-grid .eq-battle-answer-button.ans-lg .eq-choice-text {
+  font-size: clamp(18px, 4.2vw, 22px);
+}
+
+.eq-battle-answer-grid .eq-battle-answer-button.ans-md .eq-choice-text {
+  font-size: clamp(16px, 3.7vw, 20px);
+}
+
+.eq-battle-answer-grid .eq-battle-answer-button.ans-sm .eq-choice-text {
+  font-size: clamp(14px, 3.3vw, 18px);
+}
+
+.eq-battle-answer-grid .eq-battle-answer-button.ans-xs .eq-choice-text {
+  font-size: clamp(12px, 2.9vw, 16px);
+}
+
+.eq-battle-guide-text {
+  display: flex;
+  width: min(90%, 388px);
+  min-height: 0;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  font-size: clamp(11px, 3.1vw, 14px);
+  line-height: 1;
+  text-align: center;
+  text-overflow: clip;
+  white-space: nowrap;
+}
+
+@media (max-width: 380px) {
+  .eq-battle-question-frame {
+    padding: 6px 10px 7px;
+  }
+
+  .eq-battle-question-text.q-xl {
+    font-size: clamp(25px, 6vw, 34px);
+  }
+
+  .eq-battle-question-text.q-lg {
+    font-size: clamp(22px, 5.3vw, 29px);
+  }
+
+  .eq-battle-question-text.q-md {
+    font-size: clamp(18px, 4.6vw, 24px);
+  }
+
+  .eq-battle-question-text.q-sm {
+    font-size: clamp(15px, 3.9vw, 20px);
+  }
+
+  .eq-battle-question-text.q-xs {
+    font-size: clamp(13px, 3.4vw, 17px);
+  }
+
+  .eq-battle-answer-grid {
+    gap: 7px;
+  }
+
+  .eq-battle-answer-grid .eq-battle-answer-button {
+    gap: 6px;
+    padding: 6px 7px;
+  }
+
+  .eq-battle-answer-grid .eq-choice-badge {
+    flex-basis: 30px;
+    width: 30px;
+    min-width: 30px;
+    height: 30px;
+    font-size: 20px;
+  }
+
+  .eq-battle-answer-grid .eq-battle-answer-button.ans-xl .eq-choice-text {
+    font-size: clamp(19px, 4.5vw, 24px);
+  }
+
+  .eq-battle-answer-grid .eq-battle-answer-button.ans-lg .eq-choice-text {
+    font-size: clamp(16px, 3.9vw, 20px);
+  }
+
+  .eq-battle-answer-grid .eq-battle-answer-button.ans-md .eq-choice-text {
+    font-size: clamp(14px, 3.5vw, 18px);
+  }
+
+  .eq-battle-answer-grid .eq-battle-answer-button.ans-sm .eq-choice-text {
+    font-size: clamp(12px, 3.1vw, 16px);
+  }
+
+  .eq-battle-answer-grid .eq-battle-answer-button.ans-xs .eq-choice-text {
+    font-size: clamp(11px, 2.7vw, 14px);
   }
 }
