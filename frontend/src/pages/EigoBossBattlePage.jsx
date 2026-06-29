@@ -15,6 +15,7 @@ import {
 import './EigoBossBattlePage.css';
 
 const COUNTER_DAMAGE = 15;
+const WIND_CUT_IMPACT_VIDEO = '/assets/eigo-quest/effects/wind/wind-cut-impact.webm';
 const INITIAL_MESSAGE = '風の守護者たちと一緒に挑戦しよう！';
 const FAILED_MESSAGE = 'Boss の弱点をもう一度練習しよう';
 
@@ -46,38 +47,6 @@ function createInitialBattleState() {
     message: INITIAL_MESSAGE,
     battleStatus: 'playing',
     bossReaction: '',
-  };
-}
-
-function HpBar({ label, value, max, tone = 'cyan', className = '' }) {
-  const safeValue = Math.max(0, value);
-  const percent = max > 0 ? Math.max(0, Math.min(100, Math.round((safeValue / max) * 100))) : 0;
-
-  return (
-    <section className={`eq-boss-hp is-${tone} ${className}`} aria-label={label}>
-      <div className="eq-boss-hp__row">
-        <strong>{label}</strong>
-        <span>{safeValue} / {max}</span>
-      </div>
-      <div className="eq-boss-hp__track">
-        <span style={{ width: `${percent}%` }} />
-      </div>
-    </section>
-  );
-}
-
-function getRelativeRect(element, container) {
-  if (!element || !container) return null;
-
-  const rect = element.getBoundingClientRect();
-  const containerRect = container.getBoundingClientRect();
-  return {
-    x: rect.left - containerRect.left,
-    y: rect.top - containerRect.top,
-    width: rect.width,
-    height: rect.height,
-    centerX: rect.left - containerRect.left + rect.width / 2,
-    centerY: rect.top - containerRect.top + rect.height / 2,
   };
 }
 
@@ -122,6 +91,7 @@ function createWindBladePaths(sequence) {
 }
 
 function WindAttackOverlay({ sequence, reducedMotion }) {
+  const [windAssetFailed, setWindAssetFailed] = useState(false);
   if (!sequence) return null;
 
   const skillMotion = sequence.motion || 'wind_slash';
@@ -136,6 +106,9 @@ function WindAttackOverlay({ sequence, reducedMotion }) {
   const showCyclone = showImpact && skillMotion === 'cyclone_combo';
   const showBlessing = skillMotion === 'wind_blessing';
   const showComboBonus = showCyclone && sequence.combo >= 2;
+  const useWindCutAsset = skillMotion === 'wind_slash' && !windAssetFailed;
+  const showWindCutAsset = showImpact && useWindCutAsset;
+  const showFallbackTravelEffect = !useWindCutAsset;
   const deltaX = sequence.to.centerX - sequence.from.centerX;
   const deltaY = sequence.to.centerY - sequence.from.centerY;
   const beamDistance = Math.max(120, Math.hypot(deltaX, deltaY));
@@ -144,58 +117,62 @@ function WindAttackOverlay({ sequence, reducedMotion }) {
   const beamY = sequence.from.centerY + deltaY / 2;
 
   return (
-    <div className={`eq-battle-animation-layer is-hero-skill is-${skillMotion} ${getSkillEffectClass(skillMotion)}`} aria-hidden="true">
-      <motion.div
-        className={`eq-cinematic-skill-beam is-${skillMotion}`}
-        style={{
-          left: beamX,
-          top: beamY,
-          width: beamDistance,
-          rotate: beamAngle,
-        }}
-        initial={{ opacity: 0, scaleX: 0.08 }}
-        animate={{
-          opacity: reducedMotion ? 0.42 : [0, 1, 0],
-          scaleX: reducedMotion ? 1 : [0.08, 1.08, 1.16],
-        }}
-        transition={{
-          duration: reducedMotion ? 0.01 : skillMotion === 'gale_thrust' ? 0.34 : 0.48,
-          ease: 'easeOut',
-        }}
-      />
-      <svg
-        className="eq-wind-slash-layer"
-        viewBox={`0 0 ${sequence.containerWidth} ${sequence.containerHeight}`}
-        preserveAspectRatio="none"
-      >
-        <defs>
-          <linearGradient id={`eqWindBlade-${sequence.id}`} x1="0%" y1="100%" x2="100%" y2="0%">
-            <stop offset="0%" stopColor="rgba(53, 217, 255, 0)" />
-            <stop offset="35%" stopColor="#eaffff" />
-            <stop offset="70%" stopColor="#35d9ff" />
-            <stop offset="100%" stopColor="#ffd35a" />
-          </linearGradient>
-        </defs>
-        {bladePaths.map((blade, index) => (
-          <motion.path
-            key={`${sequence.id}-blade-${index}`}
-            d={blade.d}
-            pathLength="1"
-            className={`eq-wind-slash-path is-${index + 1}`}
-            stroke={`url(#eqWindBlade-${sequence.id})`}
-            initial={{ pathLength: 0, opacity: 0 }}
+    <div className={`eq-battle-animation-layer is-hero-skill is-${skillMotion} ${getSkillEffectClass(skillMotion)} ${useWindCutAsset ? 'has-wind-cut-asset' : ''}`} aria-hidden="true">
+      {showFallbackTravelEffect ? (
+        <>
+          <motion.div
+            className={`eq-cinematic-skill-beam is-${skillMotion}`}
+            style={{
+              left: beamX,
+              top: beamY,
+              width: beamDistance,
+              rotate: beamAngle,
+            }}
+            initial={{ opacity: 0, scaleX: 0.08 }}
             animate={{
-              pathLength: reducedMotion ? 1 : [0, 1, 1],
-              opacity: reducedMotion ? 0 : [0, 1, 0],
+              opacity: reducedMotion ? 0.42 : [0, 1, 0],
+              scaleX: reducedMotion ? 1 : [0.08, 1.08, 1.16],
             }}
             transition={{
-              duration: reducedMotion ? 0.01 : 0.42,
-              delay: reducedMotion ? 0 : blade.delay,
+              duration: reducedMotion ? 0.01 : skillMotion === 'gale_thrust' ? 0.34 : 0.48,
               ease: 'easeOut',
             }}
           />
-        ))}
-      </svg>
+          <svg
+            className="eq-wind-slash-layer"
+            viewBox={`0 0 ${sequence.containerWidth} ${sequence.containerHeight}`}
+            preserveAspectRatio="none"
+          >
+            <defs>
+              <linearGradient id={`eqWindBlade-${sequence.id}`} x1="0%" y1="100%" x2="100%" y2="0%">
+                <stop offset="0%" stopColor="rgba(53, 217, 255, 0)" />
+                <stop offset="35%" stopColor="#eaffff" />
+                <stop offset="70%" stopColor="#35d9ff" />
+                <stop offset="100%" stopColor="#ffd35a" />
+              </linearGradient>
+            </defs>
+            {bladePaths.map((blade, index) => (
+              <motion.path
+                key={`${sequence.id}-blade-${index}`}
+                d={blade.d}
+                pathLength="1"
+                className={`eq-wind-slash-path is-${index + 1}`}
+                stroke={`url(#eqWindBlade-${sequence.id})`}
+                initial={{ pathLength: 0, opacity: 0 }}
+                animate={{
+                  pathLength: reducedMotion ? 1 : [0, 1, 1],
+                  opacity: reducedMotion ? 0 : [0, 1, 0],
+                }}
+                transition={{
+                  duration: reducedMotion ? 0.01 : 0.42,
+                  delay: reducedMotion ? 0 : blade.delay,
+                  ease: 'easeOut',
+                }}
+              />
+            ))}
+          </svg>
+        </>
+      ) : null}
 
       <motion.div
         className={`eq-attack-clone-card is-${skillMotion}`}
@@ -239,6 +216,31 @@ function WindAttackOverlay({ sequence, reducedMotion }) {
             transition={{ duration: reducedMotion ? 0.01 : 0.58, ease: 'easeOut' }}
           >
             <span>GUARD</span>
+          </motion.div>
+        ) : null}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {showWindCutAsset ? (
+          <motion.div
+            key={`${sequence.id}-wind-cut-video`}
+            className="eq-skill-asset-layer eq-skill-asset-layer--boss"
+            style={{ left: sequence.to.centerX - 150, top: sequence.to.centerY - 150 }}
+            initial={{ opacity: 0, scale: 0.72, rotate: -8 }}
+            animate={{ opacity: reducedMotion ? 0.9 : [0, 1, 1, 0], scale: reducedMotion ? 1 : [0.72, 1.06, 1.02, 0.96], rotate: -8 }}
+            exit={{ opacity: 0, scale: 0.92 }}
+            transition={{ duration: reducedMotion ? 0.01 : 0.68, ease: 'easeOut' }}
+          >
+            <video
+              key={sequence.id}
+              className="eq-skill-video"
+              src={WIND_CUT_IMPACT_VIDEO}
+              autoPlay
+              muted
+              playsInline
+              preload="auto"
+              onError={() => setWindAssetFailed(true)}
+            />
           </motion.div>
         ) : null}
       </AnimatePresence>
@@ -382,13 +384,21 @@ export default function EigoBossBattlePage() {
   const rewardPath = FIRST_BOSS_REWARD.nextPath || '/card-reward?source=wind_trial_001';
   const bossHpRatio = battle.boss.hp > 0 ? state.bossHp / battle.boss.hp : 0;
   const bossIsDanger = state.battleStatus === 'playing' && state.bossHp > 0 && bossHpRatio <= 0.3;
-  const bossBannerImage = battle.boss.bannerImage || battle.boss.image;
-  const bossBannerObjectPosition = battle.boss.bannerObjectPosition || 'center center';
   const bossAura = battle.boss.aura || {};
+  const playerHpPercent = battle.playerHp > 0 ? Math.max(0, Math.min(100, (state.playerHp / battle.playerHp) * 100)) : 0;
+  const bossHpPercent = battle.boss.hp > 0 ? Math.max(0, Math.min(100, (state.bossHp / battle.boss.hp) * 100)) : 0;
   const bossHudStyle = {
     '--eq-boss-aura-primary': bossAura.primary || 'rgba(255, 25, 91, 0.34)',
     '--eq-boss-aura-secondary': bossAura.secondary || 'rgba(88, 14, 64, 0.48)',
     '--eq-boss-aura-shadow': bossAura.shadow || 'rgba(142, 9, 54, 0.24)',
+  };
+
+  const getHeroSkillShortLabel = (hero) => {
+    const motion = getHeroSkillMotion(hero);
+    if (motion === 'gale_thrust') return '突';
+    if (motion === 'cyclone_combo') return '連';
+    if (motion === 'wind_blessing') return '癒';
+    return '斬';
   };
 
   useEffect(() => () => {
@@ -629,7 +639,7 @@ export default function EigoBossBattlePage() {
   const renderHeroParty = () => (
     <section
       ref={heroPartyRef}
-      className={`eq-boss-party ${counterSequence ? 'is-hit' : ''}`}
+      className={`eq-battle-hero-party ${counterSequence ? 'is-hit' : ''}`}
       aria-label="Hero party"
     >
       {battle.heroes.map((hero, index) => {
@@ -642,14 +652,17 @@ export default function EigoBossBattlePage() {
             ref={(element) => {
               heroCardRefs.current[index] = element;
             }}
-            className={`eq-boss-hero ${isActive ? 'is-active' : ''} ${isCharging ? 'is-charging' : ''}`}
+            className={`eq-battle-hero-card ${isActive ? 'is-active' : ''} ${isCharging ? 'is-charging' : ''}`}
           >
             {isActive || isCharging ? (
-              <span className="eq-boss-hero__active">攻撃中！</span>
+              <span className="eq-battle-hero-badge">攻撃中！</span>
             ) : null}
+            <span className="eq-battle-hero-element">風</span>
             <img src={hero.image} alt={hero.name} />
             <strong>{hero.name}</strong>
-            <span className="eq-boss-hero__attack">剣 {hero.attack}</span>
+            <span className="eq-battle-hero-skill-label">
+              {getHeroSkillShortLabel(hero)} {hero.attack}
+            </span>
           </article>
         );
       })}
@@ -669,55 +682,29 @@ export default function EigoBossBattlePage() {
         className={`eq-boss-battle-stage ${attackSequence?.phase === 'impact' ? 'is-skill-impact' : ''} ${counterSequence ? 'is-counter-impact' : ''} ${attackSequence?.motion ? `is-skill-${attackSequence.motion}` : ''}`}
       >
       <header
-        className={`eq-boss-hud ${state.bossReaction} ${counterSequence ? 'is-countering' : ''} ${attackSequence?.phase === 'impact' ? 'is-impact' : ''} ${bossIsDanger ? 'is-danger' : ''}`}
-        style={bossHudStyle}
-        aria-label="Boss battle status"
+        className={`eq-battle-vs-hud ${state.bossReaction === 'is-counter' || counterSequence ? 'is-countered' : ''} ${state.bossReaction === 'is-hit' || attackSequence?.phase === 'impact' ? 'is-boss-hit' : ''} ${attackSequence?.motion === 'wind_blessing' ? 'is-blessed' : ''}`}
+        aria-label="Battle HP status"
       >
-        <img
-          className="eq-boss-hud__banner"
-          src={bossBannerImage}
-          alt=""
-          style={{ objectPosition: bossBannerObjectPosition }}
-        />
-        <div className="eq-boss-hud__world">
-          <span aria-hidden="true">風</span>
-          <strong>WIND</strong>
-          <small>REALM</small>
-        </div>
-
-        <div className="eq-boss-hud__main">
-          <div className="eq-boss-hud__title-row">
-            <h1>STAGE {battle.stage} BOSS: {battle.title}</h1>
-          <div className="eq-boss-hud__combo">
-              <span>COMBO</span>
-              <motion.strong
-                key={`combo-${state.combo}-${actionEffect?.id || 'idle'}`}
-                initial={actionEffect?.type === 'hero_attack' && !reducedMotion
-                  ? { scale: 1.48, color: '#fff1b8', textShadow: '0 0 18px rgba(255, 211, 90, 0.9)' }
-                  : false}
-                animate={{ scale: 1, color: '#ffd35a', textShadow: '0 0 12px rgba(255, 211, 90, 0.34)' }}
-                transition={{ duration: reducedMotion ? 0.01 : 0.32, ease: 'easeOut' }}
-              >
-                {state.combo}
-              </motion.strong>
-            </div>
+        <section className="eq-battle-hud-side is-player">
+          <div className="eq-battle-hud-label-row">
+            <strong>PLAYER</strong>
+            <span>{state.playerHp} / {battle.playerHp}</span>
           </div>
-          <HpBar label="Boss HP" value={state.bossHp} max={battle.boss.hp} tone="rose" className={bossIsDanger ? 'is-danger' : ''} />
-        </div>
-
-        <figure ref={bossCardRef} className="eq-boss-hud__thumb">
-          <img src={battle.boss.image} alt={battle.boss.name} />
-          <figcaption>{battle.boss.name}</figcaption>
-          {bossIsDanger ? <span className="eq-boss-danger-label">{battle.boss.dangerLabel || 'DANGER'}</span> : null}
-        </figure>
+          <div className="eq-battle-hp-track">
+            <span className="eq-battle-hp-fill-player" style={{ width: `${playerHpPercent}%` }} />
+          </div>
+        </section>
+        <div className="eq-battle-vs-badge" aria-hidden="true">VS</div>
+        <section className="eq-battle-hud-side is-boss">
+          <div className="eq-battle-hud-label-row">
+            <strong>BOSS</strong>
+            <span>{state.bossHp} / {battle.boss.hp}</span>
+          </div>
+          <div className="eq-battle-hp-track">
+            <span className="eq-battle-hp-fill-boss" style={{ width: `${bossHpPercent}%` }} />
+          </div>
+        </section>
       </header>
-
-      <HpBar
-        label="Player HP"
-        value={state.playerHp}
-        max={battle.playerHp}
-        className={`${state.bossReaction === 'is-counter' || counterSequence ? 'is-countered' : ''} ${attackSequence?.motion === 'wind_blessing' ? 'is-blessed' : ''}`}
-      />
 
       {state.battleStatus === 'clear' ? (
         <EQFantasyCard hideHeader className="eq-boss-result-card is-clear">
@@ -746,38 +733,72 @@ export default function EigoBossBattlePage() {
           </EQFantasyButton>
         </EQFantasyCard>
       ) : (
-        <EQFantasyCard
-          className="eq-boss-question-card"
-          hideHeader
-        >
-          <div className="eq-boss-question-progress" aria-label="Question progress">
-            {state.currentQuestionIndex + 1} / {state.questionDeck.length}
-          </div>
-          <p className="eq-boss-question-prompt">
-            {currentQuestion?.prompt || '問題を読み込んでいます'}
-          </p>
-          <div className="eq-boss-choice-grid">
-            {(currentQuestion?.choices || []).map((choice, index) => (
-              <EQChoiceButton
-                key={`${currentQuestion.id}-${choice}`}
-                badge={String.fromCharCode(65 + index)}
-                onClick={() => answerQuestion(choice)}
-                disabled={Boolean(attackSequence || counterSequence || isResolving)}
+        <>
+          <section
+            className={`eq-battle-boss-zone ${state.bossReaction} ${counterSequence ? 'is-countering' : ''} ${attackSequence?.phase === 'impact' ? 'is-impact' : ''} ${bossIsDanger ? 'is-danger' : ''}`}
+            style={bossHudStyle}
+            aria-label="Boss card"
+          >
+            <div className="eq-battle-combo-panel">
+              <span>COMBO</span>
+              <motion.strong
+                key={`combo-${state.combo}-${actionEffect?.id || 'idle'}`}
+                initial={actionEffect?.type === 'hero_attack' && !reducedMotion
+                  ? { scale: 1.48, color: '#fff1b8', textShadow: '0 0 18px rgba(255, 211, 90, 0.9)' }
+                  : false}
+                animate={{ scale: 1, color: '#ffd35a', textShadow: '0 0 12px rgba(255, 211, 90, 0.34)' }}
+                transition={{ duration: reducedMotion ? 0.01 : 0.32, ease: 'easeOut' }}
               >
-                {choice}
-              </EQChoiceButton>
-            ))}
+                {state.combo}
+              </motion.strong>
+              <div className="eq-battle-element-badge">
+                <span aria-hidden="true">風</span>
+                <small>WIND</small>
+              </div>
+            </div>
+
+            <figure ref={bossCardRef} className="eq-battle-boss-card">
+              <span className="eq-battle-boss-aura" aria-hidden="true" />
+              <img src={battle.boss.image} alt={battle.boss.name} />
+              <figcaption>{battle.boss.name}</figcaption>
+              {bossIsDanger ? <span className="eq-boss-danger-label">{battle.boss.dangerLabel || 'DANGER'}</span> : null}
+            </figure>
+          </section>
+
+          <section className="eq-battle-question-frame" aria-label="Battle question">
+            <p className="eq-battle-question-text">
+              {currentQuestion?.prompt || '問題を読み込んでいます'}
+            </p>
+            <div className="eq-battle-answer-grid">
+              {(currentQuestion?.choices || []).map((choice, index) => (
+                <EQChoiceButton
+                  key={`${currentQuestion.id}-${choice}`}
+                  badge={String.fromCharCode(65 + index)}
+                  className="eq-battle-answer-button"
+                  onClick={() => answerQuestion(choice)}
+                  disabled={Boolean(attackSequence || counterSequence || isResolving)}
+                >
+                  {choice}
+                </EQChoiceButton>
+              ))}
+            </div>
+          </section>
+
+          <p className={`eq-boss-battle-message is-${state.battleStatus} ${state.bossReaction}`} role="status">
+            {state.message}
+          </p>
+
+          <div className={attackSequence?.motion === 'wind_blessing' ? 'eq-battle-hero-party-wrap is-blessed' : 'eq-battle-hero-party-wrap'}>
+            {renderHeroParty()}
           </div>
-        </EQFantasyCard>
+
+          <p className="eq-battle-guide-text">
+            <span aria-hidden="true">◆</span>
+            風の守護者たちと一緒に挑戦しよう！
+            <span aria-hidden="true">◆</span>
+          </p>
+        </>
       )}
-
-      <p className={`eq-boss-battle-message is-${state.battleStatus} ${state.bossReaction}`} role="status">
-        {state.message}
-      </p>
-
-      <div className={attackSequence?.motion === 'wind_blessing' ? 'eq-boss-party-wrap is-blessed' : 'eq-boss-party-wrap'}>
-        {renderHeroParty()}
-      </div>
       </div>
       <AnimatePresence>
         {attackSequence ? (
