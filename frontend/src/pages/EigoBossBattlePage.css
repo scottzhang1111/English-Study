@@ -793,13 +793,13 @@
 .eq-battle-animation-layer {
   position: fixed;
   inset: 0;
-  z-index: 2147483647;
+  z-index: 1200;
   pointer-events: none;
   overflow: visible;
 }
 
 .eq-battle-animation-layer.is-counter {
-  z-index: 2147483647;
+  z-index: 1200;
 }
 
 .eq-skill-asset-layer {

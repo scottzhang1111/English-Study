@@ -191,7 +191,7 @@ function WindAttackOverlay({ sequence, reducedMotion }) {
         : [0.72, 1.06, 1.02, 0.96];
 
   return (
-    <div className={`eq-battle-animation-layer is-hero-skill is-${skillMotion} ${getSkillEffectClass(skillMotion)} ${useSkillAsset ? 'has-real-skill-asset has-wind-cut-asset' : ''}`} aria-hidden="true">
+    <div className={`eq-battle-animation-layer is-hero-skill is-${skillMotion} ${getSkillEffectClass(skillMotion)} ${useSkillAsset ? `has-real-skill-asset has-${skillMotion.replaceAll('_', '-')}-asset` : ''}`} aria-hidden="true">
       {showFallbackTravelEffect ? (
         <>
           <motion.div
