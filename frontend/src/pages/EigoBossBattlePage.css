@@ -5273,3 +5273,202 @@
 .eq-battle-page-v2 .eq-battle-boss-nameplate {
   display: none !important;
 }
+
+/* First-screen compact pass: pull the hero row upward without changing logic. */
+.eq-battle-page-v2 .eq-battle-top-hud {
+  width: min(84.5vw, 396px);
+  margin-bottom: -4px;
+}
+
+.eq-battle-page-v2 .eq-battle-top-hud-bar {
+  height: 5px;
+}
+
+.eq-battle-page-v2 .eq-battle-arena {
+  grid-template-rows:
+    minmax(166px, 24dvh)
+    minmax(184px, auto)
+    minmax(88px, auto);
+  gap: 2px;
+}
+
+.eq-battle-page-v2 .eq-battle-boss-stage {
+  min-height: clamp(166px, 24dvh, 218px);
+  margin-top: -8px;
+}
+
+.eq-battle-page-v2 .eq-battle-boss-center {
+  width: min(46vw, 210px);
+  max-width: 210px;
+}
+
+.eq-battle-page-v2 .eq-battle-boss-card.eq-battle-boss-card-wrap {
+  width: 86%;
+  max-width: 190px;
+  aspect-ratio: 0.72 / 1;
+}
+
+.eq-battle-page-v2 .eq-battle-boss-card .eq-battle-boss-art {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.eq-battle-page-v2 .eq-battle-boss-magic-circle {
+  top: 45%;
+  width: min(98vw, 440px);
+  opacity: 0.86;
+}
+
+.eq-battle-page-v2 .eq-battle-quiz-stage {
+  grid-template-rows: minmax(80px, auto) minmax(100px, auto);
+  gap: 4px;
+  width: min(88%, 396px);
+  margin-top: -8px;
+}
+
+.eq-battle-page-v2 .eq-battle-question-frame {
+  min-height: 82px;
+}
+
+.eq-battle-page-v2 .eq-battle-question-content {
+  min-height: 82px;
+  padding: 7px 32px 8px;
+}
+
+.eq-battle-page-v2 .eq-battle-question-frame.is-question-long .eq-battle-question-content {
+  padding-top: 6px;
+}
+
+.eq-battle-page-v2 .eq-battle-question-frame.is-question-extra-long .eq-battle-question-content {
+  padding: 6px 28px 7px;
+}
+
+.eq-battle-page-v2 .eq-battle-question-text.q-xl {
+  font-size: clamp(22px, 4.9vw, 30px);
+}
+
+.eq-battle-page-v2 .eq-battle-question-text.q-lg {
+  font-size: clamp(20px, 4.3vw, 26px);
+}
+
+.eq-battle-page-v2 .eq-battle-question-text.q-md {
+  font-size: clamp(17px, 3.8vw, 22px);
+}
+
+.eq-battle-page-v2 .eq-battle-question-text.q-sm {
+  font-size: clamp(15px, 3.3vw, 19px);
+}
+
+.eq-battle-page-v2 .eq-battle-question-text.q-xs {
+  font-size: clamp(13px, 2.9vw, 16px);
+}
+
+.eq-battle-page-v2 .eq-battle-answer-grid {
+  grid-template-rows: repeat(2, minmax(48px, auto));
+  gap: 5px 10px;
+}
+
+.eq-battle-page-v2 .eq-battle-answer-grid .eq-battle-answer-button {
+  min-height: 48px;
+  padding: 5px 14px 5px 12px;
+}
+
+.eq-battle-page-v2 .eq-battle-answer-grid .eq-choice-badge {
+  width: 31px;
+  min-width: 31px;
+  height: 31px;
+  font-size: 20px;
+}
+
+.eq-battle-page-v2 .eq-battle-answer-grid .eq-choice-text {
+  line-height: 1;
+}
+
+.eq-battle-page-v2 .eq-battle-party-stage {
+  grid-template-rows: minmax(22px, auto) minmax(76px, auto);
+  gap: 3px;
+  margin-top: -10px;
+}
+
+.eq-battle-page-v2 .eq-battle-log,
+.eq-boss-battle-message {
+  min-height: 22px;
+  padding: 3px 10px;
+  font-size: clamp(9px, 2.7vw, 11px);
+  line-height: 1.08;
+}
+
+.eq-battle-page-v2 .eq-battle-hero-party-wrap {
+  margin-top: -4px;
+}
+
+.eq-battle-page-v2 .eq-battle-hero-party {
+  gap: 5px;
+}
+
+.eq-battle-page-v2 .eq-battle-hero-card {
+  padding: 3px;
+}
+
+.eq-battle-page-v2 .eq-battle-hero-card img {
+  min-height: 64px;
+}
+
+@media (max-width: 430px) {
+  .eq-battle-page-v2 .eq-battle-top-hud {
+    width: 84vw;
+    margin-bottom: -5px;
+  }
+
+  .eq-battle-page-v2 .eq-battle-top-hud-bar {
+    height: 5px;
+  }
+
+  .eq-battle-page-v2 .eq-battle-arena {
+    grid-template-rows:
+      minmax(156px, 23dvh)
+      minmax(176px, auto)
+      minmax(84px, auto);
+  }
+
+  .eq-battle-page-v2 .eq-battle-boss-stage {
+    min-height: clamp(156px, 23dvh, 204px);
+  }
+
+  .eq-battle-page-v2 .eq-battle-boss-center {
+    width: min(45vw, 194px);
+    max-width: 194px;
+  }
+
+  .eq-battle-page-v2 .eq-battle-boss-card.eq-battle-boss-card-wrap {
+    max-width: 174px;
+  }
+
+  .eq-battle-page-v2 .eq-battle-boss-magic-circle {
+    width: min(102vw, 392px);
+  }
+
+  .eq-battle-page-v2 .eq-battle-question-content {
+    min-height: 78px;
+    padding: 6px 28px 7px;
+  }
+
+  .eq-battle-page-v2 .eq-battle-question-frame {
+    min-height: 78px;
+  }
+
+  .eq-battle-page-v2 .eq-battle-answer-grid {
+    grid-template-rows: repeat(2, minmax(45px, auto));
+    gap: 5px 8px;
+  }
+
+  .eq-battle-page-v2 .eq-battle-answer-grid .eq-battle-answer-button {
+    min-height: 45px;
+    padding: 5px 11px 5px 10px;
+  }
+
+  .eq-battle-page-v2 .eq-battle-hero-card img {
+    min-height: 58px;
+  }
+}
