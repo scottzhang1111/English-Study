@@ -5613,3 +5613,11 @@
     animation-iteration-count: 1 !important;
   }
 }
+
+/* Step 33: center the rotating magic circle on the boss card, not the quiz area. */
+.eq-battle-page-v2 .eq-battle-boss-magic-circle {
+  top: 40%;
+  left: 50%;
+  width: min(88vw, 500px);
+  opacity: 0.72;
+}
