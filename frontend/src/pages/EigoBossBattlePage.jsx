@@ -12,6 +12,7 @@ import {
   FIRST_BOSS_QUESTIONS,
   FIRST_BOSS_REWARD,
 } from '../data/eigoBossBattleV1';
+import { playBattleSfx, preloadBattleSfx } from '../utils/battleSfx';
 import './EigoBossBattlePage.css';
 
 const COUNTER_DAMAGE = 15;
@@ -617,6 +618,10 @@ export default function EigoBossBattlePage() {
   }, []);
 
   useEffect(() => {
+    preloadBattleSfx();
+  }, []);
+
+  useEffect(() => {
     if (typeof window === 'undefined') return undefined;
 
     let isMounted = true;
@@ -829,6 +834,7 @@ export default function EigoBossBattlePage() {
         motion: getHeroSkillMotion(activeHero),
         damage,
       });
+      playBattleSfx(effect.motion);
       startAttackSequence(activeHero, damage, state.activeHeroIndex, nextCombo);
       setActionEffect(effect);
       const nextBossHp = Math.max(0, state.bossHp - damage);
