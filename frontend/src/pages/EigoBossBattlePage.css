@@ -5209,6 +5209,7 @@
 .eq-battle-page-v2 .eq-battle-top-hud-bar--left {
   left: 16%;
   width: 24%;
+  top: 45%;
 }
 
 .eq-battle-page-v2 .eq-battle-top-hud-bar--right {
@@ -5216,6 +5217,7 @@
   display: flex;
   width: 24%;
   justify-content: flex-end;
+  top: 45%;
 }
 
 @media (orientation: landscape) {
