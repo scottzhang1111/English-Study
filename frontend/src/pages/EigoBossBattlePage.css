@@ -5126,15 +5126,17 @@
 }
 
 .eq-battle-page-v2 .eq-battle-top-hud-bar--left {
-  left: 10.6%;
-  width: 25.3%;
+  left: 22%;
+  width: 19%;
+  top: 45% ;
 }
 
 .eq-battle-page-v2 .eq-battle-top-hud-bar--right {
-  right: 10.6%;
+  right: 22%;
   display: flex;
-  width: 25.3%;
+  width: 19%;
   justify-content: flex-end;
+  top: 45%;
 }
 
 .eq-battle-page-v2 .eq-battle-top-hud-fill {
