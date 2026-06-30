@@ -5207,13 +5207,13 @@
 }
 
 .eq-battle-page-v2 .eq-battle-top-hud-bar--left {
-  left: 16%;
+  left: 20%;
   width: 22%;
   top: 45%;
 }
 
 .eq-battle-page-v2 .eq-battle-top-hud-bar--right {
-  right: 16%;
+  right: 20%;
   display: flex;
   width: 22%;
   justify-content: flex-end;
