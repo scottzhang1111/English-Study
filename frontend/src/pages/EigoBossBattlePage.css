@@ -202,12 +202,18 @@
     drop-shadow(0 0 36px rgba(53, 217, 255, 0.34));
 }
 
-.eq-skill-video {
+.eq-skill-video,
+.eq-skill-png-sequence {
   display: block;
   width: 100%;
   height: 100%;
   object-fit: contain;
   pointer-events: none;
+}
+
+.eq-skill-png-sequence {
+  user-select: none;
+  -webkit-user-drag: none;
 }
 
 .eq-skill-asset--wind-cut {
@@ -221,7 +227,8 @@
     drop-shadow(0 0 34px rgba(35, 151, 255, 0.5));
 }
 
-.eq-skill-asset--wind-pierce .eq-skill-video {
+.eq-skill-asset--wind-pierce .eq-skill-video,
+.eq-skill-asset--wind-pierce .eq-skill-png-sequence {
   transform: scale(0.92) rotate(3deg);
 }
 
@@ -232,7 +239,8 @@
     drop-shadow(0 0 42px rgba(35, 151, 255, 0.42));
 }
 
-.eq-skill-asset--wind-combo .eq-skill-video {
+.eq-skill-asset--wind-combo .eq-skill-video,
+.eq-skill-asset--wind-combo .eq-skill-png-sequence {
   transform: scale(0.98);
 }
 
@@ -241,7 +249,8 @@
   opacity: 0.92;
 }
 
-.eq-skill-asset--wind-blessing .eq-skill-video {
+.eq-skill-asset--wind-blessing .eq-skill-video,
+.eq-skill-asset--wind-blessing .eq-skill-png-sequence {
   transform: scale(0.96);
 }
 

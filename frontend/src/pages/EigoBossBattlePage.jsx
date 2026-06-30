@@ -17,7 +17,10 @@ import './EigoBossBattlePage.css';
 const COUNTER_DAMAGE = 15;
 const SKILL_ASSET_MAP = {
   wind_slash: {
-    src: '/assets/eigo-quest/effects/wind/wind-cut-impact.webm',
+    framesBasePath: '/assets/eigo-quest/effects/wind/wind-cut-impact-asset/frames',
+    frameCount: 18,
+    fps: 24,
+    webmSrc: '/assets/eigo-quest/effects/wind/wind-cut-impact.webm',
     placement: 'boss',
     className: 'eq-skill-asset--wind-cut',
     size: 300,
@@ -27,7 +30,10 @@ const SKILL_ASSET_MAP = {
     duration: 0.68,
   },
   gale_thrust: {
-    src: '/assets/eigo-quest/effects/wind/wind-pierce-impact.webm',
+    framesBasePath: '/assets/eigo-quest/effects/wind/wind-pierce-impact-asset/frames',
+    frameCount: 14,
+    fps: 24,
+    webmSrc: '/assets/eigo-quest/effects/wind/wind-pierce-impact.webm',
     placement: 'boss',
     className: 'eq-skill-asset--wind-pierce',
     size: 250,
@@ -37,7 +43,10 @@ const SKILL_ASSET_MAP = {
     duration: 0.48,
   },
   cyclone_combo: {
-    src: '/assets/eigo-quest/effects/wind/wind-combo-impact.webm',
+    framesBasePath: '/assets/eigo-quest/effects/wind/wind-combo-impact-asset/frames',
+    frameCount: 20,
+    fps: 24,
+    webmSrc: '/assets/eigo-quest/effects/wind/wind-combo-impact.webm',
     placement: 'boss',
     className: 'eq-skill-asset--wind-combo',
     size: 300,
@@ -47,7 +56,10 @@ const SKILL_ASSET_MAP = {
     duration: 0.64,
   },
   wind_blessing: {
-    src: '/assets/eigo-quest/effects/wind/wind-blessing-aura.webm',
+    framesBasePath: '/assets/eigo-quest/effects/wind/wind-blessing-aura-asset/frames',
+    frameCount: 22,
+    fps: 24,
+    webmSrc: '/assets/eigo-quest/effects/wind/wind-blessing-aura.webm',
     placement: 'hero',
     className: 'eq-skill-asset--wind-blessing',
     size: 286,
@@ -131,6 +143,84 @@ function getSkillEffectClass(skillMotion) {
   return `skill-effect-${(skillMotion || 'wind_slash').replaceAll('_', '-')}`;
 }
 
+function getPngFrameSrc(basePath, frameIndex) {
+  return `${basePath}/frame_${String(frameIndex).padStart(3, '0')}.png`;
+}
+
+function isAppleTouchDevice() {
+  if (typeof navigator === 'undefined') return false;
+
+  const userAgent = navigator.userAgent || '';
+  const platform = navigator.platform || '';
+  return /iPad|iPhone|iPod/.test(userAgent)
+    || (platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+}
+
+function SkillPngSequence({
+  basePath,
+  frameCount,
+  fps = 24,
+  className = '',
+  onError,
+}) {
+  const [frameIndex, setFrameIndex] = useState(0);
+  const [failed, setFailed] = useState(false);
+
+  useEffect(() => {
+    setFrameIndex(0);
+    setFailed(false);
+  }, [basePath, frameCount]);
+
+  useEffect(() => {
+    if (!basePath || !frameCount || failed || typeof window === 'undefined') return undefined;
+
+    const intervalMs = 1000 / fps;
+    const timer = window.setInterval(() => {
+      setFrameIndex((current) => {
+        if (current >= frameCount - 1) {
+          window.clearInterval(timer);
+          return frameCount - 1;
+        }
+
+        return current + 1;
+      });
+    }, intervalMs);
+
+    return () => window.clearInterval(timer);
+  }, [basePath, failed, fps, frameCount]);
+
+  useEffect(() => {
+    if (!basePath || !frameCount || failed || typeof window === 'undefined') return undefined;
+
+    const preloadedImages = [];
+    for (let index = 0; index < frameCount; index += 1) {
+      const image = new window.Image();
+      image.src = getPngFrameSrc(basePath, index);
+      preloadedImages.push(image);
+    }
+
+    return () => {
+      preloadedImages.length = 0;
+    };
+  }, [basePath, failed, frameCount]);
+
+  if (!basePath || !frameCount || failed) return null;
+
+  return (
+    <img
+      className={`eq-skill-png-sequence ${className}`.trim()}
+      src={getPngFrameSrc(basePath, frameIndex)}
+      alt=""
+      aria-hidden="true"
+      draggable={false}
+      onError={() => {
+        setFailed(true);
+        onError?.();
+      }}
+    />
+  );
+}
+
 function createWindBladePaths(sequence) {
   const { from, to } = sequence;
   const midX = (from.centerX + to.centerX) / 2;
@@ -155,9 +245,16 @@ function createWindBladePaths(sequence) {
 
 function WindAttackOverlay({ sequence, reducedMotion }) {
   const [skillAssetFailed, setSkillAssetFailed] = useState(false);
+  const [pngSequenceFailed, setPngSequenceFailed] = useState(false);
+  const skillMotion = sequence?.motion || 'wind_slash';
+
+  useEffect(() => {
+    setSkillAssetFailed(false);
+    setPngSequenceFailed(false);
+  }, [sequence?.id, skillMotion]);
+
   if (!sequence) return null;
 
-  const skillMotion = sequence.motion || 'wind_slash';
   const skillAsset = SKILL_ASSET_MAP[skillMotion];
   const cloneWidth = Math.min(Math.max(sequence.from.width, 54), 72);
   const cloneHeight = cloneWidth * 1.34;
@@ -170,7 +267,10 @@ function WindAttackOverlay({ sequence, reducedMotion }) {
   const showCyclone = showImpact && skillMotion === 'cyclone_combo';
   const showBlessing = skillMotion === 'wind_blessing';
   const showComboBonus = showCyclone && sequence.combo >= 2;
-  const hasRealSkillAsset = Boolean(skillAsset && !skillAssetFailed);
+  const hasPngSequence = Boolean(skillAsset?.framesBasePath && skillAsset?.frameCount);
+  const canUsePngSequence = hasPngSequence && !pngSequenceFailed;
+  const canUseWebm = Boolean(skillAsset?.webmSrc && !skillAssetFailed && !isAppleTouchDevice());
+  const hasRealSkillAsset = Boolean(skillAsset && (canUsePngSequence || canUseWebm));
   const showSkillAsset = showImpact && hasRealSkillAsset;
   const showLegacyImpact = showImpact && !hasRealSkillAsset;
   const showDamageNumber = showImpact && skillMotion !== 'wind_blessing';
@@ -303,7 +403,7 @@ function WindAttackOverlay({ sequence, reducedMotion }) {
       <AnimatePresence>
         {showSkillAsset ? (
           <motion.div
-            key={`${sequence.id}-${skillMotion}-video`}
+            key={`${sequence.id}-${skillMotion}-asset`}
             className={`eq-skill-asset-layer eq-skill-asset-layer--${skillAsset.placement} ${skillAsset.className}`}
             style={{
               left: assetCenter.centerX - skillAsset.size / 2 + skillAsset.offsetX,
@@ -320,16 +420,26 @@ function WindAttackOverlay({ sequence, reducedMotion }) {
             exit={{ opacity: 0, scale: 0.92 }}
             transition={{ duration: reducedMotion ? 0.01 : skillAsset.duration, ease: 'easeOut' }}
           >
-            <video
-              key={sequence.id}
-              className="eq-skill-video"
-              src={skillAsset.src}
-              autoPlay
-              muted
-              playsInline
-              preload="auto"
-              onError={() => setSkillAssetFailed(true)}
-            />
+            {canUsePngSequence ? (
+              <SkillPngSequence
+                key={`${sequence.id}-${skillMotion}-png`}
+                basePath={skillAsset.framesBasePath}
+                frameCount={skillAsset.frameCount}
+                fps={skillAsset.fps}
+                onError={() => setPngSequenceFailed(true)}
+              />
+            ) : canUseWebm ? (
+              <video
+                key={`${sequence.id}-${skillMotion}-webm`}
+                className="eq-skill-video"
+                src={skillAsset.webmSrc}
+                autoPlay
+                muted
+                playsInline
+                preload="auto"
+                onError={() => setSkillAssetFailed(true)}
+              />
+            ) : null}
           </motion.div>
         ) : null}
       </AnimatePresence>
