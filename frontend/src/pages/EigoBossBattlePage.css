@@ -5594,15 +5594,15 @@
 
 @keyframes eq-battle-boss-magic-circle-spin {
   0% {
-    transform: translate(-50%, -58%) rotate(0deg) scale(1);
+    transform: rotate(0deg) scale(1);
   }
 
   50% {
-    transform: translate(-50%, -58%) rotate(180deg) scale(1.035);
+    transform: rotate(180deg) scale(1.035);
   }
 
   100% {
-    transform: translate(-50%, -58%) rotate(360deg) scale(1);
+    transform: rotate(360deg) scale(1);
   }
 }
 
@@ -5614,10 +5614,33 @@
   }
 }
 
-/* Step 33: center the rotating magic circle on the boss card, not the quiz area. */
-.eq-battle-page-v2 .eq-battle-boss-magic-circle {
-  top: 50%;
+/* Step 35: wrapper handles centering; inner image handles rotation only. */
+.eq-battle-page-v2 .eq-battle-boss-magic-circle-wrap {
+  position: absolute;
+  z-index: 0;
+  top: 42%;
   left: 50%;
-  width: min(88vw, 500px);
-  opacity: 0.72;
+  width: min(94vw, 580px);
+  max-width: 145%;
+  aspect-ratio: 1 / 1;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  opacity: 0.78;
+  filter: drop-shadow(0 0 18px rgba(82, 200, 255, 0.34));
+  will-change: transform;
+}
+
+.eq-battle-page-v2 .eq-battle-boss-magic-circle {
+  position: static !important;
+  display: block;
+  width: 100%;
+  max-width: none;
+  height: 100%;
+  object-fit: contain;
+  opacity: 1;
+  filter: none;
+  pointer-events: none;
+  transform-origin: center center;
+  animation: eq-battle-boss-magic-circle-spin 12s linear infinite;
+  will-change: transform;
 }

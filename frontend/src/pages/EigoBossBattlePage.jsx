@@ -1026,12 +1026,13 @@ export default function EigoBossBattlePage() {
             </div>
 
             <div className="eq-battle-boss-center">
-              <img
-                className="eq-battle-boss-magic-circle"
-                src="/assets/eigo-quest/battle-ui/boss-magic-circle.png"
-                alt=""
-                aria-hidden="true"
-              />
+              <div className="eq-battle-boss-magic-circle-wrap" aria-hidden="true">
+                <img
+                  className="eq-battle-boss-magic-circle"
+                  src="/assets/eigo-quest/battle-ui/boss-magic-circle.png"
+                  alt=""
+                />
+              </div>
               <figure ref={bossCardRef} className="eq-battle-boss-card eq-battle-boss-card-wrap">
                 <span className="eq-battle-boss-aura" aria-hidden="true" />
                 <div className="eq-battle-boss-art-safe">
