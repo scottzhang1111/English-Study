@@ -5208,14 +5208,14 @@
 
 .eq-battle-page-v2 .eq-battle-top-hud-bar--left {
   left: 16%;
-  width: 24%;
+  width: 22%;
   top: 45%;
 }
 
 .eq-battle-page-v2 .eq-battle-top-hud-bar--right {
   right: 16%;
   display: flex;
-  width: 24%;
+  width: 22%;
   justify-content: flex-end;
   top: 45%;
 }
