@@ -5520,3 +5520,96 @@
     drop-shadow(0 0 28px rgba(70, 255, 184, 0.46))
     drop-shadow(0 0 32px rgba(53, 217, 255, 0.32));
 }
+
+/* Step 30: compact the 2x2 answer area without changing battle logic or VFX. */
+.eq-battle-page-v2 .eq-battle-answer-grid {
+  grid-template-rows: repeat(2, minmax(44px, auto));
+  gap: 5px 10px;
+}
+
+.eq-battle-page-v2 .eq-battle-answer-grid .eq-battle-answer-button {
+  min-height: 44px;
+  padding: 5px 9px;
+}
+
+.eq-battle-page-v2 .eq-battle-answer-grid .eq-choice-badge {
+  flex: 0 0 32px;
+  width: 32px;
+  min-width: 32px;
+  height: 32px;
+  font-size: 21px;
+}
+
+.eq-battle-page-v2 .eq-battle-answer-grid .eq-choice-text {
+  white-space: nowrap;
+  word-break: keep-all;
+}
+
+.eq-battle-page-v2 .eq-battle-answer-grid .eq-battle-answer-button.ans-xl .eq-choice-text {
+  font-size: clamp(20px, 4.6vw, 27px);
+}
+
+.eq-battle-page-v2 .eq-battle-answer-grid .eq-battle-answer-button.ans-lg .eq-choice-text {
+  font-size: clamp(17px, 4vw, 21px);
+}
+
+.eq-battle-page-v2 .eq-battle-answer-grid .eq-battle-answer-button.ans-md .eq-choice-text {
+  font-size: clamp(15px, 3.6vw, 19px);
+}
+
+.eq-battle-page-v2 .eq-battle-answer-grid .eq-battle-answer-button.ans-sm .eq-choice-text {
+  font-size: clamp(13px, 3.2vw, 17px);
+}
+
+.eq-battle-page-v2 .eq-battle-answer-grid .eq-battle-answer-button.ans-xs .eq-choice-text {
+  font-size: clamp(12px, 2.9vw, 15px);
+}
+
+@media (max-width: 380px) {
+  .eq-battle-page-v2 .eq-battle-answer-grid {
+    grid-template-rows: repeat(2, minmax(42px, auto));
+    gap: 5px 8px;
+  }
+
+  .eq-battle-page-v2 .eq-battle-answer-grid .eq-battle-answer-button {
+    min-height: 42px;
+    padding: 5px 7px;
+  }
+
+  .eq-battle-page-v2 .eq-battle-answer-grid .eq-choice-badge {
+    flex-basis: 29px;
+    width: 29px;
+    min-width: 29px;
+    height: 29px;
+    font-size: 19px;
+  }
+}
+
+/* Step 31: restore slow rotation for the large boss magic circle background. */
+.eq-battle-page-v2 .eq-battle-boss-magic-circle {
+  animation: eq-battle-boss-magic-circle-spin 12s linear infinite;
+  transform-origin: center center;
+  will-change: transform;
+}
+
+@keyframes eq-battle-boss-magic-circle-spin {
+  0% {
+    transform: translate(-50%, -50%) rotate(0deg) scale(1);
+  }
+
+  50% {
+    transform: translate(-50%, -50%) rotate(180deg) scale(1.035);
+  }
+
+  100% {
+    transform: translate(-50%, -50%) rotate(360deg) scale(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .eq-battle-page-v2 .eq-battle-boss-magic-circle,
+  .eq-battle-page-v2 .eq-battle-boss-zone::before {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}
