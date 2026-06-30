@@ -5594,15 +5594,15 @@
 
 @keyframes eq-battle-boss-magic-circle-spin {
   0% {
-    transform: translate(-50%, -50%) rotate(0deg) scale(1);
+    transform: translate(-50%, -58%) rotate(0deg) scale(1);
   }
 
   50% {
-    transform: translate(-50%, -50%) rotate(180deg) scale(1.035);
+    transform: translate(-50%, -58%) rotate(180deg) scale(1.035);
   }
 
   100% {
-    transform: translate(-50%, -50%) rotate(360deg) scale(1);
+    transform: translate(-50%, -58%) rotate(360deg) scale(1);
   }
 }
 
@@ -5616,7 +5616,7 @@
 
 /* Step 33: center the rotating magic circle on the boss card, not the quiz area. */
 .eq-battle-page-v2 .eq-battle-boss-magic-circle {
-  top: 40%;
+  top: 50%;
   left: 50%;
   width: min(88vw, 500px);
   opacity: 0.72;

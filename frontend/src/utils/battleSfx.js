@@ -17,6 +17,10 @@ const BATTLE_SFX_MAP = {
     src: '/assets/eigo-quest/effects/wind/wind-blessing-aura.mp3',
     volume: 0.45,
   },
+  boss_counter: {
+    src: '/assets/eigo-quest/effects/wind/boss-claw.mp3',
+    volume: 0.62,
+  },
 };
 
 const audioCache = new Map();

@@ -875,6 +875,7 @@ export default function EigoBossBattlePage() {
       type: 'boss_counter',
       damage: COUNTER_DAMAGE,
     });
+    playBattleSfx('boss_counter');
     setActionEffect(effect);
     const nextState = {
       ...state,
