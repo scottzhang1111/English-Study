@@ -9556,15 +9556,69 @@ def api_eiken_real_exam_asset(asset_path):
     child_id = request.args.get('child_id') or request.args.get('childId')
     target_level = request.args.get('target_level') or request.args.get('targetLevel') or request.args.get('level')
     config = get_eiken_real_exam_config(child_id=child_id, target_level=target_level)
-    resource_root = data_path(config['resource_root'])
+    resource_roots = [data_path(config['resource_root'])]
+    if config.get('level') == 'eiken3':
+        resource_roots.extend([
+            data_path(os.path.join('data', 'eiken', 'eiken real exam 3', 'English eiken 3')),
+            data_path(os.path.join('data', 'eiken', 'eiken real exam 3', 'English eiken 3', 'www.cloudsemi.com', 'member', 'eiken', 'eiken3')),
+            data_path(os.path.join('data', 'eiken', 'eiken real exam 3', 'cloudsemi_eiken3', 'listening_problems')),
+            data_path(os.path.join('data', 'eiken', 'eiken real exam 3', 'cloudsemi_eiken3', 'written_problems')),
+        ])
+    else:
+        resource_roots.extend([
+            data_path(os.path.join('data', 'eiken', 'eiken real exam pre2', 'Listening')),
+            data_path(os.path.join('data', 'eiken', 'eiken real exam pre2', 'Listening', 'www.cloudsemi.com', 'member', 'eiken', 'eikenj2')),
+            data_path(os.path.join('data', 'eiken', 'eiken real exam pre2')),
+        ])
+    resource_roots = list(dict.fromkeys(resource_roots))
     normalized_path = str(asset_path or '').replace('\\', '/').lstrip('/')
-    candidate_paths = [normalized_path]
-    if '/' not in normalized_path:
-        for folder in ('mp3', 'png', 'js', 'images', 'audio'):
-            candidate_paths.append(f'{folder}/{normalized_path}')
-    for candidate in candidate_paths:
-        if os.path.isfile(os.path.join(resource_root, candidate)):
-            return send_from_directory(resource_root, candidate)
+    normalized_path = urllib.parse.unquote(normalized_path)
+    normalized_path = os.path.normpath(normalized_path).replace('\\', '/')
+    if normalized_path.startswith('../') or normalized_path == '..' or os.path.isabs(normalized_path):
+        abort(400, 'invalid asset path')
+    basename = os.path.basename(normalized_path)
+    candidate_paths = [
+        normalized_path,
+        basename,
+        f'mp3/{basename}',
+        f'png/{basename}',
+        f'images/{basename}',
+        f'audio/{basename}',
+        f'js/{basename}',
+        f'css/{basename}',
+    ]
+    candidate_paths = [path for path in dict.fromkeys(candidate_paths) if path and path != '.']
+    searched_paths = []
+    for resource_root in resource_roots:
+        for candidate in candidate_paths:
+            resolved_path = os.path.join(resource_root, candidate)
+            searched_paths.append(resolved_path)
+            if os.path.isfile(resolved_path):
+                return send_from_directory(resource_root, candidate)
+
+    app.logger.warning(
+        'Eiken real exam asset not found: level=%s child_id=%s asset_path=%s resource_root=%s resource_root_exists=%s resource_roots=%s searched_paths=%s',
+        config.get('level'),
+        child_id,
+        asset_path,
+        data_path(config['resource_root']),
+        os.path.isdir(data_path(config['resource_root'])),
+        resource_roots,
+        searched_paths,
+    )
+    if app.debug or os.getenv('FLASK_ENV') == 'development':
+        return jsonify({
+            'error': 'asset_not_found',
+            'message': 'asset not found',
+            'level': config.get('level'),
+            'child_id': child_id,
+            'asset_path': asset_path,
+            'resource_root': data_path(config['resource_root']),
+            'resource_root_exists': os.path.isdir(data_path(config['resource_root'])),
+            'resource_roots': resource_roots,
+            'candidate_paths': candidate_paths,
+            'searched_paths': searched_paths,
+        }), 404
     abort(404, 'asset not found')
 
 

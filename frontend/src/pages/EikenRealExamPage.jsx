@@ -8,6 +8,8 @@ import CompactPageHeader from '../components/eigo/CompactPageHeader';
 import { getEikenAssetSrc, normalizeEikenMediaHtml } from '../utils/eikenAssets';
 
 const CHILD_STORAGE_KEY = 'selected_child_id';
+const EIKEN_AUDIO_LOAD_ERROR_MESSAGE = '音声ファイルを読み込めませんでした。素材ファイルを確認してください。';
+const EIKEN_IMAGE_LOAD_ERROR_MESSAGE = '画像ファイルを読み込めませんでした。素材ファイルを確認してください。';
 
 function getDefaultPart(exam, mode) {
   const parts = mode === 'written' ? exam?.written_parts : exam?.listening_parts;
@@ -172,6 +174,7 @@ function EikenResultQuestionPreview({ preview, studentAnswer, correctAnswer, exp
             />
           ) : (
             <div className="mt-2 rounded-[14px] bg-[#f8fcff] px-3 py-4 text-center text-xs font-bold text-[#6f7da8]">
+              {EIKEN_IMAGE_LOAD_ERROR_MESSAGE}
               画像を読み込めませんでした
             </div>
           )}
@@ -323,6 +326,7 @@ export default function EikenRealExamPage() {
   const [audioCurrentTime, setAudioCurrentTime] = useState(0);
   const [audioDuration, setAudioDuration] = useState(0);
   const [audioIsPlaying, setAudioIsPlaying] = useState(false);
+  const [audioLoadFailed, setAudioLoadFailed] = useState(false);
 
   const selectedExam = useMemo(
     () => exams.find((exam) => exam.exam_id === selectedExamId) || exams[0] || null,
@@ -399,6 +403,7 @@ export default function EikenRealExamPage() {
     setAudioCurrentTime(0);
     setAudioDuration(0);
     setAudioIsPlaying(false);
+    setAudioLoadFailed(false);
     setExpandedExplanations({});
     setStartedAt(new Date().toISOString());
     getEikenRealExamPart(selectedPartId, { childId: activeChildId, targetLevel: activeTargetLevel })
@@ -525,6 +530,7 @@ export default function EikenRealExamPage() {
         fallback.dataset.eikenImageFallback = 'true';
         fallback.className = 'rounded-[18px] bg-[#f8fbff] px-4 py-5 text-center text-sm font-bold text-[#6f7da8]';
         fallback.textContent = '画像を読み込めませんでした';
+        fallback.textContent = EIKEN_IMAGE_LOAD_ERROR_MESSAGE;
         image.insertAdjacentElement('afterend', fallback);
       };
       image.addEventListener('error', handleError);
@@ -1047,6 +1053,7 @@ export default function EikenRealExamPage() {
                       src={primaryAudioSource}
                       className="eiken-real-trial-audio-button"
                       onLoadedMetadata={(event) => {
+                        setAudioLoadFailed(false);
                         setAudioDuration(event.currentTarget.duration || 0);
                         setAudioCurrentTime(event.currentTarget.currentTime || 0);
                       }}
@@ -1059,9 +1066,18 @@ export default function EikenRealExamPage() {
                         setAudioIsPlaying(false);
                         setAudioCurrentTime(event.currentTarget.duration || 0);
                       }}
+                      onError={() => {
+                        setAudioIsPlaying(false);
+                        setAudioLoadFailed(true);
+                      }}
                     >
                       <source src={primaryAudioSource} type="audio/mpeg" />
                     </audio>
+                    {audioLoadFailed && (
+                      <p className="mt-3 rounded-[14px] bg-rose-50/90 px-3 py-2 text-center text-sm font-bold text-rose-700">
+                        {EIKEN_AUDIO_LOAD_ERROR_MESSAGE}
+                      </p>
+                    )}
                   </section>
                 )}
 
