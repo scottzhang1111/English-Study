@@ -4787,3 +4787,283 @@
 .eq-battle-page-v2 .eq-battle-hero-meta {
   display: none !important;
 }
+
+/* Step 41: ornate head-frame HUD and boss magic circle integration. */
+.eq-battle-page-v2 .eq-battle-top-hud {
+  position: relative;
+  z-index: 5;
+  width: min(94vw, 720px);
+  height: clamp(64px, 11vw, 92px);
+  min-height: 0;
+  margin: 0 auto 8px;
+  padding: 0;
+  overflow: visible;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+.eq-battle-page-v2 .eq-battle-top-hud::before,
+.eq-battle-page-v2 .eq-battle-top-hud::after {
+  display: none;
+}
+
+.eq-battle-page-v2 .eq-battle-top-hud-frame,
+.eq-battle-page-v2 .eq-battle-status-frame-img {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: fill;
+  pointer-events: none;
+  filter:
+    drop-shadow(0 0 12px rgba(74, 216, 255, 0.28))
+    drop-shadow(0 0 18px rgba(244, 188, 77, 0.26));
+}
+
+.eq-battle-page-v2 .eq-battle-top-hud-content {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) clamp(72px, 16vw, 150px) minmax(0, 1fr);
+  column-gap: clamp(4px, 1vw, 10px);
+  align-items: center;
+  height: 100%;
+  box-sizing: border-box;
+  padding:
+    clamp(10px, 2.2vw, 18px)
+    clamp(28px, 6vw, 58px)
+    clamp(9px, 1.9vw, 16px);
+}
+
+.eq-battle-page-v2 .eq-hud-side {
+  display: flex;
+  min-width: 0;
+  height: auto;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.eq-battle-page-v2 .eq-hud-side-player {
+  align-items: flex-start;
+}
+
+.eq-battle-page-v2 .eq-hud-side-boss {
+  align-items: flex-end;
+}
+
+.eq-battle-page-v2 .eq-hud-row,
+.eq-battle-page-v2 .eq-battle-hud-label-row {
+  display: flex;
+  max-width: 100%;
+  min-width: 0;
+  align-items: baseline;
+  justify-content: flex-start;
+  gap: clamp(6px, 1.8vw, 12px);
+  white-space: nowrap;
+}
+
+.eq-battle-page-v2 .eq-hud-side-boss .eq-hud-row,
+.eq-battle-page-v2 .eq-hud-side-boss .eq-battle-hud-label-row {
+  justify-content: flex-end;
+}
+
+.eq-battle-page-v2 .eq-hud-label {
+  flex: 0 0 auto;
+  overflow: visible;
+  color: #f7edc9;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: clamp(13px, 3.1vw, 26px);
+  font-weight: 900;
+  line-height: 1;
+  letter-spacing: 0.02em;
+  text-overflow: clip;
+  text-shadow:
+    0 2px 3px rgba(0, 0, 0, 0.8),
+    0 0 10px rgba(255, 225, 150, 0.35);
+  white-space: nowrap;
+}
+
+.eq-battle-page-v2 .eq-hud-hp-text {
+  flex: 0 0 auto;
+  color: #fff7df;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: clamp(13px, 3vw, 24px);
+  font-weight: 900;
+  line-height: 1;
+  text-shadow:
+    0 2px 3px rgba(0, 0, 0, 0.85),
+    0 0 8px rgba(255, 255, 255, 0.2);
+  white-space: nowrap;
+}
+
+.eq-battle-page-v2 .eq-hud-vs-spacer {
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.eq-battle-page-v2 .eq-battle-vs-badge,
+.eq-battle-page-v2 .eq-hud-vs,
+.eq-battle-page-v2 .eq-vs-medallion {
+  display: none;
+}
+
+.eq-battle-page-v2 .eq-hp-track,
+.eq-battle-page-v2 .eq-battle-hp-track,
+.eq-battle-page-v2 .eq-hp-track.eq-hp-track-player,
+.eq-battle-page-v2 .eq-hp-track.eq-hp-track-boss,
+.eq-battle-page-v2 .eq-battle-hp-track.eq-hp-track-player,
+.eq-battle-page-v2 .eq-battle-hp-track.eq-hp-track-boss {
+  position: relative;
+  top: auto;
+  left: auto;
+  width: min(100%, 180px);
+  height: clamp(5px, 1.4vw, 10px);
+  margin-top: clamp(5px, 1.1vw, 9px);
+  overflow: hidden;
+  border: 0;
+  border-radius: 999px;
+  background: rgba(2, 8, 20, 0.65);
+  box-shadow:
+    inset 0 0 4px rgba(0, 0, 0, 0.8),
+    0 0 6px rgba(255, 215, 120, 0.25);
+}
+
+.eq-battle-page-v2 .eq-hud-side-boss .eq-hp-track,
+.eq-battle-page-v2 .eq-hud-side-boss .eq-battle-hp-track {
+  align-self: flex-end;
+}
+
+.eq-battle-page-v2 .eq-hp-fill,
+.eq-battle-page-v2 .eq-battle-hp-fill-player,
+.eq-battle-page-v2 .eq-battle-hp-fill-boss {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  transition: width 260ms ease;
+}
+
+.eq-battle-page-v2 .eq-hp-fill-player,
+.eq-battle-page-v2 .eq-battle-hp-fill-player {
+  background: linear-gradient(90deg, #65e7ff 0%, #b7ff9b 100%);
+  box-shadow: 0 0 8px rgba(100, 245, 255, 0.75);
+}
+
+.eq-battle-page-v2 .eq-hp-fill-boss,
+.eq-battle-page-v2 .eq-battle-hp-fill-boss {
+  background: linear-gradient(90deg, #ffd16b 0%, #ff4f78 100%);
+  box-shadow: 0 0 8px rgba(255, 90, 120, 0.75);
+}
+
+.eq-battle-page-v2 .eq-battle-boss-stage {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  width: min(94vw, 720px);
+  min-height: clamp(235px, 34vh, 330px);
+  margin: 0 auto;
+  padding: 0;
+  align-items: center;
+  justify-content: center;
+  overflow: visible;
+  box-sizing: border-box;
+}
+
+.eq-battle-page-v2 .eq-battle-boss-center {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  width: min(58vw, 270px);
+  max-width: 270px;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  isolation: isolate;
+}
+
+.eq-battle-page-v2 .eq-battle-boss-magic-circle {
+  position: absolute;
+  left: 50%;
+  top: 45%;
+  z-index: 0;
+  width: min(118vw, 560px);
+  max-width: 560px;
+  height: auto;
+  transform: translate(-50%, -50%);
+  opacity: 0.92;
+  pointer-events: none;
+  filter:
+    drop-shadow(0 0 18px rgba(80, 230, 255, 0.55))
+    drop-shadow(0 0 36px rgba(80, 190, 255, 0.3));
+}
+
+.eq-battle-page-v2 .eq-battle-boss-card-wrap,
+.eq-battle-page-v2 .eq-battle-boss-card,
+.eq-battle-page-v2 .eq-battle-boss-art-safe {
+  position: relative;
+  z-index: 2;
+}
+
+.eq-battle-page-v2 .eq-battle-boss-card-wrap {
+  box-shadow:
+    0 0 0 1px rgba(247, 210, 116, 0.75),
+    0 0 22px rgba(60, 220, 255, 0.35),
+    0 16px 34px rgba(0, 0, 0, 0.55);
+}
+
+.eq-battle-page-v2 .eq-battle-boss-nameplate {
+  position: relative;
+  z-index: 3;
+}
+
+.eq-battle-page-v2 .eq-battle-quiz-stage,
+.eq-battle-page-v2 .eq-battle-party-stage {
+  position: relative;
+  z-index: 3;
+}
+
+@media (max-width: 430px) {
+  .eq-battle-page-v2 .eq-battle-top-hud {
+    width: 94vw;
+    height: 64px;
+    margin-bottom: 6px;
+  }
+
+  .eq-battle-page-v2 .eq-battle-top-hud-content {
+    grid-template-columns: minmax(0, 1fr) 72px minmax(0, 1fr);
+    padding: 9px 24px 8px;
+  }
+
+  .eq-battle-page-v2 .eq-hud-label,
+  .eq-battle-page-v2 .eq-hud-hp-text {
+    font-size: 13px;
+  }
+
+  .eq-battle-page-v2 .eq-hp-track,
+  .eq-battle-page-v2 .eq-battle-hp-track,
+  .eq-battle-page-v2 .eq-hp-track.eq-hp-track-player,
+  .eq-battle-page-v2 .eq-hp-track.eq-hp-track-boss,
+  .eq-battle-page-v2 .eq-battle-hp-track.eq-hp-track-player,
+  .eq-battle-page-v2 .eq-battle-hp-track.eq-hp-track-boss {
+    width: 74px;
+    height: 5px;
+    margin-top: 6px;
+  }
+
+  .eq-battle-page-v2 .eq-battle-boss-stage {
+    min-height: clamp(220px, 32vh, 300px);
+  }
+
+  .eq-battle-page-v2 .eq-battle-boss-center {
+    width: min(60vw, 245px);
+    max-width: 245px;
+  }
+
+  .eq-battle-page-v2 .eq-battle-boss-magic-circle {
+    width: min(126vw, 520px);
+    opacity: 0.9;
+  }
+}

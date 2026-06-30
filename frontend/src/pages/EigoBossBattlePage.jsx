@@ -907,7 +907,7 @@ export default function EigoBossBattlePage() {
       >
         <img
           className="eq-battle-top-hud-frame eq-battle-status-frame-img"
-          src="/assets/eigo-quest/battle-ui/battle-status-frame.png"
+          src="/assets/eigo-quest/battle-ui/head-frame.png"
           alt=""
           aria-hidden="true"
         />
@@ -921,7 +921,7 @@ export default function EigoBossBattlePage() {
             <span className="eq-battle-hp-fill-player eq-hp-fill eq-hp-fill-player" style={{ width: `${playerHpPercent}%` }} />
           </div>
         </section>
-        <div className="eq-battle-vs-badge eq-hud-vs eq-vs-medallion" aria-hidden="true">VS</div>
+        <div className="eq-hud-vs-spacer" aria-hidden="true" />
         <section className="eq-battle-hud-side eq-hud-side eq-hud-side-boss eq-hud-boss is-boss">
           <div className="eq-battle-hud-label-row eq-hud-row">
             <span className="eq-hud-label eq-hud-label-boss">BOSS</span>
