@@ -901,38 +901,30 @@ export default function EigoBossBattlePage() {
         ref={battleRef}
         className={`eq-boss-battle-stage eq-battle-page-v2 ${attackSequence?.phase === 'impact' ? 'is-skill-impact' : ''} ${counterSequence ? 'is-counter-impact' : ''} ${attackSequence?.motion ? `is-skill-${attackSequence.motion}` : ''}`}
       >
-      <header
-        className={`eq-battle-top-hud eq-battle-vs-hud ${state.bossReaction === 'is-counter' || counterSequence ? 'is-countered' : ''} ${state.bossReaction === 'is-hit' || attackSequence?.phase === 'impact' ? 'is-boss-hit' : ''} ${attackSequence?.motion === 'wind_blessing' ? 'is-blessed' : ''}`}
-        aria-label="Battle HP status"
-      >
+      <div className="eq-battle-top-hud" aria-label="Battle HP status">
         <img
-          className="eq-battle-top-hud-frame eq-battle-status-frame-img"
           src="/assets/eigo-quest/battle-ui/head-frame.png"
           alt=""
+          className="eq-battle-top-hud-frame"
           aria-hidden="true"
         />
-        <div className="eq-battle-top-hud-content">
-        <section className="eq-battle-hud-side eq-hud-side eq-hud-side-player eq-hud-player is-player">
-          <div className="eq-battle-hud-label-row eq-hud-row">
-            <span className="eq-hud-label eq-hud-label-player">PLAYER</span>
-            <span className="eq-hud-hp-text">{state.playerHp} / {battle.playerHp}</span>
+
+        <div className="eq-battle-top-hud-bars" aria-hidden="true">
+          <div className="eq-battle-top-hud-bar eq-battle-top-hud-bar--left">
+            <div
+              className="eq-battle-top-hud-fill eq-battle-top-hud-fill--player"
+              style={{ width: `${playerHpPercent}%` }}
+            />
           </div>
-          <div className="eq-battle-hp-track eq-hp-track eq-hp-track-player">
-            <span className="eq-battle-hp-fill-player eq-hp-fill eq-hp-fill-player" style={{ width: `${playerHpPercent}%` }} />
+
+          <div className="eq-battle-top-hud-bar eq-battle-top-hud-bar--right">
+            <div
+              className="eq-battle-top-hud-fill eq-battle-top-hud-fill--boss"
+              style={{ width: `${bossHpPercent}%` }}
+            />
           </div>
-        </section>
-        <div className="eq-hud-vs-spacer" aria-hidden="true" />
-        <section className="eq-battle-hud-side eq-hud-side eq-hud-side-boss eq-hud-boss is-boss">
-          <div className="eq-battle-hud-label-row eq-hud-row">
-            <span className="eq-hud-label eq-hud-label-boss">BOSS</span>
-            <span className="eq-hud-hp-text">{state.bossHp} / {battle.boss.hp}</span>
-          </div>
-          <div className="eq-battle-hp-track eq-hp-track eq-hp-track-boss">
-            <span className="eq-battle-hp-fill-boss eq-hp-fill eq-hp-fill-boss" style={{ width: `${bossHpPercent}%` }} />
-          </div>
-        </section>
         </div>
-      </header>
+      </div>
 
       {state.battleStatus === 'clear' ? (
         <EQFantasyCard hideHeader className="eq-boss-result-card is-clear">

@@ -5067,3 +5067,131 @@
     opacity: 0.9;
   }
 }
+
+/* Decorative-only VS banner: head-frame image + embedded HP bars. */
+.eq-battle-page-v2 .eq-battle-top-hud {
+  position: relative;
+  z-index: 5;
+  width: min(92vw, 860px);
+  max-width: 430px;
+  height: auto;
+  min-height: 0;
+  aspect-ratio: 2048 / 493;
+  margin: 0 auto 8px;
+  padding: 0;
+  overflow: visible;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+.eq-battle-page-v2 .eq-battle-top-hud::before,
+.eq-battle-page-v2 .eq-battle-top-hud::after {
+  display: none;
+  content: none;
+}
+
+.eq-battle-page-v2 .eq-battle-top-hud-frame {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  pointer-events: none;
+  user-select: none;
+  filter:
+    drop-shadow(0 0 12px rgba(74, 216, 255, 0.32))
+    drop-shadow(0 0 18px rgba(244, 188, 77, 0.24));
+}
+
+.eq-battle-page-v2 .eq-battle-top-hud-bars {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.eq-battle-page-v2 .eq-battle-top-hud-bar {
+  position: absolute;
+  top: 57%;
+  height: clamp(6px, 1.4vw, 13px);
+  overflow: hidden;
+  border-radius: 999px;
+  background: linear-gradient(180deg, rgba(7, 13, 24, 0.85), rgba(0, 0, 0, 0.92));
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.05),
+    inset 0 2px 8px rgba(0, 0, 0, 0.45);
+}
+
+.eq-battle-page-v2 .eq-battle-top-hud-bar--left {
+  left: 10.6%;
+  width: 25.3%;
+}
+
+.eq-battle-page-v2 .eq-battle-top-hud-bar--right {
+  right: 10.6%;
+  display: flex;
+  width: 25.3%;
+  justify-content: flex-end;
+}
+
+.eq-battle-page-v2 .eq-battle-top-hud-fill {
+  height: 100%;
+  border-radius: inherit;
+  transition: width 240ms ease;
+}
+
+.eq-battle-page-v2 .eq-battle-top-hud-fill--player {
+  background: linear-gradient(90deg, #7fe8ef 0%, #9ee58c 100%);
+  box-shadow:
+    0 0 10px rgba(128, 236, 224, 0.35),
+    inset 0 1px 0 rgba(255, 255, 255, 0.35);
+}
+
+.eq-battle-page-v2 .eq-battle-top-hud-fill--boss {
+  margin-left: auto;
+  background: linear-gradient(90deg, #ffd36b 0%, #ff6a88 100%);
+  box-shadow:
+    0 0 10px rgba(255, 106, 136, 0.28),
+    inset 0 1px 0 rgba(255, 255, 255, 0.35);
+}
+
+.eq-battle-page-v2 .eq-battle-top-hud-content,
+.eq-battle-page-v2 .eq-battle-hud-side,
+.eq-battle-page-v2 .eq-hud-side,
+.eq-battle-page-v2 .eq-battle-hud-label-row,
+.eq-battle-page-v2 .eq-hud-row,
+.eq-battle-page-v2 .eq-hud-label,
+.eq-battle-page-v2 .eq-hud-hp-text,
+.eq-battle-page-v2 .eq-hud-vs,
+.eq-battle-page-v2 .eq-battle-vs-badge,
+.eq-battle-page-v2 .eq-vs-medallion,
+.eq-battle-page-v2 .eq-hud-vs-spacer,
+.eq-battle-page-v2 .eq-battle-hp-track,
+.eq-battle-page-v2 .eq-hp-track {
+  display: none;
+}
+
+@media (max-width: 430px) {
+  .eq-battle-page-v2 .eq-battle-top-hud {
+    width: 92vw;
+    margin-bottom: 7px;
+  }
+
+  .eq-battle-page-v2 .eq-battle-top-hud-bar {
+    top: 57%;
+    height: clamp(6px, 1.7vw, 9px);
+  }
+
+  .eq-battle-page-v2 .eq-battle-top-hud-bar--left {
+    left: 10.8%;
+    width: 25%;
+  }
+
+  .eq-battle-page-v2 .eq-battle-top-hud-bar--right {
+    right: 10.8%;
+    width: 25%;
+  }
+}
