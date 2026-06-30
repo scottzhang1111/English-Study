@@ -30,7 +30,7 @@
   grid-template-rows: auto auto minmax(286px, 1fr) auto auto;
   gap: 6px;
   min-height: 100dvh;
-  padding: 8px 10px calc(104px + env(safe-area-inset-bottom));
+  padding: 4px 10px calc(104px + env(safe-area-inset-bottom));
   overflow: visible;
 }
 
@@ -4323,7 +4323,7 @@
 .eq-battle-page-v2 .eq-battle-boss-stage {
   z-index: 1;
   min-height: clamp(220px, 32dvh, 300px);
-  margin-top: 8px;
+  margin-top: 24px;
   transform: none;
 }
 
