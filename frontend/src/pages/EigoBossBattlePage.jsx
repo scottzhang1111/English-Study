@@ -515,14 +515,6 @@ export default function EigoBossBattlePage() {
     '--eq-boss-aura-shadow': bossAura.shadow || 'rgba(142, 9, 54, 0.24)',
   };
 
-  const getHeroSkillShortLabel = (hero) => {
-    const motion = getHeroSkillMotion(hero);
-    if (motion === 'gale_thrust') return '突';
-    if (motion === 'cyclone_combo') return '騾｣';
-    if (motion === 'wind_blessing') return '癒';
-    return '譁ｬ';
-  };
-
   useEffect(() => () => {
     timeoutRefs.current.forEach((timeoutId) => window.clearTimeout(timeoutId));
     timeoutRefs.current = [];
@@ -781,10 +773,6 @@ export default function EigoBossBattlePage() {
             ) : null}
             <span className="eq-battle-hero-element">風</span>
             <img src={hero.image} alt={hero.name} />
-            <strong>{hero.name}</strong>
-            <span className="eq-battle-hero-skill-label">
-              {getHeroSkillShortLabel(hero)} {hero.attack}
-            </span>
           </article>
         );
       })}
