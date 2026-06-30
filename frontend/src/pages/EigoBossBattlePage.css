@@ -4717,3 +4717,40 @@
     filter: brightness(1);
   }
 }
+
+/* HP bars precisely fitted into the carved-out slots of battle-status-frame.png.
+   Coordinates measured directly from the source PNG (2172x724px):
+   player slot  x:254-910  (11.70% -> 41.95%, width 30.25%)
+   boss slot    x:1261-1914 (58.06% -> 88.11%, width 30.11%)
+   both slots   y:357-411  (49.31% -> 56.91%, height 7.60%)
+   These percentages map 1:1 onto .eq-battle-top-hud-content because the frame
+   image is stretched with object-fit: fill to exactly the same box. */
+.eq-battle-page-v2 .eq-hud-side {
+  justify-content: flex-start;
+}
+
+.eq-battle-page-v2 .eq-hp-track.eq-hp-track-player,
+.eq-battle-page-v2 .eq-hp-track.eq-hp-track-boss,
+.eq-battle-page-v2 .eq-battle-hp-track.eq-hp-track-player,
+.eq-battle-page-v2 .eq-battle-hp-track.eq-hp-track-boss {
+  position: absolute;
+  top: 49.3%;
+  height: 7.6%;
+  margin: 0;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  box-shadow: none;
+}
+
+.eq-battle-page-v2 .eq-hp-track-player,
+.eq-battle-page-v2 .eq-battle-hp-track.eq-hp-track-player {
+  left: 11.7%;
+  width: 30.2%;
+}
+
+.eq-battle-page-v2 .eq-hp-track-boss,
+.eq-battle-page-v2 .eq-battle-hp-track.eq-hp-track-boss {
+  left: 58.1%;
+  width: 30.1%;
+}
