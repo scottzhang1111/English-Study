@@ -991,7 +991,6 @@ export default function EigoBossBattlePage() {
                 </div>
                 <figcaption>{battle.boss.name}</figcaption>
               </figure>
-              <div className="eq-battle-boss-nameplate">{battle.boss.name}</div>
             </div>
           </section>
 
