@@ -503,13 +503,9 @@ export default function EigoBossBattlePage() {
   const currentQuestionText = currentQuestion?.prompt || '問題を読み込んでいます';
   const currentQuestionLength = getTextLength(currentQuestionText);
   const questionTextClass = getQuestionTextClass(currentQuestionText);
-  const showDialogueTitle = currentQuestionLength <= 52;
-  const showDialogueSubtitle = currentQuestionLength <= 34;
   const dialogueClass = currentQuestionLength > 58 ? 'is-question-extra-long' : currentQuestionLength > 40 ? 'is-question-long' : 'is-question-short';
   const activeHero = battle.heroes[state.activeHeroIndex] || battle.heroes[0];
   const rewardPath = FIRST_BOSS_REWARD.nextPath || '/card-reward?source=wind_trial_001';
-  const bossHpRatio = battle.boss.hp > 0 ? state.bossHp / battle.boss.hp : 0;
-  const bossIsDanger = state.battleStatus === 'playing' && state.bossHp > 0 && bossHpRatio <= 0.3;
   const bossAura = battle.boss.aura || {};
   const playerHpPercent = battle.playerHp > 0 ? Math.max(0, Math.min(100, (state.playerHp / battle.playerHp) * 100)) : 0;
   const bossHpPercent = battle.boss.hp > 0 ? Math.max(0, Math.min(100, (state.bossHp / battle.boss.hp) * 100)) : 0;
@@ -869,7 +865,7 @@ export default function EigoBossBattlePage() {
       ) : (
         <main className="eq-battle-arena">
           <section
-            className={`eq-battle-boss-stage eq-battle-boss-zone ${state.bossReaction} ${counterSequence ? 'is-countering' : ''} ${attackSequence?.phase === 'impact' ? 'is-impact' : ''} ${bossIsDanger ? 'is-danger' : ''}`}
+            className={`eq-battle-boss-stage eq-battle-boss-zone ${state.bossReaction} ${counterSequence ? 'is-countering' : ''} ${attackSequence?.phase === 'impact' ? 'is-impact' : ''}`}
             style={bossHudStyle}
             aria-label="Boss card"
           >
@@ -904,7 +900,6 @@ export default function EigoBossBattlePage() {
                   <img className="eq-battle-boss-art" src={battle.boss.image} alt={battle.boss.name} />
                 </div>
                 <figcaption>{battle.boss.name}</figcaption>
-                {bossIsDanger ? <span className="eq-boss-danger-label">{battle.boss.dangerLabel || 'DANGER'}</span> : null}
               </figure>
               <div className="eq-battle-boss-nameplate">{battle.boss.name}</div>
             </div>
@@ -919,12 +914,6 @@ export default function EigoBossBattlePage() {
               aria-hidden="true"
             />
             <div className="eq-battle-question-content eq-battle-speech-content">
-            {showDialogueTitle ? (
-              <div className="eq-battle-dialogue-heading">
-              <span>{battle.boss.name} 縺ｮ蝠上＞</span>
-              {showDialogueSubtitle ? <small>Answer me...</small> : null}
-              </div>
-            ) : null}
             <p className={`eq-battle-question-text ${questionTextClass}`}>
               {currentQuestionText}
             </p>

@@ -5502,3 +5502,103 @@
     padding: 7px 12px;
   }
 }
+
+/* Step 36: smaller boss, clean question prompt, restored effect layer priority. */
+.eq-battle-page-v2 .eq-battle-top-hud {
+  position: relative;
+  z-index: 5;
+}
+
+.eq-battle-page-v2 .eq-battle-arena {
+  grid-template-rows: minmax(220px, 30dvh) minmax(236px, auto) minmax(126px, auto);
+  gap: 6px;
+}
+
+.eq-battle-page-v2 .eq-battle-boss-stage {
+  z-index: 1;
+  min-height: clamp(220px, 32dvh, 300px);
+  margin-top: 8px;
+  transform: none;
+}
+
+.eq-battle-page-v2 .eq-battle-boss-center {
+  width: min(54vw, 240px);
+  max-width: 240px;
+  transform: none;
+}
+
+.eq-battle-page-v2 .eq-battle-boss-magic-circle {
+  width: min(98vw, 480px);
+  opacity: 0.58;
+}
+
+.eq-battle-page-v2 .eq-battle-boss-nameplate {
+  min-height: 38px;
+  padding: 7px 12px;
+  font-size: clamp(18px, 4.5vw, 26px);
+}
+
+.eq-battle-page-v2 .eq-boss-danger-label,
+.eq-battle-page-v2 .eq-battle-boss-zone.is-danger .eq-boss-danger-label,
+.eq-battle-page-v2 .eq-battle-boss-zone.is-danger::after {
+  display: none !important;
+  content: none !important;
+}
+
+.eq-battle-page-v2 .eq-battle-dialogue-heading {
+  display: none !important;
+}
+
+.eq-battle-page-v2 .eq-battle-question-content {
+  display: flex;
+  min-height: 112px;
+  padding: 14px 42px 16px;
+  align-items: center;
+  justify-content: center;
+}
+
+.eq-battle-page-v2 .eq-battle-question-text {
+  margin: 0;
+}
+
+.eq-battle-animation-layer {
+  position: fixed !important;
+  inset: 0 !important;
+  z-index: 9999 !important;
+  overflow: visible !important;
+  pointer-events: none !important;
+  display: block !important;
+}
+
+.eq-battle-animation-layer.is-counter {
+  z-index: 9999 !important;
+}
+
+.eq-skill-asset-layer,
+.eq-damage-number,
+.eq-attack-clone-card,
+.eq-boss-attack-clone-card,
+.eq-boss-counter-impact,
+.eq-player-damage-burst {
+  z-index: 10000;
+}
+
+@media (max-width: 430px) {
+  .eq-battle-page-v2 .eq-battle-arena {
+    grid-template-rows: minmax(210px, 29dvh) minmax(236px, auto) minmax(126px, auto);
+  }
+
+  .eq-battle-page-v2 .eq-battle-boss-stage {
+    min-height: clamp(210px, 30dvh, 280px);
+  }
+
+  .eq-battle-page-v2 .eq-battle-boss-center {
+    width: min(56vw, 230px);
+    max-width: 230px;
+  }
+
+  .eq-battle-page-v2 .eq-battle-boss-magic-circle {
+    width: min(102vw, 460px);
+    opacity: 0.56;
+  }
+}
