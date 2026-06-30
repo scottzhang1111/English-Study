@@ -15,58 +15,54 @@ import {
 import './EigoBossBattlePage.css';
 
 const COUNTER_DAMAGE = 15;
-const SKILL_ASSET_MAP = {
+const SKILL_SEQUENCE_MAP = {
   wind_slash: {
-    framesBasePath: '/assets/eigo-quest/effects/wind/wind-cut-impact-asset/frames',
-    frameCount: 18,
-    fps: 24,
-    webmSrc: '/assets/eigo-quest/effects/wind/wind-cut-impact.webm',
+    folder: '/assets/eigo-quest/effects/wind/wind-cut-impact-asset/frames/',
+    startFrame: 1,
+    endFrame: 16,
     placement: 'boss',
-    className: 'eq-skill-asset--wind-cut',
+    className: 'eq-skill-sequence--wind-cut',
+    duration: 700,
     size: 300,
     offsetX: 0,
     offsetY: 0,
     rotate: -8,
-    duration: 0.68,
   },
   gale_thrust: {
-    framesBasePath: '/assets/eigo-quest/effects/wind/wind-pierce-impact-asset/frames',
-    frameCount: 14,
-    fps: 24,
-    webmSrc: '/assets/eigo-quest/effects/wind/wind-pierce-impact.webm',
+    folder: '/assets/eigo-quest/effects/wind/wind-pierce-impact-asset/frames/',
+    startFrame: 0,
+    endFrame: 12,
     placement: 'boss',
-    className: 'eq-skill-asset--wind-pierce',
+    className: 'eq-skill-sequence--wind-pierce',
+    duration: 560,
     size: 250,
     offsetX: 14,
     offsetY: -10,
     rotate: 4,
-    duration: 0.48,
   },
   cyclone_combo: {
-    framesBasePath: '/assets/eigo-quest/effects/wind/wind-combo-impact-asset/frames',
-    frameCount: 20,
-    fps: 24,
-    webmSrc: '/assets/eigo-quest/effects/wind/wind-combo-impact.webm',
+    folder: '/assets/eigo-quest/effects/wind/wind-combo-impact-asset/frames/',
+    startFrame: 0,
+    endFrame: 18,
     placement: 'boss',
-    className: 'eq-skill-asset--wind-combo',
+    className: 'eq-skill-sequence--wind-combo',
+    duration: 760,
     size: 300,
     offsetX: 0,
     offsetY: 0,
     rotate: 0,
-    duration: 0.64,
   },
   wind_blessing: {
-    framesBasePath: '/assets/eigo-quest/effects/wind/wind-blessing-aura-asset/frames',
-    frameCount: 22,
-    fps: 24,
-    webmSrc: '/assets/eigo-quest/effects/wind/wind-blessing-aura.webm',
+    folder: '/assets/eigo-quest/effects/wind/wind-blessing-aura-asset/frames/',
+    startFrame: 0,
+    endFrame: 20,
     placement: 'hero',
-    className: 'eq-skill-asset--wind-blessing',
+    className: 'eq-skill-sequence--wind-blessing',
+    duration: 860,
     size: 286,
     offsetX: 0,
     offsetY: -22,
     rotate: 0,
-    duration: 0.72,
   },
 };
 const INITIAL_MESSAGE = '答えを選んでスキル発動！';
@@ -143,73 +139,76 @@ function getSkillEffectClass(skillMotion) {
   return `skill-effect-${(skillMotion || 'wind_slash').replaceAll('_', '-')}`;
 }
 
-function getPngFrameSrc(basePath, frameIndex) {
-  return `${basePath}/frame_${String(frameIndex).padStart(3, '0')}.png`;
+function getPngFrameSrc(folder, frameIndex) {
+  const normalizedFolder = String(folder || '').replace(/\/?$/, '/');
+  return `${normalizedFolder}frame_${String(frameIndex).padStart(3, '0')}.png`;
 }
 
-function isAppleTouchDevice() {
-  if (typeof navigator === 'undefined') return false;
+function getSequenceFrameIndexes(sequenceConfig) {
+  if (!sequenceConfig) return [];
 
-  const userAgent = navigator.userAgent || '';
-  const platform = navigator.platform || '';
-  return /iPad|iPhone|iPod/.test(userAgent)
-    || (platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+  const frames = [];
+  for (let index = sequenceConfig.startFrame; index <= sequenceConfig.endFrame; index += 1) {
+    frames.push(index);
+  }
+  return frames;
+}
+
+function getSkillSequenceDuration(skillMotion) {
+  return SKILL_SEQUENCE_MAP[skillMotion]?.duration || 700;
 }
 
 function SkillPngSequence({
-  basePath,
-  frameCount,
-  fps = 24,
+  sequenceConfig,
+  playKey,
+  reducedMotion,
   className = '',
   onError,
 }) {
-  const [frameIndex, setFrameIndex] = useState(0);
+  const [frameIndex, setFrameIndex] = useState(sequenceConfig?.startFrame || 0);
   const [failed, setFailed] = useState(false);
 
   useEffect(() => {
-    setFrameIndex(0);
+    setFrameIndex(sequenceConfig?.startFrame || 0);
     setFailed(false);
-  }, [basePath, frameCount]);
+  }, [playKey, sequenceConfig]);
 
   useEffect(() => {
-    if (!basePath || !frameCount || failed || typeof window === 'undefined') return undefined;
+    if (!sequenceConfig?.folder || failed || typeof window === 'undefined') return undefined;
 
-    const intervalMs = 1000 / fps;
-    const timer = window.setInterval(() => {
-      setFrameIndex((current) => {
-        if (current >= frameCount - 1) {
-          window.clearInterval(timer);
-          return frameCount - 1;
-        }
+    const frameIndexes = getSequenceFrameIndexes(sequenceConfig);
+    const totalFrames = frameIndexes.length;
+    if (!totalFrames) return undefined;
 
-        return current + 1;
-      });
-    }, intervalMs);
-
-    return () => window.clearInterval(timer);
-  }, [basePath, failed, fps, frameCount]);
-
-  useEffect(() => {
-    if (!basePath || !frameCount || failed || typeof window === 'undefined') return undefined;
-
-    const preloadedImages = [];
-    for (let index = 0; index < frameCount; index += 1) {
-      const image = new window.Image();
-      image.src = getPngFrameSrc(basePath, index);
-      preloadedImages.push(image);
+    if (reducedMotion) {
+      setFrameIndex(frameIndexes[totalFrames - 1]);
+      return undefined;
     }
 
-    return () => {
-      preloadedImages.length = 0;
-    };
-  }, [basePath, failed, frameCount]);
+    let animationFrameId = 0;
+    const startedAt = performance.now();
+    const duration = Math.max(sequenceConfig.duration || 1, 1);
+    const tick = (timestamp) => {
+      const elapsed = Math.min(timestamp - startedAt, duration);
+      const progress = Math.max(0, Math.min(1, elapsed / duration));
+      const frameOffset = Math.min(totalFrames - 1, Math.floor(progress * totalFrames));
+      setFrameIndex(frameIndexes[frameOffset]);
 
-  if (!basePath || !frameCount || failed) return null;
+      if (elapsed < duration) {
+        animationFrameId = window.requestAnimationFrame(tick);
+      }
+    };
+
+    animationFrameId = window.requestAnimationFrame(tick);
+    return () => window.cancelAnimationFrame(animationFrameId);
+  }, [failed, playKey, reducedMotion, sequenceConfig]);
+
+  if (!sequenceConfig?.folder || failed) return null;
 
   return (
     <img
       className={`eq-skill-png-sequence ${className}`.trim()}
-      src={getPngFrameSrc(basePath, frameIndex)}
+      src={getPngFrameSrc(sequenceConfig.folder, frameIndex)}
       alt=""
       aria-hidden="true"
       draggable={false}
@@ -243,19 +242,17 @@ function createWindBladePaths(sequence) {
   ];
 }
 
-function WindAttackOverlay({ sequence, reducedMotion }) {
-  const [skillAssetFailed, setSkillAssetFailed] = useState(false);
+function WindAttackOverlay({ sequence, reducedMotion, sequenceLoadState }) {
   const [pngSequenceFailed, setPngSequenceFailed] = useState(false);
   const skillMotion = sequence?.motion || 'wind_slash';
 
   useEffect(() => {
-    setSkillAssetFailed(false);
     setPngSequenceFailed(false);
   }, [sequence?.id, skillMotion]);
 
   if (!sequence) return null;
 
-  const skillAsset = SKILL_ASSET_MAP[skillMotion];
+  const skillAsset = SKILL_SEQUENCE_MAP[skillMotion];
   const cloneWidth = Math.min(Math.max(sequence.from.width, 54), 72);
   const cloneHeight = cloneWidth * 1.34;
   const startX = sequence.from.centerX - cloneWidth / 2;
@@ -267,11 +264,10 @@ function WindAttackOverlay({ sequence, reducedMotion }) {
   const showCyclone = showImpact && skillMotion === 'cyclone_combo';
   const showBlessing = skillMotion === 'wind_blessing';
   const showComboBonus = showCyclone && sequence.combo >= 2;
-  const hasPngSequence = Boolean(skillAsset?.framesBasePath && skillAsset?.frameCount);
-  const canUsePngSequence = hasPngSequence && !pngSequenceFailed;
-  const canUseWebm = Boolean(skillAsset?.webmSrc && !skillAssetFailed && !isAppleTouchDevice());
-  const hasRealSkillAsset = Boolean(skillAsset && (canUsePngSequence || canUseWebm));
-  const showSkillAsset = showImpact && hasRealSkillAsset;
+  const hasPngSequence = Boolean(skillAsset?.folder && getSequenceFrameIndexes(skillAsset).length);
+  const canUsePngSequence = hasPngSequence && sequenceLoadState?.[skillMotion] === true && !pngSequenceFailed;
+  const hasRealSkillAsset = Boolean(skillAsset && canUsePngSequence);
+  const showSkillAsset = hasRealSkillAsset;
   const showLegacyImpact = showImpact && !hasRealSkillAsset;
   const showDamageNumber = showImpact && skillMotion !== 'wind_blessing';
   const showLegacyCyclone = showCyclone && !hasRealSkillAsset;
@@ -284,7 +280,7 @@ function WindAttackOverlay({ sequence, reducedMotion }) {
   const beamAngle = Math.atan2(deltaY, deltaX) * (180 / Math.PI);
   const beamX = sequence.from.centerX + deltaX / 2 - beamDistance / 2;
   const beamY = sequence.from.centerY + deltaY / 2;
-  const assetCenter = skillAsset?.placement === 'hero' ? sequence.from : sequence.to;
+  const assetCenter = skillAsset?.placement === 'hero' ? sequence.party || sequence.from : sequence.to;
   const assetInitialScale = skillMotion === 'gale_thrust' ? 0.64 : skillMotion === 'cyclone_combo' ? 0.7 : skillMotion === 'wind_blessing' ? 0.62 : 0.72;
   const assetScaleFrames = skillMotion === 'gale_thrust'
     ? [0.64, 1.12, 1, 0.9]
@@ -372,7 +368,7 @@ function WindAttackOverlay({ sequence, reducedMotion }) {
           <motion.div
             key={`${sequence.id}-blessing`}
             className="eq-wind-blessing-aura"
-            style={{ left: sequence.from.centerX, top: sequence.from.centerY }}
+            style={{ left: (sequence.party || sequence.from).centerX, top: (sequence.party || sequence.from).centerY }}
             initial={{ opacity: 0, scale: 0.44 }}
             animate={{ opacity: reducedMotion ? 0.55 : [0, 0.9, 0], scale: reducedMotion ? 1 : [0.44, 1.1, 1.42] }}
             exit={{ opacity: 0 }}
@@ -387,8 +383,8 @@ function WindAttackOverlay({ sequence, reducedMotion }) {
             key={`${sequence.id}-party-blessing`}
             className="eq-wind-party-blessing"
             style={{
-              left: sequence.from.centerX,
-              top: sequence.from.centerY + 28,
+              left: (sequence.party || sequence.from).centerX,
+              top: (sequence.party || sequence.from).centerY + 20,
             }}
             initial={{ opacity: 0, scale: 0.8 }}
             animate={{ opacity: reducedMotion ? 0.55 : [0, 0.85, 0], scale: reducedMotion ? 1 : [0.8, 1.18, 1.36] }}
@@ -413,31 +409,20 @@ function WindAttackOverlay({ sequence, reducedMotion }) {
             }}
             initial={{ opacity: 0, scale: assetInitialScale, rotate: skillAsset.rotate }}
             animate={{
-              opacity: reducedMotion ? 0.9 : [0, 1, 1, 0],
+              opacity: reducedMotion ? 0.9 : [0, 1, 1, 1],
               scale: reducedMotion ? 1 : assetScaleFrames,
               rotate: skillAsset.rotate,
             }}
             exit={{ opacity: 0, scale: 0.92 }}
-            transition={{ duration: reducedMotion ? 0.01 : skillAsset.duration, ease: 'easeOut' }}
+            transition={{ duration: reducedMotion ? 0.01 : skillAsset.duration / 1000, ease: 'easeOut' }}
           >
             {canUsePngSequence ? (
               <SkillPngSequence
                 key={`${sequence.id}-${skillMotion}-png`}
-                basePath={skillAsset.framesBasePath}
-                frameCount={skillAsset.frameCount}
-                fps={skillAsset.fps}
+                sequenceConfig={skillAsset}
+                playKey={sequence.id}
+                reducedMotion={reducedMotion}
                 onError={() => setPngSequenceFailed(true)}
-              />
-            ) : canUseWebm ? (
-              <video
-                key={`${sequence.id}-${skillMotion}-webm`}
-                className="eq-skill-video"
-                src={skillAsset.webmSrc}
-                autoPlay
-                muted
-                playsInline
-                preload="auto"
-                onError={() => setSkillAssetFailed(true)}
               />
             ) : null}
           </motion.div>
@@ -601,6 +586,7 @@ export default function EigoBossBattlePage() {
   const [attackSequence, setAttackSequence] = useState(null);
   const [counterSequence, setCounterSequence] = useState(null);
   const [actionEffect, setActionEffect] = useState(null);
+  const [sequenceLoadState, setSequenceLoadState] = useState({});
   const [isResolving, setIsResolving] = useState(false);
   const battleRef = useRef(null);
   const bossCardRef = useRef(null);
@@ -628,6 +614,49 @@ export default function EigoBossBattlePage() {
   useEffect(() => () => {
     timeoutRefs.current.forEach((timeoutId) => window.clearTimeout(timeoutId));
     timeoutRefs.current = [];
+  }, []);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return undefined;
+
+    let isMounted = true;
+    const preloadedImages = [];
+
+    Object.entries(SKILL_SEQUENCE_MAP).forEach(([skillMotion, sequenceConfig]) => {
+      const frameIndexes = getSequenceFrameIndexes(sequenceConfig);
+      if (!frameIndexes.length) {
+        setSequenceLoadState((current) => ({ ...current, [skillMotion]: false }));
+        return;
+      }
+
+      let completedCount = 0;
+      let hasFailed = false;
+      const markCompleted = () => {
+        completedCount += 1;
+        if (completedCount !== frameIndexes.length || !isMounted) return;
+
+        setSequenceLoadState((current) => ({
+          ...current,
+          [skillMotion]: !hasFailed,
+        }));
+      };
+
+      frameIndexes.forEach((frameIndex) => {
+        const image = new window.Image();
+        image.onload = markCompleted;
+        image.onerror = () => {
+          hasFailed = true;
+          markCompleted();
+        };
+        image.src = getPngFrameSrc(sequenceConfig.folder, frameIndex);
+        preloadedImages.push(image);
+      });
+    });
+
+    return () => {
+      isMounted = false;
+      preloadedImages.length = 0;
+    };
   }, []);
 
   const scheduleTimeout = (callback, delay) => {
@@ -664,11 +693,14 @@ export default function EigoBossBattlePage() {
   const startAttackSequence = (hero, damage, heroIndex, combo) => {
     const heroElement = heroCardRefs.current[heroIndex];
     const bossElement = bossCardRef.current;
+    const partyElement = heroPartyRef.current;
     const viewportWidth = window.innerWidth || 430;
     const viewportHeight = window.innerHeight || 760;
     const id = `${hero.id}-${Date.now()}`;
+    const motion = getHeroSkillMotion(hero);
     const from = getViewportRect(heroElement);
     const to = getViewportRect(bossElement);
+    const party = getViewportRect(partyElement);
     const containerWidth = viewportWidth;
     const containerHeight = viewportHeight;
     const fallbackFrom = {
@@ -687,16 +719,25 @@ export default function EigoBossBattlePage() {
       centerX: containerWidth - 49,
       centerY: 61,
     };
+    const fallbackParty = {
+      x: 18,
+      y: containerHeight - 160,
+      width: containerWidth - 36,
+      height: 92,
+      centerX: containerWidth / 2,
+      centerY: containerHeight - 114,
+    };
 
     setAttackSequence({
       id,
       heroImage: hero.image,
       heroName: hero.name,
-      motion: getHeroSkillMotion(hero),
+      motion,
       damage,
       combo,
       from: from || fallbackFrom,
       to: to || fallbackTo,
+      party: party || fallbackParty,
       containerWidth,
       containerHeight,
       sourceHeroIndex: heroIndex,
@@ -711,7 +752,7 @@ export default function EigoBossBattlePage() {
 
     scheduleTimeout(() => {
       setAttackSequence((current) => (current?.id === id ? null : current));
-    }, reducedMotion ? 220 : 700);
+    }, reducedMotion ? 220 : getSkillSequenceDuration(motion) + 60);
   };
 
   const startCounterSequence = () => {
@@ -1042,6 +1083,7 @@ export default function EigoBossBattlePage() {
             key={attackSequence.id}
             sequence={attackSequence}
             reducedMotion={reducedMotion}
+            sequenceLoadState={sequenceLoadState}
           />
         ) : null}
       </AnimatePresence>
