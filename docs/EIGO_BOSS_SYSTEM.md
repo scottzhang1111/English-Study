@@ -570,3 +570,9 @@ Step C:
 Step D:
 
 - add mock Boss Card reward to Card Collection
+
+Priority backlog before expanding Boss features:
+
+- Gate the next normal stage behind Mini Boss clear. For Wind Stage 4 Mini Boss, Stage 5 must remain locked until the Boss clear state is persisted for the selected child.
+- Persist Boss Card ownership after reward claim and show the obtained Boss Card in Card Collection for the selected child.
+- Implement both items with backend-backed child progress/reward data, not localStorage-only state.

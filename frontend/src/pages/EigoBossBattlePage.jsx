@@ -117,8 +117,23 @@ function getFallbackBossQuestions(bossConfig) {
   });
 }
 
-function createInitialBattleState(battleConfig, bossConfig, bossQuestions = []) {
-  const questionDeck = shuffleQuestions(bossQuestions.length ? bossQuestions : getFallbackBossQuestions(bossConfig)).slice(
+function shouldLoadReviewQuestions(bossConfig) {
+  return Boolean(bossConfig?.reviewRule?.sourceStages?.length);
+}
+
+function getSelectedChildId() {
+  if (typeof window === 'undefined') return '';
+  return window.localStorage.getItem(CHILD_STORAGE_KEY) || '';
+}
+
+function createInitialBattleState(battleConfig, bossConfig, bossQuestions = [], options = {}) {
+  const shouldUseFallbackQuestions = options.useFallbackQuestions !== false;
+  const questionSource = bossQuestions.length
+    ? bossQuestions
+    : shouldUseFallbackQuestions
+      ? getFallbackBossQuestions(bossConfig)
+      : [];
+  const questionDeck = shuffleQuestions(questionSource).slice(
     0,
     bossConfig?.questionCount || FIRST_BOSS_QUESTIONS.length
   );
@@ -130,7 +145,7 @@ function createInitialBattleState(battleConfig, bossConfig, bossQuestions = []) 
     combo: 0,
     questionDeck,
     currentQuestionIndex: 0,
-    message: INITIAL_MESSAGE,
+    message: questionDeck.length ? INITIAL_MESSAGE : '復習問題を読み込んでいます...',
     battleStatus: 'playing',
     bossReaction: '',
   };
@@ -626,8 +641,17 @@ export default function EigoBossBattlePage() {
   const bossConfig = getEigoBossById(bossIdFromUrl || DEFAULT_EIGO_BOSS_ID)
     || getEigoBossById(DEFAULT_EIGO_BOSS_ID);
   const battle = useMemo(() => createBossBattleConfig(bossConfig), [bossConfig]);
-  const [bossQuestions, setBossQuestions] = useState(() => getFallbackBossQuestions(bossConfig));
-  const [state, setState] = useState(() => createInitialBattleState(battle, bossConfig, bossQuestions));
+  const selectedChildId = useMemo(() => getSelectedChildId(), []);
+  const shouldGenerateReviewQuestions = shouldLoadReviewQuestions(bossConfig) && Boolean(selectedChildId);
+  const [bossQuestions, setBossQuestions] = useState(() => (
+    shouldGenerateReviewQuestions ? [] : getFallbackBossQuestions(bossConfig)
+  ));
+  const [state, setState] = useState(() => createInitialBattleState(
+    battle,
+    bossConfig,
+    bossQuestions,
+    { useFallbackQuestions: !shouldGenerateReviewQuestions }
+  ));
   const [attackSequence, setAttackSequence] = useState(null);
   const [counterSequence, setCounterSequence] = useState(null);
   const [actionEffect, setActionEffect] = useState(null);
@@ -669,24 +693,41 @@ export default function EigoBossBattlePage() {
   }, []);
 
   useEffect(() => {
+    if (shouldGenerateReviewQuestions) {
+      setBossQuestions([]);
+      setState((current) => (
+        current.battleStatus === 'playing' && current.currentQuestionIndex === 0
+          ? { ...current, questionDeck: [], message: '復習問題を読み込んでいます...' }
+          : current
+      ));
+      return;
+    }
+
     const fallbackQuestions = getFallbackBossQuestions(bossConfig);
     setBossQuestions(fallbackQuestions);
     setState((current) => (
       current.battleStatus === 'playing' && current.currentQuestionIndex === 0
-        ? { ...current, questionDeck: shuffleQuestions(fallbackQuestions) }
+        ? { ...current, questionDeck: shuffleQuestions(fallbackQuestions), message: INITIAL_MESSAGE }
         : current
     ));
-  }, [bossConfig]);
+  }, [bossConfig, shouldGenerateReviewQuestions]);
 
   useEffect(() => {
     if (!bossConfig?.reviewRule?.sourceStages?.length) return undefined;
 
     let cancelled = false;
-    const childId = typeof window !== 'undefined'
-      ? window.localStorage.getItem(CHILD_STORAGE_KEY) || ''
-      : '';
+    const childId = selectedChildId;
 
-    if (!childId) return undefined;
+    if (!childId) {
+      const fallbackQuestions = getFallbackBossQuestions(bossConfig);
+      setBossQuestions(fallbackQuestions);
+      setState((current) => (
+        current.battleStatus === 'playing' && current.currentQuestionIndex === 0
+          ? { ...current, questionDeck: shuffleQuestions(fallbackQuestions), message: INITIAL_MESSAGE }
+          : current
+      ));
+      return undefined;
+    }
 
     const loadBossReviewQuestions = async () => {
       try {
@@ -722,13 +763,20 @@ export default function EigoBossBattlePage() {
         setBossQuestions(generatedQuestions);
         setState((current) => (
           current.battleStatus === 'playing' && current.currentQuestionIndex === 0
-            ? { ...current, questionDeck: shuffleQuestions(generatedQuestions) }
+            ? { ...current, questionDeck: shuffleQuestions(generatedQuestions), message: INITIAL_MESSAGE }
             : current
         ));
       } catch (err) {
         if (import.meta.env.DEV) {
           console.warn('Failed to build Boss review questions; using fallback questions.', err);
         }
+        const fallbackQuestions = getFallbackBossQuestions(bossConfig);
+        setBossQuestions(fallbackQuestions);
+        setState((current) => (
+          current.battleStatus === 'playing' && current.currentQuestionIndex === 0
+            ? { ...current, questionDeck: shuffleQuestions(fallbackQuestions), message: INITIAL_MESSAGE }
+            : current
+        ));
       }
     };
 
@@ -737,7 +785,7 @@ export default function EigoBossBattlePage() {
     return () => {
       cancelled = true;
     };
-  }, [bossConfig]);
+  }, [bossConfig, selectedChildId]);
 
   useEffect(() => {
     if (typeof window === 'undefined') return undefined;
