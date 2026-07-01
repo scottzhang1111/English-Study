@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { EQBottomNav } from '../components/eigo';
-import { getEikenRealExamPart, getEikenRealExams, submitEikenRealExamAttempt } from '../api';
+import { API_BASE_URL, getEikenRealExamPart, getEikenRealExams, submitEikenRealExamAttempt } from '../api';
 import { useChildren } from '../ChildrenContext';
 import CompactPageHeader from '../components/eigo/CompactPageHeader';
 import { getEikenAssetSrc, normalizeEikenMediaHtml } from '../utils/eikenAssets';
@@ -26,12 +26,31 @@ function getEikenLevelLabel(level) {
   return '準2級';
 }
 
+function resolveApiAssetUrl(url) {
+  if (!url) return '';
+  const value = String(url).trim();
+  if (!value) return '';
+  if (/^(https?:|data:|blob:)/i.test(value)) return value;
+
+  const base = String(API_BASE_URL || '').replace(/\/$/, '');
+  const path = value.startsWith('/') ? value : `/${value}`;
+  return `${base}${path}`;
+}
+
+function resolveApiMediaHtml(html = '') {
+  return String(html).replace(/\b(src|href)=(["'])([^"']+)\2/gi, (match, attr, quote, value) => {
+    const normalizedValue = String(value || '').trim();
+    if (!/^\/?api\//i.test(normalizedValue)) return match;
+    return `${attr}=${quote}${resolveApiAssetUrl(normalizedValue)}${quote}`;
+  });
+}
+
 function getEikenImageSrc(imagePath, childId, targetLevel) {
-  return getEikenAssetSrc(imagePath, childId, targetLevel);
+  return resolveApiAssetUrl(getEikenAssetSrc(imagePath, childId, targetLevel));
 }
 
 function getEikenAudioSrc(audioPath, childId, targetLevel) {
-  return getEikenAssetSrc(audioPath, childId, targetLevel);
+  return resolveApiAssetUrl(getEikenAssetSrc(audioPath, childId, targetLevel));
 }
 
 function getQuestionAnswer(answers, questionNumber) {
@@ -223,7 +242,7 @@ function EikenResultExplanationCard({
   const status = getResultStatus(studentAnswer, correctAnswer);
   const statusLabel = getResultStatusLabel(status);
   const hasChoices = preview?.choices?.length > 0;
-  const explanationHtml = explanation?.html ? normalizeEikenMediaHtml(explanation.html, childId, targetLevel) : '';
+  const explanationHtml = explanation?.html ? resolveApiMediaHtml(normalizeEikenMediaHtml(explanation.html, childId, targetLevel)) : '';
 
   return (
     <article className={`eiken-real-result-row is-${status}`}>
@@ -343,7 +362,10 @@ export default function EikenRealExamPage() {
     : partData?.question_numbers?.length
       ? partData.question_numbers
       : buildQuestionNumbers(questionCount);
-  const normalizedHtml = useMemo(() => normalizeEikenMediaHtml(partData?.html || '', activeChildId, activeTargetLevel), [partData?.html, activeChildId, activeTargetLevel]);
+  const normalizedHtml = useMemo(
+    () => resolveApiMediaHtml(normalizeEikenMediaHtml(partData?.html || '', activeChildId, activeTargetLevel)),
+    [partData?.html, activeChildId, activeTargetLevel],
+  );
   const questionPreviews = useMemo(() => extractEikenQuestionPreviews(normalizedHtml, mode), [normalizedHtml, mode]);
   const audioSources = useMemo(
     () => (partData?.audio_paths || []).map((audioPath) => getEikenAudioSrc(audioPath, activeChildId, activeTargetLevel)).filter(Boolean),
@@ -1335,7 +1357,7 @@ export default function EikenRealExamPage() {
                           {isExpanded && (
                             <div
                               className="eiken-answer-explanation mt-3 rounded-[16px] bg-white/88 px-3 py-3 text-sm leading-7 text-[#42557f]"
-                              dangerouslySetInnerHTML={{ __html: normalizeEikenMediaHtml(item.html || '', activeChildId, activeTargetLevel) }}
+                              dangerouslySetInnerHTML={{ __html: resolveApiMediaHtml(normalizeEikenMediaHtml(item.html || '', activeChildId, activeTargetLevel)) }}
                             />
                           )}
                         </article>
