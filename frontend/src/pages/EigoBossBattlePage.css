@@ -5644,3 +5644,150 @@
   animation: eq-battle-boss-magic-circle-spin 12s linear infinite;
   will-change: transform;
 }
+
+/* Long-text layout guard: fixed centered battle column, wrapped text, no min-content drift. */
+.eq-boss-battle-page,
+.eq-boss-battle-content,
+.eq-boss-battle-stage,
+.eq-battle-page-v2,
+.eq-battle-page-v2 .eq-battle-arena,
+.eq-battle-page-v2 .eq-battle-boss-stage,
+.eq-battle-page-v2 .eq-battle-quiz-stage,
+.eq-battle-page-v2 .eq-battle-party-stage,
+.eq-battle-page-v2 .eq-battle-question-frame,
+.eq-battle-page-v2 .eq-battle-question-content,
+.eq-battle-page-v2 .eq-battle-answer-grid,
+.eq-battle-page-v2 .eq-battle-answer-grid .eq-battle-answer-button,
+.eq-battle-page-v2 .eq-battle-answer-grid .eq-choice-text {
+  box-sizing: border-box;
+  max-width: 100%;
+  min-width: 0;
+}
+
+.eq-boss-battle-page,
+.eq-boss-battle-content {
+  width: 100%;
+  overflow-x: hidden;
+}
+
+.eq-battle-page-v2 {
+  width: min(100%, 430px);
+  max-width: 430px;
+  margin-inline: auto;
+  overflow-x: hidden;
+}
+
+.eq-battle-page-v2 .eq-battle-arena {
+  width: 100%;
+  margin-inline: auto;
+  justify-items: center;
+  overflow-x: hidden;
+}
+
+.eq-battle-page-v2 .eq-battle-boss-stage,
+.eq-battle-page-v2 .eq-battle-quiz-stage,
+.eq-battle-page-v2 .eq-battle-party-stage {
+  width: min(88vw, 396px);
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.eq-battle-page-v2 .eq-battle-question-frame {
+  width: 100%;
+  overflow: hidden;
+}
+
+.eq-battle-page-v2 .eq-battle-question-content {
+  width: 100%;
+  overflow: hidden;
+}
+
+.eq-battle-page-v2 .eq-battle-question-text {
+  width: 100%;
+  max-width: 100%;
+  overflow: hidden;
+  hyphens: auto;
+  line-height: 1.12;
+  overflow-wrap: anywhere;
+  text-align: center;
+  white-space: normal;
+  word-break: break-word;
+}
+
+.eq-battle-page-v2 .eq-battle-question-text.is-medium {
+  font-size: clamp(18px, 4vw, 24px);
+  line-height: 1.12;
+}
+
+.eq-battle-page-v2 .eq-battle-question-text.is-long {
+  font-size: clamp(15px, 3.4vw, 20px);
+  line-height: 1.14;
+}
+
+.eq-battle-page-v2 .eq-battle-question-text.is-very-long {
+  font-size: clamp(12px, 2.9vw, 16px);
+  line-height: 1.16;
+}
+
+.eq-battle-page-v2 .eq-battle-answer-grid {
+  display: grid;
+  width: 100%;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  justify-self: center;
+  overflow: hidden;
+}
+
+.eq-battle-page-v2 .eq-battle-answer-grid .eq-battle-answer-button {
+  display: grid;
+  width: 100%;
+  grid-template-columns: 32px minmax(0, 1fr);
+  align-items: center;
+  overflow: hidden;
+}
+
+.eq-battle-page-v2 .eq-battle-answer-grid .eq-choice-badge {
+  flex: 0 0 auto;
+}
+
+.eq-battle-page-v2 .eq-battle-answer-grid .eq-choice-text {
+  display: block;
+  width: 100%;
+  overflow: hidden;
+  hyphens: auto;
+  line-height: 1.08;
+  overflow-wrap: anywhere;
+  text-align: left;
+  text-overflow: clip;
+  white-space: normal;
+  word-break: break-word;
+}
+
+.eq-battle-page-v2 .eq-battle-answer-grid .eq-battle-answer-button.is-choice-long .eq-choice-text {
+  font-size: clamp(12px, 3vw, 16px);
+  line-height: 1.08;
+}
+
+.eq-battle-page-v2 .eq-battle-answer-grid .eq-battle-answer-button.is-choice-very-long .eq-choice-text {
+  font-size: clamp(10px, 2.6vw, 14px);
+  line-height: 1.1;
+}
+
+@media (max-width: 380px) {
+  .eq-battle-page-v2 .eq-battle-boss-stage,
+  .eq-battle-page-v2 .eq-battle-quiz-stage,
+  .eq-battle-page-v2 .eq-battle-party-stage {
+    width: min(90vw, 380px);
+  }
+
+  .eq-battle-page-v2 .eq-battle-answer-grid .eq-battle-answer-button {
+    grid-template-columns: 29px minmax(0, 1fr);
+  }
+
+  .eq-battle-page-v2 .eq-battle-question-text.is-long {
+    font-size: clamp(14px, 3.3vw, 18px);
+  }
+
+  .eq-battle-page-v2 .eq-battle-question-text.is-very-long {
+    font-size: clamp(11px, 2.8vw, 15px);
+  }
+}

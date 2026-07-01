@@ -25,7 +25,15 @@ function normalizeWord(rawWord, fallbackStageId) {
     id: rawWord.id || rawWord.vocabId || rawWord.vocab_id || word,
     word,
     meaningJa,
-    stageId: Number(rawWord.stageId || rawWord.stage_id || rawWord.stage || fallbackStageId || 0) || null,
+    stageId: Number(
+      rawWord.stageId
+      || rawWord.stage_id
+      || rawWord.stage
+      || rawWord.stageNumber
+      || rawWord.stage_number
+      || fallbackStageId
+      || 0
+    ) || null,
   };
 }
 
@@ -61,10 +69,51 @@ function normalizeFallbackQuestion(question, index) {
   };
 }
 
+function getTargetQuestionCount(bossConfig) {
+  const configuredCount = Number(bossConfig?.questionCount);
+  return Math.max(1, Number.isFinite(configuredCount) && configuredCount > 0 ? configuredCount : 20);
+}
+
+function buildFallbackQuestions(fallbackQuestions, targetCount, existingIds = new Set()) {
+  const normalizedFallbacks = fallbackQuestions
+    .map(normalizeFallbackQuestion)
+    .filter(Boolean);
+
+  if (!normalizedFallbacks.length || targetCount <= 0) return [];
+
+  const picked = [];
+  let repeatIndex = 0;
+
+  while (picked.length < targetCount) {
+    const sourceQuestion = normalizedFallbacks[repeatIndex % normalizedFallbacks.length];
+    const baseId = String(sourceQuestion.id || `fallback-boss-q-${repeatIndex + 1}`);
+    const candidateId = repeatIndex < normalizedFallbacks.length
+      ? baseId
+      : `${baseId}-repeat-${Math.floor(repeatIndex / normalizedFallbacks.length)}`;
+
+    repeatIndex += 1;
+    if (existingIds.has(candidateId)) continue;
+
+    existingIds.add(candidateId);
+    picked.push({
+      ...sourceQuestion,
+      id: candidateId,
+      source: {
+        ...(sourceQuestion.source || {}),
+        type: 'fallback_mock',
+        originalId: baseId,
+        repeatIndex,
+      },
+    });
+  }
+
+  return picked;
+}
+
 function buildQuestionByType({ bossConfig, word, choices, index, questionType }) {
   const worldId = bossConfig?.worldId || word.worldId || word.world_id || 'wind';
   const baseSource = {
-    type: 'stage_word',
+    type: word.sourceType || 'stage_word',
     questionType,
     worldId,
     stageId: word.stageId,
@@ -95,6 +144,27 @@ function buildQuestionByType({ bossConfig, word, choices, index, questionType })
   };
 }
 
+function getConfiguredCount(totalCount, weight) {
+  if (!weight) return 0;
+  return Math.max(0, Math.round(totalCount * Number(weight)));
+}
+
+function takeUniqueWords(pool, count, selectedKeys) {
+  if (count <= 0) return [];
+  const picked = [];
+  const shuffledPool = shuffle(pool);
+
+  shuffledPool.forEach((word) => {
+    if (picked.length >= count) return;
+    const key = String(word.id || word.word).toLowerCase();
+    if (selectedKeys.has(key)) return;
+    selectedKeys.add(key);
+    picked.push(word);
+  });
+
+  return picked;
+}
+
 export function buildBossReviewQuestions({
   bossConfig,
   stageWords = [],
@@ -102,31 +172,69 @@ export function buildBossReviewQuestions({
   importantWords = [],
   fallbackQuestions = [],
 } = {}) {
-  const questionCount = Math.max(1, Number(bossConfig?.questionCount || 8));
+  const questionCount = getTargetQuestionCount(bossConfig);
   const sourceStages = new Set((bossConfig?.reviewRule?.sourceStages || []).map(Number));
+  const earlierReviewStages = new Set((
+    bossConfig?.reviewRule?.reviewStages
+    || bossConfig?.reviewRule?.earlierReviewStages
+    || []
+  ).map(Number));
+  const allowedReviewStages = new Set([...sourceStages, ...earlierReviewStages]);
+  const questionMix = bossConfig?.reviewRule?.questionMix || {};
 
-  // TODO Step E2:
-  // Implement the configured 70/20/10 mix when mistakeWords and importantWords
-  // are available in this flow. V1 uses source stage words first.
   const normalizedStageWords = uniqueByWord(
     stageWords
       .map((item) => normalizeWord(item, item?.stageId || item?.stage_id || item?.stage))
       .filter(Boolean)
       .filter((word) => !sourceStages.size || sourceStages.has(Number(word.stageId)))
-  );
-  const normalizedMistakeWords = uniqueByWord(mistakeWords.map((item) => normalizeWord(item)).filter(Boolean));
-  const normalizedImportantWords = uniqueByWord(importantWords.map((item) => normalizeWord(item)).filter(Boolean));
+  ).map((word) => ({ ...word, sourceType: 'stage_word' }));
+  const normalizedEarlierReviewWords = uniqueByWord(
+    stageWords
+      .map((item) => normalizeWord(item, item?.stageId || item?.stage_id || item?.stage))
+      .filter(Boolean)
+      .filter((word) => earlierReviewStages.has(Number(word.stageId)))
+  ).map((word) => ({ ...word, sourceType: 'review_word' }));
+  const normalizedMistakeWords = uniqueByWord(
+    mistakeWords
+      .map((item) => normalizeWord(item))
+      .filter(Boolean)
+      .filter((word) => !word.stageId || !allowedReviewStages.size || allowedReviewStages.has(Number(word.stageId)))
+  ).map((word) => ({ ...word, sourceType: 'mistake_word' }));
+  const normalizedImportantWords = uniqueByWord(
+    importantWords
+      .map((item) => normalizeWord(item))
+      .filter(Boolean)
+      .filter((word) => !word.stageId || !allowedReviewStages.size || allowedReviewStages.has(Number(word.stageId)))
+  ).map((word) => ({ ...word, sourceType: 'important_word' }));
   const candidateWords = uniqueByWord([
     ...normalizedStageWords,
+    ...normalizedEarlierReviewWords,
     ...normalizedMistakeWords,
     ...normalizedImportantWords,
   ]);
 
   if (candidateWords.length < 4) {
-    return fallbackQuestions.map(normalizeFallbackQuestion).filter(Boolean).slice(0, questionCount);
+    return buildFallbackQuestions(fallbackQuestions, questionCount);
   }
 
-  const selectedWords = shuffle(candidateWords).slice(0, questionCount);
+  const selectedKeys = new Set();
+  const stageTargetCount = getConfiguredCount(questionCount, questionMix.stageWords);
+  const earlierTargetCount = getConfiguredCount(questionCount, questionMix.earlierReview);
+  const mistakeTargetCount = getConfiguredCount(questionCount, questionMix.mistakes);
+  const importantTargetCount = getConfiguredCount(questionCount, questionMix.importantWords);
+  const selectedWords = [
+    ...takeUniqueWords(normalizedStageWords, stageTargetCount, selectedKeys),
+    ...takeUniqueWords(normalizedEarlierReviewWords, earlierTargetCount, selectedKeys),
+    ...takeUniqueWords(normalizedMistakeWords, mistakeTargetCount, selectedKeys),
+    ...takeUniqueWords(normalizedImportantWords, importantTargetCount, selectedKeys),
+  ];
+
+  if (selectedWords.length < questionCount) {
+    selectedWords.push(
+      ...takeUniqueWords(candidateWords, questionCount - selectedWords.length, selectedKeys)
+    );
+  }
+
   const generatedQuestions = selectedWords.map((word, index) => {
     const questionType = index % 2 === 0 ? 'ja-en' : 'en-ja';
     const correctAnswer = questionType === 'en-ja' ? word.meaningJa : word.word;
@@ -148,10 +256,11 @@ export function buildBossReviewQuestions({
   if (generatedQuestions.length >= questionCount) return generatedQuestions.slice(0, questionCount);
 
   const existingIds = new Set(generatedQuestions.map((question) => String(question.id)));
-  const fallback = fallbackQuestions
-    .map(normalizeFallbackQuestion)
-    .filter(Boolean)
-    .filter((question) => !existingIds.has(String(question.id)));
+  const fallback = buildFallbackQuestions(
+    fallbackQuestions,
+    questionCount - generatedQuestions.length,
+    existingIds
+  );
 
   return [...generatedQuestions, ...fallback].slice(0, questionCount);
 }

@@ -24,7 +24,8 @@ export function markBossCleared(bossConfig) {
     [bossConfig.bossId]: {
       bossId: bossConfig.bossId,
       worldId: bossConfig.worldId,
-      stageId: bossConfig.stageId,
+      stageId: bossConfig.stageId || bossConfig.checkpointAfterStage,
+      checkpointAfterStage: bossConfig.checkpointAfterStage,
       bossType: bossConfig.bossType,
       cleared: true,
       clearedAt: Date.now(),

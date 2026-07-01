@@ -14,7 +14,28 @@ export const EIGO_BOSS_WORLDS = {
   LIGHT: 'light',
 };
 
-export const DEFAULT_EIGO_BOSS_ID = 'wind-stage-4-harpy';
+export const DEFAULT_EIGO_BOSS_ID = 'wind-stage-4-mini-boss-1';
+
+export const EIGO_BOSS_ID_ALIASES = {
+  'wind-stage-4-harpy': DEFAULT_EIGO_BOSS_ID,
+  'wind-mini-boss-1': DEFAULT_EIGO_BOSS_ID,
+  'wind-mini-boss-2': 'wind-stage-8-mini-boss-2',
+  'wind-world-boss': 'wind-stage-10-world-boss',
+};
+
+export const EIGO_BOSS_HERO_RULE_TYPES = {
+  STAGE_CLUSTER: 'stage_cluster',
+  RANDOM_WORLD: 'random_world',
+};
+
+const WIND_ELEMENT = {
+  id: EIGO_BOSS_WORLDS.WIND,
+  labelJa: '風',
+  labelEn: 'Wind',
+  color: 'cyan',
+};
+
+const MINI_BOSS_GATE_MESSAGE = 'Mini Bossをクリアすると次のStageが開くよ！';
 
 export const EIGO_BOSSES = [
   {
@@ -22,179 +43,193 @@ export const EIGO_BOSSES = [
     worldId: EIGO_BOSS_WORLDS.WIND,
     worldNameJa: '風の世界',
     stageId: 4,
+    checkpointAfterStage: 4,
     bossType: EIGO_BOSS_TYPES.MINI_BOSS,
 
     nameJa: '風裂きハーピィ',
     nameEn: 'Storm Harpy',
 
-    hp: 120,
+    hp: 400,
     playerHp: 100,
-    questionCount: 8,
+    questionCount: 20,
 
     image: '/assets/eigo-quest/cards/boss/wind-mini-boss1.png',
     cardImage: '/assets/eigo-quest/cards/boss/wind-mini-boss1.png',
 
-    element: {
-      id: EIGO_BOSS_WORLDS.WIND,
-      labelJa: '風',
-      labelEn: 'Wind',
-      color: 'cyan',
-    },
+    element: WIND_ELEMENT,
 
-    unlockRule: {
-      requiredWorldId: EIGO_BOSS_WORLDS.WIND,
-      requiredClearedStages: [1, 2, 3],
+    unlockCondition: {
+      requiredClearedStages: [1, 2, 3, 4],
     },
 
     reviewRule: {
-      sourceStages: [1, 2, 3],
+      sourceStages: [1, 2, 3, 4],
       questionMix: {
         stageWords: 0.7,
         mistakes: 0.2,
         importantWords: 0.1,
       },
-      descriptionJa: '風の世界 Stage 1〜3 の総復習',
+      descriptionJa: '風の世界 Stage 1〜4 の総復習',
     },
 
     progressGate: {
-      blocksStagesAfter: 4,
-      unlocksStagesFrom: 5,
       gateType: 'stage_progress',
-      messageJa: 'Mini Bossをクリアすると次のStageが開くよ！',
+      unlocksStagesFrom: 5,
+      messageJa: MINI_BOSS_GATE_MESSAGE,
+    },
+
+    heroRule: {
+      type: EIGO_BOSS_HERO_RULE_TYPES.STAGE_CLUSTER,
+      sourceStages: [1, 2, 3, 4],
+      count: 4,
+      fallbackWorldId: EIGO_BOSS_WORLDS.WIND,
     },
 
     reward: {
       type: 'boss_card',
-      cardId: 'boss-card-wind-stage-4-harpy',
+      rewardType: 'boss_card',
+      cardId: 'boss-card-wind-mini-boss-1',
       nameJa: '風裂きハーピィカード',
       rarity: 'rare',
       image: '/assets/eigo-quest/cards/boss/wind-mini-boss1.png',
-      source: 'wind_stage_4_boss_clear',
+      source: 'wind_stage_4_mini_boss_clear',
     },
   },
   {
-    bossId: 'wind-stage-8-griffin',
+    bossId: 'wind-stage-8-mini-boss-2',
     worldId: EIGO_BOSS_WORLDS.WIND,
     worldNameJa: '風の世界',
     stageId: 8,
+    checkpointAfterStage: 8,
     bossType: EIGO_BOSS_TYPES.MINI_BOSS,
 
-    nameJa: '旋風のグリフォン',
-    nameEn: 'Gale Griffin',
+    nameJa: '嵐怨エリニュス',
+    nameEn: 'Storm Erinys',
 
-    hp: 150,
+    hp: 400,
     playerHp: 100,
-    questionCount: 9,
+    questionCount: 20,
 
     image: '/assets/eigo-quest/cards/boss/wind-mini-boss2.png',
     cardImage: '/assets/eigo-quest/cards/boss/wind-mini-boss2.png',
 
-    element: {
-      id: EIGO_BOSS_WORLDS.WIND,
-      labelJa: '風',
-      labelEn: 'Wind',
-      color: 'cyan',
-    },
+    element: WIND_ELEMENT,
 
-    unlockRule: {
-      requiredWorldId: EIGO_BOSS_WORLDS.WIND,
-      requiredClearedStages: [5, 6, 7],
+    unlockCondition: {
+      requiredClearedStages: [5, 6, 7, 8],
     },
 
     reviewRule: {
-      sourceStages: [5, 6, 7],
+      sourceStages: [5, 6, 7, 8],
+      reviewStages: [1, 2, 3, 4],
       questionMix: {
-        stageWords: 0.7,
-        mistakes: 0.2,
-        importantWords: 0.1,
+        stageWords: 0.6,
+        earlierReview: 0.25,
+        mistakes: 0.15,
       },
-      descriptionJa: '風の世界 Stage 5〜7 の総復習',
+      descriptionJa: '風の世界 Stage 5〜8 と Stage 1〜4 の復習',
     },
 
     progressGate: {
-      blocksStagesAfter: 8,
-      unlocksStagesFrom: 9,
       gateType: 'stage_progress',
-      messageJa: 'Mini Bossをクリアすると次のStageが開くよ！',
+      unlocksStagesFrom: 9,
+      messageJa: MINI_BOSS_GATE_MESSAGE,
+    },
+
+    heroRule: {
+      type: EIGO_BOSS_HERO_RULE_TYPES.STAGE_CLUSTER,
+      sourceStages: [5, 6, 7, 8],
+      count: 4,
+      fallbackWorldId: EIGO_BOSS_WORLDS.WIND,
     },
 
     reward: {
       type: 'boss_card',
-      cardId: 'boss-card-wind-stage-8-griffin',
-      nameJa: '旋風のグリフォンカード',
+      rewardType: 'boss_card',
+      cardId: 'boss-card-wind-mini-boss-2',
+      nameJa: '嵐怨エリニュスカード',
       rarity: 'rare',
       image: '/assets/eigo-quest/cards/boss/wind-mini-boss2.png',
-      source: 'wind_stage_8_boss_clear',
+      source: 'wind_stage_8_mini_boss_clear',
     },
   },
   {
-    bossId: 'wind-stage-10-tempest-dragon',
+    bossId: 'wind-stage-10-world-boss',
     worldId: EIGO_BOSS_WORLDS.WIND,
     worldNameJa: '風の世界',
     stageId: 10,
+    checkpointAfterStage: 10,
     bossType: EIGO_BOSS_TYPES.WORLD_BOSS,
 
-    nameJa: '嵐王テンペストドラゴン',
-    nameEn: 'Tempest Dragon',
+    nameJa: '風の世界ボス',
+    nameEn: 'Wind World Boss',
 
-    hp: 200,
+    hp: 600,
     playerHp: 100,
-    questionCount: 10,
+    questionCount: 30,
 
     image: '/assets/eigo-quest/cards/boss/wind-world-boss.png',
     cardImage: '/assets/eigo-quest/cards/boss/wind-world-boss.png',
 
-    element: {
-      id: EIGO_BOSS_WORLDS.WIND,
-      labelJa: '風',
-      labelEn: 'Wind',
-      color: 'cyan',
-    },
+    element: WIND_ELEMENT,
 
-    unlockRule: {
-      requiredWorldId: EIGO_BOSS_WORLDS.WIND,
-      requiredClearedStages: [9],
-      requiredBossIds: ['wind-stage-8-griffin'],
+    unlockCondition: {
+      requiredClearedStages: [9, 10],
     },
 
     reviewRule: {
-      sourceStages: [1, 2, 3, 4, 5, 6, 7, 8, 9],
+      sourceStages: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
       questionMix: {
-        stageWords: 0.65,
-        mistakes: 0.25,
-        importantWords: 0.1,
+        stageWords: 0.5,
+        mistakes: 0.3,
+        importantWords: 0.2,
       },
-      descriptionJa: '風の世界 Stage 1〜9 の総復習',
+      descriptionJa: '風の世界 Stage 1〜10 の総復習',
     },
 
     progressGate: {
-      blocksStagesAfter: 10,
-      unlocksNextWorld: true,
       gateType: 'world_progress',
+      unlocksNextWorld: true,
       messageJa: 'World Bossをクリアすると次の世界が開くよ！',
+    },
+
+    heroRule: {
+      type: EIGO_BOSS_HERO_RULE_TYPES.RANDOM_WORLD,
+      worldId: EIGO_BOSS_WORLDS.WIND,
+      count: 4,
     },
 
     reward: {
       type: 'boss_card',
-      cardId: 'boss-card-wind-stage-10-tempest-dragon',
-      nameJa: '嵐王テンペストドラゴンカード',
-      rarity: 'legendary',
+      rewardType: 'boss_card',
+      cardId: 'boss-card-wind-world-boss',
+      nameJa: '風の世界ボスカード',
+      rarity: 'super_rare',
       image: '/assets/eigo-quest/cards/boss/wind-world-boss.png',
-      source: 'wind_stage_10_boss_clear',
+      source: 'wind_stage_10_world_boss_clear',
     },
   },
 ];
 
-export function getEigoBossById(bossId) {
-  return EIGO_BOSSES.find((boss) => boss.bossId === bossId) || null;
+export function normalizeEigoBossId(bossId) {
+  return EIGO_BOSS_ID_ALIASES[bossId] || bossId;
 }
 
-export function getEigoBossByWorldStage(worldId, stageId) {
-  return EIGO_BOSSES.find(
-    (boss) => boss.worldId === worldId && boss.stageId === Number(stageId)
-  ) || null;
+export function getEigoBossById(bossId) {
+  const normalizedBossId = normalizeEigoBossId(bossId || DEFAULT_EIGO_BOSS_ID);
+  return EIGO_BOSSES.find((boss) => boss.bossId === normalizedBossId) || null;
+}
+
+export function getEigoBossesByWorld(worldId) {
+  return EIGO_BOSSES.filter((boss) => boss.worldId === worldId);
+}
+
+export function getEigoBossesAfterStage(worldId, stageId) {
+  return getEigoBossesByWorld(worldId).filter(
+    (boss) => Number(boss.checkpointAfterStage) === Number(stageId)
+  );
 }
 
 export function getEigoBossBattleRoute(bossId) {
-  return `/boss-battle-v1?bossId=${encodeURIComponent(bossId)}`;
+  return `/boss-battle-v1?bossId=${encodeURIComponent(normalizeEigoBossId(bossId))}`;
 }

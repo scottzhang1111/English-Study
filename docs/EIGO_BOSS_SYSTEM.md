@@ -303,12 +303,12 @@ Boss stage node types:
 
 Unlock flow:
 
-- If Stage 1-3 cleared: Stage 4 Mini Boss unlocks
-- If Stage 4 Boss cleared: Stage 5 unlocks
-- If Stage 5-7 cleared: Stage 8 Mini Boss unlocks
-- If Stage 8 Boss cleared: Stage 9 unlocks
-- If Stage 9 cleared: Stage 10 World Boss unlocks
-- If Stage 10 World Boss cleared: next world unlocks
+- If Stage 1-4 cleared:  Mini Boss 1 unlocks
+- If Mini Boss 1  cleared: Stage 5 unlocks
+- If Stage 5-8 cleared: Mini Boss 2 unlocks
+- If Mini Boss 2 cleared: Stage 9 unlocks
+- If Stage 9 -10 cleared: World Boss unlocks
+- If World Boss cleared: next world unlocks
 
 UI:
 

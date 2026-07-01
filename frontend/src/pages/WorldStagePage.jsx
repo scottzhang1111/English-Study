@@ -4,7 +4,7 @@ import { getHomeData } from '../api';
 import { EQBackPill, EQCard, EQMobileShell, EQBottomNav } from '../components/eigo';
 import { eigoQuestCards } from '../config/eigoQuestCards';
 import eigoQuestWorlds, { EIGO_QUEST_WORDS_PER_STAGE } from '../config/eigoQuestWorlds';
-import { EIGO_BOSSES, EIGO_BOSS_TYPES, getEigoBossBattleRoute, getEigoBossByWorldStage } from '../data/eigoBosses';
+import { EIGO_BOSSES, EIGO_BOSS_TYPES, getEigoBossBattleRoute, getEigoBossesByWorld } from '../data/eigoBosses';
 import { isBossCleared } from '../helpers/eigoBossProgress';
 import CompactPageHeader from '../components/eigo/CompactPageHeader';
 
@@ -97,6 +97,13 @@ fire: [
     { x: 78, y: 82 },
   ],
 };
+const WORLD_BOSS_CHECKPOINT_POSITIONS = {
+  wind: {
+    4: { x: 52, y: 34 },
+    8: { x: 42, y: 78 },
+    10: { x: 88, y: 82 },
+  },
+};
 const WORLD_STAGE_PATHS = {
   fire:
   'M 14 72 C 17 66, 21 61, 25 58 C 29 54, 32 51, 35 48 C 39 44, 43 41, 48 39 C 55 35, 62 33, 68 31 C 66 40, 63 47, 59 53 C 54 58, 50 62, 46 65 C 49 71, 53 75, 56 78 C 49 81, 41 83, 33 84 C 50 84, 67 83, 82 82',
@@ -117,18 +124,51 @@ function missionProgress(done, target, suffix = '') {
   return { status: `${safeDone} / ${safeTarget}`, detail: '' };
 }
 
-function getBlockingBossForStage(worldId, stageNumber, currentBossId = '') {
+function getBlockingBossForStage(worldId, stageNumber) {
   return EIGO_BOSSES.find((boss) => {
-    if (boss.bossId === currentBossId) return false;
     if (boss.worldId !== worldId) return false;
     if (!boss.progressGate) return false;
     if (boss.progressGate.gateType !== 'stage_progress') return false;
 
-    const unlocksFrom = Number(boss.progressGate.unlocksStagesFrom || 0);
-    if (!unlocksFrom) return false;
+    const blocksFrom = Number(boss.progressGate.blocksStagesFrom || boss.progressGate.unlocksStagesFrom || 0);
+    if (!blocksFrom) return false;
 
-    return Number(stageNumber) >= unlocksFrom && !isBossCleared(boss.bossId);
+    return Number(stageNumber) >= blocksFrom && !isBossCleared(boss.bossId);
   }) || null;
+}
+
+function getStageProgressStatus(currentWorldProgress, stageNumber, worldId) {
+  const stageProgress = currentWorldProgress.stages?.find((item) => Number(item.stage) === Number(stageNumber));
+  const rawStatus = stageProgress?.status || (worldId === 'wind' && Number(stageNumber) === 1 ? 'current' : 'locked');
+  return {
+    stageProgress,
+    rawStatus,
+    status: rawStatus === 'cleared' ? 'completed' : rawStatus,
+  };
+}
+
+function isStageCleared(currentWorldProgress, stageNumber) {
+  const stageProgress = currentWorldProgress.stages?.find((item) => Number(item.stage) === Number(stageNumber));
+  return stageProgress?.status === 'cleared' || stageProgress?.status === 'completed';
+}
+
+function isBossCheckpointUnlocked(bossConfig, currentWorldProgress) {
+  const requiredStages = bossConfig?.unlockCondition?.requiredClearedStages
+    || bossConfig?.unlockRule?.requiredClearedStages
+    || [];
+  return requiredStages.every((stageNumber) => isStageCleared(currentWorldProgress, stageNumber));
+}
+
+function getBossCheckpointPosition(worldId, bossConfig, stagePositions) {
+  const checkpointStage = Number(bossConfig.checkpointAfterStage || 0);
+  const configuredPosition = WORLD_BOSS_CHECKPOINT_POSITIONS[worldId]?.[checkpointStage];
+  if (configuredPosition) return configuredPosition;
+
+  const anchor = stagePositions[checkpointStage - 1] || stagePositions[stagePositions.length - 1] || { x: 50, y: 50 };
+  return {
+    x: clamp(anchor.x + 7, 8, 92),
+    y: clamp(anchor.y - 5, 8, 92),
+  };
 }
 
 export default function WorldStagePage() {
@@ -211,37 +251,60 @@ export default function WorldStagePage() {
     setImageFailed(false);
   }, [currentWorld.id]);
 
-  const stageNodes = Array.from({ length: worldStageCount }, (_, index) => {
+  const normalStageNodes = Array.from({ length: worldStageCount }, (_, index) => {
     const stage = index + 1;
-    const stageProgress = currentWorldProgress.stages?.find((item) => Number(item.stage) === stage);
-    const bossConfig = getEigoBossByWorldStage(currentWorld.id, stage);
-    const blockingBoss = getBlockingBossForStage(currentWorld.id, stage, bossConfig?.bossId);
+    const { stageProgress, status: normalizedStatus } = getStageProgressStatus(currentWorldProgress, stage, currentWorld.id);
+    const blockingBoss = getBlockingBossForStage(currentWorld.id, stage);
     const isLockedByBossGate = Boolean(blockingBoss);
-    const rawStatus = stageProgress?.status || (currentWorld.id === 'wind' && stage === 1 ? 'current' : 'locked');
-    const baseStatus = rawStatus === 'cleared'
-      ? 'completed'
-      : bossConfig && rawStatus === 'locked'
-        ? 'available'
-        : rawStatus;
+    const baseStatus = normalizedStatus;
     const status = isLockedByBossGate ? 'locked' : baseStatus;
     // TODO Step C2:
     // Connect Boss unlock to real child stage progress.
     // TODO: Replace local Boss clear status with backend child_boss_progress.
     return {
+      id: `stage-${stage}`,
+      nodeType: 'stage',
       stage,
+      displayLabel: stage,
       status,
-      unlocked: !isLockedByBossGate && Boolean(stageProgress?.unlocked || bossConfig || status === 'completed' || status === 'current'),
-      isBoss: Boolean(bossConfig) || stage === worldStageCount,
-      isMiniBoss: bossConfig?.bossType === EIGO_BOSS_TYPES.MINI_BOSS,
+      unlocked: !isLockedByBossGate && Boolean(stageProgress?.unlocked || status === 'completed' || status === 'current'),
+      isBoss: false,
+      isMiniBoss: false,
       isLockedByBossGate,
       blockingBoss,
-      bossId: bossConfig?.bossId || null,
-      bossRoute: bossConfig ? getEigoBossBattleRoute(bossConfig.bossId) : null,
-      bossLabel: bossConfig?.bossType === EIGO_BOSS_TYPES.WORLD_BOSS ? 'World Boss' : bossConfig ? 'Mini Boss' : 'Boss',
-      title: bossConfig?.nameJa || (bossConfig ? '風の試練' : `Stage ${stage}`),
+      bossId: null,
+      bossRoute: null,
+      bossLabel: '',
+      title: `Stage ${stage}`,
       position: stagePositions[index],
     };
   });
+  const bossCheckpointNodes = getEigoBossesByWorld(currentWorld.id).map((bossConfig, index) => {
+    const bossCleared = isBossCleared(bossConfig.bossId);
+    const checkpointUnlocked = isBossCheckpointUnlocked(bossConfig, currentWorldProgress);
+    const status = bossCleared ? 'completed' : checkpointUnlocked ? 'current' : 'locked';
+
+    return {
+      id: `boss-${bossConfig.bossId}`,
+      nodeType: 'boss',
+      stage: `boss-${index + 1}`,
+      checkpointAfterStage: bossConfig.checkpointAfterStage,
+      displayLabel: bossConfig.bossType === EIGO_BOSS_TYPES.WORLD_BOSS ? 'B' : `M${index + 1}`,
+      status,
+      unlocked: checkpointUnlocked,
+      isBoss: true,
+      isMiniBoss: bossConfig.bossType === EIGO_BOSS_TYPES.MINI_BOSS,
+      isLockedByBossGate: false,
+      isBossCheckpointLocked: !checkpointUnlocked,
+      blockingBoss: null,
+      bossId: bossConfig.bossId,
+      bossRoute: getEigoBossBattleRoute(bossConfig.bossId),
+      bossLabel: bossConfig.bossType === EIGO_BOSS_TYPES.WORLD_BOSS ? 'World Boss' : 'Mini Boss',
+      title: bossConfig.nameJa,
+      position: getBossCheckpointPosition(currentWorld.id, bossConfig, stagePositions),
+    };
+  });
+  const stageNodes = [...normalStageNodes, ...bossCheckpointNodes];
 
   function openStageWords(stageNumber = currentStage) {
     navigate(`/daily-words?world=${encodeURIComponent(currentWorld.id)}&stage=${encodeURIComponent(stageNumber)}`);
@@ -255,6 +318,11 @@ export default function WorldStagePage() {
   }
 
   function handleStageTap(stage) {
+    if (stage.isBossCheckpointLocked) {
+      setMessage('先に前のStageをクリアするとBossに挑戦できるよ！');
+      window.setTimeout(() => setMessage(''), 2200);
+      return;
+    }
     if (stage.isLockedByBossGate) {
       setMessage(stage.blockingBoss?.progressGate?.messageJa || 'Bossをクリアすると次のStageが開くよ！');
       window.setTimeout(() => setMessage(''), 2200);
@@ -341,7 +409,7 @@ export default function WorldStagePage() {
           </svg>
           {stageNodes.map((node) => (
             <button
-              key={node.stage}
+              key={node.id}
               type="button"
               className={`eq-stage-select-node is-${node.status} ${node.isBoss ? 'is-boss' : ''} ${node.isMiniBoss ? 'is-mini-boss' : ''}`}
               style={{
@@ -349,9 +417,9 @@ export default function WorldStagePage() {
                 '--node-y': `${node.position.y}%`,
               }}
               onClick={() => handleStageTap(node)}
-              aria-label={node.isMiniBoss ? `${node.title} Mini Boss` : `Stage ${node.stage}`}
+              aria-label={node.isBoss ? `${node.title} ${node.bossLabel}` : `Stage ${node.stage}`}
             >
-              <span>{node.status === 'completed' ? '✓' : node.status === 'locked' ? '🔒' : node.stage}</span>
+              <span>{node.status === 'completed' ? '✓' : node.status === 'locked' ? '🔒' : node.displayLabel}</span>
               {node.status === 'current' ? <em>現在</em> : null}
               {node.isBoss ? <strong>{node.bossLabel}</strong> : null}
             </button>
