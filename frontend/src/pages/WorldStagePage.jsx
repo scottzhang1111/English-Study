@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { getHomeData } from '../api';
 import { EQBackPill, EQCard, EQMobileShell, EQBottomNav } from '../components/eigo';
@@ -10,6 +10,7 @@ import CompactPageHeader from '../components/eigo/CompactPageHeader';
 
 const CHILD_STORAGE_KEY = 'selected_child_id';
 const MOCK_LEARNED_WORDS = 35;
+const STAGE_NODE_POSITION_DEBUG = true;
 
 const WORLD_DISPLAY = {
   wind: {
@@ -171,14 +172,64 @@ function getBossCheckpointPosition(worldId, bossConfig, stagePositions) {
   };
 }
 
+function getDebugRoutePath(nodes) {
+  const routeNodes = nodes
+    .filter((node) => node.position)
+    .sort((a, b) => a.routeOrder - b.routeOrder);
+  if (!routeNodes.length) return '';
+  return routeNodes
+    .map((node, index) => `${index === 0 ? 'M' : 'L'} ${node.position.x} ${node.position.y}`)
+    .join(' ');
+}
+
+function getDebugNodeLabel(node) {
+  if (!node.isBoss) return `Stage ${node.stage}`;
+  return `Stage ${node.checkpointAfterStage} ${node.isMiniBoss ? 'mini_boss' : 'world_boss'}`;
+}
+
+function formatCoordinate(value) {
+  return Number(value).toFixed(1);
+}
+
+function getDebugPositionEntries(nodes, overrides = {}) {
+  return nodes
+    .filter((node) => node.position)
+    .sort((a, b) => a.routeOrder - b.routeOrder)
+    .map((node) => {
+      const position = overrides[node.id] || node.position;
+      const entry = {
+        stageId: node.isBoss ? Number(node.checkpointAfterStage) : Number(node.stage),
+        x: Number(formatCoordinate(position.x)),
+        y: Number(formatCoordinate(position.y)),
+      };
+      return node.isBoss
+        ? { ...entry, nodeType: node.isMiniBoss ? 'mini_boss' : 'world_boss' }
+        : entry;
+    });
+}
+
+function printDebugPosition(node, nodes, overrides) {
+  const position = overrides[node.id] || node.position;
+  console.log(`${getDebugNodeLabel(node)}: x=${formatCoordinate(position.x)}, y=${formatCoordinate(position.y)}`);
+  const entries = getDebugPositionEntries(nodes, overrides);
+  const copyText = `[\n${entries.map((entry) => {
+    const typeText = entry.nodeType ? `, nodeType: "${entry.nodeType}"` : '';
+    return `  { stageId: ${entry.stageId}${typeText}, x: ${entry.x}, y: ${entry.y} }`;
+  }).join(',\n')}\n]`;
+  console.log(copyText);
+}
+
 export default function WorldStagePage() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
+  const mapCardRef = useRef(null);
+  const debugDidDragRef = useRef(false);
   const childId = useMemo(() => localStorage.getItem(CHILD_STORAGE_KEY) || '', []);
   const [homeData, setHomeData] = useState(null);
   const [error, setError] = useState('');
   const [message, setMessage] = useState('');
   const [imageFailed, setImageFailed] = useState(false);
+  const [debugNodePositions, setDebugNodePositions] = useState({});
 
   useEffect(() => {
     if (!childId) {
@@ -277,6 +328,7 @@ export default function WorldStagePage() {
       bossLabel: '',
       title: `Stage ${stage}`,
       position: stagePositions[index],
+      routeOrder: stage * 10,
     };
   });
   const bossCheckpointNodes = getEigoBossesByWorld(currentWorld.id).map((bossConfig, index) => {
@@ -302,9 +354,18 @@ export default function WorldStagePage() {
       bossLabel: bossConfig.bossType === EIGO_BOSS_TYPES.WORLD_BOSS ? 'World Boss' : 'Mini Boss',
       title: bossConfig.nameJa,
       position: getBossCheckpointPosition(currentWorld.id, bossConfig, stagePositions),
+      routeOrder: Number(bossConfig.checkpointAfterStage) * 10 + 5,
     };
   });
-  const stageNodes = [...normalStageNodes, ...bossCheckpointNodes];
+  const stageNodes = [...normalStageNodes, ...bossCheckpointNodes].map((node) => ({
+    ...node,
+    position: STAGE_NODE_POSITION_DEBUG && debugNodePositions[node.id]
+      ? debugNodePositions[node.id]
+      : node.position,
+  }));
+  const routePath = STAGE_NODE_POSITION_DEBUG
+    ? getDebugRoutePath(stageNodes)
+    : (WORLD_STAGE_PATHS[currentWorld.id] || WORLD_STAGE_PATHS.fire);
 
   function openStageWords(stageNumber = currentStage) {
     navigate(`/daily-words?world=${encodeURIComponent(currentWorld.id)}&stage=${encodeURIComponent(stageNumber)}`);
@@ -318,6 +379,11 @@ export default function WorldStagePage() {
   }
 
   function handleStageTap(stage) {
+    if (STAGE_NODE_POSITION_DEBUG && debugDidDragRef.current) {
+      debugDidDragRef.current = false;
+      return;
+    }
+
     if (stage.isBossCheckpointLocked) {
       setMessage('先に前のStageをクリアするとBossに挑戦できるよ！');
       window.setTimeout(() => setMessage(''), 2200);
@@ -340,6 +406,48 @@ export default function WorldStagePage() {
       setMessage('前のステージをクリアすると解放されます');
       window.setTimeout(() => setMessage(''), 2200);
     }
+  }
+
+  function handleDebugNodeMouseDown(event, node) {
+    if (!STAGE_NODE_POSITION_DEBUG) return;
+    const mapElement = mapCardRef.current;
+    if (!mapElement) return;
+
+    event.preventDefault();
+    event.stopPropagation();
+    debugDidDragRef.current = false;
+
+    const updateNodePosition = (clientX, clientY) => {
+      const rect = mapElement.getBoundingClientRect();
+      const nextPosition = {
+        x: clamp(((clientX - rect.left) / rect.width) * 100, 0, 100),
+        y: clamp(((clientY - rect.top) / rect.height) * 100, 0, 100),
+      };
+      setDebugNodePositions((current) => ({
+        ...current,
+        [node.id]: nextPosition,
+      }));
+      return nextPosition;
+    };
+
+    const handleMouseMove = (moveEvent) => {
+      debugDidDragRef.current = true;
+      updateNodePosition(moveEvent.clientX, moveEvent.clientY);
+    };
+
+    const handleMouseUp = (upEvent) => {
+      const finalPosition = updateNodePosition(upEvent.clientX, upEvent.clientY);
+      const finalOverrides = {
+        ...debugNodePositions,
+        [node.id]: finalPosition,
+      };
+      printDebugPosition({ ...node, position: finalPosition }, stageNodes, finalOverrides);
+      window.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener('mouseup', handleMouseUp);
+    };
+
+    window.addEventListener('mousemove', handleMouseMove);
+    window.addEventListener('mouseup', handleMouseUp);
   }
 
   if (!homeData && !error) {
@@ -379,7 +487,11 @@ export default function WorldStagePage() {
         {error ? <div className="eq-study-map-error">{error}</div> : null}
         {message ? <div className="eq-stage-toast">{message}</div> : null}
 
-        <section className="eq-world-stage-map-card" style={{ '--world-color': worldDisplay.color }}>
+        <section
+          ref={mapCardRef}
+          className={`eq-world-stage-map-card ${STAGE_NODE_POSITION_DEBUG ? 'is-position-debug' : ''}`}
+          style={{ '--world-color': worldDisplay.color }}
+        >
           <div className="eq-world-stage-map-bg" aria-hidden="true">
             {!imageFailed && currentWorld.backgroundImage ? (
               <img
@@ -400,28 +512,35 @@ export default function WorldStagePage() {
           >
             <path
               className="eq-world-stage-route-shadow"
-              d={WORLD_STAGE_PATHS[currentWorld.id] || WORLD_STAGE_PATHS.fire}
+              d={routePath}
             />
             <path
               className="eq-world-stage-route-line"
-              d={WORLD_STAGE_PATHS[currentWorld.id] || WORLD_STAGE_PATHS.fire}
+              d={routePath}
             />
           </svg>
           {stageNodes.map((node) => (
             <button
               key={node.id}
               type="button"
-              className={`eq-stage-select-node is-${node.status} ${node.isBoss ? 'is-boss' : ''} ${node.isMiniBoss ? 'is-mini-boss' : ''}`}
+              className={`eq-stage-select-node is-${node.status} ${node.isBoss ? 'is-boss' : ''} ${node.isMiniBoss ? 'is-mini-boss' : ''} ${STAGE_NODE_POSITION_DEBUG ? 'is-position-debug' : ''}`}
               style={{
                 '--node-x': `${node.position.x}%`,
                 '--node-y': `${node.position.y}%`,
               }}
+              onMouseDown={(event) => handleDebugNodeMouseDown(event, node)}
               onClick={() => handleStageTap(node)}
               aria-label={node.isBoss ? `${node.title} ${node.bossLabel}` : `Stage ${node.stage}`}
             >
               <span>{node.status === 'completed' ? '✓' : node.status === 'locked' ? '🔒' : node.displayLabel}</span>
               {node.status === 'current' ? <em>現在</em> : null}
               {node.isBoss ? <strong>{node.bossLabel}</strong> : null}
+              {STAGE_NODE_POSITION_DEBUG ? (
+                <small className="eq-stage-node-debug-label">
+                  {node.isBoss ? `${node.checkpointAfterStage}${node.isMiniBoss ? 'M' : 'B'}` : `S${node.stage}`}{' '}
+                  {formatCoordinate(node.position.x)},{formatCoordinate(node.position.y)}
+                </small>
+              ) : null}
             </button>
           ))}
         </section>  

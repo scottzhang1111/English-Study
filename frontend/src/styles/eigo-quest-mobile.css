@@ -8457,6 +8457,35 @@ body,
   box-shadow: 0 0 10px rgba(90, 232, 255, 0.28);
 }
 
+.eq-world-stage-map-card.is-position-debug .eq-stage-select-node {
+  cursor: grab;
+  touch-action: none;
+}
+
+.eq-world-stage-map-card.is-position-debug .eq-stage-select-node:active {
+  cursor: grabbing;
+}
+
+.eq-stage-node-debug-label {
+  position: absolute;
+  left: calc(100% + 4px);
+  top: -8px;
+  z-index: 5;
+  min-width: max-content;
+  padding: 2px 5px;
+  border: 1px solid rgba(53, 217, 255, 0.72);
+  border-radius: 6px;
+  background: rgba(1, 7, 18, 0.86);
+  color: #dffcff;
+  font-size: 9px;
+  font-weight: 900;
+  line-height: 1;
+  pointer-events: none;
+  text-shadow: 0 1px 0 rgba(0, 0, 0, 0.75);
+  white-space: nowrap;
+  box-shadow: 0 0 8px rgba(53, 217, 255, 0.32);
+}
+
 
 .eq-mobile-shell,
 .eq-home-menu,

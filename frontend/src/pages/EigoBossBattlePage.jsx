@@ -958,26 +958,30 @@ export default function EigoBossBattlePage() {
     setState(createInitialBattleState(battle, bossConfig, bossQuestions));
   };
 
-  const claimBossReward = () => {
-    if (!bossConfig?.reward) {
-      navigate(rewardPath);
-      return;
-    }
-
-    const bossReward = {
+  const buildBossReward = () => {
+    if (!bossConfig?.reward) return null;
+    return {
       ...bossConfig.reward,
       type: 'boss_card',
       rewardType: 'boss_card',
       cardId: bossConfig.reward.cardId,
       bossId: bossConfig.bossId,
       worldId: bossConfig.worldId,
-      stage: bossConfig.checkpointAfterStage,
+      stage: bossConfig.checkpointAfterStage || bossConfig.stageId,
       nameJa: bossConfig.reward.nameJa,
       rarity: bossConfig.reward.rarity || 'Rare',
       image: bossConfig.reward.image || bossConfig.cardImage || bossConfig.image,
       source: bossConfig.reward.source || 'boss_clear',
       returnTo: `/app/world-stage?world=${encodeURIComponent(bossConfig.worldId)}`,
     };
+  };
+
+  const claimBossReward = () => {
+    const bossReward = buildBossReward();
+    if (!bossReward) {
+      navigate(rewardPath);
+      return;
+    }
 
     savePendingRewardQueue([bossReward]);
     navigate('/card-reward');
@@ -1100,6 +1104,15 @@ export default function EigoBossBattlePage() {
   const moveToNextQuestion = (draft) => {
     const nextQuestionIndex = draft.currentQuestionIndex + 1;
     if (nextQuestionIndex >= draft.questionDeck.length) {
+      if (draft.bossHp <= 0) {
+        return {
+          ...draft,
+          currentQuestionIndex: draft.currentQuestionIndex,
+          battleStatus: 'clear',
+          message: '風の試練クリア！Boss カードを手に入れた！',
+        };
+      }
+
       return {
         ...draft,
         currentQuestionIndex: draft.currentQuestionIndex,
@@ -1146,11 +1159,17 @@ export default function EigoBossBattlePage() {
         clearBossReactionSoon();
         scheduleTimeout(() => {
           markBossCleared(bossConfig);
-          setState({
-            ...nextState,
-            battleStatus: 'clear',
-            message: '風の試練クリア！Boss カードを手に入れた！',
-          });
+          const bossReward = buildBossReward();
+          if (bossReward) {
+            savePendingRewardQueue([bossReward]);
+            navigate('/card-reward');
+          } else {
+            setState({
+              ...nextState,
+              battleStatus: 'clear',
+              message: '風の試練クリア！Boss カードを手に入れた！',
+            });
+          }
           setIsResolving(false);
         }, reducedMotion ? 180 : 620);
         return;
