@@ -4,7 +4,8 @@ import { getHomeData } from '../api';
 import { EQBackPill, EQCard, EQMobileShell, EQBottomNav } from '../components/eigo';
 import { eigoQuestCards } from '../config/eigoQuestCards';
 import eigoQuestWorlds, { EIGO_QUEST_WORDS_PER_STAGE } from '../config/eigoQuestWorlds';
-import { getEigoBossBattleRoute, getEigoBossByWorldStage } from '../data/eigoBosses';
+import { EIGO_BOSSES, EIGO_BOSS_TYPES, getEigoBossBattleRoute, getEigoBossByWorldStage } from '../data/eigoBosses';
+import { isBossCleared } from '../helpers/eigoBossProgress';
 import CompactPageHeader from '../components/eigo/CompactPageHeader';
 
 const CHILD_STORAGE_KEY = 'selected_child_id';
@@ -116,6 +117,20 @@ function missionProgress(done, target, suffix = '') {
   return { status: `${safeDone} / ${safeTarget}`, detail: '' };
 }
 
+function getBlockingBossForStage(worldId, stageNumber, currentBossId = '') {
+  return EIGO_BOSSES.find((boss) => {
+    if (boss.bossId === currentBossId) return false;
+    if (boss.worldId !== worldId) return false;
+    if (!boss.progressGate) return false;
+    if (boss.progressGate.gateType !== 'stage_progress') return false;
+
+    const unlocksFrom = Number(boss.progressGate.unlocksStagesFrom || 0);
+    if (!unlocksFrom) return false;
+
+    return Number(stageNumber) >= unlocksFrom && !isBossCleared(boss.bossId);
+  }) || null;
+}
+
 export default function WorldStagePage() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
@@ -200,24 +215,30 @@ export default function WorldStagePage() {
     const stage = index + 1;
     const stageProgress = currentWorldProgress.stages?.find((item) => Number(item.stage) === stage);
     const bossConfig = getEigoBossByWorldStage(currentWorld.id, stage);
+    const blockingBoss = getBlockingBossForStage(currentWorld.id, stage, bossConfig?.bossId);
+    const isLockedByBossGate = Boolean(blockingBoss);
     const rawStatus = stageProgress?.status || (currentWorld.id === 'wind' && stage === 1 ? 'current' : 'locked');
-    const status = rawStatus === 'cleared'
+    const baseStatus = rawStatus === 'cleared'
       ? 'completed'
       : bossConfig && rawStatus === 'locked'
         ? 'available'
         : rawStatus;
+    const status = isLockedByBossGate ? 'locked' : baseStatus;
     // TODO Step C2:
     // Connect Boss unlock to real child stage progress.
+    // TODO: Replace local Boss clear status with backend child_boss_progress.
     return {
       stage,
       status,
-      unlocked: Boolean(stageProgress?.unlocked || bossConfig || status === 'completed' || status === 'current'),
+      unlocked: !isLockedByBossGate && Boolean(stageProgress?.unlocked || bossConfig || status === 'completed' || status === 'current'),
       isBoss: Boolean(bossConfig) || stage === worldStageCount,
-      isMiniBoss: Boolean(bossConfig),
+      isMiniBoss: bossConfig?.bossType === EIGO_BOSS_TYPES.MINI_BOSS,
+      isLockedByBossGate,
+      blockingBoss,
       bossId: bossConfig?.bossId || null,
       bossRoute: bossConfig ? getEigoBossBattleRoute(bossConfig.bossId) : null,
-      bossLabel: bossConfig ? 'Mini Boss' : 'Boss',
-      title: bossConfig ? '風の試練' : `Stage ${stage}`,
+      bossLabel: bossConfig?.bossType === EIGO_BOSS_TYPES.WORLD_BOSS ? 'World Boss' : bossConfig ? 'Mini Boss' : 'Boss',
+      title: bossConfig?.nameJa || (bossConfig ? '風の試練' : `Stage ${stage}`),
       position: stagePositions[index],
     };
   });
@@ -234,6 +255,11 @@ export default function WorldStagePage() {
   }
 
   function handleStageTap(stage) {
+    if (stage.isLockedByBossGate) {
+      setMessage(stage.blockingBoss?.progressGate?.messageJa || 'Bossをクリアすると次のStageが開くよ！');
+      window.setTimeout(() => setMessage(''), 2200);
+      return;
+    }
     if (stage.bossRoute) {
       navigate(stage.bossRoute);
       return;

@@ -39,6 +39,16 @@ function uniqueByWord(words) {
   });
 }
 
+function uniqueChoices(choices) {
+  const seen = new Set();
+  return choices.filter((choice) => {
+    const key = String(choice || '').trim().toLowerCase();
+    if (!key || seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+}
+
 function normalizeFallbackQuestion(question, index) {
   if (!question) return null;
   const choices = Array.isArray(question.choices) ? question.choices : [];
@@ -48,6 +58,40 @@ function normalizeFallbackQuestion(question, index) {
     id: question.id || `fallback-boss-q-${index + 1}`,
     answerIndex: answerIndex >= 0 ? answerIndex : question.answerIndex,
     source: question.source || { type: 'fallback_mock' },
+  };
+}
+
+function buildQuestionByType({ bossConfig, word, choices, index, questionType }) {
+  const worldId = bossConfig?.worldId || word.worldId || word.world_id || 'wind';
+  const baseSource = {
+    type: 'stage_word',
+    questionType,
+    worldId,
+    stageId: word.stageId,
+    wordId: word.id,
+    word: word.word,
+  };
+
+  if (questionType === 'en-ja') {
+    return {
+      id: `${bossConfig?.bossId || 'boss'}-q-${index + 1}-${word.id}-en-ja`,
+      prompt: `${word.word} の意味はどれ？`,
+      choices,
+      answer: word.meaningJa,
+      answerIndex: choices.findIndex((choice) => choice === word.meaningJa),
+      explanation: `${word.word} は日本語で ${word.meaningJa} です。`,
+      source: baseSource,
+    };
+  }
+
+  return {
+    id: `${bossConfig?.bossId || 'boss'}-q-${index + 1}-${word.id}-ja-en`,
+    prompt: `「${word.meaningJa}」は英語でどれ？`,
+    choices,
+    answer: word.word,
+    answerIndex: choices.findIndex((choice) => choice === word.word),
+    explanation: `${word.meaningJa} は英語で ${word.word} です。`,
+    source: baseSource,
   };
 }
 
@@ -84,28 +128,21 @@ export function buildBossReviewQuestions({
 
   const selectedWords = shuffle(candidateWords).slice(0, questionCount);
   const generatedQuestions = selectedWords.map((word, index) => {
+    const questionType = index % 2 === 0 ? 'ja-en' : 'en-ja';
+    const correctAnswer = questionType === 'en-ja' ? word.meaningJa : word.word;
     const distractors = shuffle(candidateWords)
       .filter((item) => item.word.toLowerCase() !== word.word.toLowerCase())
-      .map((item) => item.word)
+      .map((item) => (questionType === 'en-ja' ? item.meaningJa : item.word))
       .filter(Boolean);
-    const choices = shuffle([word.word, ...distractors.slice(0, 3)]).slice(0, 4);
-    const answerIndex = choices.findIndex((choice) => choice === word.word);
+    const choices = shuffle(uniqueChoices([correctAnswer, ...distractors]).slice(0, 4));
 
-    return {
-      id: `${bossConfig?.bossId || 'boss'}-q-${index + 1}-${word.id}`,
-      prompt: `「${word.meaningJa}」は英語でどれ？`,
+    return buildQuestionByType({
+      bossConfig,
+      word,
       choices,
-      answer: word.word,
-      answerIndex,
-      explanation: `${word.meaningJa} は英語で ${word.word} です。`,
-      source: {
-        type: 'stage_word',
-        worldId: bossConfig?.worldId || word.worldId || word.world_id || 'wind',
-        stageId: word.stageId,
-        wordId: word.id,
-        word: word.word,
-      },
-    };
+      index,
+      questionType,
+    });
   });
 
   if (generatedQuestions.length >= questionCount) return generatedQuestions.slice(0, questionCount);

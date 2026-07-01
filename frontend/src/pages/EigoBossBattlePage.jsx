@@ -15,6 +15,7 @@ import {
 import { DEFAULT_EIGO_BOSS_ID, getEigoBossById } from '../data/eigoBosses';
 import { getDailyWords } from '../api';
 import { buildBossReviewQuestions } from '../helpers/eigoBossQuestionBuilder';
+import { markBossCleared } from '../helpers/eigoBossProgress';
 import { savePendingRewardQueue } from '../helpers/eigoQuestRewards';
 import { playBattleSfx, preloadBattleSfx } from '../utils/battleSfx';
 import './EigoBossBattlePage.css';
@@ -1042,6 +1043,7 @@ export default function EigoBossBattlePage() {
         setState(nextState);
         clearBossReactionSoon();
         scheduleTimeout(() => {
+          markBossCleared(bossConfig);
           setState({
             ...nextState,
             battleStatus: 'clear',

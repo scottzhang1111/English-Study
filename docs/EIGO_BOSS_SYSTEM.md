@@ -58,27 +58,30 @@ Each world follows this stage structure:
 - Stage 1: normal learning
 - Stage 2: normal learning
 - Stage 3: normal learning
-- Stage 4: Mini Boss 1
+- Stage 4: normal learning
+- Mini Boss 1 battle
 - Stage 5: normal learning
 - Stage 6: normal learning
 - Stage 7: normal learning
-- Stage 8: Mini Boss 2
-- Stage 9: final preparation
-- Stage 10: World Boss
+- Stage 8: normal learning
+- Mini Boss 2 battle
+- Stage 9: normal learning
+- Stage 10: normal learning
+- World Boss battle
 
-Stage 4 Boss:
+Mini Boss 1 Boss:
 
 - reviews Stages 1-3
 - acts as the first checkpoint
 - confirms the child can remember the first cluster of words before moving forward
 
-Stage 8 Boss:
+Mini Boss 2 Boss:
 
 - reviews Stages 5-7
 - includes some earlier review from Stages 1-4
 - checks whether earlier learning still holds after more stages
 
-Stage 10 World Boss:
+World Boss battle:
 
 - reviews the full world
 - acts as the final world clear condition
@@ -88,19 +91,19 @@ Stage 10 World Boss:
 
 Boss questions should come from learning history, not random unrelated content.
 
-Stage 4 Boss question source:
+Mini Boss 1 Boss question source:
 
-- 70% from Stage 1-3 words/questions
-- 20% from mistakes in Stage 1-3
+- 70% from Stage 1-4 words/questions
+- 20% from mistakes in Stage 1-4
 - 10% from high-frequency / important words
 
-Stage 8 Boss question source:
+Mini Boss 2 Boss question source:
 
-- 60% from Stage 5-7 words/questions
+- 60% from Stage 5-8 words/questions
 - 25% from Stage 1-4 review
 - 15% from mistakes / weak words
 
-Stage 10 World Boss question source:
+World Boss battle question source:
 
 - 50% from Stage 1-9 words/questions
 - 30% from mistakes / weak words
@@ -108,8 +111,8 @@ Stage 10 World Boss question source:
 
 Question count V1:
 
-- Mini Boss: 8 questions
-- World Boss: 10 questions
+- Mini Boss: 20 questions
+- World Boss: 30 questions
 
 Question format V1:
 
@@ -135,8 +138,8 @@ Player:
 
 Boss:
 
-- Mini Boss HP: 120
-- World Boss HP: 180 or 200
+- Mini Boss HP: 400
+- World Boss HP: 600
 
 Correct answer:
 
