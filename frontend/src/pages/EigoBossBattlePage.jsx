@@ -1,6 +1,6 @@
 ﻿import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
-import { useEffect, useRef, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import {
   EQChoiceButton,
   EQFantasyButton,
@@ -12,6 +12,7 @@ import {
   FIRST_BOSS_QUESTIONS,
   FIRST_BOSS_REWARD,
 } from '../data/eigoBossBattleV1';
+import { DEFAULT_EIGO_BOSS_ID, getEigoBossById } from '../data/eigoBosses';
 import { playBattleSfx, preloadBattleSfx } from '../utils/battleSfx';
 import './EigoBossBattlePage.css';
 
@@ -86,13 +87,40 @@ function shuffleQuestions(questions) {
   return deck;
 }
 
-function createInitialBattleState() {
+function createBossBattleConfig(bossConfig) {
+  if (!bossConfig) return FIRST_BOSS_BATTLE;
+
   return {
-    bossHp: FIRST_BOSS_BATTLE.boss.hp,
-    playerHp: FIRST_BOSS_BATTLE.playerHp,
+    ...FIRST_BOSS_BATTLE,
+    world: bossConfig.worldId,
+    stage: bossConfig.stageId,
+    playerHp: bossConfig.playerHp ?? FIRST_BOSS_BATTLE.playerHp,
+    boss: {
+      ...FIRST_BOSS_BATTLE.boss,
+      id: bossConfig.bossId,
+      name: bossConfig.nameJa || bossConfig.nameEn || FIRST_BOSS_BATTLE.boss.name,
+      hp: bossConfig.hp ?? FIRST_BOSS_BATTLE.boss.hp,
+      image: bossConfig.image || FIRST_BOSS_BATTLE.boss.image,
+      bannerImage: bossConfig.image || FIRST_BOSS_BATTLE.boss.bannerImage,
+    },
+  };
+}
+
+function createInitialBattleState(battleConfig, bossConfig) {
+  // TODO Step E:
+  // Replace mock FIRST_BOSS_QUESTIONS with generated review questions from
+  // boss.reviewRule.sourceStages.
+  const questionDeck = shuffleQuestions(FIRST_BOSS_QUESTIONS).slice(
+    0,
+    bossConfig?.questionCount || FIRST_BOSS_QUESTIONS.length
+  );
+
+  return {
+    bossHp: battleConfig.boss.hp,
+    playerHp: battleConfig.playerHp,
     activeHeroIndex: 0,
     combo: 0,
-    questionDeck: shuffleQuestions(FIRST_BOSS_QUESTIONS),
+    questionDeck,
     currentQuestionIndex: 0,
     message: INITIAL_MESSAGE,
     battleStatus: 'playing',
@@ -582,8 +610,15 @@ function BossCounterOverlay({ sequence, reducedMotion }) {
 
 export default function EigoBossBattlePage() {
   const navigate = useNavigate();
-  const battle = FIRST_BOSS_BATTLE;
-  const [state, setState] = useState(createInitialBattleState);
+  const location = useLocation();
+  const bossIdFromUrl = useMemo(() => {
+    const searchParams = new URLSearchParams(location.search);
+    return searchParams.get('bossId');
+  }, [location.search]);
+  const bossConfig = getEigoBossById(bossIdFromUrl || DEFAULT_EIGO_BOSS_ID)
+    || getEigoBossById(DEFAULT_EIGO_BOSS_ID);
+  const battle = useMemo(() => createBossBattleConfig(bossConfig), [bossConfig]);
+  const [state, setState] = useState(() => createInitialBattleState(battle, bossConfig));
   const [attackSequence, setAttackSequence] = useState(null);
   const [counterSequence, setCounterSequence] = useState(null);
   const [actionEffect, setActionEffect] = useState(null);
@@ -602,7 +637,10 @@ export default function EigoBossBattlePage() {
   const questionTextClass = getQuestionTextClass(currentQuestionText);
   const dialogueClass = currentQuestionLength > 58 ? 'is-question-extra-long' : currentQuestionLength > 40 ? 'is-question-long' : 'is-question-short';
   const activeHero = battle.heroes[state.activeHeroIndex] || battle.heroes[0];
-  const rewardPath = FIRST_BOSS_REWARD.nextPath || '/card-reward?source=wind_trial_001';
+  const rewardConfig = bossConfig?.reward || null;
+  const rewardPath = rewardConfig?.source
+    ? `/card-reward?source=${encodeURIComponent(rewardConfig.source)}`
+    : FIRST_BOSS_REWARD.nextPath || '/card-reward?source=wind_trial_001';
   const bossAura = battle.boss.aura || {};
   const playerHpPercent = battle.playerHp > 0 ? Math.max(0, Math.min(100, (state.playerHp / battle.playerHp) * 100)) : 0;
   const bossHpPercent = battle.boss.hp > 0 ? Math.max(0, Math.min(100, (state.bossHp / battle.boss.hp) * 100)) : 0;
@@ -686,7 +724,7 @@ export default function EigoBossBattlePage() {
     setCounterSequence(null);
     setActionEffect(null);
     setIsResolving(false);
-    setState(createInitialBattleState());
+    setState(createInitialBattleState(battle, bossConfig));
   };
 
   const clearBossReactionSoon = () => {
@@ -982,8 +1020,8 @@ export default function EigoBossBattlePage() {
             <p>Boss カードを手に入れた！</p>
           </div>
           <div className="eq-boss-result-card__reward">
-            <img src={battle.boss.image} alt={`${battle.boss.name} reward`} />
-            <strong>{battle.boss.name}</strong>
+            <img src={rewardConfig?.image || battle.boss.image} alt={`${rewardConfig?.nameJa || battle.boss.name} reward`} />
+            <strong>{rewardConfig?.nameJa || battle.boss.name}</strong>
           </div>
           <EQFantasyButton fullWidth onClick={() => navigate(rewardPath)}>
             カードを見る
@@ -1020,8 +1058,8 @@ export default function EigoBossBattlePage() {
                 {state.combo}
               </motion.strong>
               <div className="eq-battle-element-badge">
-                <span aria-hidden="true">鬚ｨ</span>
-                <small>WIND</small>
+                <span aria-hidden="true">{bossConfig?.element?.labelJa || '風'}</span>
+                <small>{bossConfig?.element?.labelEn || 'WIND'}</small>
               </div>
             </div>
 
