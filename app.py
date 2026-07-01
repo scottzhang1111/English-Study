@@ -9551,6 +9551,68 @@ def api_eiken_real_exam_wrong_question_review():
     return jsonify(result)
 
 
+@app.route('/api/debug/eiken-real-exam-assets')
+def api_debug_eiken_real_exam_assets():
+    def count_files(path, pattern='*'):
+        if not os.path.isdir(path):
+            return 0
+        total = 0
+        for _root, _dirs, files in os.walk(path):
+            if pattern == '*':
+                total += len(files)
+            else:
+                total += sum(1 for name in files if name.lower().endswith(pattern))
+        return total
+
+    def list_first(path, limit=20):
+        if not os.path.isdir(path):
+            return []
+        try:
+            return sorted(os.listdir(path))[:limit]
+        except OSError:
+            return []
+
+    eiken3_root = data_path(EIKEN_REAL_EXAM_EIKEN3_RESOURCE_ROOT)
+    pre2_root = data_path(EIKEN_REAL_EXAM_PRE2_RESOURCE_ROOT)
+
+    samples = {
+        'eiken3_image_back': os.path.join(eiken3_root, 'image_back.gif'),
+        'eiken3_2026_mp3': os.path.join(eiken3_root, 'mp3', '2026-1_1.mp3'),
+        'eiken3_2026_png': os.path.join(eiken3_root, 'png', '2026-1_1_1.png'),
+        'pre2_2024_mp3': os.path.join(pre2_root, 'mp3', '2024-1_1.mp3'),
+    }
+
+    return jsonify({
+        'cwd': os.getcwd(),
+        'app_root_path': app.root_path,
+        'eiken3': {
+            'resource_root': eiken3_root,
+            'resource_root_exists': os.path.isdir(eiken3_root),
+            'file_count': count_files(eiken3_root),
+            'mp3_count': count_files(os.path.join(eiken3_root, 'mp3'), '.mp3'),
+            'png_count': count_files(os.path.join(eiken3_root, 'png'), '.png'),
+            'mp3_first_20': list_first(os.path.join(eiken3_root, 'mp3')),
+            'png_first_20': list_first(os.path.join(eiken3_root, 'png')),
+        },
+        'eiken_pre2': {
+            'resource_root': pre2_root,
+            'resource_root_exists': os.path.isdir(pre2_root),
+            'file_count': count_files(pre2_root),
+            'mp3_count': count_files(os.path.join(pre2_root, 'mp3'), '.mp3'),
+            'png_count': count_files(os.path.join(pre2_root, 'png'), '.png'),
+            'mp3_first_20': list_first(os.path.join(pre2_root, 'mp3')),
+            'png_first_20': list_first(os.path.join(pre2_root, 'png')),
+        },
+        'samples': {
+            key: {
+                'path': path,
+                'exists': os.path.isfile(path),
+            }
+            for key, path in samples.items()
+        },
+    })
+
+
 @app.route('/api/eiken-real-exams/assets/<path:asset_path>')
 def api_eiken_real_exam_asset(asset_path):
     child_id = request.args.get('child_id') or request.args.get('childId')
