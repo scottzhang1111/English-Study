@@ -59,6 +59,9 @@ function getWorldClass(worldId) {
 function getRewardCardImage(card) {
   if (!card?.image) return '';
   const image = card.image;
+  if ((card.collectionType || card.collection_type) === 'boss_card') {
+    return image;
+  }
   if ((card.collectionType || card.collection_type) === 'grammar') {
     return image.replace('/grammar-cards/', '/grammar card/');
   }
@@ -167,6 +170,13 @@ function getHeroCopy(card) {
   };
 }
 
+function formatRewardRarity(rarity) {
+  const value = String(rarity || '').trim();
+  if (!value) return 'Rare';
+  if (value.length <= 2) return value.toUpperCase();
+  return value.charAt(0).toUpperCase() + value.slice(1);
+}
+
 function isGrammarRewardSource(reward) {
   const source = [
     reward?.source,
@@ -178,6 +188,25 @@ function isGrammarRewardSource(reward) {
     reward?.category,
   ].filter(Boolean).join(' ').toLowerCase();
   return source.includes('grammar');
+}
+
+function isBossCardRewardSource(reward) {
+  const source = [
+    reward?.type,
+    reward?.rewardType,
+    reward?.reward_type,
+    reward?.source,
+    reward?.category,
+    reward?.cardId,
+    reward?.card_id,
+  ].filter(Boolean).join(' ').toLowerCase();
+
+  return (
+    source.includes('boss_card')
+    || source.includes('boss-card')
+    || source.includes('boss_clear')
+    || Boolean(reward?.bossId || reward?.boss_id)
+  );
 }
 
 function getGrammarRewardCopy(reward, fallbackTitle) {
@@ -194,6 +223,17 @@ function getGrammarRewardCopy(reward, fallbackTitle) {
   };
 }
 
+function getBossRewardCopy() {
+  return {
+    stageLabel: 'Boss Battle Clear',
+    masteryText: '風の試練を突破した証だよ！',
+    scoreText: 'CLEAR',
+    scoreLabel: 'Boss Defeated',
+    gainText: 'Boss Cardを獲得しました！',
+    cardTypeText: 'Boss Card',
+  };
+}
+
 export default function CardRewardPage() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
@@ -205,22 +245,55 @@ export default function CardRewardPage() {
   const [rewardIndex, setRewardIndex] = useState(0);
   const pendingReward = pendingQueue[rewardIndex] || null;
   const fallbackCard = useMemo(() => eigoQuestCards[0], []);
+  const isGrammarReward = isGrammarRewardSource(pendingReward);
+  const isBossCardReward = isBossCardRewardSource(pendingReward);
+  const bossRewardCard = isBossCardReward
+    ? normalizeHeroCard({
+      id: pendingReward.cardId,
+      code: pendingReward.cardId,
+      worldId: pendingReward.worldId || pendingReward.world_id || 'wind',
+      nameJa: pendingReward.nameJa || pendingReward.name_ja || 'Boss Card',
+      rarity: pendingReward.rarity || 'Rare',
+      image: pendingReward.image,
+      collectionType: 'boss_card',
+      sourceJa: 'Boss Battle',
+    })
+    : null;
   const rewardCard = pendingReward
-    ? findRewardHero(apiHeroes, pendingReward, getCardById(pendingReward?.cardId) || fallbackCard)
+    ? (
+      bossRewardCard
+      || findRewardHero(apiHeroes, pendingReward, getCardById(pendingReward?.cardId) || fallbackCard)
+    )
     : null;
   const worldClass = getWorldClass(rewardCard?.worldId);
   const rewardImage = getRewardCardImage(rewardCard);
-  const isGrammarReward = isGrammarRewardSource(pendingReward);
   const rewardBackImage = getRewardCardBackImage(
     pendingReward?.worldId || pendingReward?.world_id || rewardCard?.worldId,
     isGrammarReward,
   );
   const hero = getHeroCopy(rewardCard);
+  const displayRarity = isBossCardReward ? formatRewardRarity(hero.rarity) : hero.rarity;
   const hasNextReward = rewardIndex < pendingQueue.length - 1;
   const grammarCopy = getGrammarRewardCopy(pendingReward, rewardCard?.nameJa);
-  const stageCompleteLabel = isGrammarReward
+  const bossCopy = getBossRewardCopy(pendingReward);
+  const stageCompleteLabel = isBossCardReward
+    ? bossCopy.stageLabel
+    : isGrammarReward
     ? grammarCopy.stageLabel
     : getStageCompleteLabel(pendingReward, rewardCard, searchParams);
+  const masteryText = isBossCardReward ? bossCopy.masteryText : grammarCopy.masteryText;
+  const scoreText = isBossCardReward ? bossCopy.scoreText : isGrammarReward ? (grammarCopy.scoreText || 'CLEAR') : '20 / 20';
+  const scoreLabel = isBossCardReward ? bossCopy.scoreLabel : isGrammarReward ? (grammarCopy.scoreLabel || 'Grammar Mastered') : 'Words Mastered';
+  const gainText = isBossCardReward ? bossCopy.gainText : isGrammarReward ? grammarCopy.gainText : '新しい英雄カードを獲得しました！';
+  const rewardCardTypeText = isBossCardReward ? `${displayRarity} ${bossCopy.cardTypeText}` : `${hero.rarity} Hero`;
+  const rewardPageClass = [
+    'eq-card-page-wrap',
+    'quest-reward-page-wrap',
+    'quest-reward-palace',
+    isGrammarReward ? 'eq-grammar-reward-page' : '',
+    isBossCardReward ? 'eq-boss-reward-page' : '',
+    `is-${rewardStep}`,
+  ].filter(Boolean).join(' ');
 
   const rewardReturnTo = (() => {
     const target = pendingReward?.returnTo || pendingReward?.return_to || '';
@@ -288,7 +361,7 @@ export default function CardRewardPage() {
 
   return (
     <>
-      <div className={`eq-card-page-wrap quest-reward-page-wrap quest-reward-palace ${isGrammarReward ? 'eq-grammar-reward-page' : ''} is-${rewardStep}`.trim()}>
+      <div className={rewardPageClass}>
         <div className="quest-reward-palace-stars" aria-hidden="true" />
 
         <section className="quest-reward-result" aria-label="クエストクリア">
@@ -297,15 +370,15 @@ export default function CardRewardPage() {
           </div>
           <h1>CLEAR!</h1>
           <p className="quest-reward-stage-label">{stageCompleteLabel}</p>
-          {isGrammarReward ? <p className="eq-grammar-reward-mastery">{grammarCopy.masteryText}</p> : null}
+          {isGrammarReward || isBossCardReward ? <p className="eq-grammar-reward-mastery">{masteryText}</p> : null}
           <div className="quest-reward-score">
-            <strong>{isGrammarReward ? (grammarCopy.scoreText || 'CLEAR') : '20 / 20'}</strong>
-            <span>{isGrammarReward ? (grammarCopy.scoreLabel || 'Grammar Mastered') : 'Words Mastered'}</span>
+            <strong>{scoreText}</strong>
+            <span>{scoreLabel}</span>
           </div>
         </section>
 
         <p className="quest-reward-gain-label">
-          {isGrammarReward ? grammarCopy.gainText : '新しい英雄カードを獲得しました！'}
+          {gainText}
         </p>
 
         <section className="quest-reward-card-stage" aria-label="新しい英雄カード">
@@ -361,12 +434,12 @@ export default function CardRewardPage() {
                     pointerEvents: 'none',
                   }}
                 />
-                <span className="quest-reward-rarity-badge">{hero.rarity}</span>
+                <span className="quest-reward-rarity-badge">{displayRarity}</span>
                 <strong>???</strong>
-                <p>{hero.rarity} Hero</p>
+                <p>{rewardCardTypeText}</p>
               </div>
               <div className="quest-reward-card-face quest-reward-card-front">
-                <span className="quest-reward-rarity-badge">{hero.rarity}</span>
+                <span className="quest-reward-rarity-badge">{displayRarity}</span>
                 {rewardImage ? (
                   <img
                     src={rewardImage}
@@ -384,7 +457,7 @@ export default function CardRewardPage() {
                 )}
                 <div className="quest-reward-card-caption">
                   <h2>{hero.name}</h2>
-                  <p>{hero.rarity} Hero</p>
+                  <p>{rewardCardTypeText}</p>
                 </div>
               </div>
             </motion.div>

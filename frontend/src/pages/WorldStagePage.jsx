@@ -4,6 +4,7 @@ import { getHomeData } from '../api';
 import { EQBackPill, EQCard, EQMobileShell, EQBottomNav } from '../components/eigo';
 import { eigoQuestCards } from '../config/eigoQuestCards';
 import eigoQuestWorlds, { EIGO_QUEST_WORDS_PER_STAGE } from '../config/eigoQuestWorlds';
+import { getEigoBossBattleRoute, getEigoBossByWorldStage } from '../data/eigoBosses';
 import CompactPageHeader from '../components/eigo/CompactPageHeader';
 
 const CHILD_STORAGE_KEY = 'selected_child_id';
@@ -198,13 +199,25 @@ export default function WorldStagePage() {
   const stageNodes = Array.from({ length: worldStageCount }, (_, index) => {
     const stage = index + 1;
     const stageProgress = currentWorldProgress.stages?.find((item) => Number(item.stage) === stage);
+    const bossConfig = getEigoBossByWorldStage(currentWorld.id, stage);
     const rawStatus = stageProgress?.status || (currentWorld.id === 'wind' && stage === 1 ? 'current' : 'locked');
-    const status = rawStatus === 'cleared' ? 'completed' : rawStatus;
+    const status = rawStatus === 'cleared'
+      ? 'completed'
+      : bossConfig && rawStatus === 'locked'
+        ? 'available'
+        : rawStatus;
+    // TODO Step C2:
+    // Connect Boss unlock to real child stage progress.
     return {
       stage,
       status,
-      unlocked: Boolean(stageProgress?.unlocked || status === 'completed' || status === 'current'),
-      isBoss: stage === worldStageCount,
+      unlocked: Boolean(stageProgress?.unlocked || bossConfig || status === 'completed' || status === 'current'),
+      isBoss: Boolean(bossConfig) || stage === worldStageCount,
+      isMiniBoss: Boolean(bossConfig),
+      bossId: bossConfig?.bossId || null,
+      bossRoute: bossConfig ? getEigoBossBattleRoute(bossConfig.bossId) : null,
+      bossLabel: bossConfig ? 'Mini Boss' : 'Boss',
+      title: bossConfig ? '風の試練' : `Stage ${stage}`,
       position: stagePositions[index],
     };
   });
@@ -221,6 +234,10 @@ export default function WorldStagePage() {
   }
 
   function handleStageTap(stage) {
+    if (stage.bossRoute) {
+      navigate(stage.bossRoute);
+      return;
+    }
     if (stage.unlocked) {
       openStageWords(stage.stage);
       return;
@@ -300,17 +317,17 @@ export default function WorldStagePage() {
             <button
               key={node.stage}
               type="button"
-              className={`eq-stage-select-node is-${node.status} ${node.isBoss ? 'is-boss' : ''}`}
+              className={`eq-stage-select-node is-${node.status} ${node.isBoss ? 'is-boss' : ''} ${node.isMiniBoss ? 'is-mini-boss' : ''}`}
               style={{
                 '--node-x': `${node.position.x}%`,
                 '--node-y': `${node.position.y}%`,
               }}
               onClick={() => handleStageTap(node)}
-              aria-label={`Stage ${node.stage}`}
+              aria-label={node.isMiniBoss ? `${node.title} Mini Boss` : `Stage ${node.stage}`}
             >
               <span>{node.status === 'completed' ? '✓' : node.status === 'locked' ? '🔒' : node.stage}</span>
               {node.status === 'current' ? <em>現在</em> : null}
-              {node.isBoss ? <strong>Boss</strong> : null}
+              {node.isBoss ? <strong>{node.bossLabel}</strong> : null}
             </button>
           ))}
         </section>  

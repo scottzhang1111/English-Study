@@ -13,9 +13,13 @@ import {
   FIRST_BOSS_REWARD,
 } from '../data/eigoBossBattleV1';
 import { DEFAULT_EIGO_BOSS_ID, getEigoBossById } from '../data/eigoBosses';
+import { getDailyWords } from '../api';
+import { buildBossReviewQuestions } from '../helpers/eigoBossQuestionBuilder';
+import { savePendingRewardQueue } from '../helpers/eigoQuestRewards';
 import { playBattleSfx, preloadBattleSfx } from '../utils/battleSfx';
 import './EigoBossBattlePage.css';
 
+const CHILD_STORAGE_KEY = 'selected_child_id';
 const COUNTER_DAMAGE = 15;
 const SKILL_SEQUENCE_MAP = {
   wind_slash: {
@@ -106,11 +110,15 @@ function createBossBattleConfig(bossConfig) {
   };
 }
 
-function createInitialBattleState(battleConfig, bossConfig) {
-  // TODO Step E:
-  // Replace mock FIRST_BOSS_QUESTIONS with generated review questions from
-  // boss.reviewRule.sourceStages.
-  const questionDeck = shuffleQuestions(FIRST_BOSS_QUESTIONS).slice(
+function getFallbackBossQuestions(bossConfig) {
+  return buildBossReviewQuestions({
+    bossConfig,
+    fallbackQuestions: FIRST_BOSS_QUESTIONS,
+  });
+}
+
+function createInitialBattleState(battleConfig, bossConfig, bossQuestions = []) {
+  const questionDeck = shuffleQuestions(bossQuestions.length ? bossQuestions : getFallbackBossQuestions(bossConfig)).slice(
     0,
     bossConfig?.questionCount || FIRST_BOSS_QUESTIONS.length
   );
@@ -618,7 +626,8 @@ export default function EigoBossBattlePage() {
   const bossConfig = getEigoBossById(bossIdFromUrl || DEFAULT_EIGO_BOSS_ID)
     || getEigoBossById(DEFAULT_EIGO_BOSS_ID);
   const battle = useMemo(() => createBossBattleConfig(bossConfig), [bossConfig]);
-  const [state, setState] = useState(() => createInitialBattleState(battle, bossConfig));
+  const [bossQuestions, setBossQuestions] = useState(() => getFallbackBossQuestions(bossConfig));
+  const [state, setState] = useState(() => createInitialBattleState(battle, bossConfig, bossQuestions));
   const [attackSequence, setAttackSequence] = useState(null);
   const [counterSequence, setCounterSequence] = useState(null);
   const [actionEffect, setActionEffect] = useState(null);
@@ -658,6 +667,77 @@ export default function EigoBossBattlePage() {
   useEffect(() => {
     preloadBattleSfx();
   }, []);
+
+  useEffect(() => {
+    const fallbackQuestions = getFallbackBossQuestions(bossConfig);
+    setBossQuestions(fallbackQuestions);
+    setState((current) => (
+      current.battleStatus === 'playing' && current.currentQuestionIndex === 0
+        ? { ...current, questionDeck: shuffleQuestions(fallbackQuestions) }
+        : current
+    ));
+  }, [bossConfig]);
+
+  useEffect(() => {
+    if (!bossConfig?.reviewRule?.sourceStages?.length) return undefined;
+
+    let cancelled = false;
+    const childId = typeof window !== 'undefined'
+      ? window.localStorage.getItem(CHILD_STORAGE_KEY) || ''
+      : '';
+
+    if (!childId) return undefined;
+
+    const loadBossReviewQuestions = async () => {
+      try {
+        const sourceStageWords = [];
+        await Promise.all(
+          bossConfig.reviewRule.sourceStages.map(async (stageId) => {
+            const payload = await getDailyWords({
+              childId,
+              world: bossConfig.worldId,
+              stage: stageId,
+              limit: 40,
+            });
+            (payload.words || []).forEach((word) => {
+              sourceStageWords.push({
+                ...word,
+                stageId,
+                worldId: bossConfig.worldId,
+              });
+            });
+          })
+        );
+
+        if (cancelled) return;
+
+        const generatedQuestions = buildBossReviewQuestions({
+          bossConfig,
+          stageWords: sourceStageWords,
+          fallbackQuestions: FIRST_BOSS_QUESTIONS,
+        });
+
+        if (!generatedQuestions.length) return;
+
+        setBossQuestions(generatedQuestions);
+        setState((current) => (
+          current.battleStatus === 'playing' && current.currentQuestionIndex === 0
+            ? { ...current, questionDeck: shuffleQuestions(generatedQuestions) }
+            : current
+        ));
+      } catch (err) {
+        if (import.meta.env.DEV) {
+          console.warn('Failed to build Boss review questions; using fallback questions.', err);
+        }
+      }
+    };
+
+    loadBossReviewQuestions();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [bossConfig]);
 
   useEffect(() => {
     if (typeof window === 'undefined') return undefined;
@@ -724,7 +804,32 @@ export default function EigoBossBattlePage() {
     setCounterSequence(null);
     setActionEffect(null);
     setIsResolving(false);
-    setState(createInitialBattleState(battle, bossConfig));
+    setState(createInitialBattleState(battle, bossConfig, bossQuestions));
+  };
+
+  const claimBossReward = () => {
+    if (!bossConfig?.reward) {
+      navigate(rewardPath);
+      return;
+    }
+
+    const bossReward = {
+      ...bossConfig.reward,
+      type: 'boss_card',
+      rewardType: 'boss_card',
+      cardId: bossConfig.reward.cardId,
+      bossId: bossConfig.bossId,
+      worldId: bossConfig.worldId,
+      stage: bossConfig.stageId,
+      nameJa: bossConfig.reward.nameJa,
+      rarity: bossConfig.reward.rarity || 'Rare',
+      image: bossConfig.reward.image || bossConfig.cardImage || bossConfig.image,
+      source: bossConfig.reward.source || 'boss_clear',
+      returnTo: `/app/world-stage?world=${encodeURIComponent(bossConfig.worldId)}`,
+    };
+
+    savePendingRewardQueue([bossReward]);
+    navigate('/card-reward');
   };
 
   const clearBossReactionSoon = () => {
@@ -1023,7 +1128,7 @@ export default function EigoBossBattlePage() {
             <img src={rewardConfig?.image || battle.boss.image} alt={`${rewardConfig?.nameJa || battle.boss.name} reward`} />
             <strong>{rewardConfig?.nameJa || battle.boss.name}</strong>
           </div>
-          <EQFantasyButton fullWidth onClick={() => navigate(rewardPath)}>
+          <EQFantasyButton fullWidth onClick={claimBossReward}>
             カードを見る
           </EQFantasyButton>
         </EQFantasyCard>

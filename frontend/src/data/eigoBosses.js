@@ -76,3 +76,7 @@ export function getEigoBossByWorldStage(worldId, stageId) {
     (boss) => boss.worldId === worldId && boss.stageId === Number(stageId)
   ) || null;
 }
+
+export function getEigoBossBattleRoute(bossId) {
+  return `/boss-battle-v1?bossId=${encodeURIComponent(bossId)}`;
+}

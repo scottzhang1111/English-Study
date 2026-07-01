@@ -8429,6 +8429,34 @@ body,
   box-shadow: 0 0 8px rgba(160, 92, 235, 0.18);
 }
 
+.eq-stage-select-node.is-mini-boss {
+  width: 48px !important;
+  height: 48px !important;
+  border: 2px solid rgba(255, 223, 132, 0.78) !important;
+  background:
+    radial-gradient(
+      circle at 35% 28%,
+      rgba(255, 255, 255, 0.72),
+      rgba(96, 239, 255, 0.68) 34%,
+      rgba(20, 91, 151, 0.78) 70%,
+      rgba(8, 28, 62, 0.9)
+    ) !important;
+  color: #fff8d6 !important;
+  box-shadow:
+    0 0 16px rgba(90, 232, 255, 0.5),
+    0 0 0 4px rgba(255, 211, 90, 0.12),
+    0 5px 12px rgba(0, 0, 0, 0.28) !important;
+}
+
+.eq-stage-select-node.is-mini-boss strong {
+  right: -20px;
+  bottom: -8px;
+  background: linear-gradient(180deg, rgba(33, 178, 225, 0.94), rgba(9, 65, 118, 0.94));
+  border-color: rgba(255, 226, 150, 0.6);
+  color: #fff4bf;
+  box-shadow: 0 0 10px rgba(90, 232, 255, 0.28);
+}
+
 
 .eq-mobile-shell,
 .eq-home-menu,
@@ -13925,6 +13953,30 @@ body,
     radial-gradient(circle at 50% 18%, rgba(255, 220, 126, 0.2), transparent 30%),
     radial-gradient(circle at 50% 45%, rgba(62, 170, 255, 0.24), transparent 38%),
     linear-gradient(180deg, rgba(12, 39, 94, 0.98), rgba(3, 7, 24, 0.98));
+}
+
+.eq-boss-reward-page .quest-reward-halo {
+  background:
+    radial-gradient(circle, rgba(255, 225, 138, 0.64), transparent 33%),
+    radial-gradient(circle, rgba(88, 232, 255, 0.38), transparent 58%);
+  filter: blur(1px) drop-shadow(0 0 28px rgba(88, 232, 255, 0.42));
+}
+
+.eq-boss-reward-page .quest-reward-card-face {
+  border-color: rgba(255, 226, 150, 0.98);
+  box-shadow:
+    0 0 0 1px rgba(88, 232, 255, 0.28) inset,
+    0 0 42px rgba(255, 211, 90, 0.64),
+    0 0 82px rgba(88, 232, 255, 0.3),
+    0 22px 48px rgba(0, 0, 0, 0.58);
+}
+
+.eq-boss-reward-page .quest-reward-card-back,
+.eq-boss-reward-page .quest-reward-card-front {
+  background:
+    radial-gradient(circle at 50% 18%, rgba(255, 226, 150, 0.22), transparent 30%),
+    radial-gradient(circle at 50% 45%, rgba(88, 232, 255, 0.24), transparent 40%),
+    linear-gradient(180deg, rgba(8, 32, 72, 0.98), rgba(2, 7, 22, 0.98));
 }
 
 @media (max-height: 720px) {
