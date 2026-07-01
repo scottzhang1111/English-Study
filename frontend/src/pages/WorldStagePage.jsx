@@ -86,23 +86,23 @@ fire: [
 ],
 
   wind: [
-    { x: 18, y: 78 },
-    { x: 31, y: 64 },
-    { x: 24, y: 49 },
-    { x: 42, y: 38 },
-    { x: 62, y: 32 },
-    { x: 78, y: 45 },
-    { x: 64, y: 60 },
-    { x: 48, y: 72 },
-    { x: 32, y: 84 },
-    { x: 78, y: 82 },
+    { x: 73.7, y: 83.5 },
+    { x: 74.5, y: 68.4 },
+    { x: 53.9, y: 58.9 },
+    { x: 13.8, y: 53.0 },
+    { x: 69.4, y: 41.4 },
+    { x: 72.2, y: 30.6 },
+    { x: 53.4, y: 26.6 },
+    { x: 31.1, y: 23.4 },
+    { x: 62.0, y: 12.0 },
+    { x: 74.0, y: 14.6 },
   ],
 };
 const WORLD_BOSS_CHECKPOINT_POSITIONS = {
   wind: {
-    4: { x: 52, y: 34 },
-    8: { x: 42, y: 78 },
-    10: { x: 88, y: 82 },
+    4: { x: 45.3, y: 40.1 },
+    8: { x: 47.3, y: 9.7 },
+    10: { x: 86.0, y: 20.0 },
   },
 };
 const WORLD_STAGE_PATHS = {
@@ -183,8 +183,8 @@ function getDebugRoutePath(nodes) {
 }
 
 function getDebugNodeLabel(node) {
-  if (!node.isBoss) return `Stage ${node.stage}`;
-  return `Stage ${node.checkpointAfterStage} ${node.isMiniBoss ? 'mini_boss' : 'world_boss'}`;
+  if (!node.isBoss) return `Stage ${node.stageId || node.stage}`;
+  return `Stage ${node.stageId || node.checkpointAfterStage} ${node.nodeType}`;
 }
 
 function formatCoordinate(value) {
@@ -197,14 +197,12 @@ function getDebugPositionEntries(nodes, overrides = {}) {
     .sort((a, b) => a.routeOrder - b.routeOrder)
     .map((node) => {
       const position = overrides[node.id] || node.position;
-      const entry = {
-        stageId: node.isBoss ? Number(node.checkpointAfterStage) : Number(node.stage),
+      return {
+        stageId: Number(node.stageId || node.checkpointAfterStage || node.stage),
+        nodeType: node.nodeType,
         x: Number(formatCoordinate(position.x)),
         y: Number(formatCoordinate(position.y)),
       };
-      return node.isBoss
-        ? { ...entry, nodeType: node.isMiniBoss ? 'mini_boss' : 'world_boss' }
-        : entry;
     });
 }
 
@@ -213,8 +211,7 @@ function printDebugPosition(node, nodes, overrides) {
   console.log(`${getDebugNodeLabel(node)}: x=${formatCoordinate(position.x)}, y=${formatCoordinate(position.y)}`);
   const entries = getDebugPositionEntries(nodes, overrides);
   const copyText = `[\n${entries.map((entry) => {
-    const typeText = entry.nodeType ? `, nodeType: "${entry.nodeType}"` : '';
-    return `  { stageId: ${entry.stageId}${typeText}, x: ${entry.x}, y: ${entry.y} }`;
+    return `  { stageId: ${entry.stageId}, nodeType: "${entry.nodeType}", x: ${entry.x}, y: ${entry.y} }`;
   }).join(',\n')}\n]`;
   console.log(copyText);
 }
@@ -297,12 +294,13 @@ export default function WorldStagePage() {
   const stagePositions =
   WORLD_STAGE_POSITIONS[currentWorld.id] ||
   WORLD_STAGE_POSITIONS.fire;
+  const visibleStageCount = currentWorld.id === 'wind' ? 10 : worldStageCount;
 
   useEffect(() => {
     setImageFailed(false);
   }, [currentWorld.id]);
 
-  const normalStageNodes = Array.from({ length: worldStageCount }, (_, index) => {
+  const normalStageNodes = Array.from({ length: visibleStageCount }, (_, index) => {
     const stage = index + 1;
     const { stageProgress, status: normalizedStatus } = getStageProgressStatus(currentWorldProgress, stage, currentWorld.id);
     const blockingBoss = getBlockingBossForStage(currentWorld.id, stage);
@@ -314,6 +312,7 @@ export default function WorldStagePage() {
     // TODO: Replace local Boss clear status with backend child_boss_progress.
     return {
       id: `stage-${stage}`,
+      stageId: stage,
       nodeType: 'stage',
       stage,
       displayLabel: stage,
@@ -335,10 +334,12 @@ export default function WorldStagePage() {
     const bossCleared = isBossCleared(bossConfig.bossId);
     const checkpointUnlocked = isBossCheckpointUnlocked(bossConfig, currentWorldProgress);
     const status = bossCleared ? 'completed' : checkpointUnlocked ? 'current' : 'locked';
+    const bossNodeType = bossConfig.bossType === EIGO_BOSS_TYPES.WORLD_BOSS ? 'world_boss' : 'mini_boss';
 
     return {
       id: `boss-${bossConfig.bossId}`,
-      nodeType: 'boss',
+      stageId: Number(bossConfig.checkpointAfterStage),
+      nodeType: bossNodeType,
       stage: `boss-${index + 1}`,
       checkpointAfterStage: bossConfig.checkpointAfterStage,
       displayLabel: bossConfig.bossType === EIGO_BOSS_TYPES.WORLD_BOSS ? 'B' : `M${index + 1}`,
@@ -521,7 +522,7 @@ export default function WorldStagePage() {
           </svg>
           {stageNodes.map((node) => (
             <button
-              key={node.id}
+              key={`${node.stageId}-${node.nodeType}`}
               type="button"
               className={`eq-stage-select-node is-${node.status} ${node.isBoss ? 'is-boss' : ''} ${node.isMiniBoss ? 'is-mini-boss' : ''} ${STAGE_NODE_POSITION_DEBUG ? 'is-position-debug' : ''}`}
               style={{
@@ -537,7 +538,7 @@ export default function WorldStagePage() {
               {node.isBoss ? <strong>{node.bossLabel}</strong> : null}
               {STAGE_NODE_POSITION_DEBUG ? (
                 <small className="eq-stage-node-debug-label">
-                  {node.isBoss ? `${node.checkpointAfterStage}${node.isMiniBoss ? 'M' : 'B'}` : `S${node.stage}`}{' '}
+                  {node.isBoss ? `${node.stageId}${node.isMiniBoss ? 'M' : 'B'}` : `S${node.stageId}`}{' '}
                   {formatCoordinate(node.position.x)},{formatCoordinate(node.position.y)}
                 </small>
               ) : null}
