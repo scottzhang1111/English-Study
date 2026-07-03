@@ -349,7 +349,7 @@ const handleHomeVideoPlay = async (event) => {
   }
 
   try {
-    playHomeBgm();
+    playHomeBgm({ enableIfNeeded: true });
     video.muted = true;
     video.playsInline = true;
     video.currentTime = 0;

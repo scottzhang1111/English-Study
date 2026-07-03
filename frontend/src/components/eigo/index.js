@@ -7,6 +7,7 @@ export { default as CompactPageHeader } from './CompactPageHeader';
 export { default as EQMobileShell } from './EQMobileShell';
 export { default as EQProgressBar } from './EQProgressBar';
 export { default as EQQuestionCard } from './EQQuestionCard';
+export { default as EQStageNode } from './EQStageNode';
 export { default as FantasyMenuTile } from './FantasyMenuTile';
 export { default as PurificationQuizMobile } from './PurificationQuizMobile';
 export { default as SpiritDialogueBox } from './SpiritDialogueBox';

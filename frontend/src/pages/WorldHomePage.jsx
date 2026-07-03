@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { EQBackPill, EQCard, EQMobileShell, EQBottomNav } from '../components/eigo';
+import { EQBackPill, EQCard, EQMobileShell, EQBottomNav, EQStageNode } from '../components/eigo';
 import { getHomeData } from '../api';
 import eigoQuestWorlds from '../config/eigoQuestWorlds';
 import CompactPageHeader from '../components/eigo/CompactPageHeader';
@@ -17,6 +17,12 @@ const WORLD_DISPLAY = {
   water: { nameJa: '水の世界', nameEn: 'WATER REALM', symbol: '水', color: '#4ccfff' },
   light: { nameJa: '光の世界', nameEn: 'LIGHT REALM', symbol: '光', color: '#ffd86b' },
 };
+
+function getWorldHomeStageState(stageProgress, canFallbackOpen) {
+  if (stageProgress?.cleared || stageProgress?.status === 'cleared' || stageProgress?.status === 'completed') return 'clear';
+  if (stageProgress?.unlocked || stageProgress?.status === 'current' || canFallbackOpen) return 'open';
+  return 'close';
+}
 
 export default function WorldHomePage() {
   const navigate = useNavigate();
@@ -96,16 +102,26 @@ export default function WorldHomePage() {
         <EQCard className="eq-world-home-card">
           <h2>ステージ</h2>
           <div className="eq-world-stage-list">
-            {Array.from({ length: world.stageCount || world.stages || 10 }).map((_, index) => (
-              <button
-                key={index}
-                type="button"
-                disabled={questProgress && !stageProgressItems[index]?.unlocked && !stageProgressItems[index]?.cleared}
-                onClick={() => handleStageClick(index + 1)}
-              >
-                Stage {index + 1}
-              </button>
-            ))}
+            {Array.from({ length: world.stageCount || world.stages || 10 }).map((_, index) => {
+              const stageNumber = index + 1;
+              const stageProgress = stageProgressItems[index];
+              const canFallbackOpen = !questProgress && world.id === 'wind' && stageNumber === 1;
+              const isDisabled = Boolean(questProgress && !stageProgress?.unlocked && !stageProgress?.cleared);
+              return (
+                <EQStageNode
+                  key={stageNumber}
+                  type="stage"
+                  state={getWorldHomeStageState(stageProgress, canFallbackOpen)}
+                  number={stageNumber}
+                  isCurrent={stageProgress?.status === 'current'}
+                  size="sm"
+                  disabled={isDisabled}
+                  className="eq-world-home-stage-node"
+                  onClick={() => handleStageClick(stageNumber)}
+                  aria-label={`Stage ${stageNumber}`}
+                />
+              );
+            })}
           </div>
         </EQCard>
       </EQMobileShell>

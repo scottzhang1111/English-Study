@@ -1,7 +1,7 @@
-import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import { createContext, useCallback, useContext, useMemo, useState } from 'react';
 
 const BGM_SRC = '/assets/eigo-quest/home/login.mp3';
-const HOME_BGM_SRC = '/assets/eigo-quest/home/login.mp3';
+const HOME_BGM_SRC = '/assets/eigo-quest/home/home.mp3';
 const BGM_VOLUME = 0.25;
 const HOME_BGM_VOLUME = 0.25;
 const FADE_DURATION_MS = 700;
@@ -86,6 +86,14 @@ function getInitialBgmEnabled() {
   }
 }
 
+function saveBgmEnabled(enabled) {
+  try {
+    localStorage.setItem(BGM_ENABLED_STORAGE_KEY, enabled ? 'true' : 'false');
+  } catch (err) {
+    // Keep the app usable when localStorage is unavailable.
+  }
+}
+
 function playGlobalAudio({ fadeIn = false } = {}) {
   const audio = getBgmAudio();
   if (!audio) return Promise.resolve(false);
@@ -118,11 +126,7 @@ export function BgmProvider({ children }) {
   const setBgmEnabled = useCallback((enabled) => {
     const nextEnabled = Boolean(enabled);
     setBgmEnabledState(nextEnabled);
-    try {
-      localStorage.setItem(BGM_ENABLED_STORAGE_KEY, nextEnabled ? 'true' : 'false');
-    } catch (err) {
-      // Keep the app usable when localStorage is unavailable.
-    }
+    saveBgmEnabled(nextEnabled);
     if (nextEnabled) {
       playGlobalAudio({ fadeIn: true });
       return;
@@ -137,17 +141,17 @@ export function BgmProvider({ children }) {
     }
   }, []);
 
-  useEffect(() => {
-    if (bgmEnabled) playGlobalAudio({ fadeIn: true });
-  }, [bgmEnabled]);
-
   const startBgm = useCallback((options = {}) => {
     if (!bgmEnabled) return Promise.resolve(false);
     return playGlobalAudio(options);
   }, [bgmEnabled]);
 
-  const playHomeBgm = useCallback(() => {
-    if (!bgmEnabled) return Promise.resolve(false);
+  const playHomeBgm = useCallback(({ enableIfNeeded = false } = {}) => {
+    if (!bgmEnabled && !enableIfNeeded) return Promise.resolve(false);
+    if (!bgmEnabled && enableIfNeeded) {
+      setBgmEnabledState(true);
+      saveBgmEnabled(true);
+    }
     const globalAudio = getBgmAudio();
     if (globalAudio && !globalAudio.paused) {
       fadeAudio(globalAudio, 0, { pauseWhenSilent: true, which: 'global' });

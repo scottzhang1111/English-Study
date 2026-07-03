@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { getHomeData } from '../api';
-import { EQBackPill, EQCard, EQMobileShell, EQBottomNav } from '../components/eigo';
+import { EQBackPill, EQCard, EQMobileShell, EQBottomNav, EQStageNode } from '../components/eigo';
 import { eigoQuestCards } from '../config/eigoQuestCards';
 import eigoQuestWorlds, { EIGO_QUEST_WORDS_PER_STAGE } from '../config/eigoQuestWorlds';
 import { EIGO_BOSSES, EIGO_BOSS_TYPES, getEigoBossBattleRoute, getEigoBossesByWorld } from '../data/eigoBosses';
@@ -189,6 +189,27 @@ function getDebugNodeLabel(node) {
 
 function formatCoordinate(value) {
   return Number(value).toFixed(1);
+}
+
+function getStageNodeType(nodeType) {
+  if (nodeType === 'mini_boss') return 'mini_boss';
+  if (nodeType === 'world_boss') return 'boss';
+  return 'stage';
+}
+
+function getStageNodeSize(node) {
+  if (node.nodeType === 'world_boss') return 'lg';
+  if (node.nodeType === 'mini_boss') return 'md';
+  return 'sm';
+}
+
+function getStageNodeNumber(node) {
+  if (node.nodeType === 'mini_boss') {
+    const match = String(node.displayLabel || '').match(/\d+/);
+    return match ? Number(match[0]) : undefined;
+  }
+  if (node.nodeType === 'world_boss') return undefined;
+  return node.stageId;
 }
 
 function getDebugPositionEntries(nodes, overrides = {}) {
@@ -547,9 +568,14 @@ export default function WorldStagePage() {
             />
           </svg>
           {stageNodes.map((node) => (
-            <button
+            <EQStageNode
               key={`${node.stageId}-${node.nodeType}`}
-              type="button"
+              type={getStageNodeType(node.nodeType)}
+              state={node.status}
+              size={getStageNodeSize(node)}
+              number={getStageNodeNumber(node)}
+              isCurrent={node.status === 'current'}
+              label={node.isBoss ? node.bossLabel : ''}
               className={`eq-stage-select-node is-${node.status} ${node.isBoss ? 'is-boss' : ''} ${node.isMiniBoss ? 'is-mini-boss' : ''} ${isMapDebugMode ? 'is-position-debug' : ''}`}
               style={{
                 '--node-x': `${node.position.x}%`,
@@ -558,19 +584,12 @@ export default function WorldStagePage() {
               onPointerDown={(event) => handleDebugNodePointerDown(event, node)}
               onClick={() => handleStageTap(node)}
               aria-label={node.isBoss ? `${node.title} ${node.bossLabel}` : `Stage ${node.stage}`}
-            >
-              <span>{node.status === 'completed' ? '✓' : node.status === 'locked' ? '🔒' : node.displayLabel}</span>
-              {node.status === 'current' ? <em>現在</em> : null}
-              {node.isBoss ? <strong>{node.bossLabel}</strong> : null}
-              {isMapDebugMode ? (
-                <small className="eq-stage-node-debug-label">
-                  {node.isBoss ? `${node.stageId}${node.isMiniBoss ? 'M' : 'B'}` : `S${node.stageId}`}{' '}
-                  {formatCoordinate(node.position.x)},{formatCoordinate(node.position.y)}
-                </small>
-              ) : null}
-            </button>
+              debugLabel={isMapDebugMode
+                ? `${node.isBoss ? `${node.stageId}${node.isMiniBoss ? 'M' : 'B'}` : `S${node.stageId}`} ${formatCoordinate(node.position.x)},${formatCoordinate(node.position.y)}`
+                : ''}
+            />
           ))}
-        </section>  
+        </section>
         {false && <section className="eq-world-stage-guide-area">
   <div className="eq-world-stage-bubble">
     <span>{worldDisplay.nameJa.replace('世界', '国')}</span>
