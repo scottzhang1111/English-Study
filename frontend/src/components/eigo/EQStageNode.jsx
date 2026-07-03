@@ -35,7 +35,13 @@ function normalizeState(state) {
 function getMainText(type, number, label) {
   if (type === 'stage') return number;
   if (type === 'mini_boss') return number ? `M${number}` : 'M';
-  return label === 'Boss' || label === 'World Boss' ? 'B' : (label || 'B');
+  return label === 'Boss' || label === 'World Boss' ? 'BOSS' : (label || 'BOSS');
+}
+
+function getTypeBadge(type) {
+  if (type === 'stage') return 'S';
+  if (type === 'mini_boss') return 'M';
+  return 'B';
 }
 
 export default function EQStageNode({
@@ -55,6 +61,7 @@ export default function EQStageNode({
   const nodeState = normalizeState(state);
   const assetSrc = STAGE_NODE_ASSETS[nodeType][nodeState];
   const mainText = getMainText(nodeType, number, label);
+  const typeBadge = getTypeBadge(nodeType);
   const showClear = nodeState === 'clear';
   const labelText = nodeType === 'stage' ? '' : label;
 
@@ -73,8 +80,13 @@ export default function EQStageNode({
       disabled={disabled}
       {...buttonProps}
     >
-      <img className="eq-stage-node-v2__image" src={assetSrc} alt="" aria-hidden="true" draggable="false" />
-      <span className="eq-stage-node-v2__text">{mainText}</span>
+      <span className="eq-stage-node-v2__aura" aria-hidden="true" />
+      <span className="eq-stage-node-v2__base" aria-hidden="true" />
+      <span className="eq-stage-node-v2__orb" aria-hidden="true">
+        <img className="eq-stage-node-v2__image" src={assetSrc} alt="" draggable="false" />
+      </span>
+      <span className="eq-stage-node-type-badge" aria-hidden="true">{typeBadge}</span>
+      <span className="eq-stage-node-number">{mainText}</span>
       {labelText ? <span className="eq-stage-node-v2__label">{labelText}</span> : null}
       {isCurrent ? <span className="eq-stage-node-v2__current">現在</span> : null}
       {showClear ? <span className="eq-stage-node-v2__clear">CLEAR!</span> : null}
