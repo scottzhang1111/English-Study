@@ -6,6 +6,7 @@ import eigoQuestWorlds from '../config/eigoQuestWorlds';
 import CompactPageHeader from '../components/eigo/CompactPageHeader';
 import BgmToggle from '../components/eigo/BgmToggle';
 import { BGM_PROMPT_SEEN_STORAGE_KEY, useBgm } from '../context/BgmContext';
+import { getMapDebugMode } from '../helpers/mapDebugMode';
 
 const CHILD_STORAGE_KEY = 'selected_child_id';
 
@@ -30,6 +31,7 @@ export default function StudyMapPage() {
   const navigate = useNavigate();
   const { setBgmEnabled } = useBgm();
   const childId = useMemo(() => localStorage.getItem(CHILD_STORAGE_KEY) || '', []);
+  const isMapDebugMode = getMapDebugMode();
   const [homeData, setHomeData] = useState(null);
   const [error, setError] = useState('');
   const [failedImages, setFailedImages] = useState(() => new Set());
@@ -81,7 +83,7 @@ export default function StudyMapPage() {
     const clearedStages = Number(worldProgress.cleared_stage_count || 0);
     const isComplete = Boolean(worldProgress.cleared);
     const isCurrent = world.id === currentWorldId && !questProgress.mainline_complete;
-    const isFuture = !worldProgress.unlocked && !isCurrent;
+    const isFuture = !isMapDebugMode && !worldProgress.unlocked && !isCurrent;
 
     return {
       ...world,
@@ -93,7 +95,7 @@ export default function StudyMapPage() {
       progressPercent: Math.round((clearedStages / stageCount) * 100),
       stageLabel: getStageLabel(worldProgress, world),
       status: isComplete ? 'complete' : isCurrent ? 'current' : isFuture ? 'future' : 'active',
-      unlocked: Boolean(worldProgress.unlocked),
+      unlocked: isMapDebugMode || Boolean(worldProgress.unlocked),
     };
   });
 
@@ -108,7 +110,7 @@ export default function StudyMapPage() {
   }
 
   function handleWorldClick(world) {
-    if (!world.unlocked && world.status === 'future') return;
+    if (!isMapDebugMode && !world.unlocked && world.status === 'future') return;
     navigate(`/app/world-stage?world=${world.id}`);
   }
 

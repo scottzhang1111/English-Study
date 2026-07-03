@@ -6,11 +6,11 @@ import { eigoQuestCards } from '../config/eigoQuestCards';
 import eigoQuestWorlds, { EIGO_QUEST_WORDS_PER_STAGE } from '../config/eigoQuestWorlds';
 import { EIGO_BOSSES, EIGO_BOSS_TYPES, getEigoBossBattleRoute, getEigoBossesByWorld } from '../data/eigoBosses';
 import { isBossCleared } from '../helpers/eigoBossProgress';
+import { getMapDebugMode } from '../helpers/mapDebugMode';
 import CompactPageHeader from '../components/eigo/CompactPageHeader';
 
 const CHILD_STORAGE_KEY = 'selected_child_id';
 const MOCK_LEARNED_WORDS = 35;
-const STAGE_NODE_POSITION_DEBUG = true;
 
 const WORLD_DISPLAY = {
   wind: {
@@ -88,21 +88,21 @@ fire: [
   wind: [
     { x: 73.7, y: 83.5 },
     { x: 74.5, y: 68.4 },
-    { x: 53.9, y: 58.9 },
-    { x: 13.8, y: 53.0 },
-    { x: 69.4, y: 41.4 },
-    { x: 72.2, y: 30.6 },
-    { x: 53.4, y: 26.6 },
-    { x: 31.1, y: 23.4 },
-    { x: 62.0, y: 12.0 },
-    { x: 74.0, y: 14.6 },
+    { x: 53.7, y: 57.2 },
+    { x: 33.6, y: 56.5 },
+    { x: 43.5, y: 42.8 },
+    { x: 70.2, y: 41.6 },
+    { x: 74.0, y: 30.0 },
+    { x: 55.5, y: 25.9 },
+    { x: 16.9, y: 10.1 },
+    { x: 46.8, y: 7.8 },
   ],
 };
 const WORLD_BOSS_CHECKPOINT_POSITIONS = {
   wind: {
-    4: { x: 45.3, y: 40.1 },
-    8: { x: 47.3, y: 9.7 },
-    10: { x: 86.0, y: 20.0 },
+    4: { x: 17.1, y: 34.0 },
+    8: { x: 34.1, y: 20.5 },
+    10: { x: 89.7, y: 18.4 },
   },
 };
 const WORLD_STAGE_PATHS = {
@@ -222,6 +222,7 @@ export default function WorldStagePage() {
   const mapCardRef = useRef(null);
   const debugDidDragRef = useRef(false);
   const childId = useMemo(() => localStorage.getItem(CHILD_STORAGE_KEY) || '', []);
+  const isMapDebugMode = getMapDebugMode();
   const [homeData, setHomeData] = useState(null);
   const [error, setError] = useState('');
   const [message, setMessage] = useState('');
@@ -244,8 +245,9 @@ export default function WorldStagePage() {
 
   const questProgress = homeData?.eigo_quest_progress || {};
   const requestedWorldId = searchParams.get('world');
+  const requestedWorld = eigoQuestWorlds.find((world) => world.id === requestedWorldId);
   const requestedWorldProgress = questProgress.worlds?.find((world) => world.id === requestedWorldId);
-  const canOpenRequestedWorld = Boolean(requestedWorldProgress?.unlocked);
+  const canOpenRequestedWorld = Boolean(requestedWorldProgress?.unlocked) || (isMapDebugMode && Boolean(requestedWorld));
   const activeWorldId = canOpenRequestedWorld
     ? requestedWorldId
     : questProgress.mainline_complete
@@ -294,19 +296,23 @@ export default function WorldStagePage() {
   const stagePositions =
   WORLD_STAGE_POSITIONS[currentWorld.id] ||
   WORLD_STAGE_POSITIONS.fire;
-  const visibleStageCount = currentWorld.id === 'wind' ? 10 : worldStageCount;
+  const visibleStageCount = isMapDebugMode
+    ? Number(currentWorld.stageCount || currentWorld.stages || worldStageCount || 10)
+    : (currentWorld.id === 'wind' ? 10 : worldStageCount);
 
   useEffect(() => {
     setImageFailed(false);
+    setDebugNodePositions({});
   }, [currentWorld.id]);
 
   const normalStageNodes = Array.from({ length: visibleStageCount }, (_, index) => {
     const stage = index + 1;
     const { stageProgress, status: normalizedStatus } = getStageProgressStatus(currentWorldProgress, stage, currentWorld.id);
     const blockingBoss = getBlockingBossForStage(currentWorld.id, stage);
-    const isLockedByBossGate = Boolean(blockingBoss);
+    const isLockedByBossGate = !isMapDebugMode && Boolean(blockingBoss);
     const baseStatus = normalizedStatus;
-    const status = isLockedByBossGate ? 'locked' : baseStatus;
+    const gatedStatus = isLockedByBossGate ? 'locked' : baseStatus;
+    const status = isMapDebugMode && gatedStatus === 'locked' ? 'active' : gatedStatus;
     // TODO Step C2:
     // Connect Boss unlock to real child stage progress.
     // TODO: Replace local Boss clear status with backend child_boss_progress.
@@ -317,7 +323,7 @@ export default function WorldStagePage() {
       stage,
       displayLabel: stage,
       status,
-      unlocked: !isLockedByBossGate && Boolean(stageProgress?.unlocked || status === 'completed' || status === 'current'),
+      unlocked: isMapDebugMode || (!isLockedByBossGate && Boolean(stageProgress?.unlocked || status === 'completed' || status === 'current')),
       isBoss: false,
       isMiniBoss: false,
       isLockedByBossGate,
@@ -326,14 +332,14 @@ export default function WorldStagePage() {
       bossRoute: null,
       bossLabel: '',
       title: `Stage ${stage}`,
-      position: stagePositions[index],
+      position: stagePositions[index] || { x: 50, y: 50 },
       routeOrder: stage * 10,
     };
   });
   const bossCheckpointNodes = getEigoBossesByWorld(currentWorld.id).map((bossConfig, index) => {
     const bossCleared = isBossCleared(bossConfig.bossId);
     const checkpointUnlocked = isBossCheckpointUnlocked(bossConfig, currentWorldProgress);
-    const status = bossCleared ? 'completed' : checkpointUnlocked ? 'current' : 'locked';
+    const status = bossCleared ? 'completed' : checkpointUnlocked ? 'current' : isMapDebugMode ? 'active' : 'locked';
     const bossNodeType = bossConfig.bossType === EIGO_BOSS_TYPES.WORLD_BOSS ? 'world_boss' : 'mini_boss';
 
     return {
@@ -344,11 +350,11 @@ export default function WorldStagePage() {
       checkpointAfterStage: bossConfig.checkpointAfterStage,
       displayLabel: bossConfig.bossType === EIGO_BOSS_TYPES.WORLD_BOSS ? 'B' : `M${index + 1}`,
       status,
-      unlocked: checkpointUnlocked,
+      unlocked: isMapDebugMode || checkpointUnlocked,
       isBoss: true,
       isMiniBoss: bossConfig.bossType === EIGO_BOSS_TYPES.MINI_BOSS,
       isLockedByBossGate: false,
-      isBossCheckpointLocked: !checkpointUnlocked,
+      isBossCheckpointLocked: !isMapDebugMode && !checkpointUnlocked,
       blockingBoss: null,
       bossId: bossConfig.bossId,
       bossRoute: getEigoBossBattleRoute(bossConfig.bossId),
@@ -360,11 +366,11 @@ export default function WorldStagePage() {
   });
   const stageNodes = [...normalStageNodes, ...bossCheckpointNodes].map((node) => ({
     ...node,
-    position: STAGE_NODE_POSITION_DEBUG && debugNodePositions[node.id]
+    position: isMapDebugMode && debugNodePositions[node.id]
       ? debugNodePositions[node.id]
       : node.position,
   }));
-  const routePath = STAGE_NODE_POSITION_DEBUG
+  const routePath = isMapDebugMode
     ? getDebugRoutePath(stageNodes)
     : (WORLD_STAGE_PATHS[currentWorld.id] || WORLD_STAGE_PATHS.fire);
 
@@ -380,8 +386,17 @@ export default function WorldStagePage() {
   }
 
   function handleStageTap(stage) {
-    if (STAGE_NODE_POSITION_DEBUG && debugDidDragRef.current) {
+    if (isMapDebugMode && debugDidDragRef.current) {
       debugDidDragRef.current = false;
+      return;
+    }
+
+    if (isMapDebugMode) {
+      if (stage.bossRoute) {
+        navigate(stage.bossRoute);
+        return;
+      }
+      openStageWords(stage.stage);
       return;
     }
 
@@ -409,14 +424,17 @@ export default function WorldStagePage() {
     }
   }
 
-  function handleDebugNodeMouseDown(event, node) {
-    if (!STAGE_NODE_POSITION_DEBUG) return;
+  function handleDebugNodePointerDown(event, node) {
+    if (!isMapDebugMode) return;
     const mapElement = mapCardRef.current;
     if (!mapElement) return;
 
     event.preventDefault();
     event.stopPropagation();
+    event.currentTarget.setPointerCapture?.(event.pointerId);
     debugDidDragRef.current = false;
+    let hasDragged = false;
+    const startPoint = { x: event.clientX, y: event.clientY };
 
     const updateNodePosition = (clientX, clientY) => {
       const rect = mapElement.getBoundingClientRect();
@@ -431,24 +449,32 @@ export default function WorldStagePage() {
       return nextPosition;
     };
 
-    const handleMouseMove = (moveEvent) => {
+    const handlePointerMove = (moveEvent) => {
+      const distanceX = Math.abs(moveEvent.clientX - startPoint.x);
+      const distanceY = Math.abs(moveEvent.clientY - startPoint.y);
+      if (!hasDragged && distanceX < 2 && distanceY < 2) return;
+      hasDragged = true;
       debugDidDragRef.current = true;
       updateNodePosition(moveEvent.clientX, moveEvent.clientY);
     };
 
-    const handleMouseUp = (upEvent) => {
-      const finalPosition = updateNodePosition(upEvent.clientX, upEvent.clientY);
-      const finalOverrides = {
-        ...debugNodePositions,
-        [node.id]: finalPosition,
-      };
-      printDebugPosition({ ...node, position: finalPosition }, stageNodes, finalOverrides);
-      window.removeEventListener('mousemove', handleMouseMove);
-      window.removeEventListener('mouseup', handleMouseUp);
+    const handlePointerUp = (upEvent) => {
+      if (hasDragged) {
+        const finalPosition = updateNodePosition(upEvent.clientX, upEvent.clientY);
+        const finalOverrides = {
+          ...debugNodePositions,
+          [node.id]: finalPosition,
+        };
+        printDebugPosition({ ...node, position: finalPosition }, stageNodes, finalOverrides);
+      }
+      window.removeEventListener('pointermove', handlePointerMove);
+      window.removeEventListener('pointerup', handlePointerUp);
+      window.removeEventListener('pointercancel', handlePointerUp);
     };
 
-    window.addEventListener('mousemove', handleMouseMove);
-    window.addEventListener('mouseup', handleMouseUp);
+    window.addEventListener('pointermove', handlePointerMove);
+    window.addEventListener('pointerup', handlePointerUp);
+    window.addEventListener('pointercancel', handlePointerUp);
   }
 
   if (!homeData && !error) {
@@ -490,7 +516,7 @@ export default function WorldStagePage() {
 
         <section
           ref={mapCardRef}
-          className={`eq-world-stage-map-card ${STAGE_NODE_POSITION_DEBUG ? 'is-position-debug' : ''}`}
+          className={`eq-world-stage-map-card ${isMapDebugMode ? 'is-position-debug' : ''}`}
           style={{ '--world-color': worldDisplay.color }}
         >
           <div className="eq-world-stage-map-bg" aria-hidden="true">
@@ -524,19 +550,19 @@ export default function WorldStagePage() {
             <button
               key={`${node.stageId}-${node.nodeType}`}
               type="button"
-              className={`eq-stage-select-node is-${node.status} ${node.isBoss ? 'is-boss' : ''} ${node.isMiniBoss ? 'is-mini-boss' : ''} ${STAGE_NODE_POSITION_DEBUG ? 'is-position-debug' : ''}`}
+              className={`eq-stage-select-node is-${node.status} ${node.isBoss ? 'is-boss' : ''} ${node.isMiniBoss ? 'is-mini-boss' : ''} ${isMapDebugMode ? 'is-position-debug' : ''}`}
               style={{
                 '--node-x': `${node.position.x}%`,
                 '--node-y': `${node.position.y}%`,
               }}
-              onMouseDown={(event) => handleDebugNodeMouseDown(event, node)}
+              onPointerDown={(event) => handleDebugNodePointerDown(event, node)}
               onClick={() => handleStageTap(node)}
               aria-label={node.isBoss ? `${node.title} ${node.bossLabel}` : `Stage ${node.stage}`}
             >
               <span>{node.status === 'completed' ? '✓' : node.status === 'locked' ? '🔒' : node.displayLabel}</span>
               {node.status === 'current' ? <em>現在</em> : null}
               {node.isBoss ? <strong>{node.bossLabel}</strong> : null}
-              {STAGE_NODE_POSITION_DEBUG ? (
+              {isMapDebugMode ? (
                 <small className="eq-stage-node-debug-label">
                   {node.isBoss ? `${node.stageId}${node.isMiniBoss ? 'M' : 'B'}` : `S${node.stageId}`}{' '}
                   {formatCoordinate(node.position.x)},{formatCoordinate(node.position.y)}

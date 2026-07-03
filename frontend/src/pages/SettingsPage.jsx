@@ -5,6 +5,7 @@ import { useChildren } from '../ChildrenContext';
 import { EQBottomNav } from '../components/eigo';
 import BgmToggle from '../components/eigo/BgmToggle';
 import { useBgm } from '../context/BgmContext';
+import { getMapDebugMode, setMapDebugMode } from '../helpers/mapDebugMode';
 
 const DEFAULT_CHILD_AVATAR = '/assets/eigo-quest/child icon/child4.png';
 
@@ -60,6 +61,7 @@ export default function SettingsPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
   const [isSwitcherOpen, setIsSwitcherOpen] = useState(false);
+  const [isMapDebugMode, setIsMapDebugMode] = useState(() => getMapDebugMode());
 
   useEffect(() => {
     let active = true;
@@ -181,6 +183,14 @@ export default function SettingsPage() {
     }
   };
 
+  const toggleMapDebugMode = () => {
+    setIsMapDebugMode((current) => {
+      const nextValue = !current;
+      setMapDebugMode(nextValue);
+      return nextValue;
+    });
+  };
+
   useEffect(() => {
     if (!isLoading && childrenList.length > 0 && searchParams.get('child_switch') === '1') {
       setIsSwitcherOpen(true);
@@ -207,6 +217,24 @@ export default function SettingsPage() {
           </div>
           <BgmToggle showLabel />
           <span className="eq-family-sound-status" aria-live="polite">現在：{bgmEnabled ? 'オン' : 'オフ'}</span>
+        </section>
+
+        <section className="eq-family-panel eq-family-dev-card" aria-labelledby="family-dev-title">
+          <div className="eq-family-dev-copy">
+            <span className="eq-family-dev-icon" aria-hidden="true">DEV</span>
+            <div>
+              <h2 id="family-dev-title">開発者設定</h2>
+              <p>ONにすると、全世界・全Stageを開放し、座標ラベルとドラッグ調整を表示します。</p>
+            </div>
+          </div>
+          <button
+            type="button"
+            className={`eq-family-debug-toggle ${isMapDebugMode ? 'is-on' : 'is-off'}`}
+            onClick={toggleMapDebugMode}
+            aria-pressed={isMapDebugMode}
+          >
+            マップDebugモード: {isMapDebugMode ? 'ON' : 'OFF'}
+          </button>
         </section>
 
         {isLoading ? (
