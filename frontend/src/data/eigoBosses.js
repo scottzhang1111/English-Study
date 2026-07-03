@@ -8,7 +8,8 @@ export const EIGO_BOSS_WORLDS = {
   FIRE: 'fire',
   WATER: 'water',
   THUNDER: 'thunder',
-  FOREST: 'forest',
+  FOREST: 'wood',
+  WOOD: 'wood',
   ROCK: 'rock',
   SHADOW: 'shadow',
   LIGHT: 'light',
@@ -28,40 +29,83 @@ export const EIGO_BOSS_HERO_RULE_TYPES = {
   RANDOM_WORLD: 'random_world',
 };
 
-const WIND_ELEMENT = {
-  id: EIGO_BOSS_WORLDS.WIND,
-  labelJa: '風',
-  labelEn: 'Wind',
-  color: 'cyan',
-};
+const BOSS_PLACEHOLDER_IMAGE = '/assets/eigo-quest/cards/boss/boss-placeholder.png';
+
+const AVAILABLE_BOSS_IMAGE_PATHS = new Set([
+  '/assets/eigo-quest/cards/boss/wind-mini-boss1.png',
+  '/assets/eigo-quest/cards/boss/wind-mini-boss2.png',
+  '/assets/eigo-quest/cards/boss/wind-world-boss.png',
+]);
 
 const MINI_BOSS_GATE_MESSAGE = 'Mini Bossをクリアすると次のStageが開くよ！';
+const WORLD_BOSS_GATE_MESSAGE = 'World Bossをクリアすると次の世界が開くよ！';
 
-export const EIGO_BOSSES = [
-  {
-    bossId: DEFAULT_EIGO_BOSS_ID,
-    worldId: EIGO_BOSS_WORLDS.WIND,
-    worldNameJa: '風の世界',
+const STANDARD_WORLD_DEFS = [
+  { id: EIGO_BOSS_WORLDS.WIND, nameJa: '風の世界', nameEn: 'Wind', labelJa: '風', color: 'cyan' },
+  { id: EIGO_BOSS_WORLDS.FIRE, nameJa: '火の世界', nameEn: 'Fire', labelJa: '火', color: 'red' },
+  { id: EIGO_BOSS_WORLDS.WATER, nameJa: '水の世界', nameEn: 'Water', labelJa: '水', color: 'blue' },
+  { id: EIGO_BOSS_WORLDS.THUNDER, nameJa: '雷の世界', nameEn: 'Thunder', labelJa: '雷', color: 'yellow' },
+  { id: EIGO_BOSS_WORLDS.WOOD, nameJa: '森の世界', nameEn: 'Forest', labelJa: '森', color: 'green' },
+  { id: EIGO_BOSS_WORLDS.ROCK, nameJa: '岩の世界', nameEn: 'Rock', labelJa: '岩', color: 'stone' },
+  { id: EIGO_BOSS_WORLDS.LIGHT, nameJa: '光の世界', nameEn: 'Light', labelJa: '光', color: 'gold' },
+];
+
+const SHADOW_WORLD_DEF = {
+  id: EIGO_BOSS_WORLDS.SHADOW,
+  nameJa: '影の世界',
+  nameEn: 'Shadow',
+  labelJa: '影',
+  color: 'purple',
+};
+
+function getBossImage(path) {
+  return AVAILABLE_BOSS_IMAGE_PATHS.has(path) ? path : BOSS_PLACEHOLDER_IMAGE;
+}
+
+function createElement(world) {
+  return {
+    id: world.id,
+    labelJa: world.labelJa,
+    labelEn: world.nameEn,
+    color: world.color,
+  };
+}
+
+function createReward({ cardId, nameJa, rarity, image, source }) {
+  return {
+    type: 'boss_card',
+    rewardType: 'boss_card',
+    cardId,
+    nameJa,
+    rarity,
+    image,
+    source,
+  };
+}
+
+function createMiniBoss1(world) {
+  const bossId = `${world.id}-stage-4-mini-boss-1`;
+  const image = getBossImage(`/assets/eigo-quest/cards/boss/${world.id}-mini-boss1.png`);
+  const bossNameJa = world.id === 'wind' ? '風裂きハーピィ' : `${world.nameJa}ミニボス1`;
+
+  return {
+    bossId,
+    worldId: world.id,
+    worldNameJa: world.nameJa,
     stageId: 4,
     checkpointAfterStage: 4,
     bossType: EIGO_BOSS_TYPES.MINI_BOSS,
-
-    nameJa: '風裂きハーピィ',
-    nameEn: 'Storm Harpy',
-
+    nameJa: bossNameJa,
+    nameEn: world.id === 'wind' ? 'Storm Harpy' : `${world.nameEn} Mini Boss 1`,
     hp: 400,
     playerHp: 100,
     questionCount: 20,
-
-    image: '/assets/eigo-quest/cards/boss/wind-mini-boss1.png',
-    cardImage: '/assets/eigo-quest/cards/boss/wind-mini-boss1.png',
-
-    element: WIND_ELEMENT,
-
+    image,
+    cardImage: image,
+    element: createElement(world),
     unlockCondition: {
       requiredClearedStages: [1, 2, 3, 4],
     },
-
     reviewRule: {
       sourceStages: [1, 2, 3, 4],
       questionMix: {
@@ -69,56 +113,52 @@ export const EIGO_BOSSES = [
         mistakes: 0.2,
         importantWords: 0.1,
       },
-      descriptionJa: '風の世界 Stage 1〜4 の総復習',
+      descriptionJa: `${world.nameJa} Stage 1〜4 の総復習`,
     },
-
     progressGate: {
       gateType: 'stage_progress',
       unlocksStagesFrom: 5,
       messageJa: MINI_BOSS_GATE_MESSAGE,
     },
-
     heroRule: {
       type: EIGO_BOSS_HERO_RULE_TYPES.STAGE_CLUSTER,
       sourceStages: [1, 2, 3, 4],
       count: 4,
-      fallbackWorldId: EIGO_BOSS_WORLDS.WIND,
+      fallbackWorldId: world.id,
     },
-
-    reward: {
-      type: 'boss_card',
-      rewardType: 'boss_card',
-      cardId: 'boss-card-wind-mini-boss-1',
-      nameJa: '風裂きハーピィカード',
+    reward: createReward({
+      cardId: `boss-card-${world.id}-mini-boss-1`,
+      nameJa: `${bossNameJa}カード`,
       rarity: 'rare',
-      image: '/assets/eigo-quest/cards/boss/wind-mini-boss1.png',
-      source: 'wind_stage_4_mini_boss_clear',
-    },
-  },
-  {
-    bossId: 'wind-stage-8-mini-boss-2',
-    worldId: EIGO_BOSS_WORLDS.WIND,
-    worldNameJa: '風の世界',
+      image,
+      source: `${world.id}_stage_4_mini_boss_clear`,
+    }),
+  };
+}
+
+function createMiniBoss2(world) {
+  const bossId = `${world.id}-stage-8-mini-boss-2`;
+  const image = getBossImage(`/assets/eigo-quest/cards/boss/${world.id}-mini-boss2.png`);
+  const bossNameJa = world.id === 'wind' ? '嵐怨エリニュス' : `${world.nameJa}ミニボス2`;
+
+  return {
+    bossId,
+    worldId: world.id,
+    worldNameJa: world.nameJa,
     stageId: 8,
     checkpointAfterStage: 8,
     bossType: EIGO_BOSS_TYPES.MINI_BOSS,
-
-    nameJa: '嵐怨エリニュス',
-    nameEn: 'Storm Erinys',
-
+    nameJa: bossNameJa,
+    nameEn: world.id === 'wind' ? 'Storm Erinys' : `${world.nameEn} Mini Boss 2`,
     hp: 400,
     playerHp: 100,
     questionCount: 20,
-
-    image: '/assets/eigo-quest/cards/boss/wind-mini-boss2.png',
-    cardImage: '/assets/eigo-quest/cards/boss/wind-mini-boss2.png',
-
-    element: WIND_ELEMENT,
-
+    image,
+    cardImage: image,
+    element: createElement(world),
     unlockCondition: {
       requiredClearedStages: [5, 6, 7, 8],
     },
-
     reviewRule: {
       sourceStages: [5, 6, 7, 8],
       reviewStages: [1, 2, 3, 4],
@@ -127,88 +167,111 @@ export const EIGO_BOSSES = [
         earlierReview: 0.25,
         mistakes: 0.15,
       },
-      descriptionJa: '風の世界 Stage 5〜8 と Stage 1〜4 の復習',
+      descriptionJa: `${world.nameJa} Stage 5〜8 と Stage 1〜4 の復習`,
     },
-
     progressGate: {
       gateType: 'stage_progress',
       unlocksStagesFrom: 9,
       messageJa: MINI_BOSS_GATE_MESSAGE,
     },
-
     heroRule: {
       type: EIGO_BOSS_HERO_RULE_TYPES.STAGE_CLUSTER,
       sourceStages: [5, 6, 7, 8],
       count: 4,
-      fallbackWorldId: EIGO_BOSS_WORLDS.WIND,
+      fallbackWorldId: world.id,
     },
-
-    reward: {
-      type: 'boss_card',
-      rewardType: 'boss_card',
-      cardId: 'boss-card-wind-mini-boss-2',
-      nameJa: '嵐怨エリニュスカード',
+    reward: createReward({
+      cardId: `boss-card-${world.id}-mini-boss-2`,
+      nameJa: `${bossNameJa}カード`,
       rarity: 'rare',
-      image: '/assets/eigo-quest/cards/boss/wind-mini-boss2.png',
-      source: 'wind_stage_8_mini_boss_clear',
-    },
-  },
-  {
-    bossId: 'wind-stage-10-world-boss',
-    worldId: EIGO_BOSS_WORLDS.WIND,
-    worldNameJa: '風の世界',
-    stageId: 10,
-    checkpointAfterStage: 10,
+      image,
+      source: `${world.id}_stage_8_mini_boss_clear`,
+    }),
+  };
+}
+
+function createWorldBoss(world, stageId = 10, sourceStages = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]) {
+  const bossId = `${world.id}-stage-${stageId}-world-boss`;
+  const image = getBossImage(`/assets/eigo-quest/cards/boss/${world.id}-world-boss.png`);
+  const bossNameJa = `${world.nameJa}ボス`;
+
+  return {
+    bossId,
+    worldId: world.id,
+    worldNameJa: world.nameJa,
+    stageId,
+    checkpointAfterStage: stageId,
     bossType: EIGO_BOSS_TYPES.WORLD_BOSS,
-
-    nameJa: '風の世界ボス',
-    nameEn: 'Wind World Boss',
-
+    nameJa: bossNameJa,
+    nameEn: `${world.nameEn} World Boss`,
     hp: 600,
     playerHp: 100,
     questionCount: 30,
-
-    image: '/assets/eigo-quest/cards/boss/wind-world-boss.png',
-    cardImage: '/assets/eigo-quest/cards/boss/wind-world-boss.png',
-
-    element: WIND_ELEMENT,
-
+    image,
+    cardImage: image,
+    element: createElement(world),
     unlockCondition: {
-      requiredClearedStages: [9, 10],
+      requiredClearedStages: [stageId - 1, stageId].filter((stage) => stage > 0),
     },
-
     reviewRule: {
-      sourceStages: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+      sourceStages,
       questionMix: {
         stageWords: 0.5,
         mistakes: 0.3,
         importantWords: 0.2,
       },
-      descriptionJa: '風の世界 Stage 1〜10 の総復習',
+      descriptionJa: `${world.nameJa} Stage 1〜${stageId} の総復習`,
     },
-
     progressGate: {
       gateType: 'world_progress',
       unlocksNextWorld: true,
-      messageJa: 'World Bossをクリアすると次の世界が開くよ！',
+      messageJa: WORLD_BOSS_GATE_MESSAGE,
     },
-
     heroRule: {
       type: EIGO_BOSS_HERO_RULE_TYPES.RANDOM_WORLD,
-      worldId: EIGO_BOSS_WORLDS.WIND,
+      worldId: world.id,
       count: 4,
     },
-
-    reward: {
-      type: 'boss_card',
-      rewardType: 'boss_card',
-      cardId: 'boss-card-wind-world-boss',
-      nameJa: '風の世界ボスカード',
+    reward: createReward({
+      cardId: `boss-card-${world.id}-world-boss`,
+      nameJa: `${bossNameJa}カード`,
       rarity: 'super_rare',
-      image: '/assets/eigo-quest/cards/boss/wind-world-boss.png',
-      source: 'wind_stage_10_world_boss_clear',
+      image,
+      source: `${world.id}_stage_${stageId}_world_boss_clear`,
+    }),
+  };
+}
+
+function createStandardWorldBosses(world) {
+  return [
+    createMiniBoss1(world),
+    createMiniBoss2(world),
+    createWorldBoss(world),
+  ];
+}
+
+function createShadowBosses() {
+  const miniBoss = createMiniBoss1(SHADOW_WORLD_DEF);
+  const worldBoss = createWorldBoss(SHADOW_WORLD_DEF, 5, [1, 2, 3, 4, 5]);
+
+  return [
+    miniBoss,
+    {
+      ...worldBoss,
+      unlockCondition: {
+        requiredClearedStages: [5],
+      },
+      reviewRule: {
+        ...worldBoss.reviewRule,
+        descriptionJa: '影の世界 Stage 1〜5 の総復習',
+      },
     },
-  },
+  ];
+}
+
+export const EIGO_BOSSES = [
+  ...STANDARD_WORLD_DEFS.flatMap(createStandardWorldBosses),
+  ...createShadowBosses(),
 ];
 
 export function normalizeEigoBossId(bossId) {
