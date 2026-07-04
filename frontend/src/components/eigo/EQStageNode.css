@@ -629,3 +629,7 @@
 .eq-stage-select-node.eq-stage-node-v2.is-boss .eq-stage-node-number {
   display: none !important;
 }
+
+.eq-stage-select-node.eq-stage-node-v2 .eq-stage-node-number {
+  display: none !important;
+}
