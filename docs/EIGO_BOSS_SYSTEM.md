@@ -138,8 +138,8 @@ Player:
 
 Boss:
 
-- Mini Boss HP: 400
-- World Boss HP: 600
+- Mini Boss HP: 320
+- World Boss HP: 480
 
 Correct answer:
 

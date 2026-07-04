@@ -524,6 +524,11 @@
 .eq-stage-select-node.eq-stage-node-v2.is-current,
 .eq-stage-select-node.eq-stage-node-v2.is-locked,
 .eq-stage-select-node.eq-stage-node-v2.is-completed {
+  position: absolute !important;
+  left: var(--node-x) !important;
+  top: var(--node-y) !important;
+  transform: translate(-50%, -50%) !important;
+  margin: 0 !important;
   border: none !important;
   background: transparent !important;
   background-color: transparent !important;
