@@ -24,7 +24,7 @@ import { selectBossHeroParty } from '../helpers/eigoBossHeroSelector';
 import { markBossCleared } from '../helpers/eigoBossProgress';
 import { savePendingRewardQueue } from '../helpers/eigoQuestRewards';
 import { useBgm } from '../context/BgmContext';
-import { playBattleSfx, preloadBattleSfx } from '../utils/battleSfx';
+import { playBattleSfx, preloadBattleSfx, stopBossBattleAudio } from '../utils/battleSfx';
 import './EigoBossBattlePage.css';
 
 const CHILD_STORAGE_KEY = 'selected_child_id';
@@ -842,6 +842,7 @@ export default function EigoBossBattlePage() {
   useEffect(() => {
     pauseBgm();
     return () => {
+      stopBossBattleAudio();
       pauseBgm();
     };
   }, [pauseBgm]);

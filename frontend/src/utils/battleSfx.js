@@ -36,6 +36,11 @@ const BATTLE_SFX_MAP = {
 };
 
 const audioCache = new Map();
+let activeBossBattleAudio = null;
+
+function isBossBattleAudioKey(motion) {
+  return String(motion || '').startsWith('boss_encounter_');
+}
 
 function canUseAudio() {
   return typeof window !== 'undefined' && typeof window.Audio === 'function';
@@ -90,13 +95,55 @@ export function preloadBattleSfx() {
   });
 }
 
+export function stopBossBattleAudio() {
+  if (!activeBossBattleAudio) return;
+
+  try {
+    activeBossBattleAudio.pause();
+    activeBossBattleAudio.currentTime = 0;
+    activeBossBattleAudio.src = '';
+    activeBossBattleAudio.load?.();
+  } catch {
+    // Stopping battle audio should never interrupt navigation.
+  } finally {
+    activeBossBattleAudio = null;
+  }
+}
+
 export function playBattleSfx(motion) {
+  if (isBossBattleAudioKey(motion)) {
+    stopBossBattleAudio();
+  }
+
   if (!getBattleSfxEnabled()) return Promise.resolve(false);
 
   const audio = getCachedAudio(motion);
   if (!audio) return Promise.resolve(false);
 
   try {
+    if (isBossBattleAudioKey(motion)) {
+      const battleAudio = audio.cloneNode();
+      battleAudio.volume = audio.volume;
+      battleAudio.currentTime = 0;
+      battleAudio.loop = false;
+      activeBossBattleAudio = battleAudio;
+
+      const playResult = battleAudio.play();
+
+      if (playResult && typeof playResult.then === 'function') {
+        return playResult
+          .then(() => true)
+          .catch(() => {
+            if (activeBossBattleAudio === battleAudio) {
+              stopBossBattleAudio();
+            }
+            return false;
+          });
+      }
+
+      return Promise.resolve(true);
+    }
+
     const instance = audio.cloneNode();
     instance.volume = audio.volume;
     instance.currentTime = 0;

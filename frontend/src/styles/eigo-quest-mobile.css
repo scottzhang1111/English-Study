@@ -16733,8 +16733,10 @@ body,
 .eq-world-stage-map-card .eq-stage-select-node.eq-stage-node-v2.is-boss .eq-stage-node-v2__orb,
 .eq-world-stage-map-card .eq-stage-select-node.eq-stage-node-v2.is-clear .eq-stage-node-v2__orb,
 .eq-world-stage-map-card .eq-stage-select-node.eq-stage-node-v2.is-close .eq-stage-node-v2__orb {
-  width: 100% !important;
-  height: 100% !important;
+  left: 50% !important;
+  top: 50% !important;
+  width: 36px !important;
+  height: 36px !important;
   border: none !important;
   background: transparent !important;
   background-color: transparent !important;
@@ -16743,6 +16745,18 @@ body,
   filter: none !important;
   animation: none !important;
   overflow: visible !important;
+  transform: translate(-50%, -50%) !important;
+}
+
+.eq-world-stage-map-card .eq-stage-select-node.eq-stage-node-v2.is-mini_boss .eq-stage-node-v2__orb,
+.eq-world-stage-map-card .eq-stage-select-node.eq-stage-node-v2.is-mini-boss .eq-stage-node-v2__orb {
+  width: 46px !important;
+  height: 46px !important;
+}
+
+.eq-world-stage-map-card .eq-stage-select-node.eq-stage-node-v2.is-boss .eq-stage-node-v2__orb {
+  width: 50px !important;
+  height: 50px !important;
 }
 
 .eq-world-stage-map-card .eq-stage-select-node.eq-stage-node-v2 .eq-stage-node-v2__image,
