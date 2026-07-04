@@ -16681,3 +16681,92 @@ body,
 .eq-world-stage-path {
   display: none !important;
 }
+
+/* Temporary World Map cleanup: keep node PNGs clear of CSS-generated overlays. */
+.eq-world-stage-map-card .eq-stage-select-node.eq-stage-node-v2,
+.eq-world-stage-map-card .eq-stage-select-node.eq-stage-node-v2.is-stage,
+.eq-world-stage-map-card .eq-stage-select-node.eq-stage-node-v2.is-mini_boss,
+.eq-world-stage-map-card .eq-stage-select-node.eq-stage-node-v2.is-mini-boss,
+.eq-world-stage-map-card .eq-stage-select-node.eq-stage-node-v2.is-boss,
+.eq-world-stage-map-card .eq-stage-select-node.eq-stage-node-v2.is-open,
+.eq-world-stage-map-card .eq-stage-select-node.eq-stage-node-v2.is-clear,
+.eq-world-stage-map-card .eq-stage-select-node.eq-stage-node-v2.is-close,
+.eq-world-stage-map-card .eq-stage-select-node.eq-stage-node-v2.is-current,
+.eq-world-stage-map-card .eq-stage-select-node.eq-stage-node-v2.is-locked,
+.eq-world-stage-map-card .eq-stage-select-node.eq-stage-node-v2.is-completed {
+  border: none !important;
+  background: transparent !important;
+  background-color: transparent !important;
+  background-image: none !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+.eq-world-stage-map-card .eq-stage-select-node.eq-stage-node-v2::before,
+.eq-world-stage-map-card .eq-stage-select-node.eq-stage-node-v2::after,
+.eq-world-stage-map-card .eq-stage-select-node.eq-stage-node-v2 *::before,
+.eq-world-stage-map-card .eq-stage-select-node.eq-stage-node-v2 *::after {
+  content: none !important;
+  display: none !important;
+  border: none !important;
+  background: transparent !important;
+  background-image: none !important;
+  box-shadow: none !important;
+  animation: none !important;
+}
+
+.eq-world-stage-map-card .eq-stage-select-node.eq-stage-node-v2 .eq-stage-node-v2__aura,
+.eq-world-stage-map-card .eq-stage-select-node.eq-stage-node-v2 .eq-stage-node-v2__base,
+.eq-world-stage-map-card .eq-stage-select-node.eq-stage-node-v2 .eq-stage-node-type-badge,
+.eq-world-stage-map-card .eq-stage-select-node.eq-stage-node-v2 .eq-stage-node-v2__label,
+.eq-world-stage-map-card .eq-stage-select-node.eq-stage-node-v2 .eq-stage-node-v2__current,
+.eq-world-stage-map-card .eq-stage-select-node.eq-stage-node-v2 .eq-stage-node-v2__clear,
+.eq-world-stage-map-card .eq-stage-select-node.eq-stage-node-v2 .eq-stage-node-debug-label {
+  display: none !important;
+}
+
+.eq-world-stage-map-card .eq-stage-select-node.eq-stage-node-v2 .eq-stage-node-v2__orb,
+.eq-world-stage-map-card .eq-stage-select-node.eq-stage-node-v2.is-current .eq-stage-node-v2__orb,
+.eq-world-stage-map-card .eq-stage-select-node.eq-stage-node-v2.is-boss.is-open .eq-stage-node-v2__orb,
+.eq-world-stage-map-card .eq-stage-select-node.eq-stage-node-v2.is-mini_boss .eq-stage-node-v2__orb,
+.eq-world-stage-map-card .eq-stage-select-node.eq-stage-node-v2.is-boss .eq-stage-node-v2__orb,
+.eq-world-stage-map-card .eq-stage-select-node.eq-stage-node-v2.is-clear .eq-stage-node-v2__orb,
+.eq-world-stage-map-card .eq-stage-select-node.eq-stage-node-v2.is-close .eq-stage-node-v2__orb {
+  width: 100% !important;
+  height: 100% !important;
+  border: none !important;
+  background: transparent !important;
+  background-color: transparent !important;
+  background-image: none !important;
+  box-shadow: none !important;
+  filter: none !important;
+  animation: none !important;
+  overflow: visible !important;
+}
+
+.eq-world-stage-map-card .eq-stage-select-node.eq-stage-node-v2 .eq-stage-node-v2__image,
+.eq-world-stage-map-card .eq-stage-select-node.eq-stage-node-v2.is-close .eq-stage-node-v2__image {
+  width: 100% !important;
+  height: 100% !important;
+  background: transparent !important;
+  background-image: none !important;
+  box-shadow: none !important;
+  filter: none !important;
+}
+
+.eq-world-stage-map-card .eq-stage-select-node.eq-stage-node-v2 .eq-stage-node-number,
+.eq-world-stage-map-card .eq-stage-select-node.eq-stage-node-v2.is-boss .eq-stage-node-number,
+.eq-world-stage-map-card .eq-stage-select-node.eq-stage-node-v2.is-mini_boss .eq-stage-node-number,
+.eq-world-stage-map-card .eq-stage-select-node.eq-stage-node-v2.is-clear .eq-stage-node-number,
+.eq-world-stage-map-card .eq-stage-select-node.eq-stage-node-v2.is-close .eq-stage-node-number {
+  min-width: 0 !important;
+  border: none !important;
+  background: transparent !important;
+  background-image: none !important;
+  box-shadow: none !important;
+  color: #fff !important;
+  font-size: var(--eq-stage-node-number-size) !important;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8) !important;
+  filter: none !important;
+}
