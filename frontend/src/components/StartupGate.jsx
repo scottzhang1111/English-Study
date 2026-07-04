@@ -4,14 +4,24 @@ import { useChildren } from '../ChildrenContext';
 import { useAuth } from '../AuthContext';
 
 export default function StartupGate() {
-  const { authLoading, authExpired, isAuthenticated } = useAuth();
+  const { authLoading, authError, authExpired, isAuthenticated, refreshAuth } = useAuth();
   const { children, childrenLoading, childrenError, selectedChildId, refreshChildren } = useChildren();
 
   if (authLoading || childrenLoading) {
-    return <div className="mx-auto max-w-5xl px-4 py-8 text-center text-sm font-bold text-[#6f7da8]">Loading...</div>;
+    return <div className="mx-auto max-w-5xl px-4 py-8 text-center text-sm font-bold text-[#6f7da8]">ログイン状態を確認しています...</div>;
   }
 
   if (!isAuthenticated) {
+    if (authError && !authExpired) {
+      return (
+        <div className="mx-auto max-w-5xl px-4 py-8 text-center text-sm font-bold text-rose-700">
+          <p>{authError}</p>
+          <button type="button" onClick={refreshAuth} className="pill-button mt-4 px-5 py-3 text-sm">
+            Retry
+          </button>
+        </div>
+      );
+    }
     return authExpired ? (
       <Navigate replace to="/parent-login" state={{ message: '保護者の再ログインが必要です' }} />
     ) : (
@@ -42,15 +52,25 @@ export default function StartupGate() {
 }
 
 export function RequireCurrentChild({ children }) {
-  const { authLoading, isAuthenticated } = useAuth();
+  const { authLoading, authError, authExpired, isAuthenticated, refreshAuth } = useAuth();
   const { children: childList, childrenLoading, childrenError, selectedChildId, refreshChildren } = useChildren();
   const selectedExists = childList.some((child) => String(child.id) === String(selectedChildId));
 
   if (authLoading || childrenLoading) {
-    return <div className="mx-auto max-w-5xl px-4 py-8 text-center text-sm font-bold text-[#6f7da8]">Loading...</div>;
+    return <div className="mx-auto max-w-5xl px-4 py-8 text-center text-sm font-bold text-[#6f7da8]">ログイン状態を確認しています...</div>;
   }
 
   if (!isAuthenticated) {
+    if (authError && !authExpired) {
+      return (
+        <div className="mx-auto max-w-5xl px-4 py-8 text-center text-sm font-bold text-rose-700">
+          <p>{authError}</p>
+          <button type="button" onClick={refreshAuth} className="pill-button mt-4 px-5 py-3 text-sm">
+            Retry
+          </button>
+        </div>
+      );
+    }
     return <Navigate replace to="/onboarding" />;
   }
 

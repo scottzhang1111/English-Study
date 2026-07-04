@@ -9,7 +9,7 @@ export default function ParentLoginPage() {
   const navigate = useNavigate();
   const location = useLocation();
   const { login, authLoading } = useAuth();
-  const { setSelectedChildId } = useChildren();
+  const { selectedChildId, setSelectedChildId } = useChildren();
   const { soundEnabled, setSoundEnabled, startBgm } = useBgm();
   const [loginId, setLoginId] = useState('');
   const [formError, setFormError] = useState('');
@@ -52,7 +52,8 @@ export default function ParentLoginPage() {
         navigate('/create-child-profile', { replace: true });
         return;
       }
-      setSelectedChildId(childList[0].id);
+      const savedChild = childList.find((child) => String(child.id) === String(selectedChildId));
+      setSelectedChildId(savedChild?.id || childList[0].id);
       navigate('/app', { replace: true });
     } catch (err) {
       setFormError('お子さまのプロフィールを確認できませんでした');
@@ -111,6 +112,10 @@ export default function ParentLoginPage() {
 
             <p className="parent-login-hint">
               はじめての方は自動で新規登録されます
+            </p>
+
+            <p className="parent-login-hint">
+              この端末ではログイン状態を保持します
             </p>
 
             <label className="parent-login-sound-toggle">

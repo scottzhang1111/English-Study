@@ -1,4 +1,4 @@
-import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { getChildren } from './api';
 import { useAuth } from './AuthContext';
 
@@ -12,6 +12,11 @@ export function ChildrenProvider({ children }) {
   const [childrenLoading, setChildrenLoading] = useState(true);
   const [childrenError, setChildrenError] = useState('');
   const [selectedChildId, setSelectedChildIdState] = useState(() => localStorage.getItem(CHILD_STORAGE_KEY) || '');
+  const childrenListRef = useRef([]);
+
+  useEffect(() => {
+    childrenListRef.current = childrenList;
+  }, [childrenList]);
 
   const setSelectedChildId = useCallback((childId) => {
     const nextId = childId ? String(childId) : '';
@@ -62,8 +67,7 @@ export function ChildrenProvider({ children }) {
       return list;
     } catch (err) {
       setChildrenError(err.message || 'children API failed');
-      setChildrenList([]);
-      return [];
+      return childrenListRef.current;
     } finally {
       setChildrenLoading(false);
     }
@@ -91,6 +95,7 @@ export function ChildrenProvider({ children }) {
 
   useEffect(() => {
     if (childrenLoading || !isAuthenticated) return;
+    if (childrenError) return;
     if (childrenList.length === 0) {
       if (selectedChildId) {
         setSelectedChildId('');

@@ -89,7 +89,7 @@ EIGO_QUEST_TOTAL_WORDS = sum(world['word_count'] for world in EIGO_QUEST_WORLDS)
 EIGO_QUEST_EIKEN3_STAGES_PER_WORLD = 8
 EIGO_QUEST_STAGE_PREPARING_MESSAGE = 'このステージは準備中です'
 AUTH_SESSION_COOKIE_NAME = 'eq_auth_session'
-AUTH_SESSION_DAYS = 90
+AUTH_SESSION_DAYS = int(os.getenv('AUTH_SESSION_DAYS', '365'))
 # Stage reward cards use the existing official heroes rows in the database.
 # The heroes table already contains 80 cards using codes such as
 # wind-guardian1 ... shadow-guardian10.
@@ -10271,7 +10271,7 @@ def api_home():
                 'SELECT COUNT(DISTINCT study_date) AS count FROM daily_study_log WHERE child_id = ? AND studied_count > 0',
                 (child_id,),
             ).fetchone()
-            stage_clear_set = get_child_world_stage_clear_set(conn, child_id)
+            stage_status_map = get_child_world_stage_status_map(conn, child_id)
         finally:
             conn.close()
         if child_row and child_row['daily_target']:
@@ -10281,7 +10281,7 @@ def api_home():
         mastered_words = int(mastered_row['count'] or 0) if mastered_row else 0
         review_needed = int(review_needed_row['count'] or 0) if review_needed_row else 0
         study_days = int(study_days_row['count'] or 0) if study_days_row else 0
-        eigo_quest_progress = build_eigo_quest_progress_from_clears(stage_clear_set, child_row['target_level'])
+        eigo_quest_progress = build_eigo_quest_progress_from_stage_status(stage_status_map, child_row['target_level'])
     else:
         mastered_words = len(progress.get('mastered_words', []))
         review_needed = 0
@@ -10725,7 +10725,69 @@ def get_child_world_stage_clear_set(conn, child_id):
     }
 
 
+def get_child_world_stage_status_map(conn, child_id):
+    rows = conn.execute(
+        '''
+        SELECT world_id, stage_number, status
+        FROM child_world_stage_progress
+        WHERE child_id = ?
+        ''',
+        (child_id,),
+    ).fetchall()
+    status_map = {}
+    for row in rows:
+        try:
+            stage_number = int(row['stage_number'])
+        except (TypeError, ValueError):
+            continue
+        world_id = str(row['world_id'] or '').strip().lower()
+        status = normalize_stage_status(row['status'])
+        if status in {'cleared', 'in_progress'}:
+            status_map[(world_id, stage_number)] = status
+    return status_map
+
+
 def build_eigo_quest_progress_from_clears(clear_set, target_level=None):
+    status_map = {
+        (world_id, stage_number): 'cleared'
+        for world_id, stage_number in clear_set
+    }
+    return build_eigo_quest_progress_from_stage_status(status_map, target_level=target_level)
+
+
+def get_child_world_stage_progress(child_id, world_id, stage):
+    stage_entries = select_stage_vocab_entries(world_id, stage, 20, child_id=child_id)
+    if stage_entries is None:
+        raise ValueError('valid world and stage are required')
+    stage_number = int(stage)
+    normalized_world_id = str(world_id or '').strip().lower()
+    conn = get_db_connection()
+    try:
+        ensure_child_exists(conn, child_id)
+        row = conn.execute(
+            '''
+            SELECT status, cleared_at, updated_at
+            FROM child_world_stage_progress
+            WHERE child_id = ? AND world_id = ? AND stage_number = ?
+            ''',
+            (child_id, normalized_world_id, stage_number),
+        ).fetchone()
+    finally:
+        conn.close()
+
+    status = normalize_stage_status(row['status'] if row else 'in_progress')
+    return {
+        'child_id': child_id,
+        'world': normalized_world_id,
+        'stage': stage_number,
+        'status': status,
+        'cleared': status == 'cleared',
+        'cleared_at': row['cleared_at'] if row else None,
+        'updated_at': row['updated_at'] if row else None,
+    }
+
+
+def build_eigo_quest_progress_from_stage_status(status_map, target_level=None):
     unlocked_next = True
     current_world = None
     current_stage = None
@@ -10742,12 +10804,20 @@ def build_eigo_quest_progress_from_clears(clear_set, target_level=None):
         world_cleared_count = 0
         for stage_number in range(1, world['stage_count'] + 1):
             key = (world['id'], stage_number)
-            cleared = key in clear_set
-            unlocked = unlocked_next or cleared
+            progress_status = status_map.get(key)
+            cleared = progress_status == 'cleared'
+            in_progress = progress_status == 'in_progress'
+            unlocked = unlocked_next or cleared or in_progress
             if cleared:
                 status = 'cleared'
                 world_cleared_count += 1
                 completed_stage_count += 1
+            elif in_progress:
+                status = 'in_progress'
+                current_world = world['id']
+                current_stage = stage_number
+                world_has_current = True
+                mainline_complete = False
             elif unlocked and current_stage is None:
                 status = 'current'
                 current_world = world['id']
@@ -10763,6 +10833,7 @@ def build_eigo_quest_progress_from_clears(clear_set, target_level=None):
                 'status': status,
                 'cleared': cleared,
                 'unlocked': unlocked,
+                'in_progress': in_progress,
             })
             unlocked_next = unlocked_next and cleared
 
@@ -10797,14 +10868,10 @@ def get_child_eigo_quest_progress(child_id):
     try:
         ensure_child_exists(conn, child_id)
         child_row = conn.execute('SELECT target_level FROM children WHERE id = ?', (child_id,)).fetchone()
-        clear_set = get_child_world_stage_clear_set(conn, child_id)
+        stage_status_map = get_child_world_stage_status_map(conn, child_id)
     finally:
         conn.close()
-    return build_eigo_quest_progress_from_clears(clear_set, child_row['target_level'] if child_row else None)
-
-
-def get_child_world_stage_progress(child_id, world_id, stage):
-    stage_entries = select_stage_vocab_entries(world_id, stage, 20, child_id=child_id)
+    return build_eigo_quest_progress_from_stage_status(stage_status_map, child_row['target_level'] if child_row else None)
     if stage_entries is None:
         raise ValueError('valid world and stage are required')
     stage_number = int(stage)
@@ -11784,6 +11851,9 @@ def get_auth_cookie_secure():
 
 
 def get_auth_cookie_samesite():
+    # Production may run frontend/backend on different domains such as Vercel + Render.
+    # Cross-site cookies require SameSite=None and Secure. Local HTTP development uses
+    # Lax because Secure cookies are not reliable on plain localhost HTTP.
     return 'None' if is_production_env() else 'Lax'
 
 
@@ -12242,7 +12312,8 @@ def api_auth_me():
     except HTTPException:
         abort(401, 'login required')
 
-    response = jsonify(account=auth_account_payload(account))
+    children = get_children_list(account['id'])
+    response = jsonify(ok=True, account=auth_account_payload(account), children=children)
 
     # Preserve existing cookie behavior: if the client did not use Authorization header, refresh cookie
     if not auth_header_present and cookie_present:

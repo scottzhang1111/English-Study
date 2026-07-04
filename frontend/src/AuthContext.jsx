@@ -8,6 +8,7 @@ export function AuthProvider({ children }) {
   const [authLoading, setAuthLoading] = useState(true);
   const [authError, setAuthError] = useState('');
   const [authExpired, setAuthExpired] = useState(false);
+  const [authChildren, setAuthChildren] = useState([]);
 
   const refreshAuth = useCallback(async () => {
     setAuthExpired(false);
@@ -17,13 +18,17 @@ export function AuthProvider({ children }) {
       const payload = await getAuthMe();
       const nextAccount = payload?.account || null;
       setAccount(nextAccount);
+      setAuthChildren(Array.isArray(payload?.children) ? payload.children : []);
       return nextAccount;
     } catch (err) {
       if (err?.status === 401) {
         setAuthExpired(true);
+        setAuthError('');
       } else {
         setAuthExpired(false);
+        setAuthError(err.message || 'ログイン状態を確認できませんでした');
       }
+      setAuthChildren([]);
       setAccount(null);
       return null;
     } finally {
@@ -41,9 +46,11 @@ export function AuthProvider({ children }) {
       );
       const nextAccount = payload?.account || null;
       setAccount(nextAccount);
+      setAuthChildren(Array.isArray(payload?.children) ? payload.children : []);
       return nextAccount;
     } catch (err) {
       setAuthError(err.message || 'Login failed');
+      setAuthChildren([]);
       setAccount(null);
       throw err;
     } finally {
@@ -58,6 +65,7 @@ export function AuthProvider({ children }) {
       await logoutAccount();
     } finally {
       setAccount(null);
+      setAuthChildren([]);
       setAuthExpired(false);
       setAuthLoading(false);
     }
@@ -73,12 +81,13 @@ export function AuthProvider({ children }) {
       authLoading,
       authError,
       authExpired,
+      authChildren,
       isAuthenticated: Boolean(account),
       refreshAuth,
       login,
       logout,
     }),
-    [account, authLoading, authError, authExpired, refreshAuth, login, logout],
+    [account, authLoading, authError, authExpired, authChildren, refreshAuth, login, logout],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

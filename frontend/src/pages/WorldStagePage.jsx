@@ -9,6 +9,12 @@ import { WORLD_STAGE_NODE_TYPES, getWorldStageLayout } from '../data/worldStageL
 import { isBossCleared } from '../helpers/eigoBossProgress';
 import { getMapDebugMode } from '../helpers/mapDebugMode';
 import CompactPageHeader from '../components/eigo/CompactPageHeader';
+import {
+  getBossNodeState,
+  getStageNodeState,
+  hasStageCleared,
+  hasStageInProgress,
+} from '../helpers/eigoWorldStageState';
 
 const CHILD_STORAGE_KEY = 'selected_child_id';
 const MOCK_LEARNED_WORDS = 35;
@@ -150,15 +156,11 @@ function getStageProgressStatus(currentWorldProgress, stageNumber, worldId) {
 }
 
 function isStageCleared(currentWorldProgress, stageNumber) {
-  const stageProgress = currentWorldProgress.stages?.find((item) => Number(item.stage) === Number(stageNumber));
-  return stageProgress?.status === 'cleared' || stageProgress?.status === 'completed';
+  return hasStageCleared(currentWorldProgress, 'ignored-world-id', stageNumber);
 }
 
-function isBossCheckpointUnlocked(bossConfig, currentWorldProgress) {
-  const requiredStages = bossConfig?.unlockCondition?.requiredClearedStages
-    || bossConfig?.unlockRule?.requiredClearedStages
-    || [];
-  return requiredStages.every((stageNumber) => isStageCleared(currentWorldProgress, stageNumber));
+function isBossCheckpointUnlocked(bossConfig, currentWorldProgress, worldId) {
+  return getBossNodeState(currentWorldProgress, worldId, bossConfig) === 'available';
 }
 
 function getBossConfigForLayoutNode(bosses, layoutNode) {
@@ -344,9 +346,11 @@ export default function WorldStagePage() {
     if (layoutNode.nodeType === WORLD_STAGE_NODE_TYPES.STAGE) {
       const stage = Number(layoutNode.stageId);
       const { stageProgress, status: normalizedStatus } = getStageProgressStatus(currentWorldProgress, stage, currentWorld.id);
+      const computedStageState = getStageNodeState(currentWorldProgress, currentWorld.id, stage);
+      const normalizedStatusForMap = computedStageState === 'in_progress' ? 'current' : computedStageState;
       const blockingBoss = getBlockingBossForStage(currentWorld.id, stage);
-      const isLockedByBossGate = !isMapDebugMode && Boolean(blockingBoss);
-      const gatedStatus = isLockedByBossGate ? 'locked' : normalizedStatus;
+      const isLockedByBossGate = !isMapDebugMode && Boolean(blockingBoss) && computedStageState === 'locked';
+      const gatedStatus = isLockedByBossGate ? 'locked' : normalizedStatusForMap;
       const status = isMapDebugMode && gatedStatus === 'locked' ? 'active' : gatedStatus;
 
       return {
@@ -356,7 +360,7 @@ export default function WorldStagePage() {
         stage,
         displayLabel: stage,
         status,
-        unlocked: isMapDebugMode || (!isLockedByBossGate && Boolean(stageProgress?.unlocked || status === 'completed' || status === 'current')),
+        unlocked: isMapDebugMode || (!isLockedByBossGate && Boolean(stageProgress?.unlocked || status === 'completed' || status === 'current' || computedStageState !== 'locked')),
         isBoss: false,
         isMiniBoss: false,
         isLockedByBossGate,
@@ -377,7 +381,8 @@ export default function WorldStagePage() {
       .filter((boss) => boss.bossType === EIGO_BOSS_TYPES.MINI_BOSS)
       .findIndex((boss) => boss.bossId === bossConfig.bossId) + 1;
     const bossCleared = isBossCleared(bossConfig.bossId);
-    const checkpointUnlocked = isBossCheckpointUnlocked(bossConfig, currentWorldProgress);
+    const computedBossState = getBossNodeState(currentWorldProgress, currentWorld.id, bossConfig);
+    const checkpointUnlocked = computedBossState === 'available' || computedBossState === 'cleared';
     const status = bossCleared ? 'completed' : checkpointUnlocked ? 'current' : isMapDebugMode ? 'active' : 'locked';
 
     return {

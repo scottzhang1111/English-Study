@@ -1160,6 +1160,41 @@ class TodayReviewQuizTests(unittest.TestCase):
     def progress_world(self, progress, world_id):
         return next(world for world in progress['worlds'] if world['id'] == world_id)
 
+    def test_stage_progress_payload_respects_in_progress_and_unlocks(self):
+        conn = app_module.get_db_connection()
+        try:
+            child_id = conn.execute(
+                'INSERT INTO children (name, grade, target_level) VALUES (?, ?, ?)',
+                ('Alice', '3', 'A2'),
+            ).lastrowid
+            conn.executemany(
+                '''
+                INSERT INTO child_world_stage_progress (
+                    child_id, world_id, stage_number, status, cleared_at, created_at, updated_at
+                ) VALUES (?, ?, ?, ?, ?, ?, ?)
+                ON CONFLICT(child_id, world_id, stage_number) DO UPDATE SET
+                    status = excluded.status,
+                    cleared_at = COALESCE(child_world_stage_progress.cleared_at, excluded.cleared_at),
+                    updated_at = excluded.updated_at
+                ''',
+                [
+                    (child_id, 'water', 5, 'cleared', '2026-05-31T00:00:00', '2026-05-31T00:00:00', '2026-05-31T00:00:00'),
+                    (child_id, 'water', 6, 'in_progress', None, '2026-05-31T00:00:00', '2026-05-31T00:00:00'),
+                ],
+            )
+            conn.commit()
+        finally:
+            conn.close()
+
+        payload = app_module.get_child_eigo_quest_progress(child_id)
+        water_world = next(world for world in payload['worlds'] if world['id'] == 'water')
+        stage_5 = next(stage for stage in water_world['stages'] if stage['stage'] == 5)
+        stage_6 = next(stage for stage in water_world['stages'] if stage['stage'] == 6)
+
+        self.assertEqual('cleared', stage_5['status'])
+        self.assertEqual('in_progress', stage_6['status'])
+        self.assertTrue(stage_6['unlocked'])
+
     def test_generate_today_review_questions(self):
         mastered_words = [entry['English'] for entry in app_module.vocab_list[:20] if entry.get('English')]
         with patch.object(app_module, 'load_progress', return_value={'count': 20, 'mastered_words': mastered_words}), patch.object(

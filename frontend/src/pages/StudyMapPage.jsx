@@ -7,6 +7,7 @@ import CompactPageHeader from '../components/eigo/CompactPageHeader';
 import BgmToggle from '../components/eigo/BgmToggle';
 import { BGM_PROMPT_SEEN_STORAGE_KEY, useBgm } from '../context/BgmContext';
 import { getMapDebugMode } from '../helpers/mapDebugMode';
+import { getStageNodeState } from '../helpers/eigoWorldStageState';
 
 const CHILD_STORAGE_KEY = 'selected_child_id';
 
@@ -84,6 +85,8 @@ export default function StudyMapPage() {
     const isComplete = Boolean(worldProgress.cleared);
     const isCurrent = world.id === currentWorldId && !questProgress.mainline_complete;
     const isFuture = !isMapDebugMode && !worldProgress.unlocked && !isCurrent;
+    const stageState = getStageNodeState(worldProgress, world.id, Math.max(1, Number(worldProgress.cleared_stage_count || 0) + 1));
+    const stageStatus = stageState === 'in_progress' ? 'active' : stageState;
 
     return {
       ...world,
