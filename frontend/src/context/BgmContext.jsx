@@ -185,6 +185,17 @@ export function BgmProvider({ children }) {
     return startBgm({ fadeIn: true });
   }, [bgmEnabled, startBgm]);
 
+  const pauseBgm = useCallback(() => {
+    if (bgmAudio) {
+      clearFade('global');
+      bgmAudio.pause();
+    }
+    if (homeBgmAudio) {
+      clearFade('home');
+      homeBgmAudio.pause();
+    }
+  }, []);
+
   const toggleBgm = useCallback(() => {
     setBgmEnabled(!bgmEnabled);
   }, [bgmEnabled, setBgmEnabled]);
@@ -200,8 +211,9 @@ export function BgmProvider({ children }) {
       startBgm,
       playHomeBgm,
       resumeGlobalBgm,
+      pauseBgm,
     }),
-    [bgmEnabled, playHomeBgm, resumeGlobalBgm, setBgmEnabled, startBgm, toggleBgm],
+    [bgmEnabled, pauseBgm, playHomeBgm, resumeGlobalBgm, setBgmEnabled, startBgm, toggleBgm],
   );
 
   return <BgmContext.Provider value={value}>{children}</BgmContext.Provider>;

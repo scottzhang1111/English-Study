@@ -23,6 +23,7 @@ import { buildBossReviewQuestions } from '../helpers/eigoBossQuestionBuilder';
 import { selectBossHeroParty } from '../helpers/eigoBossHeroSelector';
 import { markBossCleared } from '../helpers/eigoBossProgress';
 import { savePendingRewardQueue } from '../helpers/eigoQuestRewards';
+import { useBgm } from '../context/BgmContext';
 import { playBattleSfx, preloadBattleSfx } from '../utils/battleSfx';
 import './EigoBossBattlePage.css';
 
@@ -760,6 +761,7 @@ function BossCounterOverlay({ sequence, reducedMotion }) {
 export default function EigoBossBattlePage() {
   const navigate = useNavigate();
   const location = useLocation();
+  const { pauseBgm } = useBgm();
   const bossIdFromUrl = useMemo(() => {
     const searchParams = new URLSearchParams(location.search);
     return searchParams.get('bossId');
@@ -836,6 +838,13 @@ export default function EigoBossBattlePage() {
   useEffect(() => {
     preloadBattleSfx();
   }, []);
+
+  useEffect(() => {
+    pauseBgm();
+    return () => {
+      pauseBgm();
+    };
+  }, [pauseBgm]);
 
   useEffect(() => {
     playBossEncounterSfxOnce();
@@ -1354,7 +1363,6 @@ export default function EigoBossBattlePage() {
             {isActive || isCharging ? (
               <span className="eq-battle-hero-badge">攻撃中！</span>
             ) : null}
-            <span className="eq-battle-hero-element">風</span>
             <img src={hero.image} alt={hero.name} />
           </article>
         );
