@@ -16770,3 +16770,32 @@ body,
   text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8) !important;
   filter: none !important;
 }
+
+.eq-world-stage-map-card .eq-stage-select-node.eq-stage-node-v2.is-stage {
+  --eq-stage-node-size: 72px !important;
+  --eq-stage-node-number-size: 24px !important;
+}
+
+.eq-world-stage-map-card .eq-stage-select-node.eq-stage-node-v2.is-mini_boss,
+.eq-world-stage-map-card .eq-stage-select-node.eq-stage-node-v2.is-mini-boss,
+.eq-world-stage-map-card .eq-stage-select-node.eq-stage-node-v2.is-boss {
+  --eq-stage-node-size: 80px !important;
+  --eq-stage-node-number-size: 0px !important;
+}
+
+.eq-world-stage-map-card .eq-stage-select-node.eq-stage-node-v2 .eq-stage-node-number {
+  inset: 0 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 100% !important;
+  height: 100% !important;
+  line-height: 1 !important;
+  transform: none !important;
+}
+
+.eq-world-stage-map-card .eq-stage-select-node.eq-stage-node-v2.is-mini_boss .eq-stage-node-number,
+.eq-world-stage-map-card .eq-stage-select-node.eq-stage-node-v2.is-mini-boss .eq-stage-node-number,
+.eq-world-stage-map-card .eq-stage-select-node.eq-stage-node-v2.is-boss .eq-stage-node-number {
+  display: none !important;
+}
