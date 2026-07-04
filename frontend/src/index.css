@@ -7575,6 +7575,147 @@ textarea {
   }
 }
 
+.eq-essay-result-stack {
+  display: grid;
+  gap: 14px;
+  padding-bottom: calc(var(--eq-bottom-nav-height, 104px) + 26px + env(safe-area-inset-bottom, 0px));
+}
+
+.eq-essay-result-score {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 6px;
+  color: #fff0b5;
+}
+
+.eq-essay-result-score strong {
+  font-size: clamp(46px, 13vw, 62px);
+  font-weight: 1000;
+  line-height: 1;
+  text-shadow: 0 0 18px rgba(255, 211, 90, .36);
+}
+
+.eq-essay-result-score span {
+  color: rgba(248, 251, 255, .72);
+  font-size: 20px;
+  font-weight: 950;
+}
+
+.eq-essay-result-rubric {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.eq-essay-result-rubric div,
+.eq-essay-result-text-block,
+.eq-essay-mistake-list article {
+  border: 1px solid rgba(255, 211, 90, .38);
+  border-radius: 18px;
+  background:
+    radial-gradient(circle at 12% 0%, rgba(91, 112, 255, .16), transparent 38%),
+    linear-gradient(180deg, rgba(8, 24, 62, .9), rgba(3, 10, 34, .96));
+  box-shadow:
+    inset 0 0 18px rgba(255, 255, 255, .04),
+    0 12px 24px rgba(0, 0, 0, .22);
+}
+
+.eq-essay-result-rubric div {
+  display: grid;
+  gap: 6px;
+  padding: 12px;
+  text-align: center;
+}
+
+.eq-essay-result-rubric span,
+.eq-essay-result-text-block span,
+.eq-essay-mistake-list span {
+  color: #ffdb69;
+  font-size: 12px;
+  font-weight: 1000;
+  letter-spacing: .04em;
+}
+
+.eq-essay-result-rubric strong {
+  color: #f8fbff;
+  font-size: 26px;
+  font-weight: 1000;
+  line-height: 1;
+}
+
+.eq-essay-result-rubric small {
+  color: rgba(248, 251, 255, .64);
+  font-size: 14px;
+  margin-left: 2px;
+}
+
+.eq-essay-result-text-block {
+  display: grid;
+  gap: 8px;
+  padding: 14px;
+}
+
+.eq-essay-result-text-block p,
+.eq-essay-mistake-list p,
+.eq-essay-next-tip {
+  margin: 0;
+  white-space: pre-wrap;
+  color: #f8fbff;
+  font-size: clamp(15px, 4.1vw, 17px);
+  font-weight: 760;
+  line-height: 1.7;
+}
+
+.eq-essay-result-text-block small {
+  justify-self: end;
+  border: 1px solid rgba(53, 217, 255, .26);
+  border-radius: 999px;
+  background: rgba(53, 217, 255, .1);
+  padding: 4px 9px;
+  color: #9defff;
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.eq-essay-before-after,
+.eq-essay-mistake-list,
+.eq-essay-result-list {
+  display: grid;
+  gap: 10px;
+}
+
+.eq-essay-result-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.eq-essay-result-list li {
+  border: 1px solid rgba(84, 230, 168, .28);
+  border-radius: 16px;
+  background: rgba(6, 23, 60, .62);
+  padding: 12px 14px;
+  color: #f8fbff;
+  font-size: 15px;
+  font-weight: 820;
+  line-height: 1.55;
+}
+
+.eq-essay-mistake-list article {
+  display: grid;
+  gap: 7px;
+  padding: 14px;
+}
+
+.eq-essay-mistake-list p + span {
+  margin-top: 4px;
+}
+
+.eq-essay-result-actions {
+  padding-bottom: 8px;
+}
+
 /* Interview practice */
 .eq-interview-page {
   min-height: 100dvh;

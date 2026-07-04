@@ -5,37 +5,80 @@ import {
   EQPageHeader,
   EQPanel,
   EQPrimaryButton,
-  EQSecondaryButton,
 } from '../components/eigo';
 
 const fallbackResult = {
+  total_score: 8,
   score: 82,
-  stars: 4,
+  scores: {
+    content: 3,
+    structure: 2,
+    vocabulary: 2,
+    grammar: 1,
+  },
   good_points: [
-    '3文でしっかり書けています',
-    'テーマに合った内容です',
+    'テーマに合った内容で書けています。',
+    '自分の考えが伝わっています。',
   ],
-  corrections: [
+  needs_improvement: [
+    '理由をもう少し具体的に書くと、もっとよくなります。',
+  ],
+  important_mistakes: [
     {
-      before: 'It delicious.',
-      after: 'It is delicious.',
-      explanation_ja: 'be動詞の is を入れると自然です。',
+      child_text: 'It delicious.',
+      problem_ja: 'be動詞の is がありません。',
+      corrected_example: 'It is delicious.',
     },
   ],
-  advice_ja: 'とてもよく書けています。次は理由をもう1文足してみましょう。',
-  better_essay:
-    'My favorite food is ramen. It is delicious. I eat it every Sunday. I like hot ramen because it makes me happy.',
+  original_essay: 'My favorite food is ramen. It delicious. I eat it every Sunday.',
+  improved_essay:
+    'My favorite food is ramen. It is delicious and warm. I often eat it with my family on Sundays. I like ramen because it makes me happy and gives me energy.',
+  original_word_count: 12,
+  improved_word_count: 29,
+  next_tip_ja: '次は理由をもう1文足してみましょう。',
 };
 
-function StarRow({ count }) {
+const SCORE_LABELS = {
+  content: '内容',
+  structure: '構成',
+  vocabulary: '語い',
+  grammar: '文法',
+};
+
+function countWords(text) {
+  return String(text || '')
+    .trim()
+    .match(/[A-Za-z]+(?:[-'][A-Za-z]+)?|\d+/g)?.length || 0;
+}
+
+function getArray(value, fallback = []) {
+  return Array.isArray(value) && value.length ? value : fallback;
+}
+
+function normalizeMistakes(result) {
+  const importantMistakes = getArray(result.important_mistakes, []);
+  if (importantMistakes.length) {
+    return importantMistakes.slice(0, 3).map((item) => ({
+      child_text: item.child_text || item.before || '',
+      problem_ja: item.problem_ja || item.explanation_ja || item.explanation || '',
+      corrected_example: item.corrected_example || item.after || '',
+    }));
+  }
+
+  return getArray(result.corrections, fallbackResult.important_mistakes).slice(0, 3).map((item) => ({
+    child_text: item.child_text || item.before || '',
+    problem_ja: item.problem_ja || item.explanation_ja || item.explanation || '',
+    corrected_example: item.corrected_example || item.after || '',
+  }));
+}
+
+function EssayTextBlock({ label, text, wordCount }) {
   return (
-    <div className="flex items-center gap-1 text-3xl text-[#ffd35a]" aria-label={`${count} stars`}>
-      {Array.from({ length: count }).map((_, index) => (
-        <span key={index} aria-hidden="true">
-          ★
-        </span>
-      ))}
-    </div>
+    <article className="eq-essay-result-text-block">
+      {label ? <span>{label}</span> : null}
+      <p>{text}</p>
+      <small>{wordCount} words</small>
+    </article>
   );
 }
 
@@ -43,11 +86,18 @@ export default function EssayCheckResultPage() {
   const location = useLocation();
   const navigate = useNavigate();
   const result = location.state || fallbackResult;
-  const reward = result.reward || { name: 'Magic Writing Star', coins: 50 };
-  const advice = result.advice_ja || result.advice || fallbackResult.advice_ja;
-  const betterEssay = result.better_essay || result.better_example || fallbackResult.better_essay;
-  const goodPoints = result.good_points?.length ? result.good_points : fallbackResult.good_points;
-  const corrections = result.corrections?.length ? result.corrections : fallbackResult.corrections;
+  const submittedEssay = result.essayText || result.essay_text || '';
+  const originalEssay = result.original_essay || submittedEssay || fallbackResult.original_essay;
+  const improvedEssay = result.improved_essay || result.better_essay || result.better_example || fallbackResult.improved_essay;
+  const originalWordCount = Number(result.original_word_count) || countWords(originalEssay);
+  const improvedWordCount = Number(result.improved_word_count) || countWords(improvedEssay);
+  const scores = result.scores || fallbackResult.scores;
+  const totalScore = Number(result.total_score);
+  const legacyScore = Number(result.score);
+  const goodPoints = getArray(result.good_points, fallbackResult.good_points);
+  const needsImprovement = getArray(result.needs_improvement, fallbackResult.needs_improvement);
+  const importantMistakes = normalizeMistakes(result);
+  const nextTip = result.next_tip_ja || result.advice_ja || result.advice || fallbackResult.next_tip_ja;
 
   return (
     <div className="eq-learning-hub-page">
@@ -59,80 +109,81 @@ export default function EssayCheckResultPage() {
           icon="AI"
         />
 
-        <div className="grid gap-5">
-          <EQPanel tone="gold">
-            <div className="flex items-center justify-between gap-4">
-              <div>
-                <p className="text-sm font-black uppercase tracking-[0.18em] text-[#90e7ff]">
-                  Score
-                </p>
-                <p className="text-4xl font-black text-[#fff0b5]">
-                  {result.score}
-                  <span className="text-xl text-white/70">/100</span>
-                </p>
-              </div>
-              <StarRow count={result.stars || 0} />
+        <div className="eq-essay-result-stack">
+          <EQPanel tone="gold" title="総合スコア">
+            <div className="eq-essay-result-score">
+              <strong>
+                {Number.isFinite(totalScore) && totalScore > 0 ? totalScore : legacyScore || fallbackResult.total_score}
+              </strong>
+              <span>{Number.isFinite(totalScore) && totalScore > 0 ? '/16' : '/100'}</span>
+            </div>
+          </EQPanel>
+
+          <EQPanel title="観点別スコア" tone="blue">
+            <div className="eq-essay-result-rubric">
+              {Object.entries(SCORE_LABELS).map(([key, label]) => (
+                <div key={key}>
+                  <span>{label}</span>
+                  <strong>{Number(scores?.[key]) || 0}<small>/4</small></strong>
+                </div>
+              ))}
+            </div>
+          </EQPanel>
+
+          <EQPanel title="子どもの作文" tone="purple">
+            <EssayTextBlock text={originalEssay} wordCount={originalWordCount} />
+          </EQPanel>
+
+          <EQPanel title="改善版作文" tone="cyan">
+            <EssayTextBlock text={improvedEssay} wordCount={improvedWordCount} />
+          </EQPanel>
+
+          <EQPanel title="Before / After" tone="gold">
+            <div className="eq-essay-before-after">
+              <EssayTextBlock label="Before" text={originalEssay} wordCount={originalWordCount} />
+              <EssayTextBlock label="After" text={improvedEssay} wordCount={improvedWordCount} />
             </div>
           </EQPanel>
 
           <EQPanel title="よかったところ" tone="green">
-            <ul className="grid gap-3 text-base font-bold leading-7 text-white">
+            <ul className="eq-essay-result-list">
               {goodPoints.map((point) => (
-                <li key={point} className="rounded-2xl border border-[#54e6a8]/35 bg-[#06173c]/60 px-4 py-3">
-                  {point}
-                </li>
+                <li key={point}>{point}</li>
               ))}
             </ul>
           </EQPanel>
 
-          <EQPanel title="魔法のなおし" tone="cyan">
-            <div className="grid gap-4">
-              {corrections.map((correction) => (
-                <article
-                  key={`${correction.before}-${correction.after}`}
-                  className="grid gap-3 rounded-[22px] border border-[#d8b45a]/45 bg-[#06173c]/70 p-4"
-                >
-                  <p className="text-sm font-black text-white/60">Before</p>
-                  <p className="text-lg font-black text-[#ffb7c9]">{correction.before}</p>
-                  <p className="text-sm font-black text-white/60">After</p>
-                  <p className="text-lg font-black text-[#fff0b5]">{correction.after}</p>
-                  <p className="text-sm font-bold leading-6 text-white/85">
-                    {correction.explanation_ja || correction.explanation}
-                  </p>
+          <EQPanel title="直した方がいいところ" tone="cyan">
+            <ul className="eq-essay-result-list">
+              {needsImprovement.map((point) => (
+                <li key={point}>{point}</li>
+              ))}
+            </ul>
+          </EQPanel>
+
+          <EQPanel title="重要なミス" tone="purple">
+            <div className="eq-essay-mistake-list">
+              {importantMistakes.map((mistake, index) => (
+                <article key={`${mistake.child_text}-${index}`}>
+                  <span>子どもの英文</span>
+                  <p>{mistake.child_text || '確認できませんでした。'}</p>
+                  <span>どこが問題か</span>
+                  <p>{mistake.problem_ja || 'もう一度見直してみましょう。'}</p>
+                  <span>直した例</span>
+                  <p>{mistake.corrected_example || '例文をもう一度確認しましょう。'}</p>
                 </article>
               ))}
             </div>
           </EQPanel>
 
-          <EQPanel title="AI先生からのアドバイス" tone="purple">
-            <p className="text-base font-bold leading-8 text-white">{advice}</p>
+          <EQPanel title="次に気をつけること" tone="blue">
+            <p className="eq-essay-next-tip">{nextTip}</p>
           </EQPanel>
 
-          <EQPanel title="もっと良くなる例" tone="blue">
-            <p className="rounded-[22px] border border-white/15 bg-white/10 p-4 text-base font-bold leading-8 text-white">
-              {betterEssay}
-            </p>
-          </EQPanel>
-
-          <EQPanel title="ごほうび GET" tone="gold">
-            <div className="flex items-center justify-between gap-4 rounded-[22px] border border-[#ffd35a]/55 bg-[#06173c]/70 p-4">
-              <div>
-                <p className="text-xl font-black text-[#fff0b5]">{reward.name}</p>
-                <p className="text-sm font-bold text-white/75">Coins +{reward.coins}</p>
-              </div>
-              <span className="text-4xl" aria-hidden="true">
-                ✦
-              </span>
-            </div>
-          </EQPanel>
-
-          <div className="grid gap-3 pb-28">
+          <div className="eq-essay-result-actions">
             <EQPrimaryButton type="button" fullWidth onClick={() => navigate('/essay-check')}>
               もう一度書く
             </EQPrimaryButton>
-            <EQSecondaryButton type="button" fullWidth onClick={() => navigate('/learning-hub')}>
-              Learning Hubにもどる
-            </EQSecondaryButton>
           </div>
         </div>
       </EQMobileShell>

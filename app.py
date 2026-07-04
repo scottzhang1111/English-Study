@@ -12901,7 +12901,19 @@ def _extract_json_object(text):
     return json.loads(cleaned)
 
 
-def _normalize_essay_check_result(payload):
+def _count_essay_words(text):
+    return len(re.findall(r"[A-Za-z]+(?:[-'][A-Za-z]+)?|\d+", text or ''))
+
+
+def _normalize_score_part(value):
+    try:
+        score = int(value)
+    except (TypeError, ValueError):
+        score = 0
+    return max(0, min(4, score))
+
+
+def _normalize_essay_check_result(payload, essay_text=''):
     corrections = payload.get('corrections') if isinstance(payload.get('corrections'), list) else []
     normalized_corrections = []
     for item in corrections:
@@ -12913,10 +12925,38 @@ def _normalize_essay_check_result(payload):
             'explanation_ja': str(item.get('explanation_ja') or item.get('explanation') or '').strip(),
         })
 
+    raw_mistakes = payload.get('important_mistakes') if isinstance(payload.get('important_mistakes'), list) else []
+    normalized_mistakes = []
+    for item in raw_mistakes:
+        if not isinstance(item, dict):
+            continue
+        normalized_mistakes.append({
+            'child_text': str(item.get('child_text') or item.get('before') or '').strip(),
+            'problem_ja': str(item.get('problem_ja') or item.get('explanation_ja') or item.get('explanation') or '').strip(),
+            'corrected_example': str(item.get('corrected_example') or item.get('after') or '').strip(),
+        })
+
+    if not normalized_mistakes:
+        normalized_mistakes = [
+            {
+                'child_text': item.get('before', ''),
+                'problem_ja': item.get('explanation_ja', ''),
+                'corrected_example': item.get('after', ''),
+            }
+            for item in normalized_corrections
+        ]
+
     good_points = payload.get('good_points') if isinstance(payload.get('good_points'), list) else []
     normalized_good_points = [
         str(point).strip()
         for point in good_points
+        if str(point).strip()
+    ]
+
+    needs_improvement = payload.get('needs_improvement') if isinstance(payload.get('needs_improvement'), list) else []
+    normalized_needs_improvement = [
+        str(point).strip()
+        for point in needs_improvement
         if str(point).strip()
     ]
 
@@ -12926,23 +12966,56 @@ def _normalize_essay_check_result(payload):
         score = 0
     score = max(0, min(100, score))
 
+    scores_payload = payload.get('scores') if isinstance(payload.get('scores'), dict) else {}
+    scores = {
+        'content': _normalize_score_part(scores_payload.get('content')),
+        'structure': _normalize_score_part(scores_payload.get('structure')),
+        'vocabulary': _normalize_score_part(scores_payload.get('vocabulary')),
+        'grammar': _normalize_score_part(scores_payload.get('grammar')),
+    }
+
+    try:
+        total_score = int(payload.get('total_score', 0))
+    except (TypeError, ValueError):
+        total_score = 0
+    if not total_score:
+        total_score = sum(scores.values())
+    total_score = max(0, min(16, total_score))
+
     try:
         stars = int(payload.get('stars', 0))
     except (TypeError, ValueError):
         stars = 0
     stars = max(0, min(5, stars))
 
+    original_essay = str(essay_text or payload.get('original_essay') or '').strip()
+    improved_essay = str(
+        payload.get('improved_essay')
+        or payload.get('better_essay')
+        or payload.get('better_example')
+        or ''
+    ).strip()
+
     return {
         'score': score,
         'stars': stars,
+        'total_score': total_score,
+        'scores': scores,
         'good_points': normalized_good_points[:4],
+        'needs_improvement': normalized_needs_improvement[:4],
+        'important_mistakes': normalized_mistakes[:3],
         'corrections': normalized_corrections[:5],
         'advice_ja': str(payload.get('advice_ja') or payload.get('advice') or '').strip(),
-        'better_essay': str(payload.get('better_essay') or payload.get('better_example') or '').strip(),
+        'next_tip_ja': str(payload.get('next_tip_ja') or payload.get('advice_ja') or payload.get('advice') or '').strip(),
+        'original_essay': original_essay,
+        'improved_essay': improved_essay,
+        'original_word_count': _count_essay_words(original_essay),
+        'improved_word_count': _count_essay_words(improved_essay),
+        'better_essay': improved_essay,
     }
 
 
-def run_gemini_essay_check(topic, essay_text, level):
+def run_gemini_essay_check(topic, essay_text, level, writing_type='opinion'):
     api_key = get_gemini_api_key()
     if not api_key:
         raise RuntimeError('GEMINI_API_KEY is not configured')
@@ -12950,32 +13023,49 @@ def run_gemini_essay_check(topic, essay_text, level):
     from google import genai
     from google.genai import types
 
-    prompt = f"""
-You are a kind English teacher for Japanese elementary school students.
-The student is preparing for {level or '英検準2級'}.
+    normalized_writing_type = 'email' if str(writing_type or '').lower() == 'email' else 'opinion'
+    improved_length_rule = (
+        'For email questions, the improved essay must be 40 to 50 words, preferably 45 to 50 words. Do not force it to exceed 50 words.'
+        if normalized_writing_type == 'email'
+        else 'For opinion questions, the improved essay must be 50 to 60 words and at least 50 words. Do not make it too long.'
+    )
 
-Please review the student's English essay gently and encouragingly.
-Japanese explanations must be simple and easy for a child to understand.
-Keep corrections short.
-The better essay should stay close to the child's original meaning.
-Do not make the English too difficult.
-Return only JSON.
+    prompt = f"""
+You are an Eiken Pre-2 writing teacher for Japanese elementary and junior high school students.
+The student is preparing for {level or '英検準2級'}.
+Give feedback in simple Japanese.
+Keep the child's meaning.
+Do not make the improved essay too difficult.
+{improved_length_rule}
+Return valid JSON only.
 
 Required JSON shape:
 {{
-  "score": 82,
-  "stars": 4,
-  "good_points": ["3文でしっかり書けています", "テーマに合った内容です"],
-  "corrections": [
+  "total_score": 8,
+  "scores": {{
+    "content": 3,
+    "structure": 2,
+    "vocabulary": 2,
+    "grammar": 1
+  }},
+  "good_points": ["テーマに合った内容です"],
+  "needs_improvement": ["理由をもう少し具体的に書きましょう"],
+  "important_mistakes": [
     {{
-      "before": "It delicious.",
-      "after": "It is delicious.",
-      "explanation_ja": "be動詞の is を入れると自然です。"
+      "child_text": "It delicious.",
+      "problem_ja": "be動詞の is がありません。",
+      "corrected_example": "It is delicious."
     }}
   ],
-  "advice_ja": "とてもよく書けています。次は理由をもう1文足してみましょう。",
-  "better_essay": "My favorite food is ramen. It is delicious. I eat it every Sunday. I like hot ramen because it makes me happy."
+  "original_essay": "The student's original essay exactly as submitted.",
+  "improved_essay": "An improved essay that keeps the child's meaning and follows the word count rule.",
+  "original_word_count": 38,
+  "improved_word_count": 56,
+  "next_tip_ja": "次は理由をもう1文足してみましょう。"
 }}
+
+Writing type:
+{normalized_writing_type}
 
 Topic:
 {topic}
@@ -12989,7 +13079,31 @@ Student essay:
         'properties': {
             'score': {'type': 'integer'},
             'stars': {'type': 'integer'},
+            'total_score': {'type': 'integer'},
+            'scores': {
+                'type': 'object',
+                'properties': {
+                    'content': {'type': 'integer'},
+                    'structure': {'type': 'integer'},
+                    'vocabulary': {'type': 'integer'},
+                    'grammar': {'type': 'integer'},
+                },
+                'required': ['content', 'structure', 'vocabulary', 'grammar'],
+            },
             'good_points': {'type': 'array', 'items': {'type': 'string'}},
+            'needs_improvement': {'type': 'array', 'items': {'type': 'string'}},
+            'important_mistakes': {
+                'type': 'array',
+                'items': {
+                    'type': 'object',
+                    'properties': {
+                        'child_text': {'type': 'string'},
+                        'problem_ja': {'type': 'string'},
+                        'corrected_example': {'type': 'string'},
+                    },
+                    'required': ['child_text', 'problem_ja', 'corrected_example'],
+                },
+            },
             'corrections': {
                 'type': 'array',
                 'items': {
@@ -13004,8 +13118,17 @@ Student essay:
             },
             'advice_ja': {'type': 'string'},
             'better_essay': {'type': 'string'},
+            'original_essay': {'type': 'string'},
+            'improved_essay': {'type': 'string'},
+            'original_word_count': {'type': 'integer'},
+            'improved_word_count': {'type': 'integer'},
+            'next_tip_ja': {'type': 'string'},
         },
-        'required': ['score', 'stars', 'good_points', 'corrections', 'advice_ja', 'better_essay'],
+        'required': [
+            'total_score', 'scores', 'good_points', 'needs_improvement',
+            'important_mistakes', 'original_essay', 'improved_essay',
+            'original_word_count', 'improved_word_count', 'next_tip_ja',
+        ],
     }
 
     client = genai.Client(api_key=api_key)
@@ -13017,7 +13140,7 @@ Student essay:
             response_schema=schema,
         ),
     )
-    return _normalize_essay_check_result(_extract_json_object(response.text))
+    return _normalize_essay_check_result(_extract_json_object(response.text), essay_text=essay_text)
 
 
 def run_gemini_writing_ocr(image_file):
@@ -13060,9 +13183,10 @@ def api_essay_check():
 
     topic = (data.get('topic') or 'My favorite food').strip()
     level = (data.get('level') or '英検準2級').strip()
+    writing_type = (data.get('writing_type') or data.get('writingType') or 'opinion').strip()
 
     try:
-        return jsonify(run_gemini_essay_check(topic, essay_text, level))
+        return jsonify(run_gemini_essay_check(topic, essay_text, level, writing_type))
     except Exception:
         app.logger.exception('Gemini essay check failed')
         return jsonify(error='essay_check_failed'), 500

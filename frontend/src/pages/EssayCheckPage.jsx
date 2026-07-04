@@ -400,6 +400,7 @@ export default function EssayCheckPage() {
         topic: currentQuestion.promptText || currentQuestion.question || currentQuestion.title,
         essayText: trimmedEssay,
         level: formatLevel(currentChild),
+        writingType: currentQuestion.type,
       });
       navigate('/essay-check/result', {
         state: {

@@ -287,7 +287,7 @@ export const submitAiPracticeAnswer = async ({ childId, questionId, selectedAnsw
   });
 };
 
-export const checkEssay = async ({ childId, topic, essayText, level } = {}) => {
+export const checkEssay = async ({ childId, topic, essayText, level, writingType } = {}) => {
   return fetchJson('/api/essay/check', {
     method: 'POST',
     body: {
@@ -295,6 +295,7 @@ export const checkEssay = async ({ childId, topic, essayText, level } = {}) => {
       topic,
       essay_text: essayText,
       level,
+      writing_type: writingType,
     },
   });
 };
