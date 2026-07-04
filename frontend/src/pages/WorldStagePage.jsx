@@ -407,8 +407,6 @@ export default function WorldStagePage() {
       ? debugNodePositions[node.id]
       : node.position,
   }));
-  const routePath = getDebugRoutePath(stageNodes);
-
   function openStageWords(stageNumber = currentStage) {
     navigate(`/daily-words?world=${encodeURIComponent(currentWorld.id)}&stage=${encodeURIComponent(stageNumber)}`);
   }
@@ -566,21 +564,6 @@ export default function WorldStagePage() {
               <span>{worldDisplay.symbol}</span>
             )}
           </div>
-          <svg
-            className="eq-world-stage-route-svg"
-            viewBox="0 0 100 100"
-            preserveAspectRatio="none"
-            aria-hidden="true"
-          >
-            <path
-              className="eq-world-stage-route-shadow"
-              d={routePath}
-            />
-            <path
-              className="eq-world-stage-route-line"
-              d={routePath}
-            />
-          </svg>
           {stageNodes.map((node) => (
             <EQStageNode
               key={`${currentWorld.id}-${node.stageId}-${node.nodeType}`}
@@ -598,9 +581,6 @@ export default function WorldStagePage() {
               onPointerDown={(event) => handleDebugNodePointerDown(event, node)}
               onClick={() => handleStageTap(node)}
               aria-label={node.isBoss ? `${node.title} ${node.bossLabel}` : `Stage ${node.stage}`}
-              debugLabel={isMapDebugMode
-                ? `${node.isBoss ? `${node.stageId}${node.isMiniBoss ? 'M' : 'B'}` : `S${node.stageId}`} ${formatCoordinate(node.position.x)},${formatCoordinate(node.position.y)}`
-                : ''}
             />
           ))}
         </section>

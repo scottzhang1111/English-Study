@@ -16675,3 +16675,9 @@ body,
     grid-template-columns: minmax(0, 0.78fr) minmax(0, 1fr);
   }
 }
+.eq-world-stage-route-svg,
+.eq-world-stage-route-shadow,
+.eq-world-stage-route-line,
+.eq-world-stage-path {
+  display: none !important;
+}

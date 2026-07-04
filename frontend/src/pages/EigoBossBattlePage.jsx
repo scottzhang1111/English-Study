@@ -1,5 +1,5 @@
 ﻿import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import {
   EQChoiceButton,
@@ -12,7 +12,12 @@ import {
   FIRST_BOSS_QUESTIONS,
   FIRST_BOSS_REWARD,
 } from '../data/eigoBossBattleV1';
-import { DEFAULT_EIGO_BOSS_ID, getEigoBossById } from '../data/eigoBosses';
+import { eigoQuestCards } from '../config/eigoQuestCards';
+import {
+  DEFAULT_EIGO_BOSS_ID,
+  EIGO_BOSS_TYPES,
+  getEigoBossById,
+} from '../data/eigoBosses';
 import { getDailyWords, getVocabWrongReviews } from '../api';
 import { buildBossReviewQuestions } from '../helpers/eigoBossQuestionBuilder';
 import { selectBossHeroParty } from '../helpers/eigoBossHeroSelector';
@@ -75,6 +80,11 @@ const SKILL_SEQUENCE_MAP = {
 };
 const INITIAL_MESSAGE = '答えを選んでスキル発動！';
 const FAILED_MESSAGE = 'Boss の弱点をもう一度練習しよう';
+const HERO_CARD_STAGE_FALLBACK = {
+  wind: {
+    'wind-boss-typhoeus': 10,
+  },
+};
 
 function getHeroSkillName(hero) {
   return hero?.skill?.name || 'スキル発動';
@@ -82,6 +92,23 @@ function getHeroSkillName(hero) {
 
 function getHeroSkillMotion(hero) {
   return hero?.skill?.motion || 'wind_slash';
+}
+
+function getBossEncounterSfxKey(bossConfig) {
+  if (bossConfig?.bossType === EIGO_BOSS_TYPES.WORLD_BOSS) {
+    return 'boss_encounter_final';
+  }
+
+  const bossId = String(bossConfig?.bossId || '');
+  const checkpointStage = Number(
+    bossConfig?.checkpointAfterStage ?? bossConfig?.stageId ?? 0
+  );
+
+  if (bossId.includes('mini-boss-2') || checkpointStage >= 8) {
+    return 'boss_encounter_mini_2';
+  }
+
+  return 'boss_encounter_mini_1';
 }
 
 function shuffleQuestions(questions) {
@@ -115,11 +142,70 @@ function createBossBattleConfig(bossConfig) {
 }
 
 function getHeroPartyForBoss(bossConfig) {
+  const availableHeroes = getBossAvailableHeroes(bossConfig?.worldId);
+
   return selectBossHeroParty({
     bossConfig,
-    availableHeroes: FIRST_BOSS_BATTLE.heroes,
+    availableHeroes,
     fallbackHeroes: FIRST_BOSS_BATTLE.heroes,
   });
+}
+
+function normalizeHeroCardImage(image, worldId) {
+  if (!image) return '';
+  const normalizedWorldId = String(worldId || '').toLowerCase();
+  if (!normalizedWorldId) return image;
+  const flatCardMatch = image.match(new RegExp(`/cards/${normalizedWorldId}-guardian(\\d+)\\.png$`));
+
+  if (flatCardMatch) {
+    return `/assets/eigo-quest/cards/${normalizedWorldId}/${normalizedWorldId}-guardian${flatCardMatch[1]}.png`;
+  }
+
+  return image;
+}
+
+function getHeroCardStageId(card) {
+  const explicitStageId = Number(card?.stageId || card?.stage_id || card?.stage || 0);
+  if (explicitStageId) return explicitStageId;
+
+  const worldId = String(card?.worldId || '').toLowerCase();
+  const cardId = String(card?.id || '').toLowerCase();
+  const fallbackStage = HERO_CARD_STAGE_FALLBACK[worldId]?.[cardId];
+  if (fallbackStage) return fallbackStage;
+
+  const imageStageMatch = String(card?.image || '').match(/guardian(\d+)\.png$/i);
+  if (imageStageMatch) return Number(imageStageMatch[1]);
+
+  const unlockStageMatch = String(card?.unlockCondition || '').match(/Stage\s*(\d+)/i);
+  if (unlockStageMatch) return Number(unlockStageMatch[1]);
+
+  return 0;
+}
+
+function createBattleHeroFromCard(card) {
+  const stageId = getHeroCardStageId(card);
+  const skillTemplate = FIRST_BOSS_BATTLE.heroes[(Math.max(stageId, 1) - 1) % FIRST_BOSS_BATTLE.heroes.length];
+  const worldId = String(card?.worldId || '').toLowerCase();
+
+  return {
+    id: card.id,
+    name: card.nameJa || card.nameZh || card.id,
+    image: normalizeHeroCardImage(card.image, worldId),
+    attack: skillTemplate?.attack || 20,
+    worldId,
+    stageId,
+    skill: skillTemplate?.skill || FIRST_BOSS_BATTLE.heroes[0]?.skill,
+  };
+}
+
+function getBossAvailableHeroes(worldId) {
+  const normalizedWorldId = String(worldId || '').toLowerCase();
+  const worldCards = eigoQuestCards
+    .filter((card) => String(card.worldId || '').toLowerCase() === normalizedWorldId)
+    .map(createBattleHeroFromCard)
+    .filter((hero) => hero.stageId >= 1 && hero.stageId <= 10 && hero.image);
+
+  return worldCards.length ? worldCards : FIRST_BOSS_BATTLE.heroes;
 }
 
 function getBossReviewStageIds(bossConfig) {
@@ -703,6 +789,8 @@ export default function EigoBossBattlePage() {
   const heroCardRefs = useRef([]);
   const actionEffectIdRef = useRef(0);
   const timeoutRefs = useRef([]);
+  const bossEncounterSfxAttemptRef = useRef('');
+  const bossEncounterSfxPlayedRef = useRef('');
   const reducedMotion = useReducedMotion();
   const currentQuestion = state.questionDeck[state.currentQuestionIndex];
   const currentQuestionText = currentQuestion?.prompt || '問題を読み込んでいます';
@@ -722,6 +810,23 @@ export default function EigoBossBattlePage() {
     '--eq-boss-aura-secondary': bossAura.secondary || 'rgba(88, 14, 64, 0.48)',
     '--eq-boss-aura-shadow': bossAura.shadow || 'rgba(142, 9, 54, 0.24)',
   };
+  const playBossEncounterSfxOnce = useCallback((allowRetry = false) => {
+    const sfxKey = getBossEncounterSfxKey(bossConfig);
+    const playKey = `${bossConfig?.bossId || DEFAULT_EIGO_BOSS_ID}:${sfxKey}`;
+
+    if (bossEncounterSfxPlayedRef.current === playKey) return;
+    if (!allowRetry && bossEncounterSfxAttemptRef.current === playKey) return;
+
+    if (!allowRetry) {
+      bossEncounterSfxAttemptRef.current = playKey;
+    }
+
+    playBattleSfx(sfxKey).then((played) => {
+      if (played) {
+        bossEncounterSfxPlayedRef.current = playKey;
+      }
+    });
+  }, [bossConfig]);
 
   useEffect(() => () => {
     timeoutRefs.current.forEach((timeoutId) => window.clearTimeout(timeoutId));
@@ -731,6 +836,10 @@ export default function EigoBossBattlePage() {
   useEffect(() => {
     preloadBattleSfx();
   }, []);
+
+  useEffect(() => {
+    playBossEncounterSfxOnce();
+  }, [playBossEncounterSfxOnce]);
 
   useEffect(() => {
     if (shouldGenerateReviewQuestions) {
@@ -1129,6 +1238,8 @@ export default function EigoBossBattlePage() {
 
   const answerQuestion = (choice) => {
     if (state.battleStatus !== 'playing' || !currentQuestion || attackSequence || counterSequence || isResolving) return;
+
+    playBossEncounterSfxOnce(true);
 
     const isCorrect = choice === currentQuestion.answer;
     setIsResolving(true);

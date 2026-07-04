@@ -106,12 +106,12 @@
 
 .eq-stage-node-v2__aura {
   position: absolute;
-  inset: -10%;
+  inset: -3px;
   z-index: -2;
   border-radius: 999px;
-  background: radial-gradient(circle, rgba(53, 217, 255, 0.22), transparent 68%);
-  opacity: 0.8;
-  filter: blur(0.2px);
+  background: radial-gradient(circle, rgba(53, 217, 255, 0.16), transparent 72%);
+  opacity: 0.72;
+  filter: none;
 }
 
 .eq-stage-node-v2__base {
@@ -235,15 +235,7 @@
 .eq-stage-node-v2__label,
 .eq-stage-node-v2__current,
 .eq-stage-node-v2__clear {
-  position: absolute;
-  z-index: 6;
-  left: 50%;
-  max-width: 104px;
-  border-radius: 999px;
-  white-space: nowrap;
-  pointer-events: none;
-  text-shadow: 0 1px 0 rgba(0, 0, 0, 0.76);
-  transform: translateX(-50%);
+  display: none !important;
 }
 
 .eq-stage-node-v2__label {
@@ -308,25 +300,25 @@
 
 .eq-stage-node-v2.is-open .eq-stage-node-v2__aura,
 .eq-stage-node-v2.is-current .eq-stage-node-v2__aura {
-  background: radial-gradient(circle, rgba(53, 217, 255, 0.38), transparent 68%);
-  box-shadow: 0 0 20px rgba(53, 217, 255, 0.16);
+  background: radial-gradient(circle, rgba(53, 217, 255, 0.2), transparent 72%);
+  box-shadow: 0 0 8px rgba(53, 217, 255, 0.1);
 }
 
 .eq-stage-node-v2.is-current .eq-stage-node-v2__orb::after {
   position: absolute;
-  inset: -12px;
+  inset: -6px;
   z-index: -2;
-  border: 2px solid rgba(113, 237, 255, 0.68);
+  border: 2px solid rgba(113, 237, 255, 0.58);
   border-radius: 999px;
   content: "";
   box-shadow:
-    0 0 14px rgba(53, 217, 255, 0.48),
-    0 0 28px rgba(53, 217, 255, 0.24);
+    0 0 9px rgba(53, 217, 255, 0.34),
+    0 0 14px rgba(53, 217, 255, 0.16);
   animation: eq-stage-current-ring-pulse 1.8s ease-in-out infinite;
 }
 
 .eq-stage-node-v2.is-clear .eq-stage-node-v2__aura {
-  background: radial-gradient(circle, rgba(122, 255, 139, 0.36), transparent 70%);
+  background: radial-gradient(circle, rgba(122, 255, 139, 0.18), transparent 72%);
 }
 
 .eq-stage-node-v2.is-clear .eq-stage-node-v2__orb {
@@ -360,12 +352,10 @@
 }
 
 .eq-stage-node-v2.is-mini_boss .eq-stage-node-v2__aura {
-  inset: -14%;
-  background:
-    conic-gradient(from 0deg, transparent 0 9%, rgba(225, 150, 255, 0.58) 13%, transparent 20% 34%, rgba(139, 92, 255, 0.7) 41%, transparent 49% 67%, rgba(255, 255, 255, 0.46) 74%, transparent 84%),
-    radial-gradient(circle, rgba(160, 92, 255, 0.35), transparent 67%);
-  opacity: 0.96;
-  filter: drop-shadow(0 0 12px rgba(168, 83, 255, 0.5));
+  inset: -5px;
+  background: radial-gradient(circle, rgba(160, 92, 255, 0.22), transparent 72%);
+  opacity: 0.82;
+  filter: drop-shadow(0 0 7px rgba(168, 83, 255, 0.3));
 }
 
 .eq-stage-node-v2.is-mini_boss .eq-stage-node-v2__base {
@@ -389,11 +379,7 @@
 }
 
 .eq-stage-node-v2.is-mini_boss .eq-stage-node-type-badge {
-  left: 17%;
-  top: 8%;
-  background:
-    radial-gradient(circle at 38% 26%, rgba(255, 255, 255, 0.5), transparent 32%),
-    linear-gradient(180deg, #7a38ca, #250a68);
+  display: none;
 }
 
 .eq-stage-node-v2.is-mini_boss .eq-stage-node-number {
@@ -404,12 +390,10 @@
 }
 
 .eq-stage-node-v2.is-boss .eq-stage-node-v2__aura {
-  inset: -17%;
-  background:
-    radial-gradient(circle at 50% 52%, rgba(255, 38, 68, 0.5), transparent 62%),
-    conic-gradient(from 10deg, transparent 0 8%, rgba(255, 70, 70, 0.78) 11%, transparent 20% 35%, rgba(255, 170, 55, 0.58) 42%, transparent 53% 70%, rgba(129, 24, 94, 0.78) 76%, transparent 86%);
-  opacity: 0.98;
-  filter: drop-shadow(0 0 14px rgba(255, 58, 78, 0.58));
+  inset: -6px;
+  background: radial-gradient(circle, rgba(255, 58, 78, 0.22), transparent 72%);
+  opacity: 0.86;
+  filter: drop-shadow(0 0 8px rgba(255, 58, 78, 0.36));
 }
 
 .eq-stage-node-v2.is-boss .eq-stage-node-v2__base {
@@ -437,11 +421,7 @@
 }
 
 .eq-stage-node-v2.is-boss .eq-stage-node-type-badge {
-  left: 20%;
-  top: 10%;
-  background:
-    radial-gradient(circle at 38% 26%, rgba(255, 255, 255, 0.45), transparent 32%),
-    linear-gradient(180deg, #b32130, #420915);
+  display: none;
 }
 
 .eq-stage-node-v2.is-boss .eq-stage-node-number {
@@ -469,23 +449,7 @@
 }
 
 .eq-stage-node-v2 .eq-stage-node-debug-label {
-  position: absolute;
-  left: calc(100% + 5px);
-  top: 50%;
-  z-index: 9;
-  min-width: max-content;
-  padding: 2px 5px;
-  border: 1px solid rgba(53, 217, 255, 0.72);
-  border-radius: 6px;
-  background: rgba(1, 7, 18, 0.86);
-  color: #dffcff;
-  font-size: 9px;
-  font-weight: 900;
-  line-height: 1;
-  text-shadow: 0 1px 0 rgba(0, 0, 0, 0.75);
-  white-space: nowrap;
-  transform: translateY(-50%);
-  box-shadow: 0 0 8px rgba(53, 217, 255, 0.32);
+  display: none !important;
 }
 
 @keyframes eq-stage-node-pulse {

@@ -21,6 +21,18 @@ const BATTLE_SFX_MAP = {
     src: '/assets/eigo-quest/effects/wind/boss-claw.mp3',
     volume: 0.62,
   },
+  boss_encounter_mini_1: {
+    src: '/assets/eigo-quest/battle-ui/boss-mini-1.mp3',
+    volume: 0.7,
+  },
+  boss_encounter_mini_2: {
+    src: '/assets/eigo-quest/battle-ui/boss-mini-2.mp3',
+    volume: 0.7,
+  },
+  boss_encounter_final: {
+    src: '/assets/eigo-quest/battle-ui/boss-final.mp3',
+    volume: 0.68,
+  },
 };
 
 const audioCache = new Map();
@@ -79,17 +91,25 @@ export function preloadBattleSfx() {
 }
 
 export function playBattleSfx(motion) {
-  if (!getBattleSfxEnabled()) return;
+  if (!getBattleSfxEnabled()) return Promise.resolve(false);
 
   const audio = getCachedAudio(motion);
-  if (!audio) return;
+  if (!audio) return Promise.resolve(false);
 
   try {
     const instance = audio.cloneNode();
     instance.volume = audio.volume;
     instance.currentTime = 0;
-    instance.play().catch(() => {});
+    instance.loop = false;
+    const playResult = instance.play();
+
+    if (playResult && typeof playResult.then === 'function') {
+      return playResult.then(() => true).catch(() => false);
+    }
+
+    return Promise.resolve(true);
   } catch {
     // Browser audio policies and missing files should fail silently.
+    return Promise.resolve(false);
   }
 }

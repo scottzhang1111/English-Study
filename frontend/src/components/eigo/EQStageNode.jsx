@@ -62,8 +62,6 @@ export default function EQStageNode({
   const assetSrc = STAGE_NODE_ASSETS[nodeType][nodeState];
   const mainText = getMainText(nodeType, number, label);
   const typeBadge = getTypeBadge(nodeType);
-  const showClear = nodeState === 'clear';
-  const labelText = nodeType === 'stage' ? '' : label;
 
   return (
     <button
@@ -87,10 +85,6 @@ export default function EQStageNode({
       </span>
       <span className="eq-stage-node-type-badge" aria-hidden="true">{typeBadge}</span>
       <span className="eq-stage-node-number">{mainText}</span>
-      {labelText ? <span className="eq-stage-node-v2__label">{labelText}</span> : null}
-      {isCurrent ? <span className="eq-stage-node-v2__current">現在</span> : null}
-      {showClear ? <span className="eq-stage-node-v2__clear">CLEAR!</span> : null}
-      {debugLabel ? <small className="eq-stage-node-debug-label">{debugLabel}</small> : null}
       {children}
     </button>
   );
