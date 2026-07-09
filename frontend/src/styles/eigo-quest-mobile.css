@@ -11553,19 +11553,32 @@ body,
 
 /* Daily word list: keep English words on one complete line. */
 .eq-daily-word-row {
-  grid-template-columns: 30px minmax(max-content, 1.65fr) minmax(0, 0.48fr) 28px !important;
-  gap: 6px !important;
+  display: flex !important;
+  height: 74px !important;
+  min-height: 74px !important;
+  align-items: center !important;
+  gap: 8px !important;
   overflow: visible !important;
   padding-inline: 8px !important;
 }
 
+.eq-daily-word-copy {
+  display: flex !important;
+  flex: 1 1 auto !important;
+  min-width: 0 !important;
+  flex-direction: column !important;
+  justify-content: center !important;
+}
+
 .eq-daily-word-row strong {
-  min-width: max-content !important;
-  overflow: visible !important;
+  display: block !important;
+  min-width: 0 !important;
+  max-width: 100% !important;
+  overflow: hidden !important;
   color: #f8fbff !important;
-  font-size: var(--daily-word-font-size, clamp(13px, 3.45vw, 17px)) !important;
+  font-size: var(--daily-word-font-size, 34px) !important;
   line-height: 1.08 !important;
-  text-overflow: clip !important;
+  text-overflow: ellipsis !important;
   white-space: nowrap !important;
   overflow-wrap: normal !important;
   word-break: keep-all !important;
@@ -11574,42 +11587,50 @@ body,
 .eq-daily-word-row small {
   min-width: 0 !important;
   overflow: hidden !important;
-  font-size: clamp(10px, 2.7vw, 13px) !important;
+  font-size: 20px !important;
   line-height: 1.2 !important;
   text-overflow: ellipsis !important;
   white-space: nowrap !important;
 }
 
 .eq-daily-word-number {
+  flex: 0 0 28px !important;
   width: 28px !important;
   height: 28px !important;
   font-size: 13px !important;
 }
 
 .eq-daily-word-audio {
-  width: 28px !important;
-  height: 28px !important;
+  flex: 0 0 32px !important;
+  width: 32px !important;
+  height: 32px !important;
 }
 
 @media (max-width: 390px) {
   .eq-daily-word-row {
-    grid-template-columns: 26px minmax(max-content, 1.8fr) minmax(0, 0.34fr) 26px !important;
+    height: 72px !important;
+    min-height: 72px !important;
     gap: 5px !important;
     padding-inline: 7px !important;
   }
 
   .eq-daily-word-row strong {
-    font-size: var(--daily-word-font-size, clamp(12px, 3.15vw, 15px)) !important;
+    font-size: var(--daily-word-font-size, 34px) !important;
   }
 
   .eq-daily-word-row small {
-    font-size: clamp(9px, 2.5vw, 11px) !important;
+    font-size: 20px !important;
   }
 
   .eq-daily-word-number,
   .eq-daily-word-audio {
-    width: 26px !important;
-    height: 26px !important;
+    width: 30px !important;
+    height: 30px !important;
+  }
+
+  .eq-daily-word-number,
+  .eq-daily-word-audio {
+    flex-basis: 30px !important;
   }
 }
 

@@ -123,8 +123,9 @@ export default function GrammarFormPracticePage() {
       ? [...results, answerResult]
       : results;
     setFinalizing(true);
+    let testResult = null;
     try {
-      const testResult = await submitGrammarLessonTest({
+      testResult = await submitGrammarLessonTest({
         childId,
         lessonId,
         answers: completedResults.map((result) => ({
@@ -132,6 +133,7 @@ export default function GrammarFormPracticePage() {
           selected_index: result.selectedIndex,
         })),
       });
+      if (import.meta.env.DEV) console.log('Grammar Lesson Test Result:', testResult);
       setLessonTestResult(testResult);
     } catch (err) {
       setError(err.message || 'テスト結果を保存できませんでした。');
@@ -140,13 +142,7 @@ export default function GrammarFormPracticePage() {
       setFinalizing(false);
     }
 
-    const nextRetryQuestions = questions.filter((item) => missedQuizIds.includes(item.quizId));
-    if (nextRetryQuestions.length) {
-      setRetryQuestions(nextRetryQuestions);
-      setIndex(questions.length);
-      return;
-    }
-    const rewardQueue = collectRewardQueue(completedResults);
+    const rewardQueue = collectRewardQueue([testResult, ...completedResults]);
     if (rewardQueue.length) {
       savePendingRewardQueue(rewardQueue.map((reward) => ({
         ...reward,
@@ -155,6 +151,13 @@ export default function GrammarFormPracticePage() {
         returnTo: reward.returnTo || reward.return_to || '/grammar',
       })));
       navigate('/card-reward');
+      return;
+    }
+
+    const nextRetryQuestions = questions.filter((item) => missedQuizIds.includes(item.quizId));
+    if (nextRetryQuestions.length) {
+      setRetryQuestions(nextRetryQuestions);
+      setIndex(questions.length);
       return;
     }
     setRetryQuestions([]);

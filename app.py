@@ -7191,6 +7191,15 @@ def submit_grammar_lesson_test(child_id, lesson_id, answers):
         conn.close()
 
     lesson = get_grammar_lesson_detail(child_id, lesson_id)['lesson']
+    reward_queue = []
+    if passed:
+        reward_queue = grant_child_grammar_lesson_reward(
+            child_id,
+            lesson_id,
+            lesson_title=lesson.get('title') or '',
+            correct_count=score,
+            total_count=total_questions,
+        )
     return {
         'child_id': child_id,
         'lesson_id': lesson_id,
@@ -7204,6 +7213,8 @@ def submit_grammar_lesson_test(child_id, lesson_id, answers):
         'best_score': lesson['best_score'],
         'attempts_count': lesson['progress']['attemptsCount'],
         'last_tested_at': lesson['last_tested_at'],
+        'reward_queue': reward_queue,
+        'rewardQueue': reward_queue,
     }
 
 

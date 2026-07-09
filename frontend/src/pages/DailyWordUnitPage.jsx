@@ -123,9 +123,11 @@ function getUnitWords(baseWords, unitIndex, targetCount = DEFAULT_DAILY_WORD_TAR
 
 function getDailyWordListFontSize(word) {
   const length = String(word || '').replace(/[^A-Za-z]/g, '').length;
+  if (length > 18) return '26px';
   if (length >= 16) return '28px';
-  if (length >= 12) return '29px';
-  return '';
+  if (length >= 12) return '30px';
+  if (length >= 9) return '32px';
+  return '34px';
 }
 
 const CLOZE_IRREGULAR_FORMS = {
