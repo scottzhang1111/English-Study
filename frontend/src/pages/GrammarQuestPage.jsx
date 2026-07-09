@@ -11,8 +11,9 @@ import {
   EQProgressBar,
   EQQuestionCard,
 } from '../components/eigo';
-import { getGrammarLesson, getGrammarLessons, submitGrammarQuizAnswer } from '../api';
+import { getGrammarLesson, getGrammarLessons, submitGrammarLessonTest, submitGrammarQuizAnswer } from '../api';
 import { useChildren } from '../ChildrenContext';
+import { savePendingRewardQueue } from '../helpers/eigoQuestRewards';
 
 const HIGHLIGHT_RE = /(am|is|are|doing|to do|do|~ing)/gi;
 
@@ -111,6 +112,13 @@ function choiceLetter(index) {
   return String.fromCharCode(65 + index);
 }
 
+function collectRewardQueue(results) {
+  return (results || []).flatMap((result) => {
+    const queue = result?.reward_queue || result?.rewardQueue || [];
+    return Array.isArray(queue) ? queue : [];
+  });
+}
+
 function lessonPointContent(lesson) {
   if (lesson?.patterns?.length) return lesson.patterns;
   return lesson?.learningGoal || lesson?.jpExplanation || 'この文法の使い方を例文で確認しよう。';
@@ -146,6 +154,7 @@ export default function GrammarQuestPage() {
   const [selectedIndex, setSelectedIndex] = useState(null);
   const [feedback, setFeedback] = useState(null);
   const [answers, setAnswers] = useState([]);
+  const [finalizing, setFinalizing] = useState(false);
 
   useEffect(() => {
     if (!selectedChildId) {
@@ -173,6 +182,7 @@ export default function GrammarQuestPage() {
         setSelectedIndex(null);
         setFeedback(null);
         setAnswers([]);
+        setFinalizing(false);
         setShowAllPatterns(false);
       })
       .catch((err) => setError(err.message || '文法レッスンを読み込めませんでした。'))
@@ -202,6 +212,7 @@ export default function GrammarQuestPage() {
     setSelectedIndex(null);
     setFeedback(null);
     setAnswers([]);
+    setFinalizing(false);
   };
 
   const submitAnswer = async () => {
@@ -216,10 +227,14 @@ export default function GrammarQuestPage() {
       const correctOriginalIndex = Number(result.correctIndex);
       const displayedCorrectIndex = currentQuestion.choiceIndexes?.indexOf(correctOriginalIndex);
       const nextFeedback = {
+        quizId: currentQuestion.quizId,
         isCorrect: Boolean(result.isCorrect),
         selectedIndex,
+        selectedOriginalIndex,
         correctIndex: displayedCorrectIndex >= 0 ? displayedCorrectIndex : correctOriginalIndex,
         explanation: result.explanationJp || currentQuestion.explanation || '',
+        reward_queue: result.reward_queue,
+        rewardQueue: result.rewardQueue,
       };
       setFeedback(nextFeedback);
       setAnswers((items) => [...items, nextFeedback]);
@@ -228,8 +243,38 @@ export default function GrammarQuestPage() {
     }
   };
 
-  const goNextQuestion = () => {
+  const goNextQuestion = async () => {
     if (questionIndex >= questions.length - 1) {
+      const completedAnswers = feedback && !answers.some((answer) => answer.quizId === feedback.quizId)
+        ? [...answers, feedback]
+        : answers;
+      setAnswers(completedAnswers);
+      setFinalizing(true);
+      try {
+        const testResult = await submitGrammarLessonTest({
+          childId: selectedChildId,
+          lessonId: lesson?.lessonId,
+          answers: completedAnswers.map((answer) => ({
+            quiz_id: answer.quizId,
+            selected_index: answer.selectedOriginalIndex,
+          })),
+        });
+        const rewardQueue = collectRewardQueue([testResult, ...completedAnswers]);
+        if (rewardQueue.length) {
+          savePendingRewardQueue(rewardQueue.map((reward) => ({
+            ...reward,
+            rewardType: reward.rewardType || reward.reward_type || 'grammar_lesson',
+            lessonId: reward.lessonId || reward.lesson_id || lesson?.lessonId || '',
+            returnTo: reward.returnTo || reward.return_to || '/grammar',
+          })));
+          navigate('/card-reward');
+          return;
+        }
+      } catch (err) {
+        setError(err.message || 'テスト結果を保存できませんでした。');
+      } finally {
+        setFinalizing(false);
+      }
       setMode('result');
       return;
     }
@@ -404,7 +449,7 @@ export default function GrammarQuestPage() {
               <EQFantasyButton
                 className="eq-grammar-test-next"
                 onClick={feedback ? goNextQuestion : submitAnswer}
-                disabled={selectedIndex === null}
+                disabled={selectedIndex === null || finalizing}
               >
                 {feedback && questionIndex >= questions.length - 1 ? '結果を見る' : '次へ'}
               </EQFantasyButton>

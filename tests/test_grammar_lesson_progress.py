@@ -231,6 +231,118 @@ class GrammarLessonProgressApiTests(unittest.TestCase):
         self.assertEqual(9, lower_score['best_score'])
         self.assertEqual(3, lower_score['attempts_count'])
 
+    def test_grammar_lesson_rewards_sync_to_current_lesson_ids(self):
+        conn = app_module.get_db_connection()
+        try:
+            conn.execute(
+                '''
+                CREATE TABLE IF NOT EXISTS heroes (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    world_id TEXT,
+                    code TEXT UNIQUE,
+                    name_ja TEXT,
+                    name_cn TEXT,
+                    rarity TEXT,
+                    image_url TEXT,
+                    description_ja TEXT,
+                    description_cn TEXT,
+                    collection_type TEXT,
+                    collection_key TEXT
+                )
+                '''
+            )
+            conn.execute(
+                '''
+                CREATE TABLE IF NOT EXISTS grammar_lesson_rewards (
+                    lesson_id TEXT PRIMARY KEY,
+                    hero_id INTEGER NOT NULL,
+                    reward_type TEXT NOT NULL DEFAULT 'lesson',
+                    is_active INTEGER NOT NULL DEFAULT 1,
+                    created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+                )
+                '''
+            )
+            conn.execute(
+                '''
+                CREATE TABLE IF NOT EXISTS grammar_completion_rewards (
+                    reward_key TEXT PRIMARY KEY,
+                    hero_id INTEGER NOT NULL,
+                    required_mastered_lessons INTEGER NOT NULL DEFAULT 17,
+                    is_active INTEGER NOT NULL DEFAULT 1,
+                    created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+                )
+                '''
+            )
+            for index, hero_code in enumerate(app_module.GRAMMAR_LESSON_REWARD_HERO_CODES, start=1):
+                conn.execute(
+                    '''
+                    INSERT INTO heroes (code, name_ja, rarity, image_url, description_ja, collection_type, collection_key)
+                    VALUES (?, ?, 'SR', ?, '', 'grammar', 'temple')
+                    ON CONFLICT(code) DO UPDATE SET
+                        name_ja = excluded.name_ja,
+                        image_url = excluded.image_url
+                    ''',
+                    (hero_code, f'Grammar Hero {index}', f'/cards/{hero_code}.png'),
+                )
+                lesson_id = f'GR-P2-CORE-{index:03d}'
+                conn.execute(
+                    '''
+                    INSERT INTO grammar_lessons (
+                        lesson_id, grammar_id, level, category, title, grammar_point,
+                        display_order, is_active, patterns_json
+                    ) VALUES (?, ?, 'eiken_pre2', 'Core', ?, 'Point', ?, 1, '[]')
+                    ON CONFLICT(lesson_id) DO UPDATE SET
+                        display_order = excluded.display_order,
+                        level = excluded.level,
+                        is_active = 1
+                    ''',
+                    (lesson_id, 200 + index, f'Core {index}', index),
+                )
+            conn.execute(
+                '''
+                INSERT INTO heroes (code, name_ja, rarity, image_url, description_ja, collection_type, collection_key)
+                VALUES (?, 'Complete', 'LEGEND', '/cards/complete.png', '', 'grammar', 'temple')
+                ON CONFLICT(code) DO NOTHING
+                ''',
+                (app_module.GRAMMAR_COMPLETION_REWARD_HERO_CODE,),
+            )
+            conn.execute(
+                '''
+                INSERT INTO grammar_lesson_rewards (lesson_id, hero_id, reward_type, is_active)
+                SELECT 'G-PREP2-001', id, 'lesson', 1
+                FROM heroes
+                WHERE code = ?
+                ON CONFLICT(lesson_id) DO UPDATE SET is_active = 1
+                ''',
+                (app_module.GRAMMAR_LESSON_REWARD_HERO_CODES[0],),
+            )
+            conn.commit()
+
+            result = app_module.sync_grammar_lesson_reward_mappings(conn)
+            current_ids = [f'GR-P2-CORE-{index:03d}' for index in range(1, 18)]
+            active_ids = [
+                row['lesson_id']
+                for row in conn.execute(
+                    '''
+                    SELECT lesson_id
+                    FROM grammar_lesson_rewards
+                    WHERE COALESCE(is_active, 1) = 1
+                    ORDER BY lesson_id
+                    '''
+                ).fetchall()
+            ]
+            old_row = conn.execute(
+                "SELECT is_active FROM grammar_lesson_rewards WHERE lesson_id = 'G-PREP2-001'"
+            ).fetchone()
+        finally:
+            conn.close()
+
+        self.assertEqual(current_ids, result['lesson_ids'])
+        self.assertEqual(17, result['mapped_count'])
+        self.assertEqual([], result['missing_hero_codes'])
+        self.assertEqual(current_ids, active_ids)
+        self.assertEqual(0, int(old_row['is_active']))
+
 
 if __name__ == '__main__':
     unittest.main()
