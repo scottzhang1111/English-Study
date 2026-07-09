@@ -113,6 +113,28 @@ EIGO_QUEST_FINAL_REWARD_CODES = [
 # New rewards should resolve directly to the official database hero codes.
 EIGO_QUEST_LEGACY_REWARD_CODE_MAP = {}
 
+GRAMMAR_LESSON_REWARD_HERO_CODES = [
+    'grammar-guardian-hecate',
+    'grammar-guardian-skoll',
+    'grammar-guardian-amaterasu',
+    'grammar-guardian-hermes',
+    'grammar-guardian-indra',
+    'grammar-guardian-poseidon',
+    'grammar-guardian-pegasus',
+    'grammar-guardian-aiolos',
+    'grammar-guardian-konohanasakuya',
+    'grammar-guardian-qingluan',
+    'grammar-guardian-freyja',
+    'grammar-guardian-fuhaku',
+    'grammar-guardian-vayu',
+    'grammar-guardian-kamaitachi',
+    'grammar-guardian-garuda',
+    'grammar-guardian-pangu',
+    'grammar-guardian-kagutsuchi',
+]
+GRAMMAR_COMPLETION_REWARD_KEY = 'grammar-temple-complete'
+GRAMMAR_COMPLETION_REWARD_HERO_CODE = 'grammar-legend-shinatsuhiko'
+
 
 
 STARTER_POKEMON_IDS = [1, 10, 19]
@@ -2604,6 +2626,7 @@ def init_db(force=False):
         migrate_vocabulary_ids(conn)
         migrate_child_vocab_progress(conn)
         migrate_daily_study_log(conn)
+        sync_grammar_lesson_reward_mappings(conn)
         sync_postgres_sequences(conn)
         conn.commit()
         _DB_INITIALIZED = True
@@ -3038,6 +3061,157 @@ def migrate_child_grammar_progress_fields(conn):
     for column, definition in additions.items():
         if column not in columns:
             conn.execute(f'ALTER TABLE child_grammar_progress ADD COLUMN {column} {definition}')
+
+
+def ensure_grammar_reward_tables(conn):
+    if _table_exists(conn, 'grammar_lesson_rewards'):
+        reward_columns = get_table_columns(conn, 'grammar_lesson_rewards')
+        if 'reward_type' not in reward_columns:
+            conn.execute("ALTER TABLE grammar_lesson_rewards ADD COLUMN reward_type TEXT NOT NULL DEFAULT 'lesson'")
+        if 'is_active' not in reward_columns:
+            conn.execute('ALTER TABLE grammar_lesson_rewards ADD COLUMN is_active INTEGER NOT NULL DEFAULT 1')
+        if 'created_at' not in reward_columns:
+            conn.execute('ALTER TABLE grammar_lesson_rewards ADD COLUMN created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP')
+    else:
+        conn.execute(
+            '''
+            CREATE TABLE IF NOT EXISTS grammar_lesson_rewards (
+                lesson_id TEXT PRIMARY KEY,
+                hero_id INTEGER NOT NULL,
+                reward_type TEXT NOT NULL DEFAULT 'lesson',
+                is_active INTEGER NOT NULL DEFAULT 1,
+                created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+            )
+            '''
+        )
+
+    if _table_exists(conn, 'grammar_completion_rewards'):
+        completion_columns = get_table_columns(conn, 'grammar_completion_rewards')
+        if 'required_mastered_lessons' not in completion_columns:
+            conn.execute('ALTER TABLE grammar_completion_rewards ADD COLUMN required_mastered_lessons INTEGER NOT NULL DEFAULT 17')
+        if 'is_active' not in completion_columns:
+            conn.execute('ALTER TABLE grammar_completion_rewards ADD COLUMN is_active INTEGER NOT NULL DEFAULT 1')
+        if 'created_at' not in completion_columns:
+            conn.execute('ALTER TABLE grammar_completion_rewards ADD COLUMN created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP')
+    else:
+        conn.execute(
+            '''
+            CREATE TABLE IF NOT EXISTS grammar_completion_rewards (
+                reward_key TEXT PRIMARY KEY,
+                hero_id INTEGER NOT NULL,
+                required_mastered_lessons INTEGER NOT NULL DEFAULT 17,
+                is_active INTEGER NOT NULL DEFAULT 1,
+                created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+            )
+            '''
+        )
+
+
+def get_current_grammar_lesson_reward_ids(conn):
+    if not _table_exists(conn, 'grammar_lessons'):
+        return []
+    columns = get_table_columns(conn, 'grammar_lessons')
+    conditions = []
+    params = []
+    if 'level' in columns:
+        conditions.append('level = ?')
+        params.append('eiken_pre2')
+    if 'is_active' in columns:
+        conditions.append('COALESCE(is_active, 1) = 1')
+    where_sql = f"WHERE {' AND '.join(conditions)}" if conditions else ''
+    order_sql = 'display_order ASC, lesson_id ASC' if 'display_order' in columns else 'lesson_id ASC'
+    params.append(len(GRAMMAR_LESSON_REWARD_HERO_CODES))
+    rows = conn.execute(
+        f'''
+        SELECT lesson_id
+        FROM grammar_lessons
+        {where_sql}
+        ORDER BY {order_sql}
+        LIMIT ?
+        ''',
+        tuple(params),
+    ).fetchall()
+    return [str(row['lesson_id'] or '').strip() for row in rows if str(row['lesson_id'] or '').strip()]
+
+
+def sync_grammar_lesson_reward_mappings(conn=None):
+    owns_connection = conn is None
+    if owns_connection:
+        conn = get_db_connection()
+    try:
+        if not _table_exists(conn, 'grammar_lessons') or not _table_exists(conn, 'heroes'):
+            return {'lesson_ids': [], 'mapped_count': 0, 'missing_hero_codes': []}
+
+        ensure_grammar_reward_tables(conn)
+        lesson_ids = get_current_grammar_lesson_reward_ids(conn)
+        if not lesson_ids:
+            if owns_connection:
+                conn.commit()
+            return {'lesson_ids': [], 'mapped_count': 0, 'missing_hero_codes': []}
+
+        mapped_count = 0
+        missing_hero_codes = []
+        for lesson_id, hero_code in zip(lesson_ids, GRAMMAR_LESSON_REWARD_HERO_CODES):
+            hero_row = conn.execute(
+                'SELECT id FROM heroes WHERE code = ? LIMIT 1',
+                (hero_code,),
+            ).fetchone()
+            if not hero_row:
+                missing_hero_codes.append(hero_code)
+                continue
+            conn.execute(
+                '''
+                INSERT INTO grammar_lesson_rewards (lesson_id, hero_id, reward_type, is_active, created_at)
+                VALUES (?, ?, 'lesson', 1, CURRENT_TIMESTAMP)
+                ON CONFLICT(lesson_id) DO UPDATE SET
+                    hero_id = excluded.hero_id,
+                    reward_type = 'lesson',
+                    is_active = 1
+                ''',
+                (lesson_id, hero_row['id']),
+            )
+            mapped_count += 1
+
+        placeholders = ', '.join(['?'] * len(lesson_ids))
+        conn.execute(
+            f'''
+            UPDATE grammar_lesson_rewards
+            SET is_active = 0
+            WHERE lesson_id LIKE 'G-PREP2-%'
+              AND lesson_id NOT IN ({placeholders})
+            ''',
+            tuple(lesson_ids),
+        )
+
+        completion_hero = conn.execute(
+            'SELECT id FROM heroes WHERE code = ? LIMIT 1',
+            (GRAMMAR_COMPLETION_REWARD_HERO_CODE,),
+        ).fetchone()
+        if completion_hero:
+            conn.execute(
+                '''
+                INSERT INTO grammar_completion_rewards (
+                    reward_key, hero_id, required_mastered_lessons, is_active, created_at
+                )
+                VALUES (?, ?, ?, 1, CURRENT_TIMESTAMP)
+                ON CONFLICT(reward_key) DO UPDATE SET
+                    hero_id = excluded.hero_id,
+                    required_mastered_lessons = excluded.required_mastered_lessons,
+                    is_active = 1
+                ''',
+                (GRAMMAR_COMPLETION_REWARD_KEY, completion_hero['id'], len(GRAMMAR_LESSON_REWARD_HERO_CODES)),
+            )
+
+        if owns_connection:
+            conn.commit()
+        return {
+            'lesson_ids': lesson_ids,
+            'mapped_count': mapped_count,
+            'missing_hero_codes': missing_hero_codes,
+        }
+    finally:
+        if owns_connection:
+            conn.close()
 
 
 def sync_postgres_sequences(conn):
@@ -11110,6 +11284,11 @@ def grant_child_grammar_lesson_reward(child_id, lesson_id, lesson_title='', corr
     lesson_id = str(lesson_id or '').strip()
     if not lesson_id:
         return []
+
+    try:
+        sync_grammar_lesson_reward_mappings()
+    except Exception as exc:
+        app.logger.warning('Failed to sync grammar lesson reward mappings: %s', exc)
 
     conn = get_db_connection()
     try:
