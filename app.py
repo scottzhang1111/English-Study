@@ -13,6 +13,7 @@ import urllib.error
 import urllib.parse
 import urllib.request
 import uuid
+from functools import wraps
 from werkzeug.exceptions import HTTPException
 
 try:
@@ -11257,6 +11258,144 @@ def grant_child_stage_rewards(child_id, world_id, stage):
     )
 
 
+def get_boss_card_code_candidates(boss_id):
+    normalized_boss_id = str(boss_id or '').strip()
+    if not normalized_boss_id:
+        return []
+
+    candidates = [
+        normalized_boss_id,
+        f'{normalized_boss_id}-card',
+    ]
+    match = re.match(
+        r'^([a-z0-9_-]+)-stage-\d+-(mini-boss-\d+|world-boss)$',
+        normalized_boss_id,
+        flags=re.I,
+    )
+    if match:
+        world_id, boss_slug = match.groups()
+        candidates.append(f'boss-card-{world_id}-{boss_slug}')
+
+    return list(dict.fromkeys(candidates))
+
+
+def get_boss_card_hero_row(conn, boss_id):
+    normalized_boss_id = str(boss_id or '').strip()
+    if not normalized_boss_id or not _table_exists(conn, 'heroes'):
+        return None, ''
+
+    hero_columns = get_table_columns(conn, 'heroes')
+    if 'collection_type' in hero_columns:
+        row = conn.execute(
+            f'''
+            SELECT {get_hero_select_sql(conn)}
+            FROM heroes
+            WHERE code = ?
+              AND LOWER(COALESCE(collection_type, '')) IN ('boss', 'boss_card')
+            LIMIT 1
+            ''',
+            (normalized_boss_id,),
+        ).fetchone()
+        if row:
+            return row, 'code=boss_id collection_type=boss_or_boss_card'
+
+    for candidate_code in get_boss_card_code_candidates(normalized_boss_id):
+        row = get_hero_row_for_reward_code(conn, candidate_code)
+        if row:
+            return row, f'code={candidate_code}'
+
+    if {'collection_type', 'collection_key'}.issubset(hero_columns):
+        row = conn.execute(
+            f'''
+            SELECT {get_hero_select_sql(conn)}
+            FROM heroes
+            WHERE LOWER(COALESCE(collection_type, '')) = 'boss_card'
+              AND collection_key = ?
+            LIMIT 1
+            ''',
+            (normalized_boss_id,),
+        ).fetchone()
+        if row:
+            return row, 'collection_type=boss_card collection_key=boss_id'
+
+    return None, ''
+
+
+def child_owns_hero(conn, child_id, hero_id):
+    if not _table_exists(conn, 'child_heroes'):
+        return False
+    row = conn.execute(
+        'SELECT id FROM child_heroes WHERE child_id = ? AND hero_id = ?',
+        (child_id, hero_id),
+    ).fetchone()
+    return bool(row)
+
+
+def grant_child_boss_card_reward(child_id, boss_id):
+    normalized_boss_id = str(boss_id or '').strip()
+    if not normalized_boss_id:
+        raise ValueError('boss_id is required')
+    boss_match = re.match(
+        r'^([a-z0-9_-]+)-stage-(\d+)-(mini-boss-\d+|world-boss)$',
+        normalized_boss_id,
+        flags=re.I,
+    )
+    boss_world_id = boss_match.group(1).lower() if boss_match else ''
+    boss_stage_number = int(boss_match.group(2)) if boss_match else None
+
+    conn = get_db_connection()
+    try:
+        ensure_child_exists(conn, child_id)
+        hero_row, match_method = get_boss_card_hero_row(conn, normalized_boss_id)
+        if not hero_row:
+            raise LookupError('boss card hero not found')
+        already_owned_before = child_owns_hero(conn, child_id, hero_row['id'])
+        hero_code = str(hero_row['code'] or '').strip()
+    finally:
+        conn.close()
+
+    awarded_rows = grant_child_hero_rewards(
+        child_id,
+        [hero_code],
+        reward_type='boss_card',
+    )
+
+    conn = get_db_connection()
+    try:
+        owned_after = child_owns_hero(conn, child_id, hero_row['id'])
+        if not owned_after:
+            raise RuntimeError('boss card ownership confirmation failed')
+    finally:
+        conn.close()
+
+    reward_card = awarded_rows[0] if awarded_rows else hero_row_to_card(hero_row)
+    reward_card.update({
+        'type': 'boss_card',
+        'rewardType': 'boss_card',
+        'reward_type': 'boss_card',
+        'source': 'boss_clear',
+        'bossId': normalized_boss_id,
+        'boss_id': normalized_boss_id,
+        'worldId': boss_world_id or reward_card.get('worldId') or reward_card.get('world_id') or '',
+        'world_id': boss_world_id or reward_card.get('world_id') or reward_card.get('worldId') or '',
+        'stage': boss_stage_number,
+        'stageNumber': boss_stage_number,
+        'stage_number': boss_stage_number,
+        'alreadyOwned': bool(already_owned_before and not awarded_rows),
+        'already_owned': bool(already_owned_before and not awarded_rows),
+        'returnTo': f'/app/world-stage?world={boss_world_id}' if boss_world_id else '/app/world-stage',
+        'return_to': f'/app/world-stage?world={boss_world_id}' if boss_world_id else '/app/world-stage',
+    })
+    return {
+        'success': True,
+        'already_owned': bool(already_owned_before and not awarded_rows),
+        'alreadyOwned': bool(already_owned_before and not awarded_rows),
+        'match_method': match_method,
+        'reward_queue': [reward_card],
+        'rewardQueue': [reward_card],
+    }
+
+
 def get_grammar_lesson_reward_hero_row(conn, lesson_id):
     lesson_id = str(lesson_id or '').strip()
     if not lesson_id:
@@ -11713,6 +11852,32 @@ def get_database_host_and_name_for_debug():
     return host
 
 
+def require_ai_data_api_key(view_func):
+    @wraps(view_func)
+    def wrapped(*args, **kwargs):
+        expected_key = os.getenv('AI_DATA_API_KEY', '').strip()
+        supplied_key = request.headers.get('X-AI-API-Key', '').strip()
+
+        if not expected_key:
+            return jsonify({
+                'ok': False,
+                'error': 'AI data API is not configured',
+            }), 503
+
+        if not supplied_key or not secrets.compare_digest(
+            supplied_key,
+            expected_key,
+        ):
+            return jsonify({
+                'ok': False,
+                'error': 'Unauthorized',
+            }), 401
+
+        return view_func(*args, **kwargs)
+
+    return wrapped
+
+
 def get_table_count_for_debug(conn, table_name):
     try:
         row = conn.execute(f'SELECT COUNT(*) AS count FROM {table_name}').fetchone()
@@ -11778,6 +11943,61 @@ def get_hero_select_sql(conn, table_alias=''):
         f'id, world_id, code, name_ja, name_cn, rarity, image_url, description_ja, '
         f'{collection_type_select}, {collection_key_select}'
     )
+
+
+@app.route('/api/ai/database-status', methods=['GET'])
+@require_ai_data_api_key
+def api_ai_database_status():
+    conn = None
+
+    try:
+        conn = get_db_connection()
+
+        children_row = conn.execute(
+            'SELECT COUNT(*) AS count FROM children'
+        ).fetchone()
+
+        heroes_row = conn.execute(
+            'SELECT COUNT(*) AS count FROM heroes'
+        ).fetchone()
+
+        child_heroes_row = conn.execute(
+            'SELECT COUNT(*) AS count FROM child_heroes'
+        ).fetchone()
+
+        database_location = (
+            get_database_host_and_name_for_debug()
+            if use_postgres()
+            else get_db_path()
+        )
+
+        return jsonify({
+            'ok': True,
+            'database': {
+                'backend': get_db_backend(),
+                'location': database_location,
+            },
+            'counts': {
+                'children': int(children_row['count'] or 0)
+                if children_row else 0,
+                'heroes': int(heroes_row['count'] or 0)
+                if heroes_row else 0,
+                'child_heroes': int(child_heroes_row['count'] or 0)
+                if child_heroes_row else 0,
+            },
+        })
+
+    except Exception:
+        app.logger.exception('AI database status check failed')
+
+        return jsonify({
+            'ok': False,
+            'error': 'Database status check failed',
+        }), 500
+
+    finally:
+        if conn is not None:
+            conn.close()
 
 
 @app.route('/api/heroes')
@@ -13060,6 +13280,17 @@ def api_child_stage_quiz_attempts(child_id):
     except ValueError as exc:
         abort(400, str(exc))
     return jsonify(result), 201
+
+
+@app.route('/api/children/<int:child_id>/bosses/<path:boss_id>/clear', methods=['POST'])
+def api_child_boss_clear(child_id, boss_id):
+    try:
+        result = grant_child_boss_card_reward(child_id, boss_id)
+    except LookupError as exc:
+        abort(404, str(exc))
+    except ValueError as exc:
+        abort(400, str(exc))
+    return jsonify(result), 200
 
 
 @app.route('/api/children/<int:child_id>/vocab-wrong-reviews', methods=['GET', 'POST'])

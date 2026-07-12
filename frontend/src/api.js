@@ -243,6 +243,13 @@ export const submitStageQuizAttempt = async ({ childId, world, stage, answers, a
   });
 };
 
+export const clearBossAndGrantReward = async ({ childId, bossId } = {}) => {
+  return fetchJson(`/api/children/${encodeURIComponent(childId)}/bosses/${encodeURIComponent(bossId)}/clear`, {
+    method: 'POST',
+    body: {},
+  });
+};
+
 export const getVocabWrongReviews = async (childId) => {
   return fetchJson(`/api/children/${encodeURIComponent(childId)}/vocab-wrong-reviews`);
 };

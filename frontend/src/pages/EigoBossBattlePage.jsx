@@ -10,7 +10,6 @@ import {
 import {
   FIRST_BOSS_BATTLE,
   FIRST_BOSS_QUESTIONS,
-  FIRST_BOSS_REWARD,
 } from '../data/eigoBossBattleV1';
 import { eigoQuestCards } from '../config/eigoQuestCards';
 import {
@@ -18,7 +17,7 @@ import {
   EIGO_BOSS_TYPES,
   getEigoBossById,
 } from '../data/eigoBosses';
-import { getDailyWords, getVocabWrongReviews } from '../api';
+import { clearBossAndGrantReward, getDailyWords, getVocabWrongReviews } from '../api';
 import { buildBossReviewQuestions } from '../helpers/eigoBossQuestionBuilder';
 import { selectBossHeroParty } from '../helpers/eigoBossHeroSelector';
 import { markBossCleared } from '../helpers/eigoBossProgress';
@@ -801,9 +800,6 @@ export default function EigoBossBattlePage() {
   const dialogueClass = currentQuestionLength > 58 ? 'is-question-extra-long' : currentQuestionLength > 40 ? 'is-question-long' : 'is-question-short';
   const activeHero = battle.heroes[state.activeHeroIndex] || battle.heroes[0];
   const rewardConfig = bossConfig?.reward || null;
-  const rewardPath = rewardConfig?.source
-    ? `/card-reward?source=${encodeURIComponent(rewardConfig.source)}`
-    : FIRST_BOSS_REWARD.nextPath || '/card-reward?source=wind_trial_001';
   const bossAura = battle.boss.aura || {};
   const playerHpPercent = battle.playerHp > 0 ? Math.max(0, Math.min(100, (state.playerHp / battle.playerHp) * 100)) : 0;
   const bossHpPercent = battle.boss.hp > 0 ? Math.max(0, Math.min(100, (state.bossHp / battle.boss.hp) * 100)) : 0;
@@ -1077,33 +1073,46 @@ export default function EigoBossBattlePage() {
     setState(createInitialBattleState(battle, bossConfig, bossQuestions));
   };
 
-  const buildBossReward = () => {
-    if (!bossConfig?.reward) return null;
-    return {
-      ...bossConfig.reward,
-      type: 'boss_card',
-      rewardType: 'boss_card',
-      cardId: bossConfig.reward.cardId,
-      bossId: bossConfig.bossId,
-      worldId: bossConfig.worldId,
-      stage: bossConfig.checkpointAfterStage || bossConfig.stageId,
-      nameJa: bossConfig.reward.nameJa,
-      rarity: bossConfig.reward.rarity || 'Rare',
-      image: bossConfig.reward.image || bossConfig.cardImage || bossConfig.image,
-      source: bossConfig.reward.source || 'boss_clear',
-      returnTo: `/app/world-stage?world=${encodeURIComponent(bossConfig.worldId)}`,
-    };
-  };
-
-  const claimBossReward = () => {
-    const bossReward = buildBossReward();
-    if (!bossReward) {
-      navigate(rewardPath);
+  const claimBossReward = async (clearState = state) => {
+    if (!selectedChildId || !bossConfig?.bossId) {
+      setState({
+        ...clearState,
+        battleStatus: 'clear',
+        message: 'Boss カードの保存に失敗しました。もう一度ためしてください。',
+      });
+      setIsResolving(false);
       return;
     }
 
-    savePendingRewardQueue([bossReward]);
-    navigate('/card-reward');
+    setIsResolving(true);
+    try {
+      const payload = await clearBossAndGrantReward({
+        childId: selectedChildId,
+        bossId: bossConfig.bossId,
+      });
+      const rewardQueue = payload?.reward_queue || payload?.rewardQueue || [];
+      if (Array.isArray(rewardQueue) && rewardQueue.length > 0) {
+        markBossCleared(bossConfig);
+        savePendingRewardQueue(rewardQueue);
+        navigate('/card-reward');
+        return;
+      }
+
+      setState({
+        ...clearState,
+        battleStatus: 'clear',
+        message: 'Boss カードを保存できませんでした。もう一度ためしてください。',
+      });
+    } catch (err) {
+      console.error('Failed to grant Boss reward', err);
+      setState({
+        ...clearState,
+        battleStatus: 'clear',
+        message: 'Boss カードを保存できませんでした。もう一度ためしてください。',
+      });
+    } finally {
+      setIsResolving(false);
+    }
   };
 
   const clearBossReactionSoon = () => {
@@ -1279,19 +1288,7 @@ export default function EigoBossBattlePage() {
         setState(nextState);
         clearBossReactionSoon();
         scheduleTimeout(() => {
-          markBossCleared(bossConfig);
-          const bossReward = buildBossReward();
-          if (bossReward) {
-            savePendingRewardQueue([bossReward]);
-            navigate('/card-reward');
-          } else {
-            setState({
-              ...nextState,
-              battleStatus: 'clear',
-              message: '風の試練クリア！Boss カードを手に入れた！',
-            });
-          }
-          setIsResolving(false);
+          claimBossReward(nextState);
         }, reducedMotion ? 180 : 620);
         return;
       }
@@ -1419,7 +1416,7 @@ export default function EigoBossBattlePage() {
             <img src={rewardConfig?.image || battle.boss.image} alt={`${rewardConfig?.nameJa || battle.boss.name} reward`} />
             <strong>{rewardConfig?.nameJa || battle.boss.name}</strong>
           </div>
-          <EQFantasyButton fullWidth onClick={claimBossReward}>
+          <EQFantasyButton fullWidth onClick={() => claimBossReward()}>
             カードを見る
           </EQFantasyButton>
         </EQFantasyCard>
