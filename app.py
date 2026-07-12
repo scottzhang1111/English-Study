@@ -3178,10 +3178,10 @@ def sync_grammar_lesson_reward_mappings(conn=None):
             f'''
             UPDATE grammar_lesson_rewards
             SET is_active = 0
-            WHERE lesson_id LIKE 'G-PREP2-%'
-              AND lesson_id NOT IN ({placeholders})
+            WHERE lesson_id NOT IN ({placeholders})
+              AND lesson_id LIKE ?
             ''',
-            tuple(lesson_ids),
+            (*lesson_ids, 'G-PREP2-%'),
         )
 
         completion_hero = conn.execute(
