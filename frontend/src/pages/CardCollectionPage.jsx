@@ -36,6 +36,10 @@ function isGrammarCard(card) {
   return getCardCollectionType(card) === 'grammar';
 }
 
+function isBossCard(card) {
+  return ['boss', 'boss_card'].includes(getCardCollectionType(card));
+}
+
 function getCardWorldId(card) {
   return isGrammarCard(card) ? 'grammar' : card?.worldId;
 }
@@ -60,6 +64,9 @@ function getImageCandidates(card) {
   if (isGrammarCard(card)) {
     return Array.from(new Set(withGrammarImageAliases(image).filter(Boolean)));
   }
+  if (isBossCard(card)) {
+    return image ? [image] : [];
+  }
   const fileName = image.split('/').pop();
   const worldFolder = card?.worldId;
   const number = fileName?.match(/(\d+)\.png$/)?.[1];
@@ -81,6 +88,7 @@ function getCoverImageCandidates(card) {
 }
 
 function normalizeHeroCard(card, index) {
+  const image = card.image_url || card.imageUrl || card.image || card.card_image || card.cardImage || '';
   return {
     id: card.id || card.code || `hero-${index + 1}`,
     worldId: card.worldId || 'wind',
@@ -88,7 +96,7 @@ function normalizeHeroCard(card, index) {
     nameZh: card.nameZh || card.name_cn || '',
     type: card.type || 'hero',
     rarity: card.rarity || 'R',
-    image: card.image || card.image_url || '',
+    image,
     collectionType: card.collectionType || card.collection_type || '',
     collectionKey: card.collectionKey || card.collection_key || '',
     descriptionJa: card.descriptionJa || card.description_ja || '',

@@ -66,6 +66,34 @@ class GrammarLessonProgressApiTests(unittest.TestCase):
                 '''
             )
             conn.execute('CREATE TABLE IF NOT EXISTS grammar_points (id INTEGER PRIMARY KEY)')
+            conn.execute(
+                '''
+                CREATE TABLE IF NOT EXISTS heroes (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    world_id TEXT,
+                    code TEXT UNIQUE,
+                    name_ja TEXT,
+                    name_cn TEXT,
+                    rarity TEXT,
+                    image_url TEXT,
+                    description_ja TEXT,
+                    description_cn TEXT,
+                    collection_type TEXT,
+                    collection_key TEXT
+                )
+                '''
+            )
+            conn.execute(
+                '''
+                CREATE TABLE IF NOT EXISTS grammar_lesson_rewards (
+                    lesson_id TEXT PRIMARY KEY,
+                    hero_id INTEGER NOT NULL,
+                    reward_type TEXT NOT NULL DEFAULT 'lesson',
+                    is_active INTEGER NOT NULL DEFAULT 1,
+                    created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+                )
+                '''
+            )
             progress_columns = {
                 row['name']
                 for row in conn.execute('PRAGMA table_info(child_grammar_progress)').fetchall()
@@ -113,6 +141,32 @@ class GrammarLessonProgressApiTests(unittest.TestCase):
                         ''',
                         (f'{lesson_id}-Q{index + 1}', lesson_id, index + 1),
                     )
+            conn.commit()
+            conn.execute(
+                '''
+                INSERT INTO heroes (code, name_ja, rarity, image_url, description_ja, collection_type, collection_key)
+                VALUES (?, 'Grammar Reward Hero', 'SR', '/cards/grammar-reward.png', '', 'grammar', 'temple')
+                ON CONFLICT(code) DO UPDATE SET
+                    name_ja = excluded.name_ja,
+                    image_url = excluded.image_url
+                ''',
+                (app_module.GRAMMAR_LESSON_REWARD_HERO_CODES[0],),
+            )
+            reward_hero_id = conn.execute(
+                'SELECT id FROM heroes WHERE code = ?',
+                (app_module.GRAMMAR_LESSON_REWARD_HERO_CODES[0],),
+            ).fetchone()['id']
+            conn.execute(
+                '''
+                INSERT INTO grammar_lesson_rewards (lesson_id, hero_id, reward_type, is_active)
+                VALUES (?, ?, 'lesson', 1)
+                ON CONFLICT(lesson_id) DO UPDATE SET
+                    hero_id = excluded.hero_id,
+                    reward_type = 'lesson',
+                    is_active = 1
+                ''',
+                (LESSONS[0][0], reward_hero_id),
+            )
             conn.commit()
         finally:
             conn.close()

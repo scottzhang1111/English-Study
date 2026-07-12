@@ -11419,6 +11419,26 @@ def get_grammar_lesson_reward_hero_row(conn, lesson_id):
     ).fetchone()
 
 
+def get_child_owned_grammar_reward_card(conn, child_id, hero_id):
+    if not _table_exists(conn, 'child_heroes') or not _table_exists(conn, 'heroes'):
+        return None
+    hero_columns = get_table_columns(conn, 'heroes')
+    collection_type_select = 'h.collection_type' if 'collection_type' in hero_columns else "NULL AS collection_type"
+    collection_key_select = 'h.collection_key' if 'collection_key' in hero_columns else "NULL AS collection_key"
+    return conn.execute(
+        f'''
+        SELECT h.id, h.world_id, h.code, h.name_ja, h.name_cn, h.rarity, h.image_url, h.description_ja,
+               {collection_type_select}, {collection_key_select}
+        FROM child_heroes ch
+        JOIN heroes h ON h.id = ch.hero_id
+        WHERE ch.child_id = ?
+          AND h.id = ?
+        LIMIT 1
+        ''',
+        (child_id, hero_id),
+    ).fetchone()
+
+
 def grant_child_grammar_lesson_reward(child_id, lesson_id, lesson_title='', correct_count=0, total_count=0):
     lesson_id = str(lesson_id or '').strip()
     if not lesson_id:
@@ -11434,13 +11454,8 @@ def grant_child_grammar_lesson_reward(child_id, lesson_id, lesson_title='', corr
         ensure_child_exists(conn, child_id)
         hero_row = get_grammar_lesson_reward_hero_row(conn, lesson_id)
         if not hero_row:
-            return []
-        existing = None
-        if _table_exists(conn, 'child_heroes'):
-            existing = conn.execute(
-                'SELECT id FROM child_heroes WHERE child_id = ? AND hero_id = ?',
-                (child_id, hero_row['id']),
-            ).fetchone()
+            raise LookupError(f'grammar lesson reward mapping not found for lesson_id={lesson_id}')
+        existing = get_child_owned_grammar_reward_card(conn, child_id, hero_row['id'])
     finally:
         conn.close()
 
@@ -11449,7 +11464,18 @@ def grant_child_grammar_lesson_reward(child_id, lesson_id, lesson_title='', corr
         [hero_row['code']],
         reward_type='grammar_lesson',
     )
-    reward_card = awarded_rows[0] if awarded_rows else hero_row_to_card(hero_row)
+
+    conn = get_db_connection()
+    try:
+        owned_row = get_child_owned_grammar_reward_card(conn, child_id, hero_row['id'])
+        if not owned_row:
+            raise RuntimeError(
+                f'grammar lesson reward ownership confirmation failed for child_id={child_id} lesson_id={lesson_id}'
+            )
+    finally:
+        conn.close()
+
+    reward_card = awarded_rows[0] if awarded_rows else hero_row_to_card(owned_row)
     reward_card.update({
         'rewardType': 'grammar_lesson',
         'reward_type': 'grammar_lesson',

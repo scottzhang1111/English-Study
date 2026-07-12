@@ -35,6 +35,22 @@ const BATTLE_SFX_MAP = {
   },
 };
 
+
+const GENERIC_SKILL_SFX = {
+  slash: BATTLE_SFX_MAP.wind_slash,
+  projectile: BATTLE_SFX_MAP.gale_thrust,
+  combo: BATTLE_SFX_MAP.cyclone_combo,
+  blessing: BATTLE_SFX_MAP.wind_blessing,
+  vertical: BATTLE_SFX_MAP.gale_thrust,
+  burst: BATTLE_SFX_MAP.cyclone_combo,
+};
+
+['fire', 'water', 'thunder', 'wood', 'rock', 'light', 'shadow'].forEach((element) => {
+  Object.entries(GENERIC_SKILL_SFX).forEach(([template, config]) => {
+    BATTLE_SFX_MAP[`${element}_${template}`] = config;
+  });
+});
+
 const audioCache = new Map();
 let activeBossBattleAudio = null;
 

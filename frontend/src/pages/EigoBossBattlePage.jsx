@@ -1,4 +1,4 @@
-﻿import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
+import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import {
@@ -10,14 +10,16 @@ import {
 import {
   FIRST_BOSS_BATTLE,
   FIRST_BOSS_QUESTIONS,
+  FIRST_BOSS_REWARD,
 } from '../data/eigoBossBattleV1';
 import { eigoQuestCards } from '../config/eigoQuestCards';
+import { getSkillPreset, getWorldSkillForStage } from '../data/eigoSkillEffects';
 import {
   DEFAULT_EIGO_BOSS_ID,
   EIGO_BOSS_TYPES,
   getEigoBossById,
 } from '../data/eigoBosses';
-import { clearBossAndGrantReward, getDailyWords, getVocabWrongReviews } from '../api';
+import { getDailyWords, getVocabWrongReviews } from '../api';
 import { buildBossReviewQuestions } from '../helpers/eigoBossQuestionBuilder';
 import { selectBossHeroParty } from '../helpers/eigoBossHeroSelector';
 import { markBossCleared } from '../helpers/eigoBossProgress';
@@ -194,7 +196,7 @@ function createBattleHeroFromCard(card) {
     attack: skillTemplate?.attack || 20,
     worldId,
     stageId,
-    skill: skillTemplate?.skill || FIRST_BOSS_BATTLE.heroes[0]?.skill,
+    skill: getWorldSkillForStage(worldId, stageId),
   };
 }
 
@@ -333,7 +335,7 @@ function getSequenceFrameIndexes(sequenceConfig) {
 }
 
 function getSkillSequenceDuration(skillMotion) {
-  return SKILL_SEQUENCE_MAP[skillMotion]?.duration || 700;
+  return SKILL_SEQUENCE_MAP[skillMotion]?.duration || getSkillPreset(skillMotion).duration || 700;
 }
 
 function SkillPngSequence({
@@ -431,6 +433,7 @@ function WindAttackOverlay({ sequence, reducedMotion, sequenceLoadState }) {
   if (!sequence) return null;
 
   const skillAsset = SKILL_SEQUENCE_MAP[skillMotion];
+  const skillPreset = getSkillPreset(skillMotion);
   const cloneWidth = Math.min(Math.max(sequence.from.width, 54), 72);
   const cloneHeight = cloneWidth * 1.34;
   const startX = sequence.from.centerX - cloneWidth / 2;
@@ -440,14 +443,14 @@ function WindAttackOverlay({ sequence, reducedMotion, sequenceLoadState }) {
   const showImpact = sequence.phase === 'impact';
   const bladePaths = createWindBladePaths(sequence);
   const showCyclone = showImpact && skillMotion === 'cyclone_combo';
-  const showBlessing = skillMotion === 'wind_blessing';
+  const showBlessing = skillPreset.template === 'blessing';
   const showComboBonus = showCyclone && sequence.combo >= 2;
   const hasPngSequence = Boolean(skillAsset?.folder && getSequenceFrameIndexes(skillAsset).length);
   const canUsePngSequence = hasPngSequence && sequenceLoadState?.[skillMotion] === true && !pngSequenceFailed;
   const hasRealSkillAsset = Boolean(skillAsset && canUsePngSequence);
   const showSkillAsset = hasRealSkillAsset;
-  const showLegacyImpact = showImpact && !hasRealSkillAsset;
-  const showDamageNumber = showImpact && skillMotion !== 'wind_blessing';
+  const showLegacyImpact = showImpact && !hasRealSkillAsset && skillPreset.element === 'wind';
+  const showDamageNumber = showImpact && skillPreset.template !== 'blessing';
   const showLegacyCyclone = showCyclone && !hasRealSkillAsset;
   const showLegacyBlessing = showBlessing && !hasRealSkillAsset;
   const showFallbackTravelEffect = !hasRealSkillAsset;
@@ -469,7 +472,17 @@ function WindAttackOverlay({ sequence, reducedMotion, sequenceLoadState }) {
         : [0.72, 1.06, 1.02, 0.96];
 
   return (
-    <div className={`eq-battle-animation-layer is-hero-skill is-${skillMotion} ${getSkillEffectClass(skillMotion)} ${hasRealSkillAsset ? `has-real-skill-asset has-${skillMotion.replaceAll('_', '-')}-asset` : ''}`} aria-hidden="true">
+    <div className={`eq-battle-animation-layer is-hero-skill is-${skillMotion} is-element-${skillPreset.element} is-template-${skillPreset.template} ${getSkillEffectClass(skillMotion)} ${hasRealSkillAsset ? `has-real-skill-asset has-${skillMotion.replaceAll('_', '-')}-asset` : ''}`} aria-hidden="true">
+      {showImpact && !hasRealSkillAsset && skillPreset.element !== 'wind' ? (
+        <div
+          className="eq-generic-skill-impact"
+          style={{ left: sequence.to.centerX, top: sequence.to.centerY }}
+        >
+          <span className="eq-generic-skill-impact__core" />
+          <span className="eq-generic-skill-impact__ring" />
+          <span className="eq-generic-skill-impact__particles" />
+        </div>
+      ) : null}
       {showFallbackTravelEffect ? (
         <>
           <motion.div
@@ -800,6 +813,9 @@ export default function EigoBossBattlePage() {
   const dialogueClass = currentQuestionLength > 58 ? 'is-question-extra-long' : currentQuestionLength > 40 ? 'is-question-long' : 'is-question-short';
   const activeHero = battle.heroes[state.activeHeroIndex] || battle.heroes[0];
   const rewardConfig = bossConfig?.reward || null;
+  const rewardPath = rewardConfig?.source
+    ? `/card-reward?source=${encodeURIComponent(rewardConfig.source)}`
+    : FIRST_BOSS_REWARD.nextPath || '/card-reward?source=wind_trial_001';
   const bossAura = battle.boss.aura || {};
   const playerHpPercent = battle.playerHp > 0 ? Math.max(0, Math.min(100, (state.playerHp / battle.playerHp) * 100)) : 0;
   const bossHpPercent = battle.boss.hp > 0 ? Math.max(0, Math.min(100, (state.bossHp / battle.boss.hp) * 100)) : 0;
@@ -1073,46 +1089,33 @@ export default function EigoBossBattlePage() {
     setState(createInitialBattleState(battle, bossConfig, bossQuestions));
   };
 
-  const claimBossReward = async (clearState = state) => {
-    if (!selectedChildId || !bossConfig?.bossId) {
-      setState({
-        ...clearState,
-        battleStatus: 'clear',
-        message: 'Boss カードの保存に失敗しました。もう一度ためしてください。',
-      });
-      setIsResolving(false);
+  const buildBossReward = () => {
+    if (!bossConfig?.reward) return null;
+    return {
+      ...bossConfig.reward,
+      type: 'boss_card',
+      rewardType: 'boss_card',
+      cardId: bossConfig.reward.cardId,
+      bossId: bossConfig.bossId,
+      worldId: bossConfig.worldId,
+      stage: bossConfig.checkpointAfterStage || bossConfig.stageId,
+      nameJa: bossConfig.reward.nameJa,
+      rarity: bossConfig.reward.rarity || 'Rare',
+      image: bossConfig.reward.image || bossConfig.cardImage || bossConfig.image,
+      source: bossConfig.reward.source || 'boss_clear',
+      returnTo: `/app/world-stage?world=${encodeURIComponent(bossConfig.worldId)}`,
+    };
+  };
+
+  const claimBossReward = () => {
+    const bossReward = buildBossReward();
+    if (!bossReward) {
+      navigate(rewardPath);
       return;
     }
 
-    setIsResolving(true);
-    try {
-      const payload = await clearBossAndGrantReward({
-        childId: selectedChildId,
-        bossId: bossConfig.bossId,
-      });
-      const rewardQueue = payload?.reward_queue || payload?.rewardQueue || [];
-      if (Array.isArray(rewardQueue) && rewardQueue.length > 0) {
-        markBossCleared(bossConfig);
-        savePendingRewardQueue(rewardQueue);
-        navigate('/card-reward');
-        return;
-      }
-
-      setState({
-        ...clearState,
-        battleStatus: 'clear',
-        message: 'Boss カードを保存できませんでした。もう一度ためしてください。',
-      });
-    } catch (err) {
-      console.error('Failed to grant Boss reward', err);
-      setState({
-        ...clearState,
-        battleStatus: 'clear',
-        message: 'Boss カードを保存できませんでした。もう一度ためしてください。',
-      });
-    } finally {
-      setIsResolving(false);
-    }
+    savePendingRewardQueue([bossReward]);
+    navigate('/card-reward');
   };
 
   const clearBossReactionSoon = () => {
@@ -1179,7 +1182,7 @@ export default function EigoBossBattlePage() {
       setAttackSequence((current) => (
         current?.id === id ? { ...current, phase: 'impact' } : current
       ));
-    }, reducedMotion ? 30 : 360);
+    }, reducedMotion ? 30 : getSkillPreset(motion).impactDelay || 360);
 
     scheduleTimeout(() => {
       setAttackSequence((current) => (current?.id === id ? null : current));
@@ -1288,7 +1291,19 @@ export default function EigoBossBattlePage() {
         setState(nextState);
         clearBossReactionSoon();
         scheduleTimeout(() => {
-          claimBossReward(nextState);
+          markBossCleared(bossConfig);
+          const bossReward = buildBossReward();
+          if (bossReward) {
+            savePendingRewardQueue([bossReward]);
+            navigate('/card-reward');
+          } else {
+            setState({
+              ...nextState,
+              battleStatus: 'clear',
+              message: '風の試練クリア！Boss カードを手に入れた！',
+            });
+          }
+          setIsResolving(false);
         }, reducedMotion ? 180 : 620);
         return;
       }
@@ -1416,7 +1431,7 @@ export default function EigoBossBattlePage() {
             <img src={rewardConfig?.image || battle.boss.image} alt={`${rewardConfig?.nameJa || battle.boss.name} reward`} />
             <strong>{rewardConfig?.nameJa || battle.boss.name}</strong>
           </div>
-          <EQFantasyButton fullWidth onClick={() => claimBossReward()}>
+          <EQFantasyButton fullWidth onClick={claimBossReward}>
             カードを見る
           </EQFantasyButton>
         </EQFantasyCard>
@@ -1509,7 +1524,7 @@ export default function EigoBossBattlePage() {
               {state.message}
             </p>
 
-            <div className={attackSequence?.motion === 'wind_blessing' ? 'eq-battle-hero-party-wrap is-blessed' : 'eq-battle-hero-party-wrap'}>
+            <div className={getSkillPreset(attackSequence?.motion).template === 'blessing' ? 'eq-battle-hero-party-wrap is-blessed' : 'eq-battle-hero-party-wrap'}>
               {renderHeroParty()}
             </div>
           </section>

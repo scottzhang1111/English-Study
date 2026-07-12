@@ -5791,3 +5791,117 @@
     font-size: clamp(11px, 2.8vw, 15px);
   }
 }
+
+/* Generic elemental skill engine: used when a hero has no dedicated PNG sequence. */
+.eq-generic-skill-impact {
+  --eq-skill-primary: #35d9ff;
+  --eq-skill-secondary: #eaffff;
+  position: absolute;
+  z-index: 92;
+  width: 190px;
+  height: 190px;
+  margin: -95px 0 0 -95px;
+  pointer-events: none;
+  animation: eq-generic-impact-enter 0.72s ease-out forwards;
+}
+
+.eq-generic-skill-impact__core,
+.eq-generic-skill-impact__ring,
+.eq-generic-skill-impact__particles {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+}
+
+.eq-generic-skill-impact__core {
+  inset: 31%;
+  background: radial-gradient(circle, #fff 0 12%, var(--eq-skill-secondary) 28%, var(--eq-skill-primary) 62%, transparent 72%);
+  box-shadow: 0 0 22px var(--eq-skill-primary), 0 0 52px var(--eq-skill-primary);
+  animation: eq-generic-core-burst 0.58s ease-out forwards;
+}
+
+.eq-generic-skill-impact__ring {
+  inset: 18%;
+  border: 5px solid var(--eq-skill-secondary);
+  box-shadow: inset 0 0 18px var(--eq-skill-primary), 0 0 24px var(--eq-skill-primary);
+  animation: eq-generic-ring-expand 0.64s ease-out forwards;
+}
+
+.eq-generic-skill-impact__particles {
+  background:
+    radial-gradient(circle at 50% 2%, var(--eq-skill-secondary) 0 3px, transparent 4px),
+    radial-gradient(circle at 88% 22%, var(--eq-skill-primary) 0 4px, transparent 5px),
+    radial-gradient(circle at 98% 62%, var(--eq-skill-secondary) 0 3px, transparent 4px),
+    radial-gradient(circle at 70% 94%, var(--eq-skill-primary) 0 4px, transparent 5px),
+    radial-gradient(circle at 22% 88%, var(--eq-skill-secondary) 0 3px, transparent 4px),
+    radial-gradient(circle at 2% 48%, var(--eq-skill-primary) 0 4px, transparent 5px),
+    radial-gradient(circle at 18% 16%, var(--eq-skill-secondary) 0 3px, transparent 4px);
+  filter: drop-shadow(0 0 8px var(--eq-skill-primary));
+  animation: eq-generic-particles-spin 0.74s ease-out forwards;
+}
+
+.is-element-fire { --eq-skill-primary: #ff4c2e; --eq-skill-secondary: #ffd06a; }
+.is-element-water { --eq-skill-primary: #2f9cff; --eq-skill-secondary: #b9f5ff; }
+.is-element-thunder { --eq-skill-primary: #b76cff; --eq-skill-secondary: #fff36c; }
+.is-element-wood { --eq-skill-primary: #31d47b; --eq-skill-secondary: #d9ff8a; }
+.is-element-rock { --eq-skill-primary: #c88448; --eq-skill-secondary: #ffe0a3; }
+.is-element-light { --eq-skill-primary: #ffd45c; --eq-skill-secondary: #fffbe0; }
+.is-element-shadow { --eq-skill-primary: #7d37dc; --eq-skill-secondary: #ff69c8; }
+
+.is-template-projectile .eq-generic-skill-impact__core { transform: scaleX(1.5); }
+.is-template-combo .eq-generic-skill-impact { animation-duration: 0.82s; }
+.is-template-combo .eq-generic-skill-impact__ring { border-style: double; animation: eq-generic-combo-ring 0.76s ease-out forwards; }
+.is-template-vertical .eq-generic-skill-impact::before {
+  position: absolute;
+  left: 50%;
+  bottom: 42%;
+  width: 24px;
+  height: min(56vh, 430px);
+  border-radius: 999px;
+  transform: translateX(-50%);
+  background: linear-gradient(180deg, transparent, var(--eq-skill-secondary) 18%, #fff 55%, var(--eq-skill-primary));
+  box-shadow: 0 0 20px var(--eq-skill-secondary), 0 0 46px var(--eq-skill-primary);
+  content: "";
+  animation: eq-generic-vertical-strike 0.6s ease-out forwards;
+}
+.is-template-burst .eq-generic-skill-impact { width: 240px; height: 240px; margin: -120px 0 0 -120px; }
+.is-template-burst .eq-generic-skill-impact__core { inset: 22%; }
+.is-template-blessing .eq-generic-skill-impact { display: none; }
+
+@keyframes eq-generic-impact-enter {
+  0% { opacity: 0; transform: scale(0.35) rotate(-18deg); }
+  35% { opacity: 1; transform: scale(1.08) rotate(4deg); }
+  100% { opacity: 0; transform: scale(1.35) rotate(18deg); }
+}
+
+@keyframes eq-generic-core-burst {
+  0% { opacity: 0; transform: scale(0.2); }
+  38% { opacity: 1; transform: scale(1.45); }
+  100% { opacity: 0; transform: scale(2.3); }
+}
+
+@keyframes eq-generic-ring-expand {
+  0% { opacity: 0; transform: scale(0.2); }
+  42% { opacity: 1; }
+  100% { opacity: 0; transform: scale(1.65); }
+}
+
+@keyframes eq-generic-particles-spin {
+  0% { opacity: 0; transform: scale(0.35) rotate(0deg); }
+  35% { opacity: 1; }
+  100% { opacity: 0; transform: scale(1.45) rotate(110deg); }
+}
+
+@keyframes eq-generic-combo-ring {
+  0% { opacity: 0; transform: scale(0.25) rotate(0deg); }
+  25% { opacity: 1; transform: scale(0.72) rotate(90deg); }
+  55% { transform: scale(1.05) rotate(190deg); }
+  100% { opacity: 0; transform: scale(1.7) rotate(310deg); }
+}
+
+@keyframes eq-generic-vertical-strike {
+  0% { opacity: 0; transform: translateX(-50%) scaleY(0.08); transform-origin: top; }
+  20% { opacity: 1; }
+  65% { transform: translateX(-50%) scaleY(1); transform-origin: top; }
+  100% { opacity: 0; transform: translateX(-50%) scaleY(0.75); }
+}
