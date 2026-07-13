@@ -101,7 +101,7 @@ export default function LearningHubPage() {
         title: '英検準2級 模擬テスト',
         subtitle: '準2級の本番形式で実力をチェック',
         badge: '準2級',
-        to: '/eiken-pre2',
+        to: '/eiken-real',
         image: `${ASSET_BASE}/英検本番形式.png`,
       }
     : {
