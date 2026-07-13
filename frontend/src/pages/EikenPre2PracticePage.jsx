@@ -310,7 +310,6 @@ export default function EikenPre2PracticePage() {
                 >
                   <b>{option.key}</b>
                   <span>{option.text}</span>
-                  {option.text_ja ? <small>{option.text_ja}</small> : null}
                 </button>
               ))}
             </div>

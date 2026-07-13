@@ -3697,9 +3697,10 @@ textarea {
 
 .eiken3-mock-options button {
   display: grid;
-  grid-template-columns: auto minmax(0, 1fr);
+  grid-template-columns: 30px minmax(0, 1fr);
   gap: 12px;
-  align-items: flex-start;
+  align-items: center;
+  justify-items: start;
   border: 1px solid rgba(255, 211, 90, 0.28);
   border-radius: 18px;
   background: rgba(3, 8, 24, 0.48);
@@ -3740,9 +3741,12 @@ textarea {
 }
 
 .eiken3-mock-options span {
+  display: block;
+  width: 100%;
   font-size: 15px;
   font-weight: 900;
   line-height: 1.6;
+  text-align: left;
 }
 
 .eiken3-mock-options small {
