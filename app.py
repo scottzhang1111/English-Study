@@ -8962,20 +8962,32 @@ def list_eiken3_sets():
     ]
 
 
-def get_eiken3_quiz(set_id):
+def get_eiken3_quiz(set_id, part=None):
     set_id = _clean_csv_value(set_id).upper()
     if not set_id:
         raise ValueError('set_id is required')
+    part_ranges = {
+        'part1': (1, 15),
+        'part2': (16, 20),
+        'part3': (21, 30),
+    }
+    part_key = _clean_csv_value(part).lower()
+    question_params = [set_id]
+    question_filter_sql = 'set_id = ?'
+    if part_key in part_ranges:
+        start_no, end_no = part_ranges[part_key]
+        question_filter_sql += ' AND CAST(question_no AS INTEGER) BETWEEN ? AND ?'
+        question_params.extend([start_no, end_no])
     conn = get_eiken3_bank_connection()
     try:
         question_rows = conn.execute(
-            '''
+            f'''
             SELECT *
             FROM v_questions_for_quiz
-            WHERE set_id = ?
+            WHERE {question_filter_sql}
             ORDER BY CAST(question_no AS INTEGER), question_id
             ''',
-            (set_id,),
+            tuple(question_params),
         ).fetchall()
         if not question_rows:
             raise LookupError('eiken3 set not found')
@@ -13969,7 +13981,7 @@ def api_eiken3_sets():
 @app.route('/api/eiken3/quiz/<set_id>')
 def api_eiken3_quiz(set_id):
     try:
-        return jsonify(get_eiken3_quiz(set_id))
+        return jsonify(get_eiken3_quiz(set_id, request.args.get('part')))
     except ValueError as exc:
         abort(400, str(exc))
     except LookupError as exc:

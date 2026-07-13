@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Link, useNavigate, useParams } from 'react-router-dom';
+import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { EQBottomNav } from '../components/eigo';
 import CompactPageHeader from '../components/eigo/CompactPageHeader';
 import { getEiken3Quiz, submitEiken3Quiz } from '../api';
@@ -88,6 +88,8 @@ function WritingPrompts({ prompts = [], showSamples = false }) {
 
 export default function Eiken3QuizPage() {
   const { setId } = useParams();
+  const [searchParams] = useSearchParams();
+  const part = searchParams.get('part') || 'part1';
   const navigate = useNavigate();
   const [quiz, setQuiz] = useState(null);
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -112,7 +114,7 @@ export default function Eiken3QuizPage() {
     let active = true;
     setLoading(true);
     setError('');
-    getEiken3Quiz(setId)
+    getEiken3Quiz(setId, part)
       .then((payload) => {
         if (!active) return;
         setQuiz(payload);
@@ -130,7 +132,7 @@ export default function Eiken3QuizPage() {
     return () => {
       active = false;
     };
-  }, [setId]);
+  }, [setId, part]);
 
   const submitQuiz = async () => {
     setSubmitting(true);

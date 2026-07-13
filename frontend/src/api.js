@@ -533,8 +533,10 @@ export const getEiken3Sets = async () => {
   return fetchJson('/api/eiken3/sets');
 };
 
-export const getEiken3Quiz = async (setId) => {
-  return fetchJson(`/api/eiken3/quiz/${encodeURIComponent(setId)}`);
+export const getEiken3Quiz = async (setId, part) => {
+  return fetchJson(`/api/eiken3/quiz/${encodeURIComponent(setId)}`, {
+    params: { part },
+  });
 };
 
 export const submitEiken3Quiz = async ({ setId, answers } = {}) => {
