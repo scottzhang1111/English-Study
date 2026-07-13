@@ -16,6 +16,7 @@ export default function EikenPre2ResultPage() {
   const [result, setResult] = useState(location.state?.result || null);
   const [loading, setLoading] = useState(!location.state?.result);
   const [error, setError] = useState(null);
+  const retrySetId = result?.set_id || 'PRE2SET01';
 
   useEffect(() => {
     if (result || !attemptId) return;
@@ -57,11 +58,11 @@ export default function EikenPre2ResultPage() {
 
             <div className="mt-6 flex flex-wrap gap-3">
               {(result.wrong_questions || []).length > 0 && (
-                <Link to={`/eiken-pre2?source_attempt_id=${encodeURIComponent(result.attempt_id)}`} className="pill-button inline-block px-5 py-3">
+                <Link to={`/eiken-pre2/quiz/${encodeURIComponent(retrySetId)}?source_attempt_id=${encodeURIComponent(result.attempt_id)}`} className="pill-button inline-block px-5 py-3">
                   錯題だけ再チャレンジ
                 </Link>
               )}
-              <Link to="/eiken-pre2" className="ghost-button inline-block px-5 py-3">もう一度全部チャレンジ</Link>
+              <Link to={`/eiken-pre2/quiz/${encodeURIComponent(retrySetId)}`} className="ghost-button inline-block px-5 py-3">もう一度全部チャレンジ</Link>
               <Link to={`/eiken-pre2/wrong-review?student_id=${encodeURIComponent(result.student_id)}`} className="ghost-button inline-block px-5 py-3">
                 錯題リストを見る
               </Link>
@@ -100,7 +101,7 @@ export default function EikenPre2ResultPage() {
                           {item.correct_answer_text ? ` / ${item.correct_answer_text}` : ''}
                         </p>
                       </div>
-                      <Link to={`/eiken-pre2?source_attempt_id=${encodeURIComponent(result.attempt_id)}`} className="ghost-button mt-3 inline-block px-4 py-2 text-sm">
+                      <Link to={`/eiken-pre2/quiz/${encodeURIComponent(retrySetId)}?source_attempt_id=${encodeURIComponent(result.attempt_id)}`} className="ghost-button mt-3 inline-block px-4 py-2 text-sm">
                         もう一度チャレンジ
                       </Link>
                     </article>

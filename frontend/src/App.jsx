@@ -27,6 +27,7 @@ import EikenPage from './pages/EikenPage';
 import Eiken3QuizPage from './pages/Eiken3QuizPage';
 import Eiken3SetListPage from './pages/Eiken3SetListPage';
 import EikenPre2PracticePage from './pages/EikenPre2PracticePage';
+import EikenPre2SetListPage from './pages/EikenPre2SetListPage';
 import EikenRealExamPage from './pages/EikenRealExamPage';
 import EikenPre2ResultPage from './pages/EikenPre2ResultPage';
 import EikenPre2WrongReviewPage from './pages/EikenPre2WrongReviewPage';
@@ -176,7 +177,8 @@ function App() {
             <Route path="/eiken3" element={<AnimatedPage><ChildRequiredPage><Eiken3SetListPage /></ChildRequiredPage></AnimatedPage>} />
             <Route path="/eiken3/sets" element={<AnimatedPage><ChildRequiredPage><Eiken3SetListPage /></ChildRequiredPage></AnimatedPage>} />
             <Route path="/eiken3/quiz/:setId" element={<AnimatedPage><ChildRequiredPage><Eiken3QuizPage /></ChildRequiredPage></AnimatedPage>} />
-            <Route path="/eiken-pre2" element={<AnimatedPage><EikenPre2PracticePage /></AnimatedPage>} />
+            <Route path="/eiken-pre2" element={<AnimatedPage><ChildRequiredPage><EikenPre2SetListPage /></ChildRequiredPage></AnimatedPage>} />
+            <Route path="/eiken-pre2/quiz/:setId" element={<AnimatedPage><ChildRequiredPage><EikenPre2PracticePage /></ChildRequiredPage></AnimatedPage>} />
             <Route path="/eiken-real" element={<AnimatedPage><ChildRequiredPage><EikenRealExamPage /></ChildRequiredPage></AnimatedPage>} />
             <Route path="/eiken-pre2/result/:attemptId" element={<AnimatedPage><EikenPre2ResultPage /></AnimatedPage>} />
             <Route path="/eiken-pre2/wrong-review" element={<AnimatedPage><EikenPre2WrongReviewPage /></AnimatedPage>} />

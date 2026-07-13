@@ -1,46 +1,94 @@
-import { useEffect, useMemo, useState } from 'react';
-import { motion } from 'framer-motion';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
-import WebLearningLayout from '../components/WebLearningLayout';
-import WrongQuestionCard from '../components/WrongQuestionCard';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom';
+import { EQBottomNav } from '../components/eigo';
+import CompactPageHeader from '../components/eigo/CompactPageHeader';
 import { useChildren } from '../ChildrenContext';
 import {
   completeEikenPre2Attempt,
   getEikenPre2Set,
-  getEikenPre2Sets,
   startEikenPre2Attempt,
   submitEikenPre2Answer,
 } from '../api';
 
-const CHILD_STORAGE_KEY = 'selected_child_id';
 const QUESTION_SECONDS = 45;
-const TYPE_LABELS = {
-  sentence_fill: '短句填空',
-  dialogue_completion: '対話完成',
-  reading: '読解',
+
+const SECTION_LABELS = {
+  sentence_fill: '短文の語句空所補充',
+  dialogue_completion: '会話文の文空所補充',
+  reading: '長文読解',
 };
 
 function flattenQuestions(questionSet, allowedIds = []) {
-  const allowed = allowedIds.length ? new Set(allowedIds) : null;
+  const allowed = allowedIds.length ? new Set(allowedIds.map((id) => String(id))) : null;
   return (questionSet?.sections || []).flatMap((section) =>
     (section.questions || [])
-      .filter((question) => !allowed || allowed.has(question.question_id))
+      .filter((question) => !allowed || allowed.has(String(question.question_id)))
       .map((question) => ({
         ...question,
-        sectionTitle: section.title || TYPE_LABELS[question.question_type] || question.question_type,
+        sectionTitle: section.title || SECTION_LABELS[question.question_type] || question.question_type,
       })),
   );
 }
 
-export default function EikenPre2PracticePage() {
-  const location = useLocation();
-  const navigate = useNavigate();
-  const params = new URLSearchParams(location.search);
-  const sourceAttemptId = params.get('source_attempt_id') || '';
+function PageShell({ children, progressText, isResult = false }) {
+  return (
+    <>
+      <div className="eiken-exam-page eiken-real-trial-page eiken3-mock-page mx-auto max-w-[1440px] px-3 pb-28 pt-2 text-[#26376d] lg:px-5 lg:py-4">
+        <div className="eiken-real-trial-compact-wrap md:hidden">
+          <CompactPageHeader
+            title="英検準2級"
+            subtitle={isResult ? '結果を確認しよう' : '模擬テストに挑戦'}
+            backgroundImage="/assets/eigo-quest/learning-hub/英検本番形式.png"
+            elementLabel="英"
+            progressText={progressText}
+            helperImage="/assets/eigo-quest/spirit_assets/happy.png"
+            variant="eiken-real"
+          />
+        </div>
+        <main className="eiken-real-trial-practice-layout">
+          {children}
+        </main>
+      </div>
+      <EQBottomNav className="eiken-real-trial-bottom-nav" />
+    </>
+  );
+}
 
-  const [sets, setSets] = useState([]);
-  const [selectedChildId, setSelectedChildId] = useState(localStorage.getItem(CHILD_STORAGE_KEY) || '');
-  const [selectedSetId, setSelectedSetId] = useState('');
+function PassageCard({ passage }) {
+  if (!passage) return null;
+  return (
+    <section className="eiken3-mock-passage-card">
+      <div className="eiken3-mock-card-head">
+        <span>{passage.passage_type || passage.genre || 'Passage'}</span>
+        <strong>{passage.title}</strong>
+      </div>
+      {passage.title_ja ? <p className="eiken3-mock-muted">{passage.title_ja}</p> : null}
+      <p className="eiken3-mock-passage-text">{passage.passage_text}</p>
+      {passage.key_points_ja ? <p className="eiken3-mock-note">{passage.key_points_ja}</p> : null}
+    </section>
+  );
+}
+
+function getQuestionSection(question) {
+  return question?.sectionTitle || SECTION_LABELS[question?.question_type] || question?.section || question?.question_type || 'Question';
+}
+
+function optionClassName({ selected, result, optionKey }) {
+  const isSelected = selected === optionKey;
+  const isCorrect = result?.correct_option === optionKey;
+  if (!result) return isSelected ? 'is-selected' : '';
+  if (isCorrect) return 'is-selected';
+  return isSelected ? 'is-selected is-student-wrong' : '';
+}
+
+export default function EikenPre2PracticePage() {
+  const { setId } = useParams();
+  const [searchParams] = useSearchParams();
+  const sourceAttemptId = searchParams.get('source_attempt_id') || '';
+  const navigate = useNavigate();
+  const { selectedChildId, childrenLoading, childrenError } = useChildren();
+  const autoStartedRef = useRef(false);
+
   const [questionSet, setQuestionSet] = useState(null);
   const [activeQuestionIds, setActiveQuestionIds] = useState([]);
   const [attempt, setAttempt] = useState(null);
@@ -50,72 +98,21 @@ export default function EikenPre2PracticePage() {
   const [timeLeft, setTimeLeft] = useState(QUESTION_SECONDS);
   const [timedOutMessage, setTimedOutMessage] = useState('');
   const [loading, setLoading] = useState(true);
-  const [questionSetLoading, setQuestionSetLoading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
-  const [error, setError] = useState(null);
-  const { children, childrenLoading, childrenError } = useChildren();
+  const [error, setError] = useState('');
 
   const questions = useMemo(() => flattenQuestions(questionSet, activeQuestionIds), [questionSet, activeQuestionIds]);
   const currentQuestion = questions[currentIndex] || null;
   const currentAnswer = currentQuestion ? answers[currentQuestion.question_id] || '' : '';
   const currentResult = currentQuestion ? answerResults[currentQuestion.question_id] : null;
-  const selectedChild = children.find((child) => String(child.id) === String(selectedChildId));
-  const selectedSet = sets.find((item) => item.set_id === selectedSetId);
+  const passageMap = useMemo(() => {
+    const map = new Map();
+    (questionSet?.passages || []).forEach((passage) => map.set(passage.passage_id, passage));
+    return map;
+  }, [questionSet]);
+  const currentPassage = currentQuestion?.passage || (currentQuestion?.passage_id ? passageMap.get(currentQuestion.passage_id) : null);
   const answeredCount = Object.keys(answerResults).length;
   const mistakeCount = Object.values(answerResults).filter((item) => item && item.is_correct === false).length;
-  const rightPanel = (
-    <div className="rounded-3xl border border-white/80 bg-white/86 p-5 shadow-[0_16px_36px_rgba(129,164,199,0.14)] backdrop-blur">
-      <p className="text-xs font-bold text-[#8fa0c2]">今日の特訓</p>
-      <h2 className="mt-2 text-2xl font-bold text-[#31406f]">{selectedSetId || 'SET'}</h2>
-      <div className="mt-5 grid gap-3 text-sm font-bold text-[#60709d]">
-        <div className="rounded-2xl bg-[#f8fcff] p-3">SET01 30問: {selectedSet?.question_count || '-'}</div>
-        <div className="rounded-2xl bg-[#fff8d9] p-3">回答済み: {answeredCount}</div>
-        <div className="rounded-2xl bg-[#f8fcff] p-3">ミス: {mistakeCount}</div>
-      </div>
-      <p className="mt-5 rounded-2xl bg-[#fff8d9] p-3 text-sm font-bold leading-6 text-[#6b5a2d]">
-        45秒チャレンジです。あわてず、1問ずつ確認しましょう。
-      </p>
-    </div>
-  );
-
-  useEffect(() => {
-    if (childrenLoading) return undefined;
-    let active = true;
-    if (childrenError) {
-      setError(childrenError);
-      setLoading(false);
-      return undefined;
-    }
-    getEikenPre2Sets()
-      .then((setsPayload) => {
-        if (!active) return;
-        const setList = setsPayload.sets || [];
-        setSets(setList);
-        const stored = localStorage.getItem(CHILD_STORAGE_KEY);
-        const childId = stored && children.some((child) => String(child.id) === stored)
-          ? stored
-          : children[0]?.id
-            ? String(children[0].id)
-            : '';
-        setSelectedChildId(childId);
-        setSelectedSetId(setList[0]?.set_id || '');
-      })
-      .catch((err) => setError(err.message))
-      .finally(() => active && setLoading(false));
-    return () => {
-      active = false;
-    };
-  }, [children, childrenError, childrenLoading]);
-
-  useEffect(() => {
-    if (!selectedChildId) return;
-    localStorage.setItem(CHILD_STORAGE_KEY, selectedChildId);
-  }, [selectedChildId]);
-
-  useEffect(() => {
-    if (loading || !sourceAttemptId || !selectedChildId) return;
-    startTraining({ reviewSourceAttemptId: sourceAttemptId });
-  }, [loading, sourceAttemptId, selectedChildId]);
 
   useEffect(() => {
     setTimeLeft(QUESTION_SECONDS);
@@ -135,22 +132,40 @@ export default function EikenPre2PracticePage() {
     submitCurrentAnswer({ timedOut: true });
   }, [timeLeft, attempt, currentQuestion, currentResult]);
 
-  const startTraining = async ({ reviewSourceAttemptId = '' } = {}) => {
-    if (!selectedChildId || (!selectedSetId && !reviewSourceAttemptId)) {
-      setError('子どもとセットを選んでください。');
+  useEffect(() => {
+    if (childrenLoading) return;
+    if (autoStartedRef.current) return;
+    if (childrenError) {
+      setError(childrenError);
+      setLoading(false);
       return;
     }
-    setQuestionSetLoading(true);
-    setError(null);
+    if (!selectedChildId) {
+      setError('子どもを選択してください。');
+      setLoading(false);
+      return;
+    }
+    if (!setId && !sourceAttemptId) {
+      setError('セットを選択してください。');
+      setLoading(false);
+      return;
+    }
+
+    autoStartedRef.current = true;
+    startTraining();
+  }, [childrenError, childrenLoading, selectedChildId, setId, sourceAttemptId]);
+
+  async function startTraining() {
+    setLoading(true);
+    setError('');
     try {
       const started = await startEikenPre2Attempt({
-        studentId: selectedChildId,
-        setId: selectedSetId,
-        sourceAttemptId: reviewSourceAttemptId,
-        mode: reviewSourceAttemptId ? 'wrong_review' : 'ai_training',
+        childId: selectedChildId,
+        setId,
+        sourceAttemptId,
+        mode: sourceAttemptId ? 'wrong_review' : 'ai_training',
       });
       const payload = await getEikenPre2Set(started.set_id);
-      setSelectedSetId(started.set_id);
       setAttempt(started);
       setQuestionSet(payload);
       setActiveQuestionIds(started.question_ids || []);
@@ -160,21 +175,21 @@ export default function EikenPre2PracticePage() {
       setTimeLeft(QUESTION_SECONDS);
       setTimedOutMessage('');
     } catch (err) {
-      setError(err.message);
+      setError(err.message || '英検準2級の問題を読み込めませんでした。');
     } finally {
-      setQuestionSetLoading(false);
+      setLoading(false);
     }
-  };
+  }
 
-  const chooseAnswer = (option) => {
+  function chooseAnswer(optionKey) {
     if (!currentQuestion || currentResult) return;
-    setAnswers((prev) => ({ ...prev, [currentQuestion.question_id]: option }));
-  };
+    setAnswers((prev) => ({ ...prev, [currentQuestion.question_id]: optionKey }));
+  }
 
-  const submitCurrentAnswer = async ({ timedOut = false } = {}) => {
+  async function submitCurrentAnswer({ timedOut = false } = {}) {
     if (!attempt || !currentQuestion || answerResults[currentQuestion.question_id] || submitting) return;
     setSubmitting(true);
-    setError(null);
+    setError('');
     try {
       const result = await submitEikenPre2Answer({
         attemptId: attempt.attempt_id,
@@ -184,151 +199,169 @@ export default function EikenPre2PracticePage() {
         timedOut,
       });
       if (timedOut) {
-        setTimedOutMessage('時間切れです。正解を確認しましょう。');
+        setTimedOutMessage('時間切れです。正解を確認してから次へ進もう。');
       }
       setAnswerResults((prev) => ({ ...prev, [currentQuestion.question_id]: result }));
       setAnswers((prev) => ({ ...prev, [currentQuestion.question_id]: result.student_answer || '' }));
     } catch (err) {
-      setError(err.message);
+      setError(err.message || '回答を保存できませんでした。');
     } finally {
       setSubmitting(false);
     }
-  };
+  }
 
-  const goNext = async () => {
+  async function goNext() {
     if (currentIndex < questions.length - 1) {
       setCurrentIndex((index) => index + 1);
       return;
     }
     if (!attempt) return;
     setSubmitting(true);
+    setError('');
     try {
       const result = await completeEikenPre2Attempt(attempt.attempt_id);
       navigate(`/eiken-pre2/result/${encodeURIComponent(result.attempt_id)}`, { state: { result } });
     } catch (err) {
-      setError(err.message);
+      setError(err.message || '結果を保存できませんでした。');
     } finally {
       setSubmitting(false);
     }
-  };
+  }
 
-  const mergedQuestion = currentQuestion && currentResult
-    ? {
-        ...currentQuestion,
-        ...currentResult,
-        student_answer: currentResult.student_answer || '',
-        correct_option: currentResult.correct_option,
-        is_correct: currentResult.is_correct,
-      }
-    : currentQuestion;
+  if (loading) {
+    return (
+      <PageShell progressText="PRE-2">
+        <div className="eiken-real-trial-status-card eiken3-mock-status" role="status" aria-live="polite">
+          <span className="eiken-real-trial-status-orb" aria-hidden="true" />
+          <p>読み込み中</p>
+          <strong>問題と attempt を準備しています...</strong>
+        </div>
+      </PageShell>
+    );
+  }
+
+  if (error || !currentQuestion) {
+    return (
+      <PageShell progressText="PRE-2">
+        <section className="eiken-real-trial-quiz-panel eiken3-mock-quiz-panel">
+          {error ? <div className="eiken3-mock-alert">{error}</div> : null}
+          <Link to="/eiken-pre2" className="eiken-real-trial-secondary-action eiken3-mock-top-link">
+            セット一覧へ
+          </Link>
+        </section>
+      </PageShell>
+    );
+  }
 
   return (
-    <WebLearningLayout title="英検準2級 A特訓" subtitle="45秒チャレンジ" rightPanel={rightPanel}>
-
-      <motion.section initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} className="panel px-5 py-5 sm:px-7">
-        <div className="rounded-[28px] bg-[linear-gradient(180deg,#eef8ff_0%,#e3f3ff_100%)] p-5">
-          <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
-            <div>
-              <p className="text-xs font-black uppercase tracking-[0.18em] text-[#7d8db5]">EIKEN PRE-2</p>
-              <h2 className="display-font mt-2 text-2xl font-extrabold text-[#354172]">1問ずつすぐ確認</h2>
-            </div>
-            <div className="grid gap-3 sm:grid-cols-[1fr_1fr_auto]">
-              <label className="text-sm font-bold text-[#52668c]">
-                子ども
-                <select
-                  value={selectedChildId}
-                  onChange={(event) => setSelectedChildId(event.target.value)}
-                  disabled={!!attempt}
-                  className="mt-1 w-full rounded-full border border-white/80 bg-white/88 px-4 py-3 font-bold text-[#354172]"
-                >
-                  {children.map((child) => (
-                    <option key={child.id} value={child.id}>{child.name}</option>
-                  ))}
-                </select>
-              </label>
-              <label className="text-sm font-bold text-[#52668c]">
-                セット
-                <select
-                  value={selectedSetId}
-                  onChange={(event) => setSelectedSetId(event.target.value)}
-                  disabled={!!attempt || !!sourceAttemptId}
-                  className="mt-1 w-full rounded-full border border-white/80 bg-white/88 px-4 py-3 font-bold text-[#354172]"
-                >
-                  {sets.map((item) => (
-                    <option key={item.set_id} value={item.set_id}>{item.set_id} ({item.question_count}問)</option>
-                  ))}
-                </select>
-              </label>
-              <button
-                type="button"
-                onClick={() => startTraining()}
-                disabled={loading || questionSetLoading || !!attempt || !!sourceAttemptId}
-                className="pill-button px-6 py-3 disabled:opacity-50"
-              >
-                {questionSetLoading ? '読み込み中...' : 'はじめる'}
-              </button>
-            </div>
+    <PageShell progressText={`${answeredCount} / ${questions.length || '-'}`}>
+      <section className="eiken-real-trial-quiz-panel eiken3-mock-quiz-panel">
+        <div className="eiken-real-trial-quiz-header">
+          <div>
+            <p>EIKEN PRE-2</p>
+            <h2>{attempt?.set_id || setId}</h2>
+            <strong>
+              回答済み {answeredCount} / {questions.length || '-'} ・ ミス {mistakeCount}
+            </strong>
           </div>
+          <Link to="/eiken-pre2" className="eiken-real-trial-secondary-action eiken3-mock-top-link">
+            セット一覧へ
+          </Link>
         </div>
 
-        {error && <div className="mt-4 rounded-[22px] bg-rose-50 p-4 text-sm font-bold text-rose-700">{error}</div>}
+        {error ? <div className="eiken3-mock-alert">{error}</div> : null}
 
-        {loading || questionSetLoading ? (
-          <div className="mt-5 rounded-[24px] bg-white/76 p-6 text-center font-bold text-[#6f7da8]">準備しています...</div>
-        ) : !attempt ? (
-          <div className="mt-5 rounded-[24px] bg-white/76 p-6 text-center text-sm font-bold leading-7 text-[#6f7da8]">
-            45秒チャレンジです。あわてず、1問ずつ確認しましょう。
-            <div className="mt-4">
-              <Link to="/eiken-pre2/wrong-review" className="ghost-button inline-block px-5 py-3">錯題復習へ</Link>
-            </div>
+        <div className="eiken3-mock-quiz-stack">
+          <div className="eiken3-mock-question-nav">
+            {questions.map((question, index) => (
+              <button
+                key={question.question_id}
+                type="button"
+                onClick={() => setCurrentIndex(index)}
+                className={`${index === currentIndex ? 'is-current' : ''} ${answerResults[question.question_id] ? 'is-answered' : ''}`}
+              >
+                {question.question_no || index + 1}
+              </button>
+            ))}
           </div>
-        ) : currentQuestion ? (
-          <div className="mt-5">
-            <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-              <div>
-                <p className="text-sm font-black text-[#6f7da8]">{attempt.set_id} / {selectedChild?.name || 'Student'}</p>
-                <h3 className="display-font mt-1 text-xl font-extrabold text-[#354172]">
-                  Q{currentIndex + 1} / {questions.length} ・ {currentQuestion.sectionTitle}
-                </h3>
-              </div>
-              <div className={`rounded-full px-4 py-2 text-sm font-black ${timeLeft <= 10 && !currentResult ? 'bg-rose-50 text-rose-700' : 'bg-[#fff2bb] text-[#69557e]'}`}>
-                残り {timeLeft} 秒
-              </div>
-            </div>
 
-            {timedOutMessage && (
-              <div className="mb-4 rounded-[20px] bg-[#fff8d9] p-4 text-sm font-black text-[#75622c]">
-                {timedOutMessage}
-              </div>
-            )}
+          <PassageCard passage={currentPassage} />
 
-            <WrongQuestionCard
-              question={mergedQuestion}
-              mode="practice"
-              selectedAnswer={currentAnswer}
-              locked={!!currentResult}
-              onSelect={chooseAnswer}
-            />
+          {timedOutMessage ? (
+            <div className="eiken3-mock-note">{timedOutMessage}</div>
+          ) : null}
 
-            <div className="mt-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-              {!currentResult ? (
+          <article className="eiken3-mock-question-card">
+            <p>
+              Q{String(currentQuestion.question_no || currentIndex + 1).padStart(2, '0')} / {questions.length}
+              <span>{getQuestionSection(currentQuestion)}</span>
+            </p>
+            <h2>{currentQuestion.prompt || currentQuestion.question_text}</h2>
+            {currentQuestion.question_text_ja ? <p className="eiken3-mock-muted">{currentQuestion.question_text_ja}</p> : null}
+
+            <div className="eiken3-mock-options">
+              {(currentQuestion.options || []).map((option) => (
                 <button
+                  key={option.key}
                   type="button"
-                  onClick={() => submitCurrentAnswer()}
-                  disabled={submitting || !currentAnswer}
-                  className="pill-button px-5 py-3 disabled:opacity-40"
+                  onClick={() => chooseAnswer(option.key)}
+                  disabled={!!currentResult}
+                  className={optionClassName({ selected: currentAnswer, result: currentResult, optionKey: option.key })}
                 >
-                  {submitting ? '確認中...' : '回答する'}
+                  <b>{option.key}</b>
+                  <span>{option.text}</span>
+                  {option.text_ja ? <small>{option.text_ja}</small> : null}
                 </button>
-              ) : (
-                <button type="button" onClick={goNext} disabled={submitting} className="pill-button px-5 py-3 disabled:opacity-40">
-                  {submitting ? '保存中...' : currentIndex < questions.length - 1 ? '次の問題へ' : '結果を見る'}
-                </button>
-              )}
+              ))}
             </div>
+
+            {currentResult ? (
+              <div className={`eiken3-mock-result-card ${currentResult.is_correct ? 'is-correct' : 'is-wrong'}`}>
+                <div className="eiken3-mock-result-head">
+                  <p>{currentResult.is_correct ? '正解' : 'もう一度確認'}</p>
+                  <span>正解 {currentResult.correct_option}</span>
+                </div>
+                {currentResult.correct_answer_text ? (
+                  <p className="eiken3-mock-answer-line">{currentResult.correct_answer_text}</p>
+                ) : null}
+                {currentResult.explanation_ja ? (
+                  <p className="eiken3-mock-explanation">{currentResult.explanation_ja}</p>
+                ) : null}
+              </div>
+            ) : null}
+          </article>
+
+          <div className="eiken-real-trial-quiz-actions">
+            <button
+              type="button"
+              onClick={() => setCurrentIndex((index) => Math.max(0, index - 1))}
+              disabled={currentIndex === 0 || submitting}
+              className="eiken-real-trial-secondary-action"
+            >
+              前へ
+            </button>
+
+            <span className={`rounded-full px-4 py-2 text-sm font-black ${timeLeft <= 10 && !currentResult ? 'bg-rose-50 text-rose-700' : 'bg-[#fff2bb] text-[#69557e]'}`}>
+              残り {timeLeft} 秒
+            </span>
+
+            {!currentResult ? (
+              <button
+                type="button"
+                onClick={() => submitCurrentAnswer()}
+                disabled={submitting || !currentAnswer}
+                className="eiken-real-trial-gold-action"
+              >
+                {submitting ? '保存中...' : '回答する'}
+              </button>
+            ) : (
+              <button type="button" onClick={goNext} disabled={submitting} className="eiken-real-trial-gold-action">
+                {submitting ? '保存中...' : currentIndex < questions.length - 1 ? '次へ' : '結果を見る'}
+              </button>
+            )}
           </div>
-        ) : null}
-      </motion.section>
-    </WebLearningLayout>
+        </div>
+      </section>
+    </PageShell>
   );
 }
