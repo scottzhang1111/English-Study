@@ -13,6 +13,10 @@ function resolveChildAvatar(child) {
   return avatar.startsWith('/assets/') ? avatar : DEFAULT_CHILD_AVATAR;
 }
 
+function normalizeTargetLevel(value) {
+  return String(value || '').trim().toLowerCase().replace(/[\s-]+/g, '_');
+}
+
 const mainEntry = {
   title: '今日の冒険',
   subtitle: '前に覚えた単語をチェックしよう',
@@ -58,13 +62,6 @@ const moduleEntries = [
     image: `${ASSET_BASE}/英検本番形式.png`,
   },
   {
-    title: '英検3級 模擬テスト',
-    subtitle: 'G3SET01〜G3SET10で30問チャレンジ',
-    badge: '3級',
-    to: '/eiken3',
-    image: `${ASSET_BASE}/英検本番形式.png`,
-  },
-  {
     title: '単語図書館',
     subtitle: '語彙をふやして表現の幅を広げよう',
     badge: '単語',
@@ -90,10 +87,34 @@ export default function LearningHubPage() {
       || currentChild?.target_level
       || currentChild?.learningGoal
       || currentChild?.learning_goal
+      || currentChild?.grade
       || '',
-  ).toLowerCase();
-  const isPre2Child = targetLevel === 'eiken_pre2' || targetLevel.includes('準2') || targetLevel.includes('準２');
-  const visibleModuleEntries = moduleEntries.filter((entry) => !entry.pre2Only || isPre2Child);
+  );
+  const normalizedTargetLevel = normalizeTargetLevel(targetLevel);
+  const isPre2Child = normalizedTargetLevel === 'eiken_pre2'
+    || normalizedTargetLevel === 'eiken_pre_2'
+    || normalizedTargetLevel === 'pre2'
+    || normalizedTargetLevel.includes('準2')
+    || normalizedTargetLevel.includes('準２');
+  const mockTestEntry = isPre2Child
+    ? {
+        title: '英検準2級 模擬テスト',
+        subtitle: '準2級の本番形式で実力をチェック',
+        badge: '準2級',
+        to: '/eiken-pre2',
+        image: `${ASSET_BASE}/英検本番形式.png`,
+      }
+    : {
+        title: '英検3級 模擬テスト',
+        subtitle: 'G3SET01〜G3SET10で30問チャレンジ',
+        badge: '3級',
+        to: '/eiken3',
+        image: `${ASSET_BASE}/英検本番形式.png`,
+      };
+  const visibleModuleEntries = [
+    ...moduleEntries.filter((entry) => !entry.pre2Only || isPre2Child),
+    mockTestEntry,
+  ];
 
   function resolveWorldId(child) {
     const rawWorldId = child?.current_world_id || child?.currentWorldId || child?.current_world || child?.currentWorld || 1;

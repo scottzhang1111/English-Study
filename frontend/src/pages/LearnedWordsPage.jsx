@@ -10,10 +10,9 @@ import {
   EQPrimaryButton,
   EQSecondaryButton,
 } from '../components/eigo';
-import { getLearnedWords } from '../api';
+import { getChildWordStatus, getLearnedWords } from '../api';
+import { useChildren } from '../ChildrenContext';
 import CompactPageHeader from '../components/eigo/CompactPageHeader';
-
-const CHILD_STORAGE_KEY = 'selected_child_id';
 
 function playAudio(text, audioRef) {
   if (!text) return;
@@ -28,23 +27,80 @@ function playAudio(text, audioRef) {
   }
 }
 
+function isLibraryWord(item) {
+  const status = String(item?.status || '').toLowerCase();
+  return (
+    (status && status !== 'new')
+    || Number(item?.correct_count || item?.correctCount || 0) > 0
+    || Number(item?.wrong_count || item?.wrongCount || 0) > 0
+    || Boolean(item?.last_reviewed_at || item?.lastReviewedAt || item?.mastered_at || item?.masteredAt)
+  );
+}
+
+function normalizeLibraryWord(item) {
+  return {
+    ...item,
+    word: item?.word || item?.English || '',
+    jp: item?.jp || item?.japanese || item?.meaningJa || item?.Japanese || '',
+    cn: item?.cn || item?.chinese || item?.meaningCn || item?.Chinese || '',
+    example: item?.example || item?.exampleEn || item?.example_en || item?.Example_English || '',
+    example_jp: item?.example_jp || item?.exampleJa || item?.example_ja || item?.Example_Japanese || '',
+    example_short: item?.example_short || item?.exampleShort || item?.Example_English_Short || '',
+    mastery: item?.mastery || (String(item?.status || '').toLowerCase() === 'mastered' ? 100 : ''),
+    correct_count: item?.correct_count || item?.correctCount || 0,
+    wrong_count: item?.wrong_count || item?.wrongCount || 0,
+  };
+}
+
 export default function LearnedWordsPage() {
   const [data, setData] = useState(null);
   const [error, setError] = useState(null);
   const audioRef = useRef(null);
-  const childId = localStorage.getItem(CHILD_STORAGE_KEY) || '';
+  const { selectedChildId, childrenLoading } = useChildren();
 
   useEffect(() => {
-    getLearnedWords(childId)
-      .then(setData)
-      .catch((err) => setError(err.message));
+    if (childrenLoading) return undefined;
+    if (!selectedChildId) return undefined;
+
+    let cancelled = false;
+
+    async function loadLibraryWords() {
+      try {
+        setError(null);
+        const learnedPayload = await getLearnedWords(selectedChildId);
+        const learnedWords = (learnedPayload.words || []).map(normalizeLibraryWord);
+        if (learnedWords.length > 0) {
+          if (!cancelled) setData({ ...learnedPayload, words: learnedWords, count: learnedWords.length });
+          return;
+        }
+
+        const statusPayload = await getChildWordStatus({ childId: selectedChildId });
+        const statusWords = (statusPayload.words || [])
+          .filter(isLibraryWord)
+          .map(normalizeLibraryWord);
+
+        if (!cancelled) {
+          setData({
+            ...learnedPayload,
+            child: learnedPayload.child || { id: selectedChildId },
+            words: statusWords,
+            count: statusWords.length,
+          });
+        }
+      } catch (err) {
+        if (!cancelled) setError(err.message);
+      }
+    }
+
+    loadLibraryWords();
 
     return () => {
+      cancelled = true;
       if (audioRef.current) {
         audioRef.current.pause();
       }
     };
-  }, [childId]);
+  }, [childrenLoading, selectedChildId]);
 
   const words = data?.words || [];
 
