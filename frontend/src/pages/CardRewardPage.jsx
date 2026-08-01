@@ -359,6 +359,72 @@ export default function CardRewardPage() {
     );
   }
 
+  if (isGrammarReward) {
+    return (
+      <>
+        <div className={`${rewardPageClass} is-grammar-presentation`}>
+          <section className="grammar-reward-hero" aria-label="文法テストクリア">
+            <div className="grammar-reward-clear-heading">
+              <span className="grammar-reward-crown" aria-hidden="true" />
+              <h1>CLEAR!</h1>
+              <span className="grammar-reward-laurel" aria-hidden="true" />
+            </div>
+
+            <div className="grammar-reward-ribbon">
+              文法テスト クリア
+            </div>
+
+            <p className="grammar-reward-mastery">
+              {masteryText}
+            </p>
+
+            <section className="grammar-reward-card-stage" aria-label="新しい文法英雄カード">
+              <div className="grammar-reward-light-rays" aria-hidden="true" />
+              <div className="grammar-reward-magic-circle" aria-hidden="true" />
+              <div className="grammar-reward-card-glow" aria-hidden="true" />
+
+              <motion.div
+                className="grammar-reward-card"
+                initial={{ y: 28, scale: 0.94, opacity: 0 }}
+                animate={{ y: 0, scale: 1, opacity: 1 }}
+                transition={{ duration: 0.62, ease: [0.22, 1, 0.36, 1] }}
+              >
+                {rewardImage ? (
+                  <img
+                    src={rewardImage}
+                    alt={hero.name}
+                    onError={() => {
+                      if (import.meta.env.DEV) {
+                        console.warn('Failed to load grammar reward hero image:', rewardImage, { rewardCard });
+                      }
+                    }}
+                  />
+                ) : (
+                  <div className={`eq-card-art eq-card-world-${worldClass} is-large`}>
+                    <div className="eq-card-art-symbol">{worldClass}</div>
+                  </div>
+                )}
+              </motion.div>
+            </section>
+
+            <p className="grammar-reward-gain">
+              新しい文法英雄カードを獲得！
+            </p>
+
+            <GoldQuestButton
+              onClick={showNextReward}
+              className="eq-reward-claim-button quest-reward-main-button grammar-reward-main-button"
+              disabled={isAdvancing}
+            >
+              {hasNextReward ? '次のカードへ' : 'ホームへ'}
+            </GoldQuestButton>
+          </section>
+        </div>
+        <EQBottomNav className="eq-home-bottom-nav" />
+      </>
+    );
+  }
+
   return (
     <>
       <div className={rewardPageClass}>

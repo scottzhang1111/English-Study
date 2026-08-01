@@ -14005,6 +14005,219 @@ body,
     linear-gradient(180deg, rgba(12, 39, 94, 0.98), rgba(3, 7, 24, 0.98));
 }
 
+.quest-reward-palace.eq-grammar-reward-page.is-grammar-presentation {
+  display: block;
+  min-height: 100dvh;
+  padding: calc(18px + env(safe-area-inset-top, 0px)) 16px calc(var(--eq-bottom-nav-height) + 30px + env(safe-area-inset-bottom, 0px));
+  overflow-x: hidden;
+  overflow-y: auto;
+  background:
+    radial-gradient(circle at 50% 55%, rgba(72, 79, 210, 0.38), transparent 36%),
+    radial-gradient(circle at 50% 18%, rgba(33, 92, 184, 0.28), transparent 30%),
+    linear-gradient(180deg, #07142f 0%, #071130 50%, #03091c 100%);
+  color: #fff7df;
+}
+
+.quest-reward-palace.eq-grammar-reward-page.is-grammar-presentation::before {
+  background:
+    radial-gradient(circle at 14% 18%, rgba(255, 231, 150, 0.92) 0 1px, transparent 2px),
+    radial-gradient(circle at 78% 14%, rgba(255, 231, 150, 0.82) 0 1px, transparent 2px),
+    radial-gradient(circle at 88% 38%, rgba(255, 231, 150, 0.72) 0 1px, transparent 2px),
+    radial-gradient(circle at 18% 52%, rgba(176, 214, 255, 0.68) 0 1px, transparent 2px),
+    radial-gradient(circle at 64% 70%, rgba(255, 231, 150, 0.76) 0 1px, transparent 2px);
+  opacity: 0.92;
+}
+
+.quest-reward-palace.eq-grammar-reward-page.is-grammar-presentation::after {
+  background:
+    radial-gradient(ellipse at 50% 100%, rgba(44, 74, 184, 0.34), transparent 38%),
+    linear-gradient(180deg, rgba(2, 5, 18, 0.06), transparent 24%, rgba(2, 5, 18, 0.42));
+}
+
+.grammar-reward-hero {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  width: min(100%, 430px);
+  min-height: calc(100dvh - var(--eq-bottom-nav-height) - 48px);
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  gap: clamp(8px, 1.4dvh, 14px);
+  margin: 0 auto;
+  text-align: center;
+}
+
+.grammar-reward-clear-heading {
+  position: relative;
+  display: grid;
+  justify-items: center;
+  gap: 0;
+  width: min(100%, 390px);
+  padding-top: 8px;
+}
+
+.grammar-reward-clear-heading h1 {
+  margin: 0;
+  background: linear-gradient(180deg, #fff7ca 0%, #ffd76f 42%, #d88924 74%, #fff0a4 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: clamp(56px, 16vw, 92px);
+  font-weight: 900;
+  line-height: 0.88;
+  letter-spacing: 0;
+  text-transform: uppercase;
+  text-shadow: none;
+  filter:
+    drop-shadow(0 2px 0 rgba(103, 55, 7, 0.82))
+    drop-shadow(0 0 16px rgba(255, 226, 133, 0.72));
+}
+
+.grammar-reward-crown::before {
+  display: block;
+  color: #ffe08a;
+  content: "♛";
+  font-size: clamp(26px, 7vw, 42px);
+  line-height: 0.8;
+  text-shadow: 0 0 16px rgba(255, 211, 90, 0.72);
+}
+
+.grammar-reward-laurel {
+  position: absolute;
+  right: 7%;
+  bottom: 6px;
+  left: 7%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255, 221, 126, 0.72), transparent);
+  box-shadow: 0 0 12px rgba(255, 211, 90, 0.42);
+}
+
+.grammar-reward-ribbon {
+  width: fit-content;
+  max-width: 100%;
+  padding: 8px 24px;
+  border: 1px solid rgba(255, 223, 132, 0.78);
+  border-radius: 999px;
+  background:
+    linear-gradient(90deg, rgba(41, 21, 80, 0.82), rgba(10, 31, 83, 0.96), rgba(41, 21, 80, 0.82));
+  color: #fff2bf;
+  font-size: clamp(17px, 4.6vw, 23px);
+  font-weight: 950;
+  line-height: 1.1;
+  box-shadow:
+    0 0 18px rgba(255, 211, 90, 0.24),
+    inset 0 0 14px rgba(97, 168, 255, 0.16);
+}
+
+.grammar-reward-mastery {
+  max-width: min(100%, 390px);
+  margin: 0;
+  color: #f8fbff;
+  font-size: clamp(20px, 5.4vw, 30px);
+  font-weight: 1000;
+  line-height: 1.18;
+  text-shadow:
+    0 0 16px rgba(156, 207, 255, 0.54),
+    0 2px 12px rgba(0, 0, 0, 0.72);
+}
+
+.grammar-reward-card-stage {
+  position: relative;
+  display: grid;
+  width: min(100%, 390px);
+  height: min(52dvh, 520px);
+  min-height: 330px;
+  place-items: center;
+  margin-top: 2px;
+  isolation: isolate;
+}
+
+.grammar-reward-light-rays,
+.grammar-reward-magic-circle,
+.grammar-reward-card-glow {
+  position: absolute;
+  pointer-events: none;
+}
+
+.grammar-reward-light-rays {
+  inset: 2% 4% 11%;
+  z-index: 0;
+  background:
+    conic-gradient(from 212deg at 50% 78%, transparent 0 12deg, rgba(255, 230, 158, 0.42) 16deg 20deg, transparent 24deg 46deg, rgba(121, 178, 255, 0.26) 51deg 56deg, transparent 62deg 100deg, rgba(255, 230, 158, 0.38) 105deg 110deg, transparent 116deg 360deg);
+  filter: blur(0.8px);
+  opacity: 0.9;
+}
+
+.grammar-reward-card-glow {
+  z-index: 1;
+  width: min(72vw, 350px);
+  height: min(72vw, 350px);
+  border-radius: 999px;
+  background:
+    radial-gradient(circle, rgba(255, 243, 178, 0.42), rgba(77, 145, 255, 0.3) 42%, transparent 70%);
+  filter: blur(8px);
+}
+
+.grammar-reward-magic-circle {
+  bottom: 6%;
+  z-index: 1;
+  width: min(86%, 340px);
+  height: 19%;
+  border: 1px solid rgba(255, 223, 132, 0.72);
+  border-radius: 50%;
+  background:
+    radial-gradient(ellipse, rgba(119, 142, 255, 0.36), transparent 62%),
+    repeating-radial-gradient(ellipse, rgba(255, 223, 132, 0.42) 0 1px, transparent 2px 15px);
+  box-shadow:
+    0 0 24px rgba(106, 151, 255, 0.38),
+    inset 0 0 24px rgba(255, 223, 132, 0.16);
+  transform: perspective(260px) rotateX(58deg);
+}
+
+.grammar-reward-card {
+  position: relative;
+  z-index: 3;
+  display: grid;
+  width: min(68vw, 330px);
+  max-height: min(56dvh, 520px);
+  place-items: center;
+  filter:
+    drop-shadow(0 0 18px rgba(255, 225, 126, 0.7))
+    drop-shadow(0 20px 34px rgba(0, 0, 0, 0.58));
+}
+
+.grammar-reward-card img,
+.grammar-reward-card .eq-card-art {
+  display: block;
+  width: 100%;
+  max-height: min(56dvh, 520px);
+  object-fit: contain;
+}
+
+.grammar-reward-card .eq-card-art {
+  aspect-ratio: 0.68;
+}
+
+.grammar-reward-gain {
+  max-width: min(100%, 380px);
+  margin: 0;
+  padding: 8px 16px;
+  border-top: 1px solid rgba(255, 223, 132, 0.36);
+  border-bottom: 1px solid rgba(255, 223, 132, 0.26);
+  color: #f8fbff;
+  font-size: clamp(18px, 4.8vw, 25px);
+  font-weight: 1000;
+  line-height: 1.18;
+  text-shadow: 0 0 14px rgba(255, 211, 90, 0.34), 0 2px 12px rgba(0, 0, 0, 0.64);
+}
+
+.grammar-reward-main-button {
+  margin-top: 4px !important;
+}
+
 .eq-boss-reward-page .quest-reward-halo {
   background:
     radial-gradient(circle, rgba(255, 225, 138, 0.64), transparent 33%),
