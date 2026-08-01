@@ -79,6 +79,26 @@ function getPendingRewardImage(reward) {
     || reward?.card_image
     || reward?.cardImage
     || reward?.image
+    || reward?.asset_path
+    || reward?.assetPath
+    || reward?.raw?.image_url
+    || reward?.raw?.imageUrl
+    || reward?.raw?.card_image
+    || reward?.raw?.cardImage
+    || reward?.raw?.image
+    || reward?.raw?.asset_path
+    || reward?.raw?.assetPath
+    || '';
+}
+
+function getHeroImage(hero) {
+  return hero?.image_url
+    || hero?.imageUrl
+    || hero?.card_image
+    || hero?.cardImage
+    || hero?.image
+    || hero?.asset_path
+    || hero?.assetPath
     || '';
 }
 
@@ -101,27 +121,49 @@ function getImageFileName(image = '') {
 
 function findRewardHero(apiHeroes, pendingReward, fallbackCard) {
   const fallback = normalizeHeroCard(fallbackCard);
-  const rewardKeys = [
+  const rewardIds = [
     pendingReward?.cardId,
     pendingReward?.card_id,
     pendingReward?.heroId,
     pendingReward?.hero_id,
+    pendingReward?.raw?.cardId,
+    pendingReward?.raw?.card_id,
+    pendingReward?.raw?.heroId,
+    pendingReward?.raw?.hero_id,
+    fallback?.id,
+    fallback?.heroId,
+  ].filter((value) => value != null && value !== '').map(String);
+  const rewardCodes = [
     pendingReward?.heroCode,
     pendingReward?.hero_code,
     pendingReward?.code,
-    fallback?.id,
+    pendingReward?.raw?.heroCode,
+    pendingReward?.raw?.hero_code,
+    pendingReward?.raw?.code,
     fallback?.code,
-    fallback?.heroId,
-  ].filter(Boolean).map(String);
-  const rewardKeySet = new Set(rewardKeys);
+    fallback?.heroCode,
+    fallback?.hero_code,
+  ].filter(Boolean).map((value) => String(value).trim().toLowerCase());
   const rewardWorldId = pendingReward?.worldId || pendingReward?.world_id || fallback?.worldId || '';
   const rewardImageName = getImageFileName(fallback?.image);
   const rewardNameSet = new Set([fallback?.nameJa, fallback?.nameZh].filter(Boolean));
   const matches = (card) => {
     const hero = normalizeHeroCard(card);
     if (!hero) return false;
-    const heroKeys = [hero.id, hero.code, hero.heroId, hero.heroCode, hero.hero_code].filter(Boolean).map(String);
-    if (heroKeys.some((key) => rewardKeySet.has(key))) return true;
+    const heroIds = [
+      hero.id,
+      hero.heroId,
+      hero.hero_id,
+      hero.cardId,
+      hero.card_id,
+    ].filter((value) => value != null && value !== '').map(String);
+    const heroCodes = [
+      hero.code,
+      hero.heroCode,
+      hero.hero_code,
+    ].filter(Boolean).map((value) => String(value).trim().toLowerCase());
+    if (rewardIds.some((id) => heroIds.includes(id))) return true;
+    if (rewardCodes.some((code) => heroCodes.includes(code))) return true;
 
     const sameWorld = !rewardWorldId || hero.worldId === rewardWorldId;
     if (sameWorld && rewardImageName && getImageFileName(hero.image) === rewardImageName) return true;
@@ -338,7 +380,9 @@ export default function CardRewardPage() {
   const [isAdvancing, setIsAdvancing] = useState(false);
   const [grammarAnimationComplete, setGrammarAnimationComplete] = useState(false);
   const [grammarImageReady, setGrammarImageReady] = useState(false);
+  const [grammarImageStatus, setGrammarImageStatus] = useState('loading');
   const [apiHeroes, setApiHeroes] = useState([]);
+  const [heroesLoaded, setHeroesLoaded] = useState(false);
   const [pendingQueue, setPendingQueue] = useState(() => getPendingRewardQueue());
   const [rewardIndex, setRewardIndex] = useState(0);
   const isGrammarAdvancingRef = useRef(false);
@@ -390,7 +434,8 @@ export default function CardRewardPage() {
     : null;
   const worldClass = getWorldClass(rewardCard?.worldId);
   const rewardImage = getRewardCardImage(rewardCard);
-  const grammarRewardImage = pendingRewardImage || normalizeGrammarRewardImage(getRewardCardImage(apiRewardHero)) || '';
+  const apiRewardImage = normalizeGrammarRewardImage(getHeroImage(apiRewardHero));
+  const grammarRewardImage = pendingRewardImage || apiRewardImage || '';
   const grammarRewardKey = [
     pendingReward?.code,
     pendingReward?.hero_code,
@@ -401,6 +446,13 @@ export default function CardRewardPage() {
     pendingReward?.cardId,
     grammarRewardImage,
   ].filter(Boolean).map(String)[0] || 'grammar-reward';
+  const apiRewardHeroKey = [
+    apiRewardHero?.id,
+    apiRewardHero?.heroId,
+    apiRewardHero?.code,
+    apiRewardHero?.heroCode,
+    apiRewardImage,
+  ].filter(Boolean).map(String).join(':');
   const rewardBackImage = getRewardCardBackImage(
     pendingReward?.worldId || pendingReward?.world_id || rewardCard?.worldId,
     isGrammarReward,
@@ -436,7 +488,7 @@ export default function CardRewardPage() {
   })();
 
   const motionDuration = (duration) => (shouldReduceMotion ? 0.01 : duration);
-  const canStartGrammarAnimation = !grammarRewardImage || grammarImageReady;
+  const canStartGrammarAnimation = !isGrammarReward || grammarImageStatus === 'ready';
 
   useEffect(() => {
     let cancelled = false;
@@ -446,6 +498,9 @@ export default function CardRewardPage() {
       })
       .catch(() => {
         if (!cancelled) setApiHeroes([]);
+      })
+      .finally(() => {
+        if (!cancelled) setHeroesLoaded(true);
       });
     return () => {
       cancelled = true;
@@ -456,9 +511,60 @@ export default function CardRewardPage() {
     if (!isGrammarReward) return;
     setGrammarImageReady(false);
     setGrammarAnimationComplete(false);
+    setGrammarImageStatus('loading');
     setIsAdvancing(false);
     isGrammarAdvancingRef.current = false;
   }, [isGrammarReward, grammarRewardKey]);
+
+  useEffect(() => {
+    if (!isGrammarReward) return undefined;
+    setGrammarImageReady(false);
+    setGrammarAnimationComplete(false);
+    setGrammarImageStatus('loading');
+
+    if (import.meta.env.DEV) {
+      console.log('[GrammarReward] pendingReward', pendingReward);
+      console.log('[GrammarReward] apiHeroes count', apiHeroes.length);
+      console.log('[GrammarReward] apiRewardHero', apiRewardHero);
+      console.log('[GrammarReward] grammarRewardImage', grammarRewardImage);
+      console.log('[GrammarReward] grammarRewardKey', grammarRewardKey);
+      console.log('[GrammarReward] alreadyOwned', isAlreadyOwned);
+    }
+
+    if (!heroesLoaded) return undefined;
+    if (!grammarRewardImage) {
+      setGrammarImageStatus('error');
+      return undefined;
+    }
+
+    const image = new Image();
+    image.onload = () => {
+      setGrammarImageReady(true);
+      setGrammarImageStatus('ready');
+    };
+    image.onerror = () => {
+      setGrammarImageReady(false);
+      setGrammarImageStatus('error');
+      if (import.meta.env.DEV) {
+        console.warn('Failed to preload grammar reward hero image:', grammarRewardImage, { pendingReward, apiRewardHero });
+      }
+    };
+    image.src = grammarRewardImage;
+
+    return () => {
+      image.onload = null;
+      image.onerror = null;
+    };
+  }, [
+    apiHeroes.length,
+    apiRewardHeroKey,
+    grammarRewardImage,
+    grammarRewardKey,
+    heroesLoaded,
+    isAlreadyOwned,
+    isGrammarReward,
+    pendingReward,
+  ]);
 
   const finishRewards = () => {
     clearPendingReward();
@@ -522,6 +628,32 @@ export default function CardRewardPage() {
     );
   }
 
+  if (isGrammarReward && grammarImageStatus === 'error') {
+    return (
+      <>
+        <div className={`${rewardPageClass} is-grammar-presentation`}>
+          <section className="grammar-reward-hero grammar-reward-error">
+            <div className="grammar-reward-clear-heading">
+              <span className="grammar-reward-crown" aria-hidden="true" />
+              <h1>CLEAR!</h1>
+              <span className="grammar-reward-laurel" aria-hidden="true" />
+            </div>
+            <div className="grammar-reward-ribbon">文法テスト クリア</div>
+            <p className="grammar-reward-mastery">カード情報を読み込めませんでした</p>
+            <GoldQuestButton
+              onClick={finishRewards}
+              className="eq-reward-claim-button quest-reward-main-button grammar-reward-main-button"
+              disabled={isAdvancing}
+            >
+              ホームへ
+            </GoldQuestButton>
+          </section>
+        </div>
+        <EQBottomNav className="eq-home-bottom-nav" />
+      </>
+    );
+  }
+
   if (isGrammarReward) {
     return (
       <>
@@ -533,21 +665,6 @@ export default function CardRewardPage() {
             initial="hidden"
             animate={canStartGrammarAnimation ? 'visible' : 'hidden'}
           >
-            {grammarRewardImage ? (
-              <img
-                className="grammar-reward-preload-image"
-                src={grammarRewardImage}
-                alt=""
-                aria-hidden="true"
-                onLoad={() => setGrammarImageReady(true)}
-                onError={() => {
-                  setGrammarImageReady(false);
-                  if (import.meta.env.DEV) {
-                    console.warn('Failed to preload grammar reward hero image:', grammarRewardImage, { rewardCard });
-                  }
-                }}
-              />
-            ) : null}
             <div className="grammar-reward-clear-heading">
               <motion.span
                 className="grammar-reward-crown"

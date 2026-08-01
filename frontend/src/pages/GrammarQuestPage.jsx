@@ -256,6 +256,13 @@ export default function GrammarQuestPage() {
           testResult?.reward_queue || testResult?.rewardQueue,
           ...completedAnswers.map((answer) => answer?.reward_queue || answer?.rewardQueue),
         );
+        if (import.meta.env.DEV) {
+          console.log('[GrammarReward] raw reward queues', {
+            testResult: testResult?.reward_queue || testResult?.rewardQueue,
+            completedAnswers: completedAnswers.map((answer) => answer?.reward_queue || answer?.rewardQueue),
+          });
+          console.log('[GrammarReward] merged reward queue', rewardQueue);
+        }
         if (rewardQueue.length) {
           savePendingRewardQueue(rewardQueue.map((reward) => ({
             ...reward,

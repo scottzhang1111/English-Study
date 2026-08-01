@@ -139,6 +139,13 @@ export default function GrammarFormPracticePage() {
       testResult?.reward_queue || testResult?.rewardQueue,
       ...completedResults.map((result) => result?.reward_queue || result?.rewardQueue),
     );
+    if (import.meta.env.DEV) {
+      console.log('[GrammarReward] raw reward queues', {
+        testResult: testResult?.reward_queue || testResult?.rewardQueue,
+        completedAnswers: completedResults.map((result) => result?.reward_queue || result?.rewardQueue),
+      });
+      console.log('[GrammarReward] merged reward queue', rewardQueue);
+    }
     if (rewardQueue.length) {
       savePendingRewardQueue(rewardQueue.map((reward) => ({
         ...reward,
