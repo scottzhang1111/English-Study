@@ -1,5 +1,5 @@
-import { useEffect, useMemo, useState } from 'react';
-import { motion } from 'framer-motion';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { getHeroCards } from '../api';
 import { EQBottomNav, GoldQuestButton } from '../components/eigo';
@@ -68,6 +68,19 @@ function getRewardCardImage(card) {
   const worldId = card.worldId || 'wind';
   if (image.includes(`/cards/${worldId}/`)) return image;
   return image.replace('/assets/eigo-quest/cards/', `/assets/eigo-quest/cards/${worldId}/`);
+}
+
+function getPendingRewardImage(reward) {
+  return reward?.image_url
+    || reward?.imageUrl
+    || reward?.card_image
+    || reward?.cardImage
+    || reward?.image
+    || '';
+}
+
+function normalizeGrammarRewardImage(image) {
+  return String(image || '').replace('/grammar-cards/', '/grammar card/');
 }
 
 const rewardBackWorldIds = new Set(['wind', 'fire', 'water', 'thunder', 'wood', 'rock', 'light', 'shadow']);
@@ -234,15 +247,54 @@ function getBossRewardCopy() {
   };
 }
 
+const grammarFadeDownVariant = {
+  hidden: { opacity: 0, y: -18 },
+  visible: { opacity: 1, y: 0 },
+};
+
+const grammarFadeUpVariant = {
+  hidden: { opacity: 0, y: 18 },
+  visible: { opacity: 1, y: 0 },
+};
+
+const grammarCardVariant = {
+  hidden: {
+    opacity: 0,
+    y: 72,
+    scale: 0.78,
+    rotateX: 7,
+  },
+  visible: {
+    opacity: 1,
+    y: 0,
+    scale: [0.78, 1.045, 1],
+    rotateX: 0,
+  },
+};
+
+const grammarLightVariant = {
+  hidden: {
+    opacity: 0,
+    scale: 0.6,
+  },
+  visible: {
+    opacity: [0, 1, 0.72],
+    scale: [0.6, 1.16, 1],
+  },
+};
+
 export default function CardRewardPage() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
+  const shouldReduceMotion = useReducedMotion();
   const [rewardStep, setRewardStep] = useState('reveal');
   const [isFlipped, setIsFlipped] = useState(false);
   const [isAdvancing, setIsAdvancing] = useState(false);
+  const [grammarAnimationComplete, setGrammarAnimationComplete] = useState(false);
   const [apiHeroes, setApiHeroes] = useState([]);
   const [pendingQueue, setPendingQueue] = useState(() => getPendingRewardQueue());
   const [rewardIndex, setRewardIndex] = useState(0);
+  const isGrammarAdvancingRef = useRef(false);
   const pendingReward = pendingQueue[rewardIndex] || null;
   const fallbackCard = useMemo(() => eigoQuestCards[0], []);
   const isGrammarReward = isGrammarRewardSource(pendingReward);
@@ -259,14 +311,42 @@ export default function CardRewardPage() {
       sourceJa: 'Boss Battle',
     })
     : null;
+  const pendingRewardImage = normalizeGrammarRewardImage(getPendingRewardImage(pendingReward));
+  const pendingRewardCard = pendingReward
+    ? normalizeHeroCard({
+      id: pendingReward.cardId || pendingReward.card_id || pendingReward.code || pendingReward.id,
+      code: pendingReward.code || pendingReward.cardId || pendingReward.card_id || pendingReward.id,
+      heroId: pendingReward.heroId || pendingReward.hero_id,
+      worldId: pendingReward.worldId || pendingReward.world_id || 'wind',
+      nameJa: pendingReward.nameJa || pendingReward.name_ja || pendingReward.name || '',
+      nameZh: pendingReward.nameZh || pendingReward.name_cn || '',
+      rarity: pendingReward.rarity || 'R',
+      image: pendingRewardImage,
+      collectionType: pendingReward.collectionType || pendingReward.collection_type || (isGrammarReward ? 'grammar' : ''),
+      collectionKey: pendingReward.collectionKey || pendingReward.collection_key || '',
+      descriptionJa: pendingReward.descriptionJa || pendingReward.description_ja || '',
+    })
+    : null;
+  const apiRewardHero = pendingReward ? findRewardHero(apiHeroes, pendingReward, null) : null;
   const rewardCard = pendingReward
     ? (
       bossRewardCard
-      || findRewardHero(apiHeroes, pendingReward, getCardById(pendingReward?.cardId) || fallbackCard)
+      || (isGrammarReward
+        ? (pendingRewardCard || apiRewardHero)
+        : findRewardHero(apiHeroes, pendingReward, getCardById(pendingReward?.cardId) || fallbackCard))
     )
     : null;
   const worldClass = getWorldClass(rewardCard?.worldId);
   const rewardImage = getRewardCardImage(rewardCard);
+  const grammarRewardImage = pendingRewardImage || normalizeGrammarRewardImage(getRewardCardImage(apiRewardHero)) || '';
+  const grammarRewardKey = [
+    pendingReward?.code,
+    pendingReward?.hero_code,
+    pendingReward?.heroCode,
+    pendingReward?.card_id,
+    pendingReward?.cardId,
+    grammarRewardImage,
+  ].filter(Boolean).map(String)[0] || 'grammar-reward';
   const rewardBackImage = getRewardCardBackImage(
     pendingReward?.worldId || pendingReward?.world_id || rewardCard?.worldId,
     isGrammarReward,
@@ -300,6 +380,8 @@ export default function CardRewardPage() {
     return typeof target === 'string' && target.startsWith('/') && !target.startsWith('//') ? target : '/app';
   })();
 
+  const motionDuration = (duration) => (shouldReduceMotion ? 0.01 : duration);
+
   useEffect(() => {
     let cancelled = false;
     getHeroCards()
@@ -313,6 +395,13 @@ export default function CardRewardPage() {
       cancelled = true;
     };
   }, []);
+
+  useEffect(() => {
+    if (!isGrammarReward) return;
+    setGrammarAnimationComplete(false);
+    setIsAdvancing(false);
+    isGrammarAdvancingRef.current = false;
+  }, [isGrammarReward, grammarRewardKey]);
 
   const finishRewards = () => {
     clearPendingReward();
@@ -340,6 +429,21 @@ export default function CardRewardPage() {
     setRewardIndex(0);
     setRewardStep('reveal');
     setIsFlipped(false);
+    setIsAdvancing(false);
+    isGrammarAdvancingRef.current = false;
+  };
+
+  const handleGrammarContinue = () => {
+    if (!grammarAnimationComplete || isAdvancing || isGrammarAdvancingRef.current) return;
+    isGrammarAdvancingRef.current = true;
+    setIsAdvancing(true);
+
+    if (hasNextReward) {
+      showNextReward();
+      return;
+    }
+
+    finishRewards();
   };
 
   if (!rewardCard) {
@@ -363,62 +467,133 @@ export default function CardRewardPage() {
     return (
       <>
         <div className={`${rewardPageClass} is-grammar-presentation`}>
-          <section className="grammar-reward-hero" aria-label="文法テストクリア">
+          <motion.section
+            key={`grammar-reward-${grammarRewardKey}`}
+            className="grammar-reward-hero"
+            aria-label="文法テストクリア"
+            initial="hidden"
+            animate="visible"
+          >
             <div className="grammar-reward-clear-heading">
-              <span className="grammar-reward-crown" aria-hidden="true" />
-              <h1>CLEAR!</h1>
-              <span className="grammar-reward-laurel" aria-hidden="true" />
+              <motion.span
+                className="grammar-reward-crown"
+                aria-hidden="true"
+                variants={grammarFadeDownVariant}
+                transition={{ duration: motionDuration(0.42), delay: motionDuration(0.04), ease: [0.22, 1, 0.36, 1] }}
+              />
+              <motion.h1
+                variants={grammarFadeDownVariant}
+                transition={{ duration: motionDuration(0.48), delay: motionDuration(0.1), ease: [0.22, 1, 0.36, 1] }}
+              >
+                CLEAR!
+              </motion.h1>
+              <motion.span
+                className="grammar-reward-laurel"
+                aria-hidden="true"
+                variants={grammarFadeDownVariant}
+                transition={{ duration: motionDuration(0.42), delay: motionDuration(0.04), ease: [0.22, 1, 0.36, 1] }}
+              />
             </div>
 
-            <div className="grammar-reward-ribbon">
+            <motion.div
+              className="grammar-reward-ribbon"
+              variants={grammarFadeUpVariant}
+              transition={{ duration: motionDuration(0.42), delay: motionDuration(0.28), ease: [0.22, 1, 0.36, 1] }}
+            >
               文法テスト クリア
-            </div>
+            </motion.div>
 
-            <p className="grammar-reward-mastery">
+            <motion.p
+              className="grammar-reward-mastery"
+              variants={grammarFadeUpVariant}
+              transition={{ duration: motionDuration(0.42), delay: motionDuration(0.42), ease: [0.22, 1, 0.36, 1] }}
+            >
               {masteryText}
-            </p>
+            </motion.p>
 
             <section className="grammar-reward-card-stage" aria-label="新しい文法英雄カード">
-              <div className="grammar-reward-light-rays" aria-hidden="true" />
-              <div className="grammar-reward-magic-circle" aria-hidden="true" />
-              <div className="grammar-reward-card-glow" aria-hidden="true" />
-
               <motion.div
-                className="grammar-reward-card"
-                initial={{ y: 28, scale: 0.94, opacity: 0 }}
-                animate={{ y: 0, scale: 1, opacity: 1 }}
-                transition={{ duration: 0.62, ease: [0.22, 1, 0.36, 1] }}
-              >
-                {rewardImage ? (
-                  <img
-                    src={rewardImage}
-                    alt={hero.name}
-                    onError={() => {
-                      if (import.meta.env.DEV) {
-                        console.warn('Failed to load grammar reward hero image:', rewardImage, { rewardCard });
-                      }
+                className="grammar-reward-light-rays"
+                aria-hidden="true"
+                variants={grammarLightVariant}
+                transition={{ duration: motionDuration(0.82), delay: motionDuration(0.72), ease: [0.22, 1, 0.36, 1] }}
+              />
+              <motion.div
+                className="grammar-reward-magic-circle"
+                aria-hidden="true"
+                variants={grammarLightVariant}
+                transition={{ duration: motionDuration(0.72), delay: motionDuration(0.34), ease: [0.22, 1, 0.36, 1] }}
+              />
+              <motion.div
+                className="grammar-reward-card-glow"
+                aria-hidden="true"
+                variants={grammarLightVariant}
+                transition={{ duration: motionDuration(0.7), delay: motionDuration(0.76), ease: [0.22, 1, 0.36, 1] }}
+              />
+
+              <AnimatePresence mode="wait">
+                {grammarRewardImage ? (
+                  <motion.div
+                    key={`grammar-card-${grammarRewardKey}`}
+                    className="grammar-reward-card"
+                    variants={grammarCardVariant}
+                    initial="hidden"
+                    animate="visible"
+                    exit={{ opacity: 0, y: 18, scale: 0.96 }}
+                    transition={{
+                      duration: motionDuration(0.82),
+                      delay: motionDuration(0.55),
+                      ease: [0.22, 1, 0.36, 1],
+                      times: [0, 0.72, 1],
                     }}
-                  />
+                  >
+                    <div className="grammar-reward-card-float">
+                      <img
+                        src={grammarRewardImage}
+                        alt={hero.name || 'Grammar reward hero'}
+                        onError={() => {
+                          if (import.meta.env.DEV) {
+                            console.warn('Failed to load grammar reward hero image:', grammarRewardImage, { rewardCard });
+                          }
+                        }}
+                      />
+                    </div>
+                  </motion.div>
                 ) : (
-                  <div className={`eq-card-art eq-card-world-${worldClass} is-large`}>
-                    <div className="eq-card-art-symbol">{worldClass}</div>
+                  <div className="grammar-reward-card-placeholder" aria-hidden="true">
+                    <div className={`eq-card-art eq-card-world-${worldClass} is-large`}>
+                      <div className="eq-card-art-symbol">{worldClass}</div>
+                    </div>
                   </div>
                 )}
-              </motion.div>
+              </AnimatePresence>
             </section>
 
-            <p className="grammar-reward-gain">
-              新しい文法英雄カードを獲得！
-            </p>
-
-            <GoldQuestButton
-              onClick={showNextReward}
-              className="eq-reward-claim-button quest-reward-main-button grammar-reward-main-button"
-              disabled={isAdvancing}
+            <motion.p
+              className="grammar-reward-gain"
+              variants={grammarFadeUpVariant}
+              transition={{ duration: motionDuration(0.42), delay: motionDuration(1.05), ease: [0.22, 1, 0.36, 1] }}
             >
-              {hasNextReward ? '次のカードへ' : 'ホームへ'}
-            </GoldQuestButton>
-          </section>
+              新しい文法英雄カードを獲得！
+            </motion.p>
+
+            <motion.div
+              className="grammar-reward-action"
+              variants={grammarFadeUpVariant}
+              transition={{ duration: motionDuration(0.42), delay: motionDuration(1.2), ease: [0.22, 1, 0.36, 1] }}
+              onAnimationComplete={() => {
+                setGrammarAnimationComplete(true);
+              }}
+            >
+              <GoldQuestButton
+                onClick={handleGrammarContinue}
+                className="eq-reward-claim-button quest-reward-main-button grammar-reward-main-button"
+                disabled={!grammarAnimationComplete || isAdvancing}
+              >
+                {hasNextReward ? '次のカードへ' : 'ホームへ'}
+              </GoldQuestButton>
+            </motion.div>
+          </motion.section>
         </div>
         <EQBottomNav className="eq-home-bottom-nav" />
       </>

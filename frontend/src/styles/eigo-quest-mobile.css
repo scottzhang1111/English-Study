@@ -14190,15 +14190,40 @@ body,
 }
 
 .grammar-reward-card img,
-.grammar-reward-card .eq-card-art {
+.grammar-reward-card .eq-card-art,
+.grammar-reward-card-placeholder .eq-card-art {
   display: block;
   width: 100%;
   max-height: min(56dvh, 520px);
   object-fit: contain;
 }
 
-.grammar-reward-card .eq-card-art {
+.grammar-reward-card .eq-card-art,
+.grammar-reward-card-placeholder .eq-card-art {
   aspect-ratio: 0.68;
+}
+
+.grammar-reward-card-float {
+  display: grid;
+  width: 100%;
+  place-items: center;
+  animation: grammarRewardFloat 3.6s ease-in-out infinite;
+}
+
+.grammar-reward-card-float img {
+  pointer-events: none;
+  user-select: none;
+}
+
+.grammar-reward-card-placeholder {
+  position: relative;
+  z-index: 3;
+  display: grid;
+  width: min(62vw, 260px);
+  max-height: min(50dvh, 430px);
+  place-items: center;
+  opacity: 0.42;
+  filter: saturate(0.7) drop-shadow(0 0 18px rgba(100, 164, 255, 0.28));
 }
 
 .grammar-reward-gain {
@@ -14216,6 +14241,29 @@ body,
 
 .grammar-reward-main-button {
   margin-top: 4px !important;
+}
+
+.grammar-reward-action {
+  display: grid;
+  width: min(100%, 330px);
+  justify-items: center;
+}
+
+@keyframes grammarRewardFloat {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-4px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .grammar-reward-card-float {
+    animation: none;
+  }
 }
 
 .eq-boss-reward-page .quest-reward-halo {
