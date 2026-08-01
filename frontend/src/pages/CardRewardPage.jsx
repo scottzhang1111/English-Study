@@ -315,13 +315,13 @@ const grammarFadeUpVariant = {
 const grammarCardVariant = {
   hidden: {
     opacity: 0,
-    y: 42,
-    scale: 0.48,
+    y: 46,
+    scale: 0.38,
   },
   visible: {
-    opacity: 1,
-    y: [42, -8, 3, 0],
-    scale: [0.48, 1.1, 0.97, 1],
+    opacity: [0, 0.35, 1, 1, 1],
+    y: [46, 28, -7, 2, 0],
+    scale: [0.38, 0.65, 1.06, 0.985, 1],
   },
 };
 
@@ -444,6 +444,8 @@ export default function CardRewardPage() {
     pendingReward?.heroId,
     pendingReward?.card_id,
     pendingReward?.cardId,
+    pendingReward?.lesson_id,
+    pendingReward?.lessonId,
     grammarRewardImage,
   ].filter(Boolean).map(String)[0] || 'grammar-reward';
   const apiRewardHeroKey = [
@@ -488,7 +490,6 @@ export default function CardRewardPage() {
   })();
 
   const motionDuration = (duration) => (shouldReduceMotion ? 0.01 : duration);
-  const canStartGrammarAnimation = !isGrammarReward || grammarImageStatus === 'ready';
 
   useEffect(() => {
     let cancelled = false;
@@ -654,16 +655,25 @@ export default function CardRewardPage() {
     );
   }
 
+  if (isGrammarReward && grammarImageStatus === 'loading') {
+    return (
+      <>
+        <div className={`${rewardPageClass} is-grammar-presentation is-grammar-loading`} aria-label="Grammar reward loading" />
+        <EQBottomNav className="eq-home-bottom-nav" />
+      </>
+    );
+  }
+
   if (isGrammarReward) {
     return (
       <>
         <div className={`${rewardPageClass} is-grammar-presentation`}>
           <motion.section
-            key={`grammar-reward-${grammarRewardKey}-${canStartGrammarAnimation ? 'ready' : 'loading'}`}
+            key={`grammar-reward-${grammarRewardKey}`}
             className="grammar-reward-hero"
             aria-label="文法テストクリア"
             initial="hidden"
-            animate={canStartGrammarAnimation ? 'visible' : 'hidden'}
+            animate="visible"
           >
             <div className="grammar-reward-clear-heading">
               <motion.span
@@ -698,8 +708,8 @@ export default function CardRewardPage() {
                 scaleX: 0.68,
               }}
               animate={{
-                opacity: canStartGrammarAnimation ? 1 : 0,
-                scaleX: canStartGrammarAnimation ? 1 : 0.68,
+                opacity: 1,
+                scaleX: 1,
               }}
               transition={{ duration: motionDuration(0.46), delay: motionDuration(0.55), ease: [0.22, 1, 0.36, 1] }}
             >
@@ -709,7 +719,7 @@ export default function CardRewardPage() {
             <motion.p
               className="grammar-reward-mastery"
               initial={{ opacity: 0, y: 10 }}
-              animate={canStartGrammarAnimation ? { opacity: 1, y: 0 } : { opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
               transition={{ duration: motionDuration(0.42), delay: motionDuration(0.72), ease: [0.22, 1, 0.36, 1] }}
             >
               {masteryText}
@@ -720,100 +730,90 @@ export default function CardRewardPage() {
                 className="grammar-reward-stage-base"
                 aria-hidden="true"
                 initial={{ opacity: 0 }}
-                animate={canStartGrammarAnimation ? { opacity: 0.62 } : { opacity: 0 }}
+                animate={{ opacity: 0.62 }}
                 transition={{ duration: motionDuration(0.35), delay: 0, ease: [0.22, 1, 0.36, 1] }}
               />
-              {grammarImageReady ? (
-                <>
-                  <motion.div
-                    className="grammar-reward-light-rays"
-                    aria-hidden="true"
-                    variants={grammarLightRaysVariant}
-                    transition={{
-                      duration: motionDuration(0.86),
-                      delay: motionDuration(1.12),
-                      times: [0, 0.66, 1],
-                      ease: [0.22, 1, 0.36, 1],
-                    }}
-                  />
-                  <motion.div
-                    className="grammar-reward-magic-circle"
-                    aria-hidden="true"
-                    variants={grammarMagicCircleVariant}
-                    transition={{
-                      duration: motionDuration(0.92),
-                      delay: motionDuration(1.02),
-                      times: [0, 0.72, 1],
-                      ease: [0.22, 1, 0.36, 1],
-                    }}
-                  />
-                  <motion.div
-                    className="grammar-reward-card-glow"
-                    aria-hidden="true"
-                    variants={grammarChargeVariant}
-                    transition={{
-                      duration: motionDuration(0.42),
-                      delay: motionDuration(0.9),
-                      times: [0, 0.65, 1],
-                      ease: [0.22, 1, 0.36, 1],
-                    }}
-                  />
-                  <motion.div
-                    className="grammar-reward-summon-flash"
-                    aria-hidden="true"
-                    variants={grammarSummonFlashVariant}
-                    transition={{
-                      duration: motionDuration(0.72),
-                      delay: motionDuration(1.3),
-                      times: [0, 0.36, 1],
-                      ease: 'easeOut',
-                    }}
-                  />
-                </>
-              ) : null}
+              <motion.div
+                className="grammar-reward-light-rays"
+                aria-hidden="true"
+                variants={grammarLightRaysVariant}
+                transition={{
+                  duration: motionDuration(0.86),
+                  delay: motionDuration(1.12),
+                  times: [0, 0.66, 1],
+                  ease: [0.22, 1, 0.36, 1],
+                }}
+              />
+              <motion.div
+                className="grammar-reward-magic-circle"
+                aria-hidden="true"
+                variants={grammarMagicCircleVariant}
+                transition={{
+                  duration: motionDuration(0.92),
+                  delay: motionDuration(1.02),
+                  times: [0, 0.72, 1],
+                  ease: [0.22, 1, 0.36, 1],
+                }}
+              />
+              <motion.div
+                className="grammar-reward-card-glow"
+                aria-hidden="true"
+                variants={grammarChargeVariant}
+                transition={{
+                  duration: motionDuration(0.42),
+                  delay: motionDuration(0.9),
+                  times: [0, 0.65, 1],
+                  ease: [0.22, 1, 0.36, 1],
+                }}
+              />
+              <motion.div
+                className="grammar-reward-summon-flash"
+                aria-hidden="true"
+                variants={grammarSummonFlashVariant}
+                transition={{
+                  duration: motionDuration(0.72),
+                  delay: motionDuration(1.3),
+                  times: [0, 0.36, 1],
+                  ease: 'easeOut',
+                }}
+              />
 
               <AnimatePresence mode="wait">
-                {grammarRewardImage && grammarImageReady ? (
-                  <motion.div
-                    key={`grammar-card-${grammarRewardKey}`}
-                    className="grammar-reward-card"
-                    variants={grammarCardVariant}
-                    initial="hidden"
-                    animate="visible"
-                    exit={{ opacity: 0, y: 18, scale: 0.96 }}
-                    transition={{
-                      duration: motionDuration(0.88),
-                      delay: motionDuration(1.15),
-                      ease: [0.22, 1, 0.36, 1],
-                      times: [0, 0.62, 0.84, 1],
-                    }}
-                  >
-                    <div className="grammar-reward-card-float">
-                      <img
-                        src={grammarRewardImage}
-                        alt={hero.name || 'Grammar reward hero'}
-                        onError={() => {
-                          if (import.meta.env.DEV) {
-                            console.warn('Failed to load grammar reward hero image:', grammarRewardImage, { rewardCard });
-                          }
-                        }}
-                      />
-                    </div>
-                  </motion.div>
-                ) : (
-                  <div className="grammar-reward-card-placeholder" aria-hidden="true">
-                    <div className="eq-card-art eq-card-world-grammar is-large">
-                      <div className="eq-card-art-symbol">G</div>
-                    </div>
+                <motion.div
+                  key={`grammar-card-${grammarRewardKey}`}
+                  className="grammar-reward-card grammar-reward-card-entry"
+                  variants={grammarCardVariant}
+                  initial="hidden"
+                  animate="visible"
+                  exit={{ opacity: 0, y: 18, scale: 0.96 }}
+                  transition={{
+                    duration: motionDuration(1.25),
+                    delay: motionDuration(0.95),
+                    ease: [0.22, 1, 0.36, 1],
+                    times: [0, 0.25, 0.7, 0.88, 1],
+                  }}
+                >
+                  <div className="grammar-reward-card-static">
+                    <img
+                      src={grammarRewardImage}
+                      alt={hero.name || 'Grammar reward hero'}
+                      className="grammar-reward-card-image"
+                      draggable={false}
+                      onError={() => {
+                        if (import.meta.env.DEV) {
+                          console.warn('Failed to load grammar reward hero image:', grammarRewardImage, { rewardCard });
+                        }
+                      }}
+                    />
                   </div>
-                )}
+                </motion.div>
               </AnimatePresence>
             </section>
 
             <motion.p
               className="grammar-reward-gain"
               initial={{ opacity: 0, y: 12 }}
-              animate={canStartGrammarAnimation ? { opacity: 1, y: 0 } : { opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
               transition={{ duration: motionDuration(0.38), delay: motionDuration(1.85), ease: [0.22, 1, 0.36, 1] }}
             >
               {isAlreadyOwned ? '獲得済みの文法英雄カードです' : gainText}
@@ -822,12 +822,10 @@ export default function CardRewardPage() {
             <motion.div
               className="grammar-reward-action"
               initial={{ opacity: 0, y: 14, scale: 0.96 }}
-              animate={canStartGrammarAnimation ? { opacity: 1, y: 0, scale: 1 } : { opacity: 0, y: 14, scale: 0.96 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
               transition={{ duration: motionDuration(0.4), delay: motionDuration(2.1), ease: [0.22, 1, 0.36, 1] }}
               onAnimationComplete={() => {
-                if (canStartGrammarAnimation) {
-                  setGrammarAnimationComplete(true);
-                }
+                setGrammarAnimationComplete(true);
               }}
             >
               <GoldQuestButton

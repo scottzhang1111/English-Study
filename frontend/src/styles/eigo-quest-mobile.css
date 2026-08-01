@@ -14018,6 +14018,10 @@ body,
   color: #fff7df;
 }
 
+.quest-reward-palace.eq-grammar-reward-page.is-grammar-loading {
+  min-height: 100dvh;
+}
+
 .quest-reward-palace.eq-grammar-reward-page.is-grammar-presentation::before {
   background:
     radial-gradient(circle at 14% 18%, rgba(255, 231, 150, 0.92) 0 1px, transparent 2px),
@@ -14205,7 +14209,8 @@ body,
   transform: perspective(260px) rotateX(58deg);
 }
 
-.grammar-reward-card {
+.grammar-reward-card,
+.grammar-reward-card-entry {
   position: relative;
   z-index: 3;
   display: grid;
@@ -14215,43 +14220,38 @@ body,
   filter:
     drop-shadow(0 0 18px rgba(255, 225, 126, 0.7))
     drop-shadow(0 20px 34px rgba(0, 0, 0, 0.58));
+  transform-origin: center center;
+  will-change: transform, opacity;
 }
 
 .grammar-reward-card img,
-.grammar-reward-card .eq-card-art,
-.grammar-reward-card-placeholder .eq-card-art {
+.grammar-reward-card .eq-card-art {
   display: block;
   width: 100%;
   max-height: min(56dvh, 520px);
   object-fit: contain;
 }
 
-.grammar-reward-card .eq-card-art,
-.grammar-reward-card-placeholder .eq-card-art {
+.grammar-reward-card .eq-card-art {
   aspect-ratio: 0.68;
 }
 
+.grammar-reward-card-static,
 .grammar-reward-card-float {
   display: grid;
   width: 100%;
   place-items: center;
-  animation: grammarRewardFloat 3.6s ease-in-out infinite;
 }
 
-.grammar-reward-card-float img {
+.grammar-reward-card-static img,
+.grammar-reward-card-float img,
+.grammar-reward-card-image {
+  display: block;
+  width: 100%;
+  height: auto;
+  object-fit: contain;
   pointer-events: none;
   user-select: none;
-}
-
-.grammar-reward-card-placeholder {
-  position: relative;
-  z-index: 3;
-  display: grid;
-  width: min(62vw, 260px);
-  max-height: min(50dvh, 430px);
-  place-items: center;
-  opacity: 0.42;
-  filter: saturate(0.7) drop-shadow(0 0 18px rgba(100, 164, 255, 0.28));
 }
 
 .grammar-reward-preload-image {
@@ -14284,17 +14284,6 @@ body,
   display: grid;
   width: min(100%, 330px);
   justify-items: center;
-}
-
-@keyframes grammarRewardFloat {
-  0%,
-  100% {
-    transform: translateY(0);
-  }
-
-  50% {
-    transform: translateY(-4px);
-  }
 }
 
 @media (prefers-reduced-motion: reduce) {
