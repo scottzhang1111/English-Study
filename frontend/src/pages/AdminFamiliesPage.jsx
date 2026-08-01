@@ -6,7 +6,7 @@ const ADMIN_CODE_STORAGE_KEY = 'eq_admin_code';
 const createInitialChild = () => ({
   name: '',
   grade: '4',
-  target_level: '準2級',
+  target_level: 'eiken_pre2',
 });
 
 function buildShareText(familyCode) {
@@ -212,7 +212,7 @@ export default function AdminFamiliesPage() {
                 </label>
                 <label>
                   <span>target_level</span>
-                  <input value={child.target_level} onChange={(event) => updateChild(index, 'target_level', event.target.value)} placeholder="準2級" />
+                  <input value={child.target_level} onChange={(event) => updateChild(index, 'target_level', event.target.value)} placeholder="eiken_pre2" />
                 </label>
                 <button type="button" onClick={() => removeChild(index)} aria-label="子どもを削除">
                   ×

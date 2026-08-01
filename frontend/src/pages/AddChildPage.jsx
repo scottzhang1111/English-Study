@@ -18,14 +18,17 @@ const GRADE_OPTIONS = [
   '中学3年生',
 ];
 
-const TARGET_LEVEL_OPTIONS = ['英検5級', '英検4級', '英検3級', '準2級', '2級'];
+const TARGET_LEVEL_OPTIONS = [
+  { value: 'eiken3', label: '英検3級' },
+  { value: 'eiken_pre2', label: '英検準2級' },
+];
 
 export default function AddChildPage() {
   const navigate = useNavigate();
   const { setSelectedChildId, refreshChildren } = useChildren();
   const [name, setName] = useState('');
   const [grade, setGrade] = useState('小学2年生');
-  const [targetLevel, setTargetLevel] = useState('準2級');
+  const [targetLevel, setTargetLevel] = useState('eiken_pre2');
   const [partnerMonsterId, setPartnerMonsterId] = useState(DEFAULT_PARTNER_ID);
   const [error, setError] = useState('');
 
@@ -105,8 +108,8 @@ export default function AddChildPage() {
                 className="mt-2 w-full rounded-[22px] border border-white/80 bg-[#f8fcff] px-4 py-3 text-base font-semibold text-[#354172]"
               >
                 {TARGET_LEVEL_OPTIONS.map((item) => (
-                  <option key={item} value={item}>
-                    {item}
+                  <option key={item.value} value={item.value}>
+                    {item.label}
                   </option>
                 ))}
               </select>

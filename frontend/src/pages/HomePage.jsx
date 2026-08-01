@@ -8,6 +8,7 @@ import { getGrammarLessons, getHomeData } from '../api';
 import { useChildren } from '../ChildrenContext';
 import { useBgm } from '../context/BgmContext';
 import { getPartner } from '../utils/childStorage';
+import { getTargetLevelLabel } from '../utils/targetLevel';
 import { getEigoQuestProgress } from '../helpers/eigoQuestProgress';
 import { eigoQuestCards } from '../config/eigoQuestCards';
 import { eigoQuestIconAssets } from '../config/eigoQuestAssets';
@@ -1109,7 +1110,7 @@ const handleHomeVideoPlay = async (event) => {
                       学年：{selectedChild.grade}
                     </span>
                     <span className="rounded-full bg-white px-3 py-1 text-xs font-bold text-[#61759e] max-md:text-sm max-md:font-semibold">
-                      目標：{selectedChild.targetLevel || selectedChild.target_level || selectedChild.grade}
+                      目標：{getTargetLevelLabel(selectedChild.targetLevel || selectedChild.target_level || selectedChild.learningGoal || selectedChild.learning_goal || selectedChild.grade)}
                     </span>
                     <button
                       type="button"

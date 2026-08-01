@@ -19,7 +19,7 @@ import {
   EIGO_BOSS_TYPES,
   getEigoBossById,
 } from '../data/eigoBosses';
-import { getDailyWords, getVocabWrongReviews } from '../api';
+import { clearBossProgress, getDailyWords, getVocabWrongReviews } from '../api';
 import { buildBossReviewQuestions } from '../helpers/eigoBossQuestionBuilder';
 import { selectBossHeroParty } from '../helpers/eigoBossHeroSelector';
 import { markBossCleared } from '../helpers/eigoBossProgress';
@@ -797,6 +797,7 @@ export default function EigoBossBattlePage() {
   const [actionEffect, setActionEffect] = useState(null);
   const [sequenceLoadState, setSequenceLoadState] = useState({});
   const [isResolving, setIsResolving] = useState(false);
+  const [bossClearResult, setBossClearResult] = useState(null);
   const battleRef = useRef(null);
   const bossCardRef = useRef(null);
   const heroPartyRef = useRef(null);
@@ -1086,6 +1087,7 @@ export default function EigoBossBattlePage() {
     setCounterSequence(null);
     setActionEffect(null);
     setIsResolving(false);
+    setBossClearResult(null);
     setState(createInitialBattleState(battle, bossConfig, bossQuestions));
   };
 
@@ -1107,7 +1109,62 @@ export default function EigoBossBattlePage() {
     };
   };
 
-  const claimBossReward = () => {
+  const persistBossClearAndReward = async (nextState) => {
+    if (!bossConfig?.bossId || !selectedChildId) {
+      throw new Error('child_id is required');
+    }
+    setState({
+      ...nextState,
+      battleStatus: 'clear_pending',
+      message: 'Boss通关を保存しています...',
+    });
+    const result = await clearBossProgress({
+      childId: selectedChildId,
+      bossId: bossConfig.bossId,
+      worldId: bossConfig.worldId,
+      stageNumber: bossConfig.checkpointAfterStage || bossConfig.stageId,
+      bossType: bossConfig.bossType,
+    });
+    setBossClearResult(result);
+    markBossCleared(bossConfig, selectedChildId);
+    const rewardQueue = result?.rewardQueue || result?.reward_queue;
+    if (rewardQueue?.length) {
+      savePendingRewardQueue(rewardQueue);
+      navigate('/card-reward');
+      return result;
+    }
+    const bossReward = buildBossReward();
+    if (bossReward) {
+      savePendingRewardQueue([bossReward]);
+      navigate('/card-reward');
+      return result;
+    }
+    setState({
+      ...nextState,
+      battleStatus: 'clear',
+      message: '風の試練クリア！Boss カードを手に入れた！',
+    });
+    return result;
+  };
+
+  const claimBossReward = async () => {
+    if (isResolving) return;
+    if (!bossClearResult) {
+      setIsResolving(true);
+      try {
+        await persistBossClearAndReward(state);
+      } catch (err) {
+        setState((current) => ({
+          ...current,
+          battleStatus: 'clear',
+          message: err.message || 'Boss通关の保存に失敗しました。もう一度ためしてね。',
+        }));
+      } finally {
+        setIsResolving(false);
+      }
+      return;
+    }
+
     const bossReward = buildBossReward();
     if (!bossReward) {
       navigate(rewardPath);
@@ -1290,17 +1347,14 @@ export default function EigoBossBattlePage() {
       if (nextBossHp <= 0) {
         setState(nextState);
         clearBossReactionSoon();
-        scheduleTimeout(() => {
-          markBossCleared(bossConfig);
-          const bossReward = buildBossReward();
-          if (bossReward) {
-            savePendingRewardQueue([bossReward]);
-            navigate('/card-reward');
-          } else {
+        scheduleTimeout(async () => {
+          try {
+            await persistBossClearAndReward(nextState);
+          } catch (err) {
             setState({
               ...nextState,
               battleStatus: 'clear',
-              message: '風の試練クリア！Boss カードを手に入れた！',
+              message: err.message || 'Boss通关の保存に失敗しました。もう一度ためしてね。',
             });
           }
           setIsResolving(false);
@@ -1431,8 +1485,8 @@ export default function EigoBossBattlePage() {
             <img src={rewardConfig?.image || battle.boss.image} alt={`${rewardConfig?.nameJa || battle.boss.name} reward`} />
             <strong>{rewardConfig?.nameJa || battle.boss.name}</strong>
           </div>
-          <EQFantasyButton fullWidth onClick={claimBossReward}>
-            カードを見る
+          <EQFantasyButton fullWidth onClick={claimBossReward} disabled={isResolving}>
+            {isResolving ? '保存中...' : 'カードを見る'}
           </EQFantasyButton>
         </EQFantasyCard>
       ) : state.battleStatus === 'failed' ? (

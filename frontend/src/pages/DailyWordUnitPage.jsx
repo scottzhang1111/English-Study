@@ -3,6 +3,7 @@ import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import { getDailyWords, getHomeData, markMastered, submitPracticeAnswer } from '../api';
 import { useChildren } from '../ChildrenContext';
 import { getPartner } from '../utils/childStorage';
+import { getTargetLevelLabel } from '../utils/targetLevel';
 import eigoQuestWorlds from '../config/eigoQuestWorlds';
 import { getWorldStageByLearnedWords } from '../helpers/eigoQuestProgress';
 import CompactPageHeader from '../components/eigo/CompactPageHeader';
@@ -659,7 +660,7 @@ export default function DailyWordUnitPage() {
             <p className="mt-2 text-sm font-bold text-[#60709d]">{targetCount}個をいっしょに覚えよう</p>
             <div className="mt-4 flex flex-wrap gap-2 text-xs font-bold text-[#61759e]">
               <span className="rounded-full bg-white/82 px-3 py-1">{child.name} さん</span>
-              <span className="rounded-full bg-white/82 px-3 py-1">目標: {child.targetLevel}</span>
+              <span className="rounded-full bg-white/82 px-3 py-1">目標: {getTargetLevelLabel(child.targetLevel || child.target_level || child.learningGoal || child.learning_goal || child.grade)}</span>
      {/*          <span className="rounded-full bg-[#fff7d6] px-3 py-1">{partnerName} Lv.1</span> */}
             </div>
           </div>

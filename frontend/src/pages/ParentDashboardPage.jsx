@@ -10,6 +10,7 @@ import {
 } from '../api';
 import { useChildren } from '../ChildrenContext';
 import { EQBottomNav } from '../components/eigo';
+import { getTargetLevelGoalLabel } from '../utils/targetLevel';
 
 const DEFAULT_CHILD_AVATAR = '/assets/eigo-quest/child icon/child4.png';
 
@@ -19,11 +20,7 @@ function getChildName(child) {
 
 function formatLearningGoal(child) {
   const value = child?.target_level || child?.targetLevel || child?.learning_goal || child?.learningGoal || child?.grade || '';
-  if (value === 'eiken_pre2') return '英検準2級をめざす';
-  if (value === 'eiken3') return '英検3級をめざす';
-  if (value.includes('準2') || value.includes('準２')) return '英検準2級をめざす';
-  if (value.includes('3') || value.includes('３') || value.includes('三級')) return '英検3級をめざす';
-  return value || '英検準2級をめざす';
+  return getTargetLevelGoalLabel(value);
 }
 
 function getDailyTarget(child) {

@@ -1,4 +1,5 @@
 import { PET_STARTER_OPTIONS, buildStaticPetCollection, decoratePet } from './lib/petMaster';
+import { normalizeTargetLevel } from './utils/targetLevel';
 
 export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '';
 
@@ -55,14 +56,18 @@ async function fetchJson(path, { method = 'GET', params, body, headers } = {}) {
 
 function normalizeApiChild(child) {
   if (!child) return null;
+  const targetLevel = normalizeTargetLevel(child.targetLevel || child.target_level || child.learningGoal || child.learning_goal || child.grade);
+  const learningGoal = normalizeTargetLevel(child.learningGoal || child.learning_goal || child.targetLevel || child.target_level || targetLevel);
   return {
     ...child,
     id: String(child.id),
     nickname: child.nickname || child.name || '',
     avatar: child.avatar || '',
-    learningGoal: child.learningGoal || child.learning_goal || child.targetLevel || child.target_level || '',
+    learningGoal,
+    learning_goal: learningGoal,
     dailyWordTarget: Number(child.dailyWordTarget || child.daily_word_target || child.dailyTarget || child.daily_target || 20),
-    targetLevel: child.targetLevel || child.target_level || '',
+    targetLevel,
+    target_level: targetLevel,
     dailyTarget: Number(child.dailyTarget || child.daily_target || 20),
     studyMode: child.studyMode || child.study_mode || 'normal',
     study_mode: child.study_mode || child.studyMode || 'normal',
@@ -247,6 +252,22 @@ export const clearBossAndGrantReward = async ({ childId, bossId } = {}) => {
   return fetchJson(`/api/children/${encodeURIComponent(childId)}/bosses/${encodeURIComponent(bossId)}/clear`, {
     method: 'POST',
     body: {},
+  });
+};
+
+export const getBossProgress = async (childId) => {
+  return fetchJson(`/api/children/${encodeURIComponent(childId)}/boss-progress`);
+};
+
+export const clearBossProgress = async ({ childId, bossId, worldId, stageNumber, bossType } = {}) => {
+  return fetchJson(`/api/children/${encodeURIComponent(childId)}/boss-progress/clear`, {
+    method: 'POST',
+    body: {
+      boss_id: bossId,
+      world_id: worldId,
+      stage_number: stageNumber,
+      boss_type: bossType,
+    },
   });
 };
 

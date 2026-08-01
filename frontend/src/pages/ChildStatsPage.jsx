@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import HeaderBar from '../components/HeaderBar';
 import TtsButton from '../components/TtsButton';
 import { getChildStats } from '../api';
+import { getTargetLevelLabel } from '../utils/targetLevel';
 
 const CHILD_STORAGE_KEY = 'selected_child_id';
 
@@ -42,7 +43,7 @@ export default function ChildStatsPage() {
             <h2 className="display-font text-3xl font-extrabold text-[#354172]">子どもの学習状況</h2>
             <p className="mt-2 text-sm leading-6 text-[#6f7da8]">
               {selectedChild
-                ? `${selectedChild.name}（${selectedChild.grade} / ${selectedChild.target_level}）の学習状況です。`
+                ? `${selectedChild.name}（${selectedChild.grade} / ${getTargetLevelLabel(selectedChild.target_level || selectedChild.targetLevel || selectedChild.learning_goal || selectedChild.learningGoal || selectedChild.grade)}）の学習状況です。`
                 : 'まだ子どもが登録されていません。'}
             </p>
           </div>

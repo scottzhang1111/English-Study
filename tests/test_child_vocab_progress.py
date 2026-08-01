@@ -1,10 +1,14 @@
 ﻿import sqlite3
 import json
+import os
 import re
 import tempfile
 import unittest
 from pathlib import Path
 from unittest.mock import patch
+
+os.environ['DATABASE_URL'] = ' '
+os.environ['USE_POSTGRES'] = ' '
 
 import app as app_module
 
@@ -809,6 +813,77 @@ class ChildProfileSettingsApiTests(unittest.TestCase):
     def tearDown(self):
         self.get_db_path_patch.stop()
         self.temp_dir.cleanup()
+
+    def create_account(self):
+        conn = app_module.get_db_connection()
+        try:
+            now = app_module.get_now_iso()
+            cursor = conn.execute(
+                '''
+                INSERT INTO accounts (email, phone, provider, display_name, created_at, updated_at)
+                VALUES (?, NULL, 'test', 'Test Family', ?, ?)
+                ''',
+                (f'test-{now}@example.com', now, now),
+            )
+            conn.commit()
+            return cursor.lastrowid
+        finally:
+            conn.close()
+
+    def test_normalize_target_level_aliases(self):
+        cases = [
+            ('eiken3', 'eiken3'),
+            ('三級', 'eiken3'),
+            ('英検3級', 'eiken3'),
+            ('eiken_pre2', 'eiken_pre2'),
+            ('準2級', 'eiken_pre2'),
+            ('準２級', 'eiken_pre2'),
+            ('英検準2級', 'eiken_pre2'),
+            ('', 'eiken3'),
+        ]
+        for raw_value, expected in cases:
+            with self.subTest(raw_value=raw_value):
+                self.assertEqual(expected, app_module.normalize_target_level(raw_value, default='eiken3'))
+
+    def test_upsert_child_profile_writes_only_standard_target_levels(self):
+        account_id = self.create_account()
+
+        pre2_child = app_module.upsert_child_profile(
+            {
+                'name': 'Pre2 Kid',
+                'grade': '4',
+                'target_level': 'eiken_pre2',
+                'learning_goal': '英検準2級',
+            },
+            account_id,
+        )
+        unknown_child = app_module.upsert_child_profile(
+            {
+                'name': 'Unknown Kid',
+                'grade': '5',
+                'target_level': 'not-a-real-level',
+                'learning_goal': 'not-a-real-level',
+            },
+            account_id,
+        )
+
+        conn = app_module.get_db_connection()
+        try:
+            rows = conn.execute(
+                'SELECT name, learning_goal, target_level FROM children WHERE account_id = ? ORDER BY id ASC',
+                (account_id,),
+            ).fetchall()
+        finally:
+            conn.close()
+
+        self.assertEqual('eiken_pre2', pre2_child['target_level'])
+        self.assertEqual('eiken_pre2', pre2_child['learning_goal'])
+        self.assertEqual('eiken3', unknown_child['target_level'])
+        self.assertEqual('eiken3', unknown_child['learning_goal'])
+        self.assertEqual(
+            [('Pre2 Kid', 'eiken_pre2', 'eiken_pre2'), ('Unknown Kid', 'eiken3', 'eiken3')],
+            [(row['name'], row['learning_goal'], row['target_level']) for row in rows],
+        )
 
     def test_child_starter_options_and_create_profile(self):
         client = app_module.app.test_client()

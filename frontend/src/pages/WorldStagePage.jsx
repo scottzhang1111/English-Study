@@ -1,12 +1,17 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { getHomeData } from '../api';
+import { clearBossProgress, getBossProgress, getHomeData } from '../api';
 import { EQBackPill, EQCard, EQMobileShell, EQBottomNav, EQStageNode } from '../components/eigo';
 import { eigoQuestCards } from '../config/eigoQuestCards';
 import eigoQuestWorlds, { EIGO_QUEST_WORDS_PER_STAGE } from '../config/eigoQuestWorlds';
 import { EIGO_BOSSES, EIGO_BOSS_TYPES, getEigoBossBattleRoute, getEigoBossesByWorld } from '../data/eigoBosses';
 import { WORLD_STAGE_NODE_TYPES, getWorldStageLayout } from '../data/worldStageLayouts';
-import { isBossCleared } from '../helpers/eigoBossProgress';
+import {
+  getBossClearStatus,
+  isBossProgressMigrationMarked,
+  markBossCleared,
+  markBossProgressMigrated,
+} from '../helpers/eigoBossProgress';
 import { getMapDebugMode } from '../helpers/mapDebugMode';
 import CompactPageHeader from '../components/eigo/CompactPageHeader';
 import {
@@ -14,6 +19,7 @@ import {
   getStageNodeState,
   hasStageCleared,
   hasStageInProgress,
+  isBossCleared,
 } from '../helpers/eigoWorldStageState';
 
 const CHILD_STORAGE_KEY = 'selected_child_id';
@@ -132,7 +138,7 @@ function missionProgress(done, target, suffix = '') {
   return { status: `${safeDone} / ${safeTarget}`, detail: '' };
 }
 
-function getBlockingBossForStage(worldId, stageNumber) {
+function getBlockingBossForStage(worldId, stageNumber, bossProgressMap = {}) {
   return EIGO_BOSSES.find((boss) => {
     if (boss.worldId !== worldId) return false;
     if (!boss.progressGate) return false;
@@ -141,7 +147,7 @@ function getBlockingBossForStage(worldId, stageNumber) {
     const blocksFrom = Number(boss.progressGate.blocksStagesFrom || boss.progressGate.unlocksStagesFrom || 0);
     if (!blocksFrom) return false;
 
-    return Number(stageNumber) >= blocksFrom && !isBossCleared(boss.bossId);
+    return Number(stageNumber) >= blocksFrom && !isBossCleared(boss.bossId, bossProgressMap);
   }) || null;
 }
 
@@ -265,6 +271,8 @@ export default function WorldStagePage() {
   const childId = useMemo(() => localStorage.getItem(CHILD_STORAGE_KEY) || '', []);
   const isMapDebugMode = getMapDebugMode();
   const [homeData, setHomeData] = useState(null);
+  const [bossProgressItems, setBossProgressItems] = useState([]);
+  const [bossProgressLoaded, setBossProgressLoaded] = useState(false);
   const [error, setError] = useState('');
   const [message, setMessage] = useState('');
   const [imageFailed, setImageFailed] = useState(false);
@@ -276,12 +284,30 @@ export default function WorldStagePage() {
       return;
     }
 
-    getHomeData(childId)
-      .then((payload) => setHomeData(payload))
-      .catch((err) => {
+    let active = true;
+    async function loadPageData() {
+      try {
+        const [homePayload, bossPayload] = await Promise.all([
+          getHomeData(childId),
+          getBossProgress(childId),
+        ]);
+        if (!active) return;
+        setHomeData(homePayload);
+        setBossProgressItems(bossPayload.items || []);
+        setBossProgressLoaded(true);
+      } catch (err) {
+        if (!active) return;
         setError(err.message || '学習データを読み込めませんでした。');
         setHomeData(null);
-      });
+        setBossProgressItems([]);
+        setBossProgressLoaded(false);
+      }
+    }
+
+    loadPageData();
+    return () => {
+      active = false;
+    };
   }, [childId, navigate]);
 
   const questProgress = homeData?.eigo_quest_progress || {};
@@ -336,6 +362,84 @@ export default function WorldStagePage() {
   ];
   const worldStageLayout = getWorldStageLayout(currentWorld.id);
   const worldBosses = getEigoBossesByWorld(currentWorld.id);
+  const bossProgressMap = useMemo(() => {
+    const dbMap = Object.fromEntries(
+      (bossProgressItems || [])
+        .filter((item) => item?.bossId || item?.boss_id)
+        .map((item) => {
+          const bossId = item.bossId || item.boss_id;
+          return [bossId, {
+            bossId,
+            worldId: item.worldId || item.world_id,
+            stageNumber: item.stageNumber || item.stage_number,
+            bossType: item.bossType || item.boss_type,
+            cleared: item.cleared || item.status === 'cleared',
+            status: item.status,
+            clearedAt: item.clearedAt || item.cleared_at,
+          }];
+        })
+    );
+    if (bossProgressLoaded) return dbMap;
+    return { ...getBossClearStatus(childId), ...dbMap };
+  }, [bossProgressItems, bossProgressLoaded, childId]);
+
+  useEffect(() => {
+    if (!childId || !bossProgressLoaded || isBossProgressMigrationMarked(childId)) return undefined;
+    const localStatus = getBossClearStatus(childId);
+    const localBossIds = Object.keys(localStatus).filter((bossId) => localStatus[bossId]?.cleared);
+    const missingBosses = localBossIds
+      .map((bossId) => EIGO_BOSSES.find((boss) => boss.bossId === bossId))
+      .filter((boss) => boss && !bossProgressMap[boss.bossId]?.cleared);
+
+    if (!missingBosses.length) {
+      markBossProgressMigrated(childId);
+      return undefined;
+    }
+
+    let cancelled = false;
+    async function migrateLocalBossProgress() {
+      try {
+        const migrated = await Promise.all(missingBosses.map((boss) => (
+          clearBossProgress({
+            childId,
+            bossId: boss.bossId,
+            worldId: boss.worldId,
+            stageNumber: boss.checkpointAfterStage || boss.stageId,
+            bossType: boss.bossType,
+          })
+        )));
+        if (cancelled) return;
+        migrated.forEach((result) => {
+          if (result?.bossProgress) {
+            markBossCleared({
+              bossId: result.bossProgress.bossId,
+              worldId: result.bossProgress.worldId,
+              checkpointAfterStage: result.bossProgress.stageNumber,
+              bossType: result.bossProgress.bossType,
+            }, childId);
+          }
+        });
+        setBossProgressItems((current) => {
+          const byBossId = new Map((current || []).map((item) => [item.bossId || item.boss_id, item]));
+          migrated.forEach((result) => {
+            const item = result?.bossProgress;
+            if (item?.bossId) byBossId.set(item.bossId, item);
+          });
+          return Array.from(byBossId.values());
+        });
+        markBossProgressMigrated(childId);
+      } catch (err) {
+        if (import.meta.env.DEV) {
+          console.warn('Failed to migrate local Boss progress to DB.', err);
+        }
+      }
+    }
+
+    migrateLocalBossProgress();
+    return () => {
+      cancelled = true;
+    };
+  }, [childId, bossProgressLoaded, bossProgressMap]);
 
   useEffect(() => {
     setImageFailed(false);
@@ -346,9 +450,9 @@ export default function WorldStagePage() {
     if (layoutNode.nodeType === WORLD_STAGE_NODE_TYPES.STAGE) {
       const stage = Number(layoutNode.stageId);
       const { stageProgress, status: normalizedStatus } = getStageProgressStatus(currentWorldProgress, stage, currentWorld.id);
-      const computedStageState = getStageNodeState(currentWorldProgress, currentWorld.id, stage);
+      const computedStageState = getStageNodeState(currentWorldProgress, currentWorld.id, stage, bossProgressMap);
       const normalizedStatusForMap = computedStageState === 'in_progress' ? 'current' : computedStageState;
-      const blockingBoss = getBlockingBossForStage(currentWorld.id, stage);
+      const blockingBoss = getBlockingBossForStage(currentWorld.id, stage, bossProgressMap);
       const isLockedByBossGate = !isMapDebugMode && Boolean(blockingBoss) && computedStageState === 'locked';
       const gatedStatus = isLockedByBossGate ? 'locked' : normalizedStatusForMap;
       const status = isMapDebugMode && gatedStatus === 'locked' ? 'active' : gatedStatus;
@@ -380,8 +484,8 @@ export default function WorldStagePage() {
     const miniBossNumber = worldBosses
       .filter((boss) => boss.bossType === EIGO_BOSS_TYPES.MINI_BOSS)
       .findIndex((boss) => boss.bossId === bossConfig.bossId) + 1;
-    const bossCleared = isBossCleared(bossConfig.bossId);
-    const computedBossState = getBossNodeState(currentWorldProgress, currentWorld.id, bossConfig);
+    const bossCleared = isBossCleared(bossConfig.bossId, bossProgressMap);
+    const computedBossState = getBossNodeState(currentWorldProgress, currentWorld.id, bossConfig, bossProgressMap);
     const checkpointUnlocked = computedBossState === 'available' || computedBossState === 'cleared';
     const status = bossCleared ? 'completed' : checkpointUnlocked ? 'current' : isMapDebugMode ? 'active' : 'locked';
 

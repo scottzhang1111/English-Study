@@ -1,6 +1,7 @@
 export const EIGO_BOSS_CLEAR_STATUS_KEY = 'eigo_boss_clear_status';
+const EIGO_BOSS_MIGRATION_PREFIX = 'eigoBossProgressMigrated:';
 
-export function getBossClearStatus() {
+function readBossClearStatus() {
   if (typeof window === 'undefined') return {};
   try {
     const parsed = JSON.parse(window.localStorage.getItem(EIGO_BOSS_CLEAR_STATUS_KEY) || '{}');
@@ -10,25 +11,46 @@ export function getBossClearStatus() {
   }
 }
 
-export function isBossCleared(bossId) {
-  if (!bossId) return false;
-  return Boolean(getBossClearStatus()[bossId]?.cleared);
+export function getBossClearStatus(childId) {
+  const parsed = readBossClearStatus();
+  const scoped = childId ? parsed.byChild?.[String(childId)] : null;
+  if (scoped && typeof scoped === 'object' && !Array.isArray(scoped)) return scoped;
+  return parsed;
 }
 
-export function markBossCleared(bossConfig) {
+export function isBossCleared(bossId, childId) {
+  if (!bossId) return false;
+  return Boolean(getBossClearStatus(childId)[bossId]?.cleared);
+}
+
+export function markBossCleared(bossConfig, childId) {
   if (!bossConfig?.bossId || typeof window === 'undefined') return null;
 
-  // TODO: Replace this V1 localStorage mock with backend child_boss_progress.
+  const currentStatus = readBossClearStatus();
+  const childKey = childId ? String(childId) : '';
+  const childStatus = childKey && currentStatus.byChild?.[childKey]
+    ? currentStatus.byChild[childKey]
+    : {};
+  const entry = {
+    bossId: bossConfig.bossId,
+    worldId: bossConfig.worldId,
+    stageId: bossConfig.stageId || bossConfig.checkpointAfterStage,
+    checkpointAfterStage: bossConfig.checkpointAfterStage,
+    bossType: bossConfig.bossType,
+    cleared: true,
+    clearedAt: Date.now(),
+  };
   const nextStatus = {
-    ...getBossClearStatus(),
-    [bossConfig.bossId]: {
-      bossId: bossConfig.bossId,
-      worldId: bossConfig.worldId,
-      stageId: bossConfig.stageId || bossConfig.checkpointAfterStage,
-      checkpointAfterStage: bossConfig.checkpointAfterStage,
-      bossType: bossConfig.bossType,
-      cleared: true,
-      clearedAt: Date.now(),
+    ...currentStatus,
+    [bossConfig.bossId]: entry,
+    byChild: {
+      ...(currentStatus.byChild || {}),
+      ...(childKey ? {
+        [childKey]: {
+          ...childStatus,
+          [bossConfig.bossId]: entry,
+        },
+      } : {}),
     },
   };
 
@@ -38,5 +60,23 @@ export function markBossCleared(bossConfig) {
     return null;
   }
 
-  return nextStatus[bossConfig.bossId];
+  return entry;
+}
+
+export function isBossProgressMigrationMarked(childId) {
+  if (!childId || typeof window === 'undefined') return false;
+  try {
+    return window.localStorage.getItem(`${EIGO_BOSS_MIGRATION_PREFIX}${childId}`) === 'true';
+  } catch {
+    return false;
+  }
+}
+
+export function markBossProgressMigrated(childId) {
+  if (!childId || typeof window === 'undefined') return;
+  try {
+    window.localStorage.setItem(`${EIGO_BOSS_MIGRATION_PREFIX}${childId}`, 'true');
+  } catch {
+    // Keep migration non-blocking when storage is unavailable.
+  }
 }

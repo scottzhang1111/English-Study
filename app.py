@@ -114,6 +114,64 @@ EIGO_QUEST_FINAL_REWARD_CODES = [
 # New rewards should resolve directly to the official database hero codes.
 EIGO_QUEST_LEGACY_REWARD_CODE_MAP = {}
 
+EIGO_BOSS_TYPES = {
+    'MINI_BOSS': 'mini_boss',
+    'WORLD_BOSS': 'world_boss',
+}
+
+
+def _build_eigo_boss_configs():
+    standard_worlds = [
+        {'id': 'wind', 'stage_count': 10},
+        {'id': 'fire', 'stage_count': 10},
+        {'id': 'water', 'stage_count': 10},
+        {'id': 'thunder', 'stage_count': 10},
+        {'id': 'wood', 'stage_count': 10},
+        {'id': 'rock', 'stage_count': 10},
+        {'id': 'light', 'stage_count': 10},
+    ]
+    configs = []
+    for world in standard_worlds:
+        world_id = world['id']
+        configs.extend([
+            {
+                'boss_id': f'{world_id}-stage-4-mini-boss-1',
+                'world_id': world_id,
+                'stage_number': 4,
+                'boss_type': EIGO_BOSS_TYPES['MINI_BOSS'],
+            },
+            {
+                'boss_id': f'{world_id}-stage-8-mini-boss-2',
+                'world_id': world_id,
+                'stage_number': 8,
+                'boss_type': EIGO_BOSS_TYPES['MINI_BOSS'],
+            },
+            {
+                'boss_id': f'{world_id}-stage-10-world-boss',
+                'world_id': world_id,
+                'stage_number': 10,
+                'boss_type': EIGO_BOSS_TYPES['WORLD_BOSS'],
+            },
+        ])
+    configs.extend([
+        {
+            'boss_id': 'shadow-stage-4-mini-boss-1',
+            'world_id': 'shadow',
+            'stage_number': 4,
+            'boss_type': EIGO_BOSS_TYPES['MINI_BOSS'],
+        },
+        {
+            'boss_id': 'shadow-stage-5-world-boss',
+            'world_id': 'shadow',
+            'stage_number': 5,
+            'boss_type': EIGO_BOSS_TYPES['WORLD_BOSS'],
+        },
+    ])
+    return {config['boss_id']: config for config in configs}
+
+
+EIGO_BOSS_CONFIGS = _build_eigo_boss_configs()
+
 GRAMMAR_LESSON_REWARD_HERO_CODES = [
     'grammar-guardian-hecate',
     'grammar-guardian-skoll',
@@ -2291,6 +2349,24 @@ def init_db(force=False):
         )
         conn.execute(
             '''
+            CREATE TABLE IF NOT EXISTS child_boss_progress (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                child_id INTEGER NOT NULL,
+                boss_id TEXT NOT NULL,
+                world_id TEXT NOT NULL,
+                stage_number INTEGER NOT NULL,
+                boss_type TEXT NOT NULL,
+                status TEXT NOT NULL DEFAULT 'cleared',
+                cleared_at TEXT,
+                created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                UNIQUE (child_id, boss_id),
+                FOREIGN KEY (child_id) REFERENCES children (id) ON UPDATE CASCADE ON DELETE CASCADE
+            )
+            '''
+        )
+        conn.execute(
+            '''
             CREATE TABLE IF NOT EXISTS child_stage_quiz_attempts (
                 attempt_id TEXT PRIMARY KEY,
                 child_id INTEGER NOT NULL,
@@ -2329,6 +2405,12 @@ def init_db(force=False):
             '''
             CREATE INDEX IF NOT EXISTS idx_child_stage_quiz_attempts_child_stage
             ON child_stage_quiz_attempts (child_id, world_id, stage_number, submitted_at)
+            '''
+        )
+        conn.execute(
+            '''
+            CREATE INDEX IF NOT EXISTS idx_child_boss_progress_child_world
+            ON child_boss_progress (child_id, world_id, status)
             '''
         )
         conn.execute(
@@ -2647,8 +2729,8 @@ def seed_demo_children(conn):
     conn.executemany(
         'INSERT INTO children (name, grade, target_level) VALUES (?, ?, ?)',
         [
-            ('Haru', '4', 'A2'),
-            ('Mio', '6', 'B1'),
+            ('Haru', '4', 'eiken3'),
+            ('Mio', '6', 'eiken_pre2'),
         ],
     )
 
@@ -3799,24 +3881,26 @@ def get_children_list(account_id):
     finally:
         conn.close()
 
-    return [
-        {
+    children = []
+    for row in rows:
+        target_level = normalize_target_level(row['target_level'], default='eiken3')
+        learning_goal = normalize_target_level(row['learning_goal'] or target_level, default=target_level)
+        children.append({
             'id': row['id'],
             'name': row['name'],
             'nickname': row['name'],
             'avatar': row['avatar'] or '',
-            'learning_goal': row['learning_goal'] or row['target_level'],
+            'learning_goal': learning_goal,
             'grade': row['grade'],
-            'target_level': row['target_level'],
+            'target_level': target_level,
             'daily_target': row['daily_target'],
             'daily_word_target': row['daily_word_target'] or row['daily_target'],
             'study_mode': row['study_mode'] or 'normal',
             'starter_pokemon_id': row['starter_pokemon_id'],
             'created_at': row['created_at'],
             'updated_at': row['updated_at'],
-        }
-        for row in rows
-    ]
+        })
+    return children
 
 
 def get_child_starter_options(count=3):
@@ -3855,13 +3939,8 @@ def upsert_child_profile(data, account_id):
         raise ValueError('nickname is required')
     if not grade:
         grade = '1'
-    if not learning_goal:
-        learning_goal = target_level or '英検4級をめざす'
-    if not target_level:
-        target_level = learning_goal
-    allowed_target_levels = {'\u4e09\u7d1a', '\u6e96\u0032\u7d1a'}
-    if target_level not in allowed_target_levels:
-        target_level = '\u4e09\u7d1a'
+    target_level = normalize_target_level(target_level or learning_goal, default='eiken3')
+    learning_goal = normalize_target_level(learning_goal or target_level, default=target_level)
     try:
         daily_target = int(daily_target)
     except (TypeError, ValueError):
@@ -3963,6 +4042,8 @@ def upsert_child_profile(data, account_id):
             return None
         child = dict(child_row)
         child['nickname'] = child['name']
+        child['target_level'] = normalize_target_level(child.get('target_level'), default='eiken3')
+        child['learning_goal'] = normalize_target_level(child.get('learning_goal') or child['target_level'], default=child['target_level'])
         return child
     finally:
         conn.close()
@@ -10470,6 +10551,7 @@ def api_home():
                 (child_id,),
             ).fetchone()
             stage_status_map = get_child_world_stage_status_map(conn, child_id)
+            boss_clear_set = get_child_boss_clear_set(conn, child_id)
         finally:
             conn.close()
         if child_row and child_row['daily_target']:
@@ -10479,12 +10561,14 @@ def api_home():
         mastered_words = int(mastered_row['count'] or 0) if mastered_row else 0
         review_needed = int(review_needed_row['count'] or 0) if review_needed_row else 0
         study_days = int(study_days_row['count'] or 0) if study_days_row else 0
-        eigo_quest_progress = build_eigo_quest_progress_from_stage_status(stage_status_map, child_row['target_level'])
+        eigo_quest_progress = build_eigo_quest_progress_from_stage_status(stage_status_map, child_row['target_level'], boss_clear_set=boss_clear_set)
+        boss_progress_items = get_child_boss_progress_items(child_id)
     else:
         mastered_words = len(progress.get('mastered_words', []))
         review_needed = 0
         study_days = 1 if progress.get('count', 0) > 0 else 0
         eigo_quest_progress = build_eigo_quest_progress_from_clears(set())
+        boss_progress_items = []
 
     pet = get_child_pet_state(child_id) or get_pet_state(progress, settings)
     if child_id and pet:
@@ -10503,6 +10587,7 @@ def api_home():
         study_days=study_days,
         pet=pet,
         eigo_quest_progress=eigo_quest_progress,
+        boss_progress={'items': boss_progress_items},
     )
 
 
@@ -10693,23 +10778,32 @@ def get_entry_eiken_level(entry):
     return _clean_csv_value(entry.get('Level') or entry.get('level') or entry.get('Eiken_Level') or '準2級')
 
 
-def normalize_target_level(value):
+TARGET_LEVEL_ALIASES = {
+    'eiken3': 'eiken3',
+    'eiken_3': 'eiken3',
+    '3級': 'eiken3',
+    '３級': 'eiken3',
+    '三級': 'eiken3',
+    '英検3級': 'eiken3',
+    '英検３級': 'eiken3',
+    '英検三級': 'eiken3',
+    'eiken_pre2': 'eiken_pre2',
+    'eiken_pre_2': 'eiken_pre2',
+    'pre2': 'eiken_pre2',
+    '準2級': 'eiken_pre2',
+    '準２級': 'eiken_pre2',
+    '準二級': 'eiken_pre2',
+    '英検準2級': 'eiken_pre2',
+    '英検準２級': 'eiken_pre2',
+    '英検準二級': 'eiken_pre2',
+}
+
+
+def normalize_target_level(value, default=''):
     normalized = _clean_csv_value(value).lower().replace('-', '_').replace(' ', '_')
-    mapping = {
-        '三級': 'eiken3',
-        '3級': 'eiken3',
-        '英検3級': 'eiken3',
-        'eiken_3': 'eiken3',
-        'eiken3': 'eiken3',
-        '準2級': 'eiken_pre2',
-        '準二級': 'eiken_pre2',
-        '英検準2級': 'eiken_pre2',
-        '英検準二級': 'eiken_pre2',
-        'eiken_pre_2': 'eiken_pre2',
-        'eiken_pre2': 'eiken_pre2',
-        'pre2': 'eiken_pre2',
-    }
-    return mapping.get(normalized, normalized)
+    if not normalized:
+        return default
+    return TARGET_LEVEL_ALIASES.get(normalized, default if default != '' else normalized)
 
 
 def get_child_target_level(child_id):
@@ -10720,7 +10814,7 @@ def get_child_target_level(child_id):
         row = conn.execute('SELECT target_level FROM children WHERE id = ?', (child_id,)).fetchone()
     finally:
         conn.close()
-    return normalize_target_level(row['target_level'] if row else '')
+    return normalize_target_level(row['target_level'] if row else '', default='eiken3')
 
 
 def filter_vocab_entries_for_child_level(entries, child_id):
@@ -10945,12 +11039,12 @@ def get_child_world_stage_status_map(conn, child_id):
     return status_map
 
 
-def build_eigo_quest_progress_from_clears(clear_set, target_level=None):
+def build_eigo_quest_progress_from_clears(clear_set, target_level=None, boss_clear_set=None):
     status_map = {
         (world_id, stage_number): 'cleared'
         for world_id, stage_number in clear_set
     }
-    return build_eigo_quest_progress_from_stage_status(status_map, target_level=target_level)
+    return build_eigo_quest_progress_from_stage_status(status_map, target_level=target_level, boss_clear_set=boss_clear_set)
 
 
 def get_child_world_stage_progress(child_id, world_id, stage):
@@ -10985,7 +11079,8 @@ def get_child_world_stage_progress(child_id, world_id, stage):
     }
 
 
-def build_eigo_quest_progress_from_stage_status(status_map, target_level=None):
+def build_eigo_quest_progress_from_stage_status(status_map, target_level=None, boss_clear_set=None):
+    boss_clear_set = set(boss_clear_set or [])
     unlocked_next = True
     current_world = None
     current_stage = None
@@ -10997,6 +11092,9 @@ def build_eigo_quest_progress_from_stage_status(status_map, target_level=None):
     total_words = sum(world['word_count'] for world in level_worlds)
 
     for world in level_worlds:
+        world_unlocked = unlocked_next
+        final_boss_id = f"{world['id']}-stage-{world['stage_count']}-world-boss"
+        final_boss_cleared = final_boss_id in boss_clear_set
         stage_items = []
         world_has_current = False
         world_cleared_count = 0
@@ -11005,7 +11103,7 @@ def build_eigo_quest_progress_from_stage_status(status_map, target_level=None):
             progress_status = status_map.get(key)
             cleared = progress_status == 'cleared'
             in_progress = progress_status == 'in_progress'
-            unlocked = unlocked_next or cleared or in_progress
+            unlocked = world_unlocked or cleared or in_progress
             if cleared:
                 status = 'cleared'
                 world_cleared_count += 1
@@ -11033,7 +11131,15 @@ def build_eigo_quest_progress_from_stage_status(status_map, target_level=None):
                 'unlocked': unlocked,
                 'in_progress': in_progress,
             })
-            unlocked_next = unlocked_next and cleared
+
+        world_stages_cleared = world_cleared_count == world['stage_count']
+        world_cleared = world_stages_cleared and final_boss_cleared
+        if world_stages_cleared and not final_boss_cleared and current_world is None:
+            current_world = world['id']
+            current_stage = world['stage_count']
+            world_has_current = True
+            mainline_complete = False
+        unlocked_next = world_cleared
 
         worlds.append({
             'id': world['id'],
@@ -11042,7 +11148,9 @@ def build_eigo_quest_progress_from_stage_status(status_map, target_level=None):
             'word_count': world['word_count'],
             'word_start_index': world['word_start_index'],
             'unlocked': any(stage['unlocked'] for stage in stage_items),
-            'cleared': world_cleared_count == world['stage_count'],
+            'cleared': world_cleared,
+            'stage_cleared': world_stages_cleared,
+            'final_boss_cleared': final_boss_cleared,
             'cleared_stage_count': world_cleared_count,
             'has_current_stage': world_has_current,
             'stages': stage_items,
@@ -11067,9 +11175,10 @@ def get_child_eigo_quest_progress(child_id):
         ensure_child_exists(conn, child_id)
         child_row = conn.execute('SELECT target_level FROM children WHERE id = ?', (child_id,)).fetchone()
         stage_status_map = get_child_world_stage_status_map(conn, child_id)
+        boss_clear_set = get_child_boss_clear_set(conn, child_id)
     finally:
         conn.close()
-    return build_eigo_quest_progress_from_stage_status(stage_status_map, child_row['target_level'] if child_row else None)
+    return build_eigo_quest_progress_from_stage_status(stage_status_map, child_row['target_level'] if child_row else None, boss_clear_set=boss_clear_set)
     if stage_entries is None:
         raise ValueError('valid world and stage are required')
     stage_number = int(stage)
@@ -11343,69 +11452,284 @@ def child_owns_hero(conn, child_id, hero_id):
     return bool(row)
 
 
-def grant_child_boss_card_reward(child_id, boss_id):
+def get_boss_config_or_raise(boss_id):
     normalized_boss_id = str(boss_id or '').strip()
     if not normalized_boss_id:
         raise ValueError('boss_id is required')
-    boss_match = re.match(
-        r'^([a-z0-9_-]+)-stage-(\d+)-(mini-boss-\d+|world-boss)$',
-        normalized_boss_id,
-        flags=re.I,
-    )
-    boss_world_id = boss_match.group(1).lower() if boss_match else ''
-    boss_stage_number = int(boss_match.group(2)) if boss_match else None
+    boss_config = EIGO_BOSS_CONFIGS.get(normalized_boss_id)
+    if not boss_config:
+        raise ValueError('invalid boss_id')
+    return boss_config
 
+
+def validate_boss_clear_payload(boss_config, data):
+    if not data:
+        return
+    world_id = str(data.get('world_id') or data.get('worldId') or '').strip().lower()
+    boss_type = str(data.get('boss_type') or data.get('bossType') or '').strip().lower()
+    raw_stage_number = data.get('stage_number', data.get('stageNumber', data.get('stage')))
+    if world_id and world_id != boss_config['world_id']:
+        raise ValueError('boss_id does not match world_id')
+    if boss_type and boss_type != boss_config['boss_type']:
+        raise ValueError('boss_id does not match boss_type')
+    if raw_stage_number not in [None, '']:
+        try:
+            stage_number = int(raw_stage_number)
+        except (TypeError, ValueError):
+            raise ValueError('stage_number must be an integer')
+        if stage_number != int(boss_config['stage_number']):
+            raise ValueError('boss_id does not match stage_number')
+
+
+def boss_progress_row_to_payload(row):
+    if not row:
+        return None
+    return {
+        'bossId': row['boss_id'],
+        'boss_id': row['boss_id'],
+        'worldId': row['world_id'],
+        'world_id': row['world_id'],
+        'stageNumber': int(row['stage_number']),
+        'stage_number': int(row['stage_number']),
+        'bossType': row['boss_type'],
+        'boss_type': row['boss_type'],
+        'status': row['status'],
+        'cleared': row['status'] == 'cleared',
+        'clearedAt': row['cleared_at'],
+        'cleared_at': row['cleared_at'],
+        'createdAt': row['created_at'] if 'created_at' in row.keys() else None,
+        'created_at': row['created_at'] if 'created_at' in row.keys() else None,
+        'updatedAt': row['updated_at'] if 'updated_at' in row.keys() else None,
+        'updated_at': row['updated_at'] if 'updated_at' in row.keys() else None,
+    }
+
+
+def get_child_boss_progress_items(child_id):
     conn = get_db_connection()
     try:
         ensure_child_exists(conn, child_id)
-        hero_row, match_method = get_boss_card_hero_row(conn, normalized_boss_id)
-        if not hero_row:
-            raise LookupError('boss card hero not found')
-        already_owned_before = child_owns_hero(conn, child_id, hero_row['id'])
-        hero_code = str(hero_row['code'] or '').strip()
+        if not _table_exists(conn, 'child_boss_progress'):
+            return []
+        rows = conn.execute(
+            '''
+            SELECT child_id, boss_id, world_id, stage_number, boss_type, status, cleared_at, created_at, updated_at
+            FROM child_boss_progress
+            WHERE child_id = ?
+            ORDER BY world_id, stage_number, boss_id
+            ''',
+            (child_id,),
+        ).fetchall()
     finally:
         conn.close()
+    return [boss_progress_row_to_payload(row) for row in rows]
 
-    awarded_rows = grant_child_hero_rewards(
-        child_id,
-        [hero_code],
-        reward_type='boss_card',
+
+def get_child_boss_clear_set(conn, child_id):
+    if not _table_exists(conn, 'child_boss_progress'):
+        return set()
+    rows = conn.execute(
+        '''
+        SELECT boss_id
+        FROM child_boss_progress
+        WHERE child_id = ? AND status = 'cleared'
+        ''',
+        (child_id,),
+    ).fetchall()
+    return {str(row['boss_id'] or '') for row in rows if row['boss_id']}
+
+
+def get_next_eigo_world_id(world_id, target_level=None):
+    normalized_world_id = str(world_id or '').strip().lower()
+    worlds = get_eigo_quest_worlds_for_level(target_level)
+    for index, world in enumerate(worlds):
+        if world['id'] == normalized_world_id and index + 1 < len(worlds):
+            return worlds[index + 1]['id']
+    return None
+
+
+def maybe_update_child_current_world(conn, child_id, cleared_world_id):
+    child_columns = get_table_columns(conn, 'children')
+    if 'current_world_id' not in child_columns:
+        return None
+    child_row = conn.execute('SELECT target_level FROM children WHERE id = ?', (child_id,)).fetchone()
+    next_world_id = get_next_eigo_world_id(cleared_world_id, child_row['target_level'] if child_row else None)
+    if not next_world_id:
+        return None
+    conn.execute(
+        'UPDATE children SET current_world_id = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?',
+        (next_world_id, child_id),
     )
+    return next_world_id
 
-    conn = get_db_connection()
-    try:
-        owned_after = child_owns_hero(conn, child_id, hero_row['id'])
-        if not owned_after:
-            raise RuntimeError('boss card ownership confirmation failed')
-    finally:
-        conn.close()
 
-    reward_card = awarded_rows[0] if awarded_rows else hero_row_to_card(hero_row)
+def insert_child_hero_reward_in_transaction(conn, child_id, hero_row, world_id=None, stage=None, reward_type='boss_card'):
+    if not _table_exists(conn, 'child_heroes'):
+        raise LookupError('child_heroes table not found')
+    if not hero_row:
+        raise LookupError('hero not found')
+    already_owned = child_owns_hero(conn, child_id, hero_row['id'])
+    if already_owned:
+        return False
+
+    now = get_now_iso()
+    hero_code = str(hero_row['code'] or '').strip()
+    child_hero_columns = get_table_columns(conn, 'child_heroes')
+    insert_values = {
+        'child_id': child_id,
+        'hero_id': hero_row['id'],
+        'hero_code': hero_code,
+        'awarded_world_id': str(world_id or '').strip().lower() or None,
+        'awarded_stage_number': int(stage) if stage not in [None, ''] else None,
+        'reward_type': reward_type,
+        'awarded_at': now,
+        'created_at': now,
+        'updated_at': now,
+    }
+    insert_columns = [
+        column for column in insert_values
+        if column in child_hero_columns or column in {'child_id', 'hero_id'}
+    ]
+    placeholders = ', '.join(['?'] * len(insert_columns))
+    conn.execute(
+        f'''
+        INSERT INTO child_heroes ({', '.join(insert_columns)})
+        VALUES ({placeholders})
+        ''',
+        tuple(insert_values[column] for column in insert_columns),
+    )
+    if not child_owns_hero(conn, child_id, hero_row['id']):
+        raise RuntimeError('boss card ownership confirmation failed')
+    return True
+
+
+def build_boss_reward_payload(hero_row, boss_config, already_owned_before=False, granted=False):
+    reward_card = hero_row_to_card(hero_row)
     reward_card.update({
         'type': 'boss_card',
         'rewardType': 'boss_card',
         'reward_type': 'boss_card',
         'source': 'boss_clear',
-        'bossId': normalized_boss_id,
-        'boss_id': normalized_boss_id,
-        'worldId': boss_world_id or reward_card.get('worldId') or reward_card.get('world_id') or '',
-        'world_id': boss_world_id or reward_card.get('world_id') or reward_card.get('worldId') or '',
-        'stage': boss_stage_number,
-        'stageNumber': boss_stage_number,
-        'stage_number': boss_stage_number,
-        'alreadyOwned': bool(already_owned_before and not awarded_rows),
-        'already_owned': bool(already_owned_before and not awarded_rows),
-        'returnTo': f'/app/world-stage?world={boss_world_id}' if boss_world_id else '/app/world-stage',
-        'return_to': f'/app/world-stage?world={boss_world_id}' if boss_world_id else '/app/world-stage',
+        'bossId': boss_config['boss_id'],
+        'boss_id': boss_config['boss_id'],
+        'worldId': boss_config['world_id'],
+        'world_id': boss_config['world_id'],
+        'stage': boss_config['stage_number'],
+        'stageNumber': boss_config['stage_number'],
+        'stage_number': boss_config['stage_number'],
+        'alreadyOwned': bool(already_owned_before and not granted),
+        'already_owned': bool(already_owned_before and not granted),
+        'granted': bool(granted),
+        'heroId': hero_row['id'],
+        'hero_id': hero_row['id'],
+        'heroCode': str(hero_row['code'] or ''),
+        'hero_code': str(hero_row['code'] or ''),
+        'returnTo': f"/app/world-stage?world={boss_config['world_id']}",
+        'return_to': f"/app/world-stage?world={boss_config['world_id']}",
     })
+    return reward_card
+
+
+def clear_child_boss_progress(child_id, boss_id, data=None):
+    boss_config = get_boss_config_or_raise(boss_id)
+    validate_boss_clear_payload(boss_config, data or {})
+    conn = get_db_connection()
+    try:
+        ensure_child_exists(conn, child_id)
+        if not _table_exists(conn, 'child_boss_progress'):
+            raise RuntimeError('child_boss_progress table not found')
+        hero_row, match_method = get_boss_card_hero_row(conn, boss_config['boss_id'])
+        if not hero_row:
+            raise LookupError('boss card hero not found')
+
+        already_owned_before = child_owns_hero(conn, child_id, hero_row['id'])
+        now = get_now_iso()
+        conn.execute(
+            '''
+            INSERT INTO child_boss_progress (
+                child_id, boss_id, world_id, stage_number, boss_type, status, cleared_at, created_at, updated_at
+            ) VALUES (?, ?, ?, ?, ?, 'cleared', ?, ?, ?)
+            ON CONFLICT(child_id, boss_id) DO UPDATE SET
+                world_id = excluded.world_id,
+                stage_number = excluded.stage_number,
+                boss_type = excluded.boss_type,
+                status = 'cleared',
+                cleared_at = COALESCE(child_boss_progress.cleared_at, excluded.cleared_at),
+                updated_at = excluded.updated_at
+            ''',
+            (
+                child_id,
+                boss_config['boss_id'],
+                boss_config['world_id'],
+                boss_config['stage_number'],
+                boss_config['boss_type'],
+                now,
+                now,
+                now,
+            ),
+        )
+        granted = insert_child_hero_reward_in_transaction(
+            conn,
+            child_id,
+            hero_row,
+            world_id=boss_config['world_id'],
+            stage=boss_config['stage_number'],
+            reward_type='boss_card',
+        )
+        next_world_id = None
+        if boss_config['boss_type'] == EIGO_BOSS_TYPES['WORLD_BOSS']:
+            next_world_id = maybe_update_child_current_world(conn, child_id, boss_config['world_id'])
+
+        progress_row = conn.execute(
+            '''
+            SELECT child_id, boss_id, world_id, stage_number, boss_type, status, cleared_at, created_at, updated_at
+            FROM child_boss_progress
+            WHERE child_id = ? AND boss_id = ?
+            ''',
+            (child_id, boss_config['boss_id']),
+        ).fetchone()
+        if not progress_row or progress_row['status'] != 'cleared':
+            raise RuntimeError('boss progress confirmation failed')
+        reward_card = build_boss_reward_payload(
+            hero_row,
+            boss_config,
+            already_owned_before=already_owned_before,
+            granted=granted,
+        )
+        conn.commit()
+    except Exception:
+        try:
+            conn.rollback()
+        except Exception:
+            pass
+        raise
+    finally:
+        conn.close()
+
     return {
         'success': True,
-        'already_owned': bool(already_owned_before and not awarded_rows),
-        'alreadyOwned': bool(already_owned_before and not awarded_rows),
+        'bossProgress': boss_progress_row_to_payload(progress_row),
+        'boss_progress': boss_progress_row_to_payload(progress_row),
+        'reward': {
+            'granted': bool(granted),
+            'alreadyOwned': bool(already_owned_before and not granted),
+            'already_owned': bool(already_owned_before and not granted),
+            'heroId': hero_row['id'],
+            'hero_id': hero_row['id'],
+            'heroCode': str(hero_row['code'] or ''),
+            'hero_code': str(hero_row['code'] or ''),
+        },
+        'already_owned': bool(already_owned_before and not granted),
+        'alreadyOwned': bool(already_owned_before and not granted),
         'match_method': match_method,
         'reward_queue': [reward_card],
         'rewardQueue': [reward_card],
+        'nextWorldId': next_world_id,
+        'next_world_id': next_world_id,
     }
+
+
+def grant_child_boss_card_reward(child_id, boss_id):
+    return clear_child_boss_progress(child_id, boss_id)
 
 
 def get_grammar_lesson_reward_hero_row(conn, lesson_id):
@@ -12887,8 +13211,8 @@ def api_admin_create_family():
         created_children.append(upsert_child_profile({
             'nickname': child_name,
             'grade': _clean_csv_value(child_data.get('grade')) or '1',
-            'target_level': _clean_csv_value(child_data.get('target_level') or child_data.get('targetLevel')) or '三\u7d1a',
-            'learning_goal': _clean_csv_value(child_data.get('learning_goal') or child_data.get('learningGoal') or child_data.get('target_level') or child_data.get('targetLevel')) or '三\u7d1a',
+            'target_level': _clean_csv_value(child_data.get('target_level') or child_data.get('targetLevel')) or 'eiken3',
+            'learning_goal': _clean_csv_value(child_data.get('learning_goal') or child_data.get('learningGoal') or child_data.get('target_level') or child_data.get('targetLevel')) or 'eiken3',
             'daily_word_target': child_data.get('daily_word_target') or child_data.get('dailyWordTarget') or 20,
         }, account['id']))
 
@@ -13320,14 +13644,42 @@ def api_child_stage_quiz_attempts(child_id):
     return jsonify(result), 201
 
 
-@app.route('/api/children/<int:child_id>/bosses/<path:boss_id>/clear', methods=['POST'])
-def api_child_boss_clear(child_id, boss_id):
+@app.route('/api/children/<int:child_id>/boss-progress', methods=['GET'])
+def api_child_boss_progress(child_id):
     try:
-        result = grant_child_boss_card_reward(child_id, boss_id)
+        items = get_child_boss_progress_items(child_id)
+    except LookupError as exc:
+        abort(404, str(exc))
+    return jsonify(items=items)
+
+
+@app.route('/api/children/<int:child_id>/boss-progress/clear', methods=['POST'])
+def api_child_boss_progress_clear(child_id):
+    data = request.get_json(silent=True) or {}
+    boss_id = data.get('boss_id') or data.get('bossId')
+    try:
+        result = clear_child_boss_progress(child_id, boss_id, data)
     except LookupError as exc:
         abort(404, str(exc))
     except ValueError as exc:
         abort(400, str(exc))
+    except RuntimeError as exc:
+        abort(500, str(exc))
+    return jsonify(result), 200
+
+
+@app.route('/api/children/<int:child_id>/bosses/<path:boss_id>/clear', methods=['POST'])
+def api_child_boss_clear(child_id, boss_id):
+    data = request.get_json(silent=True) or {}
+    data = {**data, 'boss_id': boss_id}
+    try:
+        result = clear_child_boss_progress(child_id, boss_id, data)
+    except LookupError as exc:
+        abort(404, str(exc))
+    except ValueError as exc:
+        abort(400, str(exc))
+    except RuntimeError as exc:
+        abort(500, str(exc))
     return jsonify(result), 200
 
 
