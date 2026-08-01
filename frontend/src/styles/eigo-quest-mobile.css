@@ -14054,7 +14054,7 @@ body,
   justify-items: center;
   gap: 0;
   width: min(100%, 390px);
-  padding-top: 8px;
+  padding-top: 14px;
 }
 
 .grammar-reward-clear-heading h1 {
@@ -14136,8 +14136,10 @@ body,
 }
 
 .grammar-reward-light-rays,
+.grammar-reward-stage-base,
 .grammar-reward-magic-circle,
-.grammar-reward-card-glow {
+.grammar-reward-card-glow,
+.grammar-reward-summon-flash {
   position: absolute;
   pointer-events: none;
 }
@@ -14149,6 +14151,7 @@ body,
     conic-gradient(from 212deg at 50% 78%, transparent 0 12deg, rgba(255, 230, 158, 0.42) 16deg 20deg, transparent 24deg 46deg, rgba(121, 178, 255, 0.26) 51deg 56deg, transparent 62deg 100deg, rgba(255, 230, 158, 0.38) 105deg 110deg, transparent 116deg 360deg);
   filter: blur(0.8px);
   opacity: 0.9;
+  transform-origin: 50% 78%;
 }
 
 .grammar-reward-card-glow {
@@ -14159,6 +14162,31 @@ body,
   background:
     radial-gradient(circle, rgba(255, 243, 178, 0.42), rgba(77, 145, 255, 0.3) 42%, transparent 70%);
   filter: blur(8px);
+}
+
+.grammar-reward-stage-base {
+  bottom: 6%;
+  z-index: 1;
+  width: min(82%, 320px);
+  height: 17%;
+  border: 1px solid rgba(132, 188, 255, 0.42);
+  border-radius: 50%;
+  background:
+    radial-gradient(ellipse, rgba(105, 135, 255, 0.34), transparent 64%),
+    radial-gradient(ellipse, rgba(255, 223, 132, 0.16), transparent 58%);
+  box-shadow: 0 0 20px rgba(106, 151, 255, 0.28);
+  transform: perspective(260px) rotateX(58deg);
+}
+
+.grammar-reward-summon-flash {
+  z-index: 2;
+  width: min(48vw, 210px);
+  height: min(48vw, 210px);
+  border-radius: 999px;
+  background:
+    radial-gradient(circle, rgba(255, 248, 202, 0.96) 0 5%, rgba(255, 218, 105, 0.72) 8% 16%, rgba(111, 185, 255, 0.28) 34%, transparent 68%);
+  mix-blend-mode: screen;
+  filter: blur(1px) drop-shadow(0 0 28px rgba(255, 225, 126, 0.54));
 }
 
 .grammar-reward-magic-circle {
@@ -14224,6 +14252,15 @@ body,
   place-items: center;
   opacity: 0.42;
   filter: saturate(0.7) drop-shadow(0 0 18px rgba(100, 164, 255, 0.28));
+}
+
+.grammar-reward-preload-image {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
+  visibility: hidden;
 }
 
 .grammar-reward-gain {
