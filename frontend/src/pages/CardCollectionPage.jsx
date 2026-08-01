@@ -91,6 +91,8 @@ function normalizeHeroCard(card, index) {
   const image = card.image_url || card.imageUrl || card.image || card.card_image || card.cardImage || '';
   return {
     id: card.id || card.code || `hero-${index + 1}`,
+    heroId: card.heroId || card.hero_id || '',
+    code: card.code || card.heroCode || card.hero_code || card.id || '',
     worldId: card.worldId || 'wind',
     nameJa: card.nameJa || card.name_ja || '',
     nameZh: card.nameZh || card.name_cn || '',

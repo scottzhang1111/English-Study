@@ -10,7 +10,7 @@ import {
 } from '../components/eigo';
 import { getGrammarLesson, submitGrammarLessonTest, submitGrammarQuizAnswer } from '../api';
 import CompactPageHeader from '../components/eigo/CompactPageHeader';
-import { savePendingRewardQueue } from '../helpers/eigoQuestRewards';
+import { mergeRewardQueues, savePendingRewardQueue } from '../helpers/eigoQuestRewards';
 
 const CHILD_STORAGE_KEY = 'selected_child_id';
 const PRACTICE_QUESTION_LIMIT = 5;
@@ -25,13 +25,6 @@ function getLessonValue(lesson, fieldName) {
     value && String(key).trim().endsWith(fieldName)
   ));
   return fallbackEntry?.[1] || '';
-}
-
-function collectRewardQueue(results) {
-  return (results || []).flatMap((result) => {
-    const queue = result?.reward_queue || result?.rewardQueue || [];
-    return Array.isArray(queue) ? queue : [];
-  });
 }
 
 export default function GrammarFormPracticePage() {
@@ -142,7 +135,10 @@ export default function GrammarFormPracticePage() {
       setFinalizing(false);
     }
 
-    const rewardQueue = collectRewardQueue([testResult, ...completedResults]);
+    const rewardQueue = mergeRewardQueues(
+      testResult?.reward_queue || testResult?.rewardQueue,
+      ...completedResults.map((result) => result?.reward_queue || result?.rewardQueue),
+    );
     if (rewardQueue.length) {
       savePendingRewardQueue(rewardQueue.map((reward) => ({
         ...reward,

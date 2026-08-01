@@ -13,7 +13,7 @@ import {
 } from '../components/eigo';
 import { getGrammarLesson, getGrammarLessons, submitGrammarLessonTest, submitGrammarQuizAnswer } from '../api';
 import { useChildren } from '../ChildrenContext';
-import { savePendingRewardQueue } from '../helpers/eigoQuestRewards';
+import { mergeRewardQueues, savePendingRewardQueue } from '../helpers/eigoQuestRewards';
 
 const HIGHLIGHT_RE = /(am|is|are|doing|to do|do|~ing)/gi;
 
@@ -110,13 +110,6 @@ function speakExample(text) {
 
 function choiceLetter(index) {
   return String.fromCharCode(65 + index);
-}
-
-function collectRewardQueue(results) {
-  return (results || []).flatMap((result) => {
-    const queue = result?.reward_queue || result?.rewardQueue || [];
-    return Array.isArray(queue) ? queue : [];
-  });
 }
 
 function lessonPointContent(lesson) {
@@ -259,7 +252,10 @@ export default function GrammarQuestPage() {
             selected_index: answer.selectedOriginalIndex,
           })),
         });
-        const rewardQueue = collectRewardQueue([testResult, ...completedAnswers]);
+        const rewardQueue = mergeRewardQueues(
+          testResult?.reward_queue || testResult?.rewardQueue,
+          ...completedAnswers.map((answer) => answer?.reward_queue || answer?.rewardQueue),
+        );
         if (rewardQueue.length) {
           savePendingRewardQueue(rewardQueue.map((reward) => ({
             ...reward,

@@ -8,6 +8,7 @@ import {
   clearPendingReward,
   getCardById,
   getPendingRewardQueue,
+  normalizeBoolean,
   savePendingRewardQueue,
 } from '../helpers/eigoQuestRewards';
 import eigoQuestCards from '../config/eigoQuestCards';
@@ -28,6 +29,8 @@ function normalizeHeroCard(card, index = 0) {
     ...card,
     id: String(card.id || card.code || `hero-${index + 1}`),
     heroId: card.heroId || card.hero_id || '',
+    heroCode: card.heroCode || card.hero_code || card.code || '',
+    hero_code: card.hero_code || card.heroCode || card.code || '',
     code: String(card.code || card.id || ''),
     worldId: card.worldId || card.world_id || 'wind',
     nameJa: card.nameJa || card.name_ja || '',
@@ -103,6 +106,8 @@ function findRewardHero(apiHeroes, pendingReward, fallbackCard) {
     pendingReward?.card_id,
     pendingReward?.heroId,
     pendingReward?.hero_id,
+    pendingReward?.heroCode,
+    pendingReward?.hero_code,
     pendingReward?.code,
     fallback?.id,
     fallback?.code,
@@ -115,7 +120,7 @@ function findRewardHero(apiHeroes, pendingReward, fallbackCard) {
   const matches = (card) => {
     const hero = normalizeHeroCard(card);
     if (!hero) return false;
-    const heroKeys = [hero.id, hero.code, hero.heroId].filter(Boolean).map(String);
+    const heroKeys = [hero.id, hero.code, hero.heroId, hero.heroCode, hero.hero_code].filter(Boolean).map(String);
     if (heroKeys.some((key) => rewardKeySet.has(key))) return true;
 
     const sameWorld = !rewardWorldId || hero.worldId === rewardWorldId;
@@ -356,10 +361,12 @@ export default function CardRewardPage() {
   const pendingRewardImage = normalizeGrammarRewardImage(getPendingRewardImage(pendingReward));
   const pendingRewardCard = pendingReward
     ? normalizeHeroCard({
-      id: pendingReward.cardId || pendingReward.card_id || pendingReward.code || pendingReward.id,
-      code: pendingReward.code || pendingReward.cardId || pendingReward.card_id || pendingReward.id,
+      id: pendingReward.cardId || pendingReward.card_id || pendingReward.code || pendingReward.heroCode || pendingReward.hero_code || pendingReward.id,
+      code: pendingReward.code || pendingReward.heroCode || pendingReward.hero_code || pendingReward.cardId || pendingReward.card_id || pendingReward.id,
       heroId: pendingReward.heroId || pendingReward.hero_id,
-      worldId: pendingReward.worldId || pendingReward.world_id || 'wind',
+      heroCode: pendingReward.heroCode || pendingReward.hero_code || pendingReward.code,
+      hero_code: pendingReward.hero_code || pendingReward.heroCode || pendingReward.code,
+      worldId: pendingReward.worldId || pendingReward.world_id || (isGrammarReward ? 'grammar' : 'wind'),
       nameJa: pendingReward.nameJa || pendingReward.name_ja || pendingReward.name || '',
       nameZh: pendingReward.nameZh || pendingReward.name_cn || '',
       rarity: pendingReward.rarity || 'R',
@@ -370,11 +377,14 @@ export default function CardRewardPage() {
     })
     : null;
   const apiRewardHero = pendingReward ? findRewardHero(apiHeroes, pendingReward, null) : null;
+  const grammarRewardCard = isGrammarReward
+    ? (pendingRewardImage ? pendingRewardCard : (apiRewardHero || pendingRewardCard))
+    : null;
   const rewardCard = pendingReward
     ? (
       bossRewardCard
       || (isGrammarReward
-        ? (pendingRewardCard || apiRewardHero)
+        ? grammarRewardCard
         : findRewardHero(apiHeroes, pendingReward, getCardById(pendingReward?.cardId) || fallbackCard))
     )
     : null;
@@ -385,6 +395,8 @@ export default function CardRewardPage() {
     pendingReward?.code,
     pendingReward?.hero_code,
     pendingReward?.heroCode,
+    pendingReward?.hero_id,
+    pendingReward?.heroId,
     pendingReward?.card_id,
     pendingReward?.cardId,
     grammarRewardImage,
@@ -398,6 +410,7 @@ export default function CardRewardPage() {
   const hasNextReward = rewardIndex < pendingQueue.length - 1;
   const grammarCopy = getGrammarRewardCopy(pendingReward, rewardCard?.nameJa);
   const bossCopy = getBossRewardCopy(pendingReward);
+  const isAlreadyOwned = normalizeBoolean(pendingReward?.alreadyOwned ?? pendingReward?.already_owned);
   const stageCompleteLabel = isBossCardReward
     ? bossCopy.stageLabel
     : isGrammarReward
@@ -672,8 +685,8 @@ export default function CardRewardPage() {
                   </motion.div>
                 ) : (
                   <div className="grammar-reward-card-placeholder" aria-hidden="true">
-                    <div className={`eq-card-art eq-card-world-${worldClass} is-large`}>
-                      <div className="eq-card-art-symbol">{worldClass}</div>
+                    <div className="eq-card-art eq-card-world-grammar is-large">
+                      <div className="eq-card-art-symbol">G</div>
                     </div>
                   </div>
                 )}
@@ -686,7 +699,7 @@ export default function CardRewardPage() {
               animate={canStartGrammarAnimation ? { opacity: 1, y: 0 } : { opacity: 0, y: 12 }}
               transition={{ duration: motionDuration(0.38), delay: motionDuration(1.85), ease: [0.22, 1, 0.36, 1] }}
             >
-              新しい文法英雄カードを獲得！
+              {isAlreadyOwned ? '獲得済みの文法英雄カードです' : gainText}
             </motion.p>
 
             <motion.div
