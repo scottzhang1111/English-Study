@@ -1,10 +1,25 @@
-node_modules
-dist
+# Secrets - never commit credentials
 .env
 .env.local
+.env.*.local
+
+# Runtime databases (children's learning data stays local)
+/eigo_quest_local_v1.sqlite
+/practice_data.db
+
+# Logs & tool artifacts
+*.log
+.playwright-cli/
+
+# Python
 __pycache__/
 *.pyc
 .venv/
+
+# Node / build
 node_modules/
 dist/
-.env
+
+# Editor / OS
+.vscode/
+.DS_Store
