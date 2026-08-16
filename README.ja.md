@@ -6,16 +6,10 @@
 </p>
 
 <p align="center">
-  <a href="README.md">English</a> · <b>日本語</b>
+  <a href="README.md">English</a> · <b>日本語</b> · 📽️ <a href="docs/slides/EigoQuest_Intro_JA.pptx">紹介スライド (JA)</a> / <a href="docs/slides/EigoQuest_Intro_EN.pptx">Intro deck (EN)</a>
 </p>
 
-<p align="center">
-  <img src="frontend/public/assets/eigo-quest/cards/wind/wind-guardian1.png" width="130" alt="風のガーディアン"/>
-  <img src="frontend/public/assets/eigo-quest/cards/wind/wind-guardian2.png" width="130" alt="風のガーディアン"/>
-  <img src="frontend/public/assets/eigo-quest/cards/boss/wind-mini-boss1.png" width="130" alt="風のミニボス"/>
-  <img src="frontend/public/assets/eigo-quest/cards/wind/wind-guardian3.png" width="130" alt="風のガーディアン"/>
-  <img src="frontend/public/assets/eigo-quest/cards/wind/wind-guardian4.png" width="130" alt="風のガーディアン"/>
-</p>
+![UI ビジョン — コア学習フロー](docs/images/ui-vision.png)
 
 ## コンセプト
 
@@ -34,29 +28,69 @@ RPG の世界を冒険する体験になる**ように設計されています:
 開放」**。間違えても罰はありません。苦手な単語は復習に自動で戻り、「もう一度やってみよう」という
 温かい応援メッセージで次に進めます。
 
-## 主な機能
+## 冒険のはじまり · ホームと世界地図
 
-### 🗺️ 冒険しながら学ぶ
-- **8つの属性ワールド**(風・火・水・雷・森・岩・影・光)。各ワールドは 20 単語 × 10 ステージ構成
-- **ボスバトル** — 正解するとヒーローがボスを攻撃、不正解だとボスの反撃。ステージ 4・8 にミニボス、
-  ステージ 10 にワールドボス
-- **ヒーローカードコレクション** — ステージクリア・ボス撃破・復習の継続でカードを獲得
+子どもは自分のホームから出発し、**8つの属性ワールド**(風・火・水・雷・森・岩・影・光)を
+冒険します。1ワールドは 20単語 × 10ステージ。ステージ4と8にミニボス、ステージ10には
+ワールドボスが待ち受けます。ボス戦はクイズバトル — 正解するとヒーローが攻撃、不正解だと
+ボスの反撃です。
 
-### 📚 学習システム
-- **発音・意味・例文**つきの毎日の単語ユニット
-- ステージクイズで正誤を自動記録
-- **苦手単語の優先復習** — 間違えた単語ほど先に出題
-- 文法クエスト・文法フォーム練習と専用の復習フロー
+| ホーム — 今日の進捗 | 世界地図 — 次のステージを選ぶ |
+|:---:|:---:|
+| ![ホーム](docs/images/home.png) | ![世界地図](docs/images/world-map.png) |
 
-### 🎓 英検対策
-- **英検3級** 単語・熟語セット(CSV データ同梱)
-- **英検準2級** 練習セット・間違い復習・本番形式の模擬試験モード
-- **AI 面接練習**(スコアリング付き)と **AI 英作文チェック**(Google Gemini 使用)
+## 📚 単語クエスト
 
-### 👨‍👩‍👧‍👦 家族で使える
-- 複数の子どもプロフィール対応 — 進捗・報酬・復習キューは子どもごとに完全に分離
-- 保護者ダッシュボード・保護者用単語管理・ファミリー管理
-- 日本語 UI、大きなタッチターゲット、モバイルファーストのダークファンタジーデザイン
+毎日 **20個のターゲット単語** を発音・意味・例文つきで学び、フラッシュカードで覚えて、
+小テストへ。間違えた単語は記録され、次回の学習で**優先的に再出題**されます。
+
+| 単語一覧 — 今日の20単語 | 単語詳細 — 意味・例文・覚え方 |
+|:---:|:---:|
+| ![単語一覧](docs/images/word-list.png) | ![単語詳細](docs/images/word-detail.png) |
+
+## ✏️ 文法クエスト
+
+「現在完了」などの文法は、短い講解と例文でやさしく学び、文法クイズと語形フォーム練習で
+定着させます。間違えても温かいフィードバック — 罰はありません。
+
+<p align="center"><img src="docs/images/grammar-lesson.png" width="560" alt="文法レッスン — 現在完了"/></p>
+
+## 🧠 クイズ & AI 練習
+
+ユニットごとの小テストで理解度をチェック。さらに **Google Gemini** による AI レイヤーが、
+子どものレベルに合わせた問題の自動生成、**英検面接のAI練習とその場での採点**、
+英作文のAIチェックとアドバイスを提供します。
+
+<p align="center"><img src="docs/images/quiz.png" width="260" alt="小テスト"/></p>
+
+## 🎓 英検対策
+
+- **英検3級**:単語・熟語セットを収録(CSV データ同梱)
+- **英検準2級**:練習セット・間違い復習・本番形式の模擬試験モード
+- 間違えた問題だけを集中して復習
+
+## 🃏 カード報酬と成長
+
+ステージクリアやボス撃破で**ヒーローカード**を獲得。復習を続けると強化素材、英検チャレンジで
+バッジがもらえます。進捗・カード・復習キューは子どもごとに完全に独立 — きょうだいで
+上書きされる心配はありません。
+
+| ステージクリア — 報酬 | ヒーローカードを集めよう |
+|:---:|:---:|
+| ![ステージクリア報酬](docs/images/stage-clear-banner.png) | ![ステージクリア](docs/images/stage-clear.png) |
+
+<p align="center">
+  <img src="frontend/public/assets/eigo-quest/cards/wind/wind-guardian1.png" width="120" alt="ヒーローカード"/>
+  <img src="frontend/public/assets/eigo-quest/cards/wind/wind-guardian2.png" width="120" alt="ヒーローカード"/>
+  <img src="frontend/public/assets/eigo-quest/cards/boss/wind-mini-boss1.png" width="120" alt="ボスカード"/>
+  <img src="frontend/public/assets/eigo-quest/cards/wind/wind-guardian3.png" width="120" alt="ヒーローカード"/>
+  <img src="frontend/public/assets/eigo-quest/cards/wind/wind-guardian4.png" width="120" alt="ヒーローカード"/>
+</p>
+
+## 👨‍👩‍👧‍👦 家族で使える
+
+複数の子どもプロフィール対応(進捗は完全分離)。保護者ダッシュボードと単語管理。
+日本語 UI、大きなタッチターゲット、モバイルファーストのダークファンタジーデザイン。
 
 ## 技術スタック
 
@@ -94,7 +128,9 @@ npm run dev                 # http://localhost:5173
 ├── app.py                  # Flask バックエンド:子ども・進捗・クイズ・報酬・英検・AI
 ├── frontend/               # React + Vite + Tailwind のモバイルアプリ
 │   └── src/pages/          # ホーム・ステージマップ・ボスバトル・カード・英検・文法・保護者…
-├── docs/                   # 設計ドキュメント:ゲームループ・ボスシステム・UI システム
+├── docs/                   # 設計ドキュメント + README 用の画像・紹介スライド
+│   ├── images/             # README 用アートワーク・アプリ画面
+│   └── slides/             # プロジェクト紹介スライド(JA / EN)
 ├── data/                   # 学習コンテンツ
 ├── eiken*.csv              # 英検単語・熟語データセット
 └── AGENTS.md               # 開発・AI エージェント向けの作業ルール(まずここを読む!)
